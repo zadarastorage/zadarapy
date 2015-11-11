@@ -1,0 +1,3 @@
+docutils>=0.10
+tox>=2.1.1
+wheel>=0.26.0
