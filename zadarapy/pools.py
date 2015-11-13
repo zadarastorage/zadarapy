@@ -727,7 +727,7 @@ def get_pool_performance(session, pool_id, interval=1, return_type=None):
         return_type parameter.
     """
     if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid drive ID.'.format(pool_id))
+        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
 
     interval = int(interval)
 

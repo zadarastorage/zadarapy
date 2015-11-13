@@ -666,8 +666,8 @@ def expand_volume(session, volume_id, capacity, return_type=None):
                             return_type=return_type)
 
 
-def get_volume_attached_servers(session, volume_id, start=None, limit=None,
-                                return_type=None):
+def get_servers_attached_to_volume(session, volume_id, start=None, limit=None,
+                                   return_type=None):
     """
     Retrieves details for all server records attached to the specified volume.
 
@@ -1479,8 +1479,8 @@ def get_volume_performance(session, volume_id, interval=1, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(volume_id):
-        raise ValueError('{0} is not a valid drive ID.'.format(volume_id))
+    if not is_valid_volume_id(volume_id):
+        raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
 
     interval = int(interval)
 

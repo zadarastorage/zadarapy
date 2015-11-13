@@ -209,13 +209,13 @@ def create_raid_group(session, display_name, protection, disk,
 
     body_values['disk'] = disk
 
-    if protection == 'RAID1':
-        stripe_size = None
-
     if stripe_size not in [4, 16, 32, 64, 128, 256]:
         raise ValueError('{0} is not a valid stripe size.  Allowed values '
                          'are: 4, 16, 32, 64, 128, or 256'
                          .format(stripe_size))
+
+    if protection == 'RAID1':
+        stripe_size = None
 
     if stripe_size is not None:
         body_values['stripe_size'] = stripe_size
@@ -237,12 +237,12 @@ def create_raid_group(session, display_name, protection, disk,
 
     if protection == 'RAID5':
         if protection_width < 3 or protection_width > 5:
-            raise ValueError('A RAID1 group may only have 3-5 drives, but '
+            raise ValueError('A RAID5 group may only have 3-5 drives, but '
                              '{0} were supplied.'.format(protection_width))
 
     if protection == 'RAID6':
         if protection_width < 4 or protection_width > 10:
-            raise ValueError('A RAID1 group may only have 4-10 drives, but '
+            raise ValueError('A RAID6 group may only have 4-10 drives, but '
                              '{0} were supplied.'.format(protection_width))
 
     body_values['protection_width'] = protection_width
@@ -650,7 +650,7 @@ def get_raid_group_performance(session, raid_id, interval=1,
                          'supplied).'.format(interval))
 
     method = 'GET'
-    path = '/api/drives/{0}/performance.json'.format(drive_id)
+    path = '/api/drives/{0}/performance.json'.format(raid_id)
 
     parameters = {'interval': interval}
 

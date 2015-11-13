@@ -14,8 +14,8 @@
 # under the License.
 
 
+import ipaddress
 import re
-import socket
 
 
 def is_valid_cg_id(cg_id):
@@ -42,7 +42,7 @@ def is_valid_cg_id(cg_id):
     return True
 
 
-def is_valid_field(field, allow_quote=False):
+def is_valid_field(field, allow_quote=False, minimum=None, maximum=None):
     """
     Validates a generic user inputted field, such as a "name" for an
     object.  For now, it basically only validates whether single quote
@@ -55,6 +55,14 @@ def is_valid_field(field, allow_quote=False):
     :param allow_quote: If True, a single quote character (') will be allowed
         to pass validation.
 
+    :type minimum: int
+    :param minimum: If defined, values with fewer characters than this value
+        will be rejected.
+
+    :type maximum: int
+    :param maximum: If defined, values with more characters than this value
+        will be rejected.
+
     :rtype: bool
     :return: True or False depending on whether field passes validation.
     """
@@ -62,6 +70,12 @@ def is_valid_field(field, allow_quote=False):
         return False
 
     if not allow_quote and "'" in field:
+        return False
+
+    if len(field) < minimum:
+        return False
+
+    if len(field) > maximum:
         return False
 
     return True
@@ -94,14 +108,18 @@ def is_valid_hostname(hostname):
     return True
 
 
-def is_valid_ip_address(address):
+def is_valid_ip_address(address, accept_cidr=False):
     """
-    Validates IP addresses.  Uses the Python socket library to attempt to
-    convert the string input into a valid hexadecimal address.  If unable, it
-    will return False.
+    Validates IP addresses.  Depending on accept_cidr parameter, it will
+    accept either individual addresses or subnets in CIDR notation.
 
     :type address: str
     :param address: The data to be validated.
+
+    :type accept_cidr: bool
+    :param accept_cidr: If False, accept IP addresses only.  If True, accept
+        both IP addresses and IP CIDR subnet notations.  Set to False by
+        default.
 
     :rtype: bool
     :return: True or False depending on whether address passes validation.
@@ -109,15 +127,40 @@ def is_valid_ip_address(address):
     if address is None:
         return False
 
-    try:
-        socket.inet_pton(socket.AF_INET, address)
-    except AttributeError:
+    if not accept_cidr:
         try:
-            socket.inet_aton(address)
-        except socket.error:
+            ipaddress.ip_address(address)
+        except:
             return False
-        return address.count('.') == 3
-    except socket.error:
+    else:
+        try:
+            ipaddress.ip_address(address)
+        except ValueError:
+            ipaddress.ip_network(address)
+        except:
+            return False
+
+    return True
+
+
+def is_valid_iqn(iqn):
+    """
+    Validates if an iSCSI/iSER IQN is well formed.
+
+    :type iqn: str
+    :param iqn: The IQN to validate.  For example:
+        'iqn.1993-08.org.debian:01:dea714656496'
+
+    :rtype: bool
+    :return: True or False depending on whether IQN passes validation.
+    """
+    if iqn is None:
+        return False
+
+    match = re.match('^(?:iqn\.[0-9]{4}-[0-9]{2}(?:\.[A-Za-z](?:[A-Za-z0-9\-]'
+                     '*[A-Za-z0-9])?)+(?::.*)?|eui\.[0-9A-Fa-f]{16})', iqn)
+
+    if not match:
         return False
 
     return True
