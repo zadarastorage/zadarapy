@@ -531,6 +531,11 @@ def attach_servers_to_volume(session, servers, volume_id, access_type=None,
         even if it's a single host ending in /32.  Not relevant for iSCSI
         volumes.  Optional.
 
+    :type readonly: str
+    :param readonly: If set to 'YES', the share will only be readable by this
+        server.  If set to 'NO', this server will be able to read and write to
+        the share.  Optional.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -559,6 +564,13 @@ def attach_servers_to_volume(session, servers, volume_id, access_type=None,
                              .format(access_type))
 
         body_values['access_type'] = access_type
+
+    if readonly not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid readonly parameter.  '
+                         'Allowed values are: "YES" or "NO"'
+                         .format(access_type))
+
+    body_values['readonly'] = readonly
 
     method = 'POST'
     path = '/api/servers/{0}/volumes.json'.format(servers)
