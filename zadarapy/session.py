@@ -67,7 +67,7 @@ class Session(object):
                 self._config = configparser.ConfigParser()
                 self._config.read(configfile)
 
-        if self._config is not None and os.path.isfile('~/.zadarapy'):
+        if self._config is None and os.path.isfile('~/.zadarapy'):
             self._config = configparser.ConfigParser()
             self._config.read('~/.zadarapy')
 

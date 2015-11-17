@@ -461,68 +461,76 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
 
         body_values['atimeupdate'] = atimeupdate
 
-    if smbonly not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbonly parameter.  '
+    if smbonly is not None:
+        if smbonly not in ['YES', 'NO']:
+                raise ValueError('"{0}" is not a valid smbonly parameter.  '
+                                 'Allowed values are: "YES" or "NO"'
+                                 .format(smbonly))
+
+        body_values['smbonly'] = smbonly
+
+    if smbguest is not None:
+        if smbguest not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid smbguest parameter.  '
                              'Allowed values are: "YES" or "NO"'
-                             .format(smbonly))
+                             .format(smbguest))
 
-    body_values['smbonly'] = smbonly
+        body_values['smbguest'] = smbguest
 
-    if smbguest not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid smbguest parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(smbguest))
+    if smbwindowsacl is not None:
+        if smbwindowsacl not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid smbwindowsacl parameter.  '
+                             'Allowed values are: "YES" or "NO"'
+                             .format(smbwindowsacl))
 
-    body_values['smbguest'] = smbguest
+        body_values['smbwindowsacl'] = smbwindowsacl
 
-    if smbwindowsacl not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid smbwindowsacl parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(smbwindowsacl))
+    if smbfilecreatemask is not None:
+        if not is_valid_mask(smbfilecreatemask):
+            raise ValueError('smbfilecreatemask must be a valid octal UNIX '
+                             'style permission mask ("{0}" was given).'
+                             .format(smbfilecreatemask))
 
-    body_values['smbwindowsacl'] = smbwindowsacl
+        body_values['smbfilecreatemask'] = smbfilecreatemask
 
-    if not is_valid_mask(smbfilecreatemask):
-        raise ValueError('smbfilecreatemask must be a valid octal UNIX '
-                         'style permission mask ("{0}" was given).'
-                         .format(smbfilecreatemask))
+    if smbdircreatemask is not None:
+        if not is_valid_mask(smbdircreatemask):
+            raise ValueError('smbdircreatemask must be a valid octal UNIX '
+                             'style permission mask ("{0}" was given).'
+                             .format(smbdircreatemask))
 
-    body_values['smbfilecreatemask'] = smbfilecreatemask
+        body_values['smbdircreatemask'] = smbdircreatemask
 
-    if not is_valid_mask(smbfilecreatemask):
-        raise ValueError('smbdircreatemask must be a valid octal UNIX '
-                         'style permission mask ("{0}" was given).'
-                         .format(smbdircreatemask))
+    if smbmaparchive is not None:
+        if smbmaparchive not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid smbmaparchive parameter.  '
+                             'Allowed values are: "YES" or "NO"'
+                             .format(smbmaparchive))
 
-    body_values['smbdircreatemask'] = smbdircreatemask
+        body_values['smbmaparchive'] = smbmaparchive
 
-    if smbmaparchive not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid smbmaparchive parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(smbmaparchive))
+    if smbaiosize is not None:
+        if smbaiosize not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid smbaiosize parameter.  '
+                             'Allowed values are: "YES" or "NO"'
+                             .format(smbaiosize))
 
-    body_values['smbmaparchive'] = smbmaparchive
+        # smbaiosize needs to convert 'YES' to '16384', and 'NO' to '1', per
+        # what the API backend expects.
+        if smbaiosize == 'YES':
+            smbaiosize = '16384'
+        else:
+            smbaiosize = '1'
 
-    if smbaiosize not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid smbaiosize parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(smbaiosize))
+        body_values['smbaiosize'] = smbaiosize
 
-    # smbaiosize needs to convert 'YES' to '16384', and 'NO' to '1', per
-    # what the API backend expects.
-    if smbaiosize == 'YES':
-        smbaiosize = '16384'
-    else:
-        smbaiosize = '1'
+    if nfsrootsquash is not None:
+        if nfsrootsquash not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid nfsrootsquash parameter.  '
+                             'Allowed values are: "YES" or "NO"'
+                             .format(nfsrootsquash))
 
-    body_values['smbaiosize'] = smbaiosize
-
-    if nfsrootsquash not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid nfsrootsquash parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(nfsrootsquash))
-
-    body_values['nfsrootsquash'] = nfsrootsquash
+        body_values['nfsrootsquash'] = nfsrootsquash
 
     if not body_values:
         raise ValueError('At least one of the following must be set: '
@@ -867,7 +875,7 @@ def get_volume_attached_snapshot_policies(session, cg_id, start=None,
                             return_type=return_type)
 
 
-def set_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
+def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
     """
     Attaches a snapshot policy to the volume.
 
@@ -1366,7 +1374,8 @@ def create_clone(session, cg_id, display_name, snapshot_id=None,
 
 
 def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
-                         policies, remote_volume_name, return_type=None):
+                         policies, remote_volume_name, wan_optimization='NO',
+                         return_type=None):
     """
     Create a mirror job for a volume.  A volume can be mirrored to another
     pool on the same VPSA, or to another VPSA with which a "Remote VPSA"
@@ -1405,6 +1414,13 @@ def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
         that is generated by the mirror job.  This name must not already be
         taken by another volume or another mirrored volume on the remote VPSA.
         May not containe a single quote (') character.  Required.
+
+    :type wan_optimization: str
+    :param wan_optimization: If set to 'YES', the mirror will attempt to
+        reduce the amount of data needing to be synchronized to the remote
+        side at the expense of more load on the source VPSA.  If set to 'NO',
+        more data will be sent by the mirror with less load on the source
+        VPSA.  Set to 'YES' by default.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1445,6 +1461,13 @@ def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
                          .format(remote_volume_name))
 
     body_values['new_cg_name'] = remote_volume_name
+
+    if wan_optimization not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid wan_optimization parameter.  '
+                         'Allowed values are: "YES" or "NO"'
+                         .format(wan_optimization))
+
+    body_values['wan_optimization'] = wan_optimization
 
     method = 'POST'
     path = '/api/consistency_groups/{0}/mirror.json'.format(cg_id)

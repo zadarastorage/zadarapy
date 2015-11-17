@@ -29,7 +29,7 @@ def is_valid_cg_id(cg_id):
     :param cg_id: The consistency group name to be validated.
 
     :rtype: bool
-    :return: True or False depending on whether drive_id passes validation.
+    :return: True or False depending on whether cg_id passes validation.
     """
     if cg_id is None:
         return False
@@ -54,7 +54,8 @@ def is_valid_controller_id(controller_id):
     :param controller_id: The virtual controller name to be validated.
 
     :rtype: bool
-    :return: True or False depending on whether drive_id passes validation.
+    :return: True or False depending on whether controller_id passes
+        validation.
     """
     if controller_id is None:
         return False
@@ -222,6 +223,30 @@ def is_valid_mask(mask):
     return True
 
 
+def is_valid_mirror_id(mirror_id):
+    """
+    Validates a mirror job ID, also known as the mirror job "job_name".
+    A valid mirror job name should look like: srcjvpsa-00000001 - It should
+    always start with "srcjvpsa-" or "dstjvpsa-" and end with 8 hexadecimal
+    characters in lower case.
+
+    :type mirror_id: str
+    :param mirror_id: The mirror job name to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether mirror_id passes validation.
+    """
+    if mirror_id is None:
+        return False
+
+    match = re.match('^(src|dst)jvpsa-[0-9a-f]{8}$', mirror_id)
+
+    if not match:
+        return False
+
+    return True
+
+
 def is_valid_policy_id(policy_id):
     """
     Validates a snapshot policy ID, also known as the snapshot policy "name".
@@ -301,6 +326,29 @@ def is_valid_raid_id(raid_id):
     return True
 
 
+def is_valid_rvpsa_id(rvpsa_id):
+    """
+    Validates a remote VPSA ID, also known as the remote VPSA "name".  A valid
+    remote VPSA name should look like: rvpsa-00000001 - It should always start
+    with "rvpsa-" and end with 8 hexadecimal characters in lower case.
+
+    :type rvpsa_id: str
+    :param rvpsa_id: The remote VPSA name to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether rvpsa_id passes validation.
+    """
+    if rvpsa_id is None:
+        return False
+
+    match = re.match('^rvpsa-[0-9a-f]{8}$', rvpsa_id)
+
+    if not match:
+        return False
+
+    return True
+
+
 def is_valid_server_id(server_id):
     """
     Validates a server ID, also known as the server "name".  A valid server
@@ -311,7 +359,7 @@ def is_valid_server_id(server_id):
     :param server_id: The server name to be validated.
 
     :rtype: bool
-    :return: True or False depending on whether drive_id passes validation.
+    :return: True or False depending on whether server_id passes validation.
     """
     if server_id is None:
         return False
@@ -358,7 +406,7 @@ def is_valid_volume_id(drive_id):
     :param drive_id: The volume name to be validated.
 
     :rtype: bool
-    :return: True or False depending on whether drive_id passes validation.
+    :return: True or False depending on whether volume_id passes validation.
     """
     if drive_id is None:
         return False
