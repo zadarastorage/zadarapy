@@ -42,6 +42,31 @@ def is_valid_cg_id(cg_id):
     return True
 
 
+def is_valid_controller_id(controller_id):
+    """
+    Validates a virtual controller ID, also known as the virtual controller
+    "name".  A valid virtual controller name should look like:
+    vsa-00000001-vc-0 - It should always start with "vsa-", followed by 8
+    hexadecimal characters in lower case and a hyphen, then with the VC
+    identifier, typically "vc-0" or "vc-1".
+
+    :type controller_id: str
+    :param controller_id: The virtual controller name to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether drive_id passes validation.
+    """
+    if controller_id is None:
+        return False
+
+    match = re.match('^vsa-[0-9a-f]{8}-vc-[0-9]$', controller_id)
+
+    if not match:
+        return False
+
+    return True
+
+
 def is_valid_field(field, allow_quote=False, minimum=None, maximum=None):
     """
     Validates a generic user inputted field, such as a "name" for an
