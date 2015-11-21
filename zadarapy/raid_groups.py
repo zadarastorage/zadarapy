@@ -25,7 +25,7 @@ def get_all_raid_groups(session, start=None, limit=None, return_type=None):
     """
     Retrieves details for all RAID groups configured on the VPSA.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type start: int
@@ -70,7 +70,7 @@ def get_free_raid_groups(session, start=None, limit=None, return_type=None):
     Retrieves details for all RAID groups configured on the VPSA that are not
     currently participating in a storage pool.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type start: int
@@ -114,7 +114,7 @@ def get_raid_group(session, raid_id, return_type=None):
     """
     Retrieves details for a single RAID group.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type raid_id: str
@@ -146,7 +146,7 @@ def create_raid_group(session, display_name, protection, disk,
     body parameter.  The drives must not be currently participating in a RAID
     group.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type display_name: str
@@ -261,7 +261,7 @@ def delete_raid_group(session, raid_id, return_type=None):
     Deletes a single RAID group.  The RAID group must not be participating in
     a storage pool.  This action is irreversible.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type raid_id: str
@@ -291,7 +291,7 @@ def get_drives_in_raid_group(session, raid_id, start=None, limit=None,
     """
     Retrieves details for all drives in a RAID group.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type raid_id: str
@@ -330,7 +330,7 @@ def rename_raid_group(session, raid_id, newname, return_type=None):
     """
     Sets the "display_name" RAID group parameter to a new value.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type raid_id: str
@@ -378,7 +378,7 @@ def repair_raid_group(session, raid_id, return_type=None):
     first attempt to detect if there are any available drives, and will only
     proceed if one is found.  This function should be used with caution.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type raid_id: str
@@ -424,7 +424,7 @@ def update_raid_group_resync_speed(session, raid_id, minimum, maximum,
     Updates the speed at which a RAID group will rebuild using the min and max
     arguments.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type raid_id: str
@@ -482,7 +482,7 @@ def start_raid_group_media_scan(session, raid_id, return_type=None):
     Starts a media scan that will repair any inconsistencies with parity.
     Only valid for RAID5 and RAID6.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type raid_id: str
@@ -517,7 +517,7 @@ def pause_raid_group_media_scan(session, raid_id, return_type=None):
     """
     Pauses a currently running RAID group media scan.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type raid_id: str
@@ -547,7 +547,7 @@ def add_hot_spare_to_raid_group(session, raid_id, drive_id, return_type=None):
     Attaches a drive as a hot spare to an existing RAID group, as identified
     by the drive_id attribute.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type raid_id: str
@@ -590,7 +590,7 @@ def remove_hot_spare_from_raid_group(session, raid_id, return_type=None):
     """
     Removes the hot spare drive from an existing RAID group.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type raid_id: str
@@ -621,7 +621,7 @@ def get_raid_group_performance(session, raid_id, interval=1,
     Retrieves metering statistics for the RAID group for the specified
     interval.  Default interval is one second.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :param raid_id: The RAID group 'name' value as returned by

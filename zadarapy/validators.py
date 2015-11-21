@@ -326,6 +326,81 @@ def is_valid_raid_id(raid_id):
     return True
 
 
+def is_valid_ros_backup_job_id(ros_backup_job_id):
+    """
+    Validates a remote object storage backup job ID, also known as the remote
+    object storage backup job "name".  A valid remote VPSA name should look
+    like: bkpjobs-00000001 - It should always start with "bkpjobs-" and end
+    with 8 hexadecimal characters in lower case.
+
+    :type ros_backup_job_id: str
+    :param ros_backup_job_id: The remote object storage backup job name to
+        be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether rvpsa_id passes validation.
+    """
+    if ros_backup_job_id is None:
+        return False
+
+    match = re.match('^bkpjobs-[0-9a-f]{8}$', ros_backup_job_id)
+
+    if not match:
+        return False
+
+    return True
+
+
+def is_valid_ros_destination_id(ros_destination_id):
+    """
+    Validates a remote object storage destination ID, also known as the remote
+    object storage destination "name".  A valid remote object storage
+    destination name should look like: obsdst-00000001 - It should always
+    start with "obsdst-" and end with 8 hexadecimal characters in lower case.
+
+    :type ros_destination_id: str
+    :param ros_destination_id: The remote object storage destination name to
+        be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether rvpsa_id passes validation.
+    """
+    if ros_destination_id is None:
+        return False
+
+    match = re.match('^obsdst-[0-9a-f]{8}$', ros_destination_id)
+
+    if not match:
+        return False
+
+    return True
+
+
+def is_valid_ros_restore_job_id(ros_restore_job_id):
+    """
+    Validates a remote object storage restore job ID, also known as the remote
+    object storage restore job "name".  A valid remote VPSA name should look
+    like: rstjobs-00000001 - It should always start with "rstjobs-" and end
+    with 8 hexadecimal characters in lower case.
+
+    :type ros_restore_job_id: str
+    :param ros_restore_job_id: The remote object storage backup job name to
+        be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether rvpsa_id passes validation.
+    """
+    if ros_restore_job_id is None:
+        return False
+
+    match = re.match('^rstjobs-[0-9a-f]{8}$', ros_restore_job_id)
+
+    if not match:
+        return False
+
+    return True
+
+
 def is_valid_rvpsa_id(rvpsa_id):
     """
     Validates a remote VPSA ID, also known as the remote VPSA "name".  A valid

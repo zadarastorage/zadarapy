@@ -21,7 +21,7 @@ def get_all_controllers(session, start=None, limit=None, return_type=None):
     """
     Retrieves details for all virtual controllers for the VPSA.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type start: int
@@ -66,7 +66,7 @@ def failover_controller(session, return_type=None):
     Initiates a failover of the current active controller to the standby
     controller.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type return_type: str
@@ -90,7 +90,7 @@ def get_controller_performance(session, controller_id, interval=1,
     Retrieves metering statistics for the controller for the specified
     interval.  Default interval is one second.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type controller_id: str
@@ -134,7 +134,7 @@ def get_cache_performance(session, controller_id, interval=1,
     Retrieves metering statistics for the VPSA's SSD cache for the specified
     interval.  Default interval is one second.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type controller_id: str
@@ -179,7 +179,7 @@ def get_cache_stats(session, controller_id, interval=1,
     Retrieves usage statistics for the VPSA's SSD cache for the specified
     interval.  Default interval is one second.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type controller_id: str

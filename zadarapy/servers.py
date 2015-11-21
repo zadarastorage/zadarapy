@@ -22,7 +22,7 @@ def get_all_servers(session, start=None, limit=None, return_type=None):
     """
     Retrieves details for all servers configured on the VPSA.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type start: int
@@ -66,7 +66,7 @@ def get_server(session, server_id, return_type=None):
     """
     Retrieves details for a single server.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type server_id: str
@@ -99,7 +99,7 @@ def create_server(session, display_name, ip_address, iqn=None,
     Creates a new server.  A valid server record must be attached to a volume
     before a client with the corresponding IP or IQN can access the volume.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type display_name: str
@@ -242,8 +242,12 @@ def update_server(session, server_id, ip_address, iqn=None,
     Updates a server.  Parameters set to 'None' will not have their existing
     values changed.  The server must not be attached to any volumes.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type server_id: str
+    :param server_id: The server 'name' value as returned by get_all_servers.
+        For example: 'srv-00000001'.  Required.
 
     :type ip_address: str
     :param ip_address: The IP address or subnet as defined in CIDR notation of
@@ -382,7 +386,7 @@ def delete_server(session, server_id, return_type=None):
     """
     Deletes a server.  The server must not be attached to any volumes.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type server_id: str
@@ -411,7 +415,7 @@ def rename_server(session, server_id, newname, return_type=None):
     """
     Sets the "display_name" server parameter to a new value.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type server_id: str
@@ -458,7 +462,7 @@ def get_volumes_attached_to_server(session, server_id, start=None, limit=None,
     """
     Retrieves details for all volumes attached to the specified server.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type server_id: str
@@ -510,7 +514,7 @@ def attach_servers_to_volume(session, servers, volume_id, access_type=None,
     """
     Attaches one or more servers to a volume.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type servers: str
@@ -586,7 +590,7 @@ def get_server_performance(session, server_id, interval=1, return_type=None):
     Retrieves metering statistics for the server for the specified interval.
     Default interval is one second.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type server_id: str

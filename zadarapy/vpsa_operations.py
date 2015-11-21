@@ -18,7 +18,7 @@ def get_cloud_list(session, return_type=None):
     """
     Retrieves a list of available clouds.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.
 
     :type return_type: str

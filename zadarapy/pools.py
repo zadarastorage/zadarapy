@@ -24,7 +24,7 @@ def get_all_pools(session, start=None, limit=None, return_type=None):
     """
     Retrieves details for all storage pools configured on the VPSA.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type start: int
@@ -68,7 +68,7 @@ def get_pool(session, pool_id, return_type=None):
     """
     Retrieves details for all single storage pool.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type pool_id: str
@@ -101,7 +101,7 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
     storage pool.  Volumes are then created on the storage pool, rather than
     on the individual RAID groups.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type display_name: str
@@ -218,7 +218,7 @@ def delete_pool(session, pool_id, return_type=None):
     Deletes a storage pool.  The storage pool must not contain any volumes,
     including in the pool's recycle bin.  This action is irreversible.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type pool_id: str
@@ -247,7 +247,7 @@ def rename_pool(session, pool_id, newname, return_type=None):
     """
     Sets the "display_name" pool parameter to a new value.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type pool_id: str
@@ -294,7 +294,7 @@ def get_raid_groups_in_pool(session, pool_id, start=None, limit=None,
     """
     Retrieves a list of RAID groups that are participating in the given pool.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type pool_id: str
@@ -342,7 +342,7 @@ def get_volumes_in_pool(session, pool_id, start=None, limit=None,
     """
     Retrieves a list of volumes stored on the given pool.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type pool_id: str
@@ -396,7 +396,7 @@ def add_raid_groups_to_pool(session, pool_id, raid_groups, capacity,
     type as the RAID groups already participating in the pool.  RAID groups
     also must not be allocated to another pool.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type pool_id: str
@@ -460,7 +460,7 @@ def update_pool_capacity_alerts(session, pool_id, capacityhistory=None,
     the oldest snapshots in an attempt to free space.  Parameters set to
     'None' will not have their existing values changed.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type pool_id: str
@@ -559,7 +559,7 @@ def get_pool_mirror_destination_volumes(session, pool_id, start=None,
     """
     Retrieves all mirror destination volumes that reside in this pool.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type pool_id: str
@@ -610,7 +610,7 @@ def set_pool_cache(session, pool_id, command, return_type=None):
     """
     Toggle the SSD caching for a pool.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type pool_id: str
@@ -655,7 +655,7 @@ def get_volumes_in_pool_recycle_bin(session, pool_id, start=None, limit=None,
     """
     Retrieves a list of volumes in the pool's recycle bin.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type pool_id: str
@@ -707,7 +707,7 @@ def get_pool_performance(session, pool_id, interval=1, return_type=None):
     Retrieves metering statistics for the pool for the specified interval.
     Default interval is one second.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type pool_id: str

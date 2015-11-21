@@ -23,7 +23,7 @@ def get_all_drives(session, start=None, limit=None, return_type=None):
     """
     Retrieves details for all drives attached to the VPSA.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type start: int
@@ -68,7 +68,7 @@ def get_free_drives(session, start=None, limit=None, return_type=None):
     Retrieves details for all drives that are available for use (not
     particpating in a RAID group).
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type start: int
@@ -112,7 +112,7 @@ def get_drive(session, drive_id, return_type=None):
     """
     Retrieves details for a single drive.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type drive_id: str
@@ -141,7 +141,7 @@ def rename_drive(session, drive_id, newname, return_type=None):
     """
     Sets the "display_name" drive parameter to a new value.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type drive_id: str
@@ -189,7 +189,7 @@ def remove_drive(session, drive_id, return_type=None):
     RAID group may be removed.  A ValueError will be raised if an invalid or
     non-removeable drive ID is passed.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type drive_id: str
@@ -220,7 +220,7 @@ def replace_drive(session, drive_id, toname, return_type=None):
     drive, identified by toname variable, in a RAID group.  The replacement
     drive must not be currently allocated to a RAID group.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type drive_id: str
@@ -270,7 +270,7 @@ def shred_drive(session, drive_id, return_type=None):
     participating in a RAID group.  CAUTION: This procedure will permanently
     destroy data and is irreversiable.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type drive_id: str
@@ -299,7 +299,7 @@ def cancel_shred_drive(session, drive_id, return_type=None):
     """
     Cancels a drive shred that is currently in process.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type drive_id: str
@@ -329,7 +329,7 @@ def get_drive_performance(session, drive_id, interval=1, return_type=None):
     Retrieves metering statistics for the drive for the specified interval.
     Default interval is one second.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type drive_id: str

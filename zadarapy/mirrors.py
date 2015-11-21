@@ -22,7 +22,7 @@ def get_all_mirrors(session, start=None, limit=None, return_type=None):
     """
     Retrieves details for all mirror jobs configured on the VPSA.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type start: int
@@ -67,7 +67,7 @@ def pause_mirror(session, mirror_id, return_type=None):
     Pauses a mirror job.  This should only be initiated from the source VPSA.
     e.g. the mirror job ID should start with "srcjvpsa-".
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type mirror_id: str
@@ -98,7 +98,7 @@ def resume_paused_mirror(session, mirror_id, return_type=None):
     Resumes a paused mirror job.  This should only be initiated from the
     source VPSA.  e.g. the mirror job ID should start with "srcjvpsa-".
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type mirror_id: str
@@ -132,7 +132,7 @@ def break_mirror(session, mirror_id, return_type=None):
     possibility can be ascertained by calling get_suggested_mirrors and
     issuing a resume_broken_mirror using the right information.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type mirror_id: str
@@ -164,7 +164,7 @@ def get_all_remote_vpsas(session, start=None, limit=None, return_type=None):
     Retrieves details for all remote VPSAs with which this VPSA has a
     relationship.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type start: int
@@ -209,7 +209,7 @@ def get_remote_vpsa(session, rvpsa_id, return_type=None):
     Retrieves details for all remote VPSAs with which this VPSA has a
     relationship.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type rvpsa_id: str
@@ -241,7 +241,7 @@ def discover_remote_vpsa(session, ip_address, username, password, public,
     Establishes a relationship with a remote VPSA for the purposes of
     mirroring volume snapshots.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type ip_address: str
@@ -311,7 +311,7 @@ def refresh_remote_vpsa(session, rvpsa_id, return_type=None):
     Refreshes information about a remote VPSA - such as discovering new pools
     and updating how much free space remote pools have.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type rvpsa_id: str
@@ -342,7 +342,7 @@ def remove_remote_vpsa(session, rvpsa_id, return_type=None):
     Removes a remote VPSA relationship.  There must be no active or paused
     mirror jobs with the specified remote VPSA.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type rvpsa_id: str
@@ -374,7 +374,7 @@ def get_remote_vpsa_pools(session, rvpsa_id, start=None, limit=None,
     Removes a remote VPSA relationship.  There must be no active or paused
     mirror jobs with the specified remote VPSA.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type rvpsa_id: str
@@ -430,7 +430,7 @@ def get_suggested_mirrors(session, rvpsa_id, cg_id, start=None, limit=None,
     function.  Re-using a pre-existing mirror can save a lot of transfer time
     for large volumes.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type rvpsa_id: str
@@ -496,7 +496,7 @@ def resume_broken_mirror(session, rvpsa_id, display_name, policy_id,
     Resumes a previously broken mirror job between VPSAs.  Use in conjunction
     with get_suggested_mirrors to find candidates for resume.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type rvpsa_id: str
@@ -591,7 +591,7 @@ def add_mirror_snapshot_policy(session, mirror_id, policy_id,
     only be initiated from the source VPSA.  e.g. the mirror job ID should
     start with "srcjvpsa-".
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type mirror_id: str
@@ -634,15 +634,14 @@ def add_mirror_snapshot_policy(session, mirror_id, policy_id,
 
 
 def remove_mirror_snapshot_policy(session, mirror_id, policy_id,
-                                  delete_snapshots='YES', return_type=None):
-
+                                  delete_snapshots, return_type=None):
     """
     Removes a snapshot policy from an existing mirror job.  A mirror job must
     always have at least one snapshot policy attached.  This should only be
     initiated from the source VPSA.  e.g. the mirror job ID should start with
     "srcjvpsa-".
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type mirror_id: str
@@ -655,8 +654,7 @@ def remove_mirror_snapshot_policy(session, mirror_id, policy_id,
 
     :type delete_snapshots: str
     :param delete_snapshots: If set to 'YES', all snapshots created by the
-        specified policy will be deleted.  If 'NO', they won't.  Set to 'YES'
-        by default.  Optional.
+        specified policy will be deleted.  If 'NO', they won't.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -703,7 +701,7 @@ def update_mirror_wan_optimization(session, mirror_id, wan_optimization,
     initiated from the source VPSA.  e.g. the mirror job ID should start with
     "srcjvpsa-".
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type mirror_id: str

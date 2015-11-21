@@ -22,7 +22,7 @@ def get_all_volumes(session, start=None, limit=None, return_type=None):
     """
     Retrieves details for all volumes configured on the VPSA.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type start: int
@@ -67,7 +67,7 @@ def get_free_volumes(session, start=None, limit=None, return_type=None):
     Retrieves details for all volumes that do not have any attached server
     records.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type start: int
@@ -111,7 +111,7 @@ def get_volume(session, volume_id, return_type=None):
     """
     Retrieves details for a single volume.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type volume_id: str
@@ -146,7 +146,7 @@ def create_volume(session, pool_id, display_name, capacity, block,
     Creates a new volume.  The 'block' parameter determines if it should be a
     block (iSCSI or iSER) volume or NAS share (NFS and/or SMB/CIFS).
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type pool_id: str
@@ -405,7 +405,7 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
     Change various settings related to NAS shares.  Parameters set to 'None'
     will not have their existing values changed.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type volume_id: str
@@ -556,7 +556,7 @@ def delete_volume(session, volume_id, return_type=None):
     volume will be immediately deleted.  Volume purge/deletion is
     irreversible.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type volume_id: str
@@ -585,7 +585,7 @@ def rename_volume(session, volume_id, newname, return_type=None):
     """
     Sets the "display_name" volume parameter to a new value.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type volume_id: str
@@ -631,7 +631,7 @@ def expand_volume(session, volume_id, capacity, return_type=None):
     """
     Expands the volume by the capacity parameter.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type volume_id: str
@@ -679,7 +679,7 @@ def get_servers_attached_to_volume(session, volume_id, start=None, limit=None,
     """
     Retrieves details for all server records attached to the specified volume.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type volume_id: str
@@ -732,7 +732,7 @@ def detach_servers_from_volume(session, volume_id, servers, return_type=None):
     server record from a volume while an affected server is using the volume
     will result in errors.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type volume_id: str
@@ -779,7 +779,7 @@ def set_volume_export_name(session, volume_id, export_name, return_type=None):
     Changes the export name at the end of the network path for NAS shares.
     Volume must not have any attached server records.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type volume_id: str
@@ -823,7 +823,7 @@ def get_volume_attached_snapshot_policies(session, cg_id, start=None,
     """
     Retrieves details for all snapshot policies attached to this volume.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type cg_id: str
@@ -879,7 +879,7 @@ def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
     """
     Attaches a snapshot policy to the volume.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type cg_id: str
@@ -921,12 +921,12 @@ def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
                             return_type=return_type)
 
 
-def remove_volume_snapshot_policy(session, cg_id, policy_id,
-                                  delete_snapshots='YES', return_type=None):
+def remove_volume_snapshot_policy(session, cg_id, policy_id, delete_snapshots,
+                                  return_type=None):
     """
     Removes a snapshot policy from a volume.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type cg_id: str
@@ -940,8 +940,7 @@ def remove_volume_snapshot_policy(session, cg_id, policy_id,
 
     :type delete_snapshots: str
     :param delete_snapshots: If set to 'YES', all snapshots created by the
-        specified policy will be deleted.  If 'NO', they won't.  Set to 'YES'
-        by default.  Optional.
+        specified policy will be deleted.  If 'NO', they won't.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -980,18 +979,26 @@ def remove_volume_snapshot_policy(session, cg_id, policy_id,
                             return_type=return_type)
 
 
-def get_all_volume_snapshots(session, cg_id, start=None, limit=None,
-                             return_type=None):
+def get_all_snapshots(session, cg_id, ros_backup_job_id=None, start=None,
+                      limit=None, return_type=None):
     """
-    Retrieves details for all snapshots for this volume.
+    Retrieves details for all snapshots either for a local volume or remote
+    object storage backup job.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type cg_id: str
     :param cg_id: The consistency group 'cg_name' value as returned by
-        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
-        Required.
+        get_all_volumes for the desired volume; or get_all_ros_backup_jobs for
+        the desired remote object storage backup job.  For example:
+        'cg-00000001'.  Required.
+
+    :type ros_backup_job_id: str
+    :param ros_backup_job_id: If retrieving snapshots for a remote object
+        storage backup job, the remote object storage backup job 'name'
+        value as returned by get_all_ros_backup_jobs.  For example:
+        'bkpjobs-00000001'.  Optional.
 
     :type start: int
     :param start: The offset to start displaying snapshots from.
@@ -1014,6 +1021,15 @@ def get_all_volume_snapshots(session, cg_id, start=None, limit=None,
         raise ValueError('{0} is not a valid consistency group ID.'
                          .format(cg_id))
 
+    application = None
+
+    if ros_backup_job_id is not None:
+        if not is_valid_ros_backup_job_id(ros_backup_job_id):
+            raise ValueError('{0} is not a valid remote object storage '
+                             'backup job ID.'.format(ros_backup_job_id))
+
+        application = 'obs_mirror'
+
     if start is not None:
         start = int(start)
         if start < 0:
@@ -1029,7 +1045,9 @@ def get_all_volume_snapshots(session, cg_id, start=None, limit=None,
     method = 'GET'
     path = '/api/consistency_groups/{0}/snapshots.json'.format(cg_id)
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
+    parameters = {k: v for k, v in (('start', start), ('limit', limit),
+                                    ('jobname', ros_backup_job_id),
+                                    ('application', application))
                   if v is not None}
 
     return session.call_api(method=method, path=path, parameters=parameters,
@@ -1041,7 +1059,7 @@ def create_volume_snapshot(session, cg_id, display_name, return_type=None):
     Creates a new snapshot for the specified volume.  Manually initiated
     snapshots will fall under the "On Demand" snapshot policy.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type cg_id: str
@@ -1090,7 +1108,7 @@ def delete_volume_snapshot(session, snapshot_id, return_type=None):
     """
     Deletes a volume's snapshot.  This action is irreversible.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type snapshot_id: str
@@ -1124,7 +1142,7 @@ def get_volume_migration(session, cg_id, return_type=None):
     get_all_volumes.  To check if a volume is currently migrating, check if
     the value for the volume's "status" parameter is set to "Migrating".
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type cg_id: str
@@ -1158,7 +1176,7 @@ def migrate_volume(session, cg_id, pool_id, migrate_snaps='YES',
     using the consistency group ID (cg_name) for the volume, as returned by
     get_all_volumes.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type cg_id: str
@@ -1217,7 +1235,7 @@ def pause_volume_migration(session, cg_id, return_type=None):
     consistency group ID (cg_name) for the volume, as returned by
     get_all_volumes.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type cg_id: str
@@ -1250,7 +1268,7 @@ def resume_volume_migration(session, cg_id, return_type=None):
     consistency group ID (cg_name) for the volume, as returned by
     get_all_volumes.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type cg_id: str
@@ -1282,7 +1300,7 @@ def cancel_volume_migration(session, cg_id, return_type=None):
     Cancel a volume migration job.  The job is canceled using the consistency
     group ID (cg_name) for the volume, as returned by get_all_volumes.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type cg_id: str
@@ -1317,7 +1335,7 @@ def create_clone(session, cg_id, display_name, snapshot_id=None,
     taken.  If not, the clone will have the contents of the volume at the time
     the clone was initiated.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type cg_id: str
@@ -1382,7 +1400,7 @@ def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
     relationship has been established.  Mirroring is asynchronous and based on
     the specified snapshot policies.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type cg_id: str
@@ -1483,7 +1501,7 @@ def get_volume_performance(session, volume_id, interval=1, return_type=None):
     Retrieves metering statistics for the volume for the specified interval.
     Default interval is one second.
 
-    :type session: object
+    :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type volume_id: str
