@@ -247,6 +247,40 @@ def is_valid_mirror_id(mirror_id):
     return True
 
 
+def is_valid_policy_creation(policy_creation):
+    """
+    Performs a loose validation the snapshot creation frequency for a snapshot
+    policy is valid.  The frequency should be defined in UNIX cron style
+    format.  For example: "0 3 * * *".  This isn't perfect because invalid
+    numbers (e.g. 60 for minute, 24 for hour) are accepted.
+
+    :type policy_creation: str
+    :param policy_creation: The snapshot creation frequency to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether policy_creation passes
+        validation.
+    """
+    if policy_creation is None:
+        return False
+
+    creation_split = policy_creation.split(' ')
+
+    if len(creation_split) != 5:
+        return False
+
+    pattern = re.compile('^(?:[1-9]?\d|\*)(?:(?:[\/-][1-9]?\d)|'
+                         '(?:,[1-9]?\d)+)?$')
+
+    for v in creation_split:
+        match = pattern.match(v)
+
+        if not match:
+            return False
+
+    return True
+
+
 def is_valid_policy_id(policy_id):
     """
     Validates a snapshot policy ID, also known as the snapshot policy "name".
