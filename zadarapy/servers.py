@@ -91,7 +91,7 @@ def get_server(session, server_id, return_type=None):
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def create_server(session, display_name, ip_address, iqn=None,
+def create_server(session, display_name, ip_address=None, iqn=None,
                   vpsa_chap_user=None, vpsa_chap_secret=None,
                   host_chap_user=None, host_chap_secret=None,
                   ipsec_iscsi='NO', ipsec_nfs='NO', return_type=None):
@@ -108,12 +108,14 @@ def create_server(session, display_name, ip_address, iqn=None,
         character.  Required.
 
     :type ip_address: str
-    :param ip_address: The IP address or subnet as defined in CIDR notation of
-        the server.  Required.
+    :param ip_address: If using NFS/CIFS, the IP address or subnet as defined
+        in CIDR notation of the server.  Either ip_address or iqn must be
+        passed to this function (or both).  Optional.
 
     :type iqn: str
     :param iqn: If using iSCSI/iSER, the IQN of the server.  For example -
-        "iqn.1993-08.org.debian:01:dea714656496".  Optional.
+        "iqn.1993-08.org.debian:01:dea714656496".  Either ip_address or iqn
+        must be passed to this function (or both).  Optional.
 
     :type vpsa_chap_user: str
     :param vpsa_chap_user: When using iSCSI/iSER, the CHAP user for the VPSA.
@@ -170,11 +172,16 @@ def create_server(session, display_name, ip_address, iqn=None,
 
     body_values['display_name'] = display_name
 
-    if not is_valid_ip_address(ip_address, True):
-        raise ValueError('{0} is not a valid IP address or CIDR.'
-                         .format(ip_address))
+    if ip_address is None and iqn is None:
+        raise ValueError('Either ip_address or iqn parameter must be'
+                         'defined.')
 
-    body_values['iscsi'] = ip_address
+    if ip_address is not None:
+        if not is_valid_ip_address(ip_address, True):
+            raise ValueError('{0} is not a valid IP address or CIDR.'
+                             .format(ip_address))
+
+        body_values['iscsi'] = ip_address
 
     if iqn is not None:
         if not is_valid_iqn(iqn):
@@ -234,7 +241,7 @@ def create_server(session, display_name, ip_address, iqn=None,
                             return_type=return_type)
 
 
-def update_server(session, server_id, ip_address, iqn=None,
+def update_server(session, server_id, ip_address=None, iqn=None,
                   vpsa_chap_user=None, vpsa_chap_secret=None,
                   host_chap_user=None, host_chap_secret=None,
                   ipsec_iscsi=None, ipsec_nfs=None, return_type=None):
