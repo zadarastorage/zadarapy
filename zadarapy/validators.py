@@ -471,22 +471,22 @@ def is_valid_snapshot_id(snapshot_id):
     return True
 
 
-def is_valid_volume_id(drive_id):
+def is_valid_volume_id(volume_id):
     """
     Validates drive and volume IDs, also known as the drive/volume "name".
     A valid volume name should look like: volume-00000001 - It should always
     start with "volume-" and end with 8 hexadecimal characters in lower case.
 
-    :type drive_id: str
-    :param drive_id: The volume name to be validated.
+    :type volume_id: str
+    :param volume_id: The drive or volume name to be validated.
 
     :rtype: bool
     :return: True or False depending on whether volume_id passes validation.
     """
-    if drive_id is None:
+    if volume_id is None:
         return False
 
-    match = re.match('^volume-[0-9a-f]{8}$', drive_id)
+    match = re.match('^volume-[0-9a-f]{8}$', volume_id)
 
     if not match:
         return False
@@ -514,6 +514,56 @@ def is_valid_zadara_key(key):
     allowed = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
 
     if not allowed.issuperset(key):
+        return False
+
+    return True
+
+
+def is_valid_zcs_container_id(zcs_container_id):
+    """
+    Validates Zadara Container Services (ZCS) container IDs, also known as the
+    ZCS container "name".  A valid ZCS container name should look like:
+    container-00000001 - It should always start with "container-" and end with
+    8 hexadecimal characters in lower case.
+
+    :type zcs_container_id: str
+    :param zcs_container_id: The volume name to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether zcs_image_id passes
+    validation.
+    """
+    if zcs_container_id is None:
+        return False
+
+    match = re.match('^container-[0-9a-f]{8}$', zcs_container_id)
+
+    if not match:
+        return False
+
+    return True
+
+
+def is_valid_zcs_image_id(zcs_image_id):
+    """
+    Validates Zadara Container Services (ZCS) image IDs, also known as the ZCS
+    image "name".  A valid ZCS image name should look like: img-00000001 - It
+    should always start with "img-" and end with 8 hexadecimal characters in
+    lower case.
+
+    :type zcs_image_id: str
+    :param zcs_image_id: The volume name to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether zcs_image_id passes
+    validation.
+    """
+    if zcs_image_id is None:
+        return False
+
+    match = re.match('^img-[0-9a-f]{8}$', zcs_image_id)
+
+    if not match:
         return False
 
     return True
