@@ -168,7 +168,7 @@ def create_snapshot_policy(session, display_name, create_policy,
                          'negative ("{0}" was passed).'
                          .format(local_delete_policy))
 
-    body_values['delete_policy'] = local_delete_policy
+    body_values['delete_policy'] = 'N' + str(local_delete_policy)
 
     remote_delete_policy = int(remote_delete_policy)
 
@@ -177,7 +177,7 @@ def create_snapshot_policy(session, display_name, create_policy,
                          'negative ("{0}" was passed).'
                          .format(remote_delete_policy))
 
-    body_values['destination_policy'] = remote_delete_policy
+    body_values['destination_policy'] = 'N' + str(remote_delete_policy)
 
     if allow_empty not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid allow_empty parameter.  '
@@ -258,7 +258,7 @@ def update_snapshot_policy(session, policy_id, create_policy=None,
                              'negative ("{0}" was passed).'
                              .format(local_delete_policy))
 
-        body_values['delete_policy'] = local_delete_policy
+        body_values['delete_policy'] = 'N' + str(local_delete_policy)
 
     if remote_delete_policy is not None:
         remote_delete_policy = int(remote_delete_policy)
@@ -268,7 +268,7 @@ def update_snapshot_policy(session, policy_id, create_policy=None,
                              'negative ("{0}" was passed).'
                              .format(remote_delete_policy))
 
-        body_values['destination_policy'] = remote_delete_policy
+        body_values['destination_policy'] = 'N' + str(remote_delete_policy)
 
     if allow_empty is not None:
         if allow_empty not in ['YES', 'NO']:

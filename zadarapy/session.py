@@ -30,7 +30,6 @@ class Session(object):
     API endpoint.  It will gather the required authentication credentials, as
     well as the URL to utilize, then make the calls to the API.
     """
-
     def __init__(self, host=None, key=None, configfile=None, secure=True):
         """
         Configuration details for working with the API will be gathered from

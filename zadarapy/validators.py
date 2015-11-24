@@ -528,6 +528,28 @@ def is_valid_volume_id(volume_id):
     return True
 
 
+def is_valid_vpsa_display_name(vpsa_display_name):
+    """
+    Validates a Zadara VPSA display name.  Only alphanumeric characters and
+    underscore are allowed.
+
+    :type vpsa_display_name: str
+    :param vpsa_display_name: The VPSA display name to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether key passes validation.
+    """
+    if vpsa_display_name is None:
+        return False
+
+    match = re.match('^[A-Za-z-0-9_]+$', vpsa_display_name)
+
+    if not match:
+        return False
+
+    return True
+
+
 def is_valid_zadara_key(key):
     """
     Validates a Zadara API key.  An API key should be 20 characters in length,
