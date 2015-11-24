@@ -21,7 +21,7 @@ from zadarapy.validators import is_valid_field
 
 def get_all_clouds(session, return_type=None):
     """
-    Retrieves details for all available storage clouds.  Required.
+    Retrieves details for all available storage clouds.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.
