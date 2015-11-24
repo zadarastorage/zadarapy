@@ -318,3 +318,51 @@ def generate_vpsa_user_password_reset_code(session, username,
 
     return session.call_api(method=method, path=path, body=body,
                             return_type=return_type)
+
+
+def enable_cloud_admin_access(session, return_type=None):
+    """
+    Enables the ability of a storage cloud administrator to access the VPSA
+    GUI of this VPSA to assist in troubleshooting.  This does not grant access
+    to any volume data.  Enabled by default.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    method = 'POST'
+    path = '/api/users/admin_access/enable.json'
+
+    return session.call_api(method=method, path=path, return_type=return_type)
+
+
+def disable_cloud_admin_access(session, return_type=None):
+    """
+    Disables the ability of a storage cloud administrator to access the VPSA
+    GUI of this VPSA to assist in troubleshooting.  This does not grant access
+    to any volume data.  Enabled by default.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    method = 'POST'
+    path = '/api/users/admin_access/enable.json'
+
+    return session.call_api(method=method, path=path, return_type=return_type)
