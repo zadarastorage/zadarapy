@@ -363,6 +363,6 @@ def disable_cloud_admin_access(session, return_type=None):
         return_type parameter.
     """
     method = 'POST'
-    path = '/api/users/admin_access/enable.json'
+    path = '/api/users/admin_access/disable.json'
 
     return session.call_api(method=method, path=path, return_type=return_type)
