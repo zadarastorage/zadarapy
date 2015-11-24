@@ -180,8 +180,14 @@ class Session(object):
         else:
             conn = http.client.HTTPConnection(host)
 
-        headers = {"Content-Type": "application/json",
-                   "X-Access-Key": key}
+        headers = {"Content-Type": "application/json"}
+
+        # Provisioning portal expects "X-Token" header, whereas VPSA expects
+        # "X-Access-Key".
+        if '/api/providers' in path or '/api/vpsas' in path:
+            headers['X-Token'] = key
+        else:
+            headers['X-Access-Key'] = key
 
         # Ignore parameters if set to None or an empty dictionary is passed.
         if parameters:
