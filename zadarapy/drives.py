@@ -186,8 +186,7 @@ def rename_drive(session, drive_id, newname, return_type=None):
 def remove_drive(session, drive_id, return_type=None):
     """
     Removes a drive from the VPSA.  Only drives that aren't participating in a
-    RAID group may be removed.  A ValueError will be raised if an invalid or
-    non-removeable drive ID is passed.
+    RAID group may be removed.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -216,8 +215,8 @@ def remove_drive(session, drive_id, return_type=None):
 
 def replace_drive(session, drive_id, toname, return_type=None):
     """
-    Replaces a drive, identified by drive_id variable with a new unallocated
-    drive, identified by toname variable, in a RAID group.  The replacement
+    Replaces a drive, identified by drive_id parameter, with a new unallocated
+    drive, identified by toname parameter, in a RAID group.  The replacement
     drive must not be currently allocated to a RAID group.
 
     :type session: zadarapy.session.Session
@@ -256,7 +255,7 @@ def replace_drive(session, drive_id, toname, return_type=None):
     body_values['toname'] = toname
 
     method = 'POST'
-    path = '/api/drives/{0}/rename.json'.format(drive_id)
+    path = '/api/drives/{0}/replace.json'.format(drive_id)
 
     body = json.dumps(body_values)
 
