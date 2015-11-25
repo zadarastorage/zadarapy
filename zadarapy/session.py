@@ -212,15 +212,21 @@ class Session(object):
 
         conn.close()
 
-        api_return_dict = json.loads(data.decode('UTF-8'))
+        api_return_dict = None
 
-        if api_return_dict['response']['status'] != 0:
-            raise RuntimeError('The API server returned an error: "{0}".'
-                               .format(api_return_dict['response']['message']))
+        if return_type != 'raw':
+            api_return_dict = json.loads(data.decode('UTF-8'))
+
+            if api_return_dict['response']['status'] != 0:
+                raise RuntimeError('The API server returned an error: "{0}".'
+                                   .format(api_return_dict['response']
+                                                          ['message']))
 
         if return_type == 'json':
             return data.decode('UTF-8')
-        elif return_type == 'raw':
+
+        if return_type == 'raw':
             return data
-        else:
+
+        if api_return_dict:
             return api_return_dict
