@@ -52,6 +52,11 @@ def get_logs(session, sort='DESC', severity=None, start=None, limit=None,
         raise ValueError('"{0}" is not a valid sort parameter.  Allowed '
                          'values are: "DESC" or "ASC"'.format(sort))
 
+    if sort == 'ASC':
+        sort = '[{"property":"created_at","direction":"ASC"}]'
+    else:
+        sort = '[{"property":"created_at","direction":"DESC"}]'
+
     if start is not None:
         start = int(start)
         if start < 0:
