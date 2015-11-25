@@ -358,7 +358,7 @@ def create_nas_group(session, groupname, nfs_gid=None, smb='NO',
 
     if smb is not None:
         if smb not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid xmb parameter.  Allowed '
+            raise ValueError('"{0}" is not a valid smb parameter.  Allowed '
                              'values are: "YES" or "NO"'.format(smb))
 
         body_values['smb'] = smb
