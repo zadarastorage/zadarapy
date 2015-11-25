@@ -99,7 +99,8 @@ def get_zcs_image(session, zcs_image_id, return_type=None):
 def create_zcs_image(session, display_name, path, volume_id=None,
                      return_type=None):
     """
-    Retrieves details for a single Zadara Container Services (ZCS) image.
+    Creates a new Zadara Container Services (ZCS) image.  Running container
+    instances are created from these images.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -382,13 +383,13 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
         Every list item should be a dictionary that contains the following
         keys:
 
-        - "volume" - This key should contain the volume 'name' value as
+        * "volume" - This key should contain the volume 'name' value as
           returned by get_all_volumes.  For example: 'volume-00000001'.
           Required.
-        - "path" - This key should contain the full path inside of the
+        * "path" - This key should contain the full path inside of the
           container where the volume will be mounted.  If the path doesn't
           exist in the container, it will be created.  Required.
-        - "access" - If this key is set to 'rw', the volume will be mounted as
+        * "access" - If this key is set to 'rw', the volume will be mounted as
           both readable and writable.  If set to 'r', the volume will be
           mounted as read only.  Required.
 
@@ -419,10 +420,9 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
         container.  Every list item should be a dictionary that contains the
         the following keys:
 
-        - "variable" - This key should contain the name of the environment
+        * "variable" - This key should contain the name of the environment
           variable to create.  For example: "IP_ADDRESS".
-
-        - "value" - This key should contain the value for the corresponding
+        * "value" - This key should contain the value for the corresponding
           "variable".  For example "172.20.125.100".
 
         For example, say that part of the entry point script adds an item to a
