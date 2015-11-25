@@ -114,7 +114,7 @@ def is_valid_hostname(hostname):
     for hostnames.
 
     :type hostname: str
-    :param hostname: The data to be validated.
+    :param hostname: The hostname to be validated.
 
     :rtype: bool
     :return: True or False depending on whether hostname passes validation.
@@ -178,7 +178,7 @@ def is_valid_iqn(iqn):
         'iqn.1993-08.org.debian:01:dea714656496'
 
     :rtype: bool
-    :return: True or False depending on whether IQN passes validation.
+    :return: True or False depending on whether iqn passes validation.
     """
     if iqn is None:
         return False
@@ -197,7 +197,7 @@ def is_valid_mask(mask):
     Validates a UNIX style permissions mask.  Mask must be octal.
 
     :type mask: str
-    :param mask: The mask to be validated.
+    :param mask: The octal mask to be validated.  For example: '0755'.
 
     :rtype: bool
     :return: True or False depending on whether mask passes validation.
@@ -252,7 +252,7 @@ def is_valid_policy_creation(policy_creation):
     Performs a loose validation the snapshot creation frequency for a snapshot
     policy is valid.  The frequency should be defined in UNIX cron style
     format.  For example: "0 3 * * *".  This isn't perfect because invalid
-    numbers (e.g. 60 for minute, 24 for hour) are accepted.
+    numbers (e.g. 65 for minute, 25 for hour) are accepted.
 
     :type policy_creation: str
     :param policy_creation: The snapshot creation frequency to be validated.
@@ -269,7 +269,7 @@ def is_valid_policy_creation(policy_creation):
     if len(creation_split) != 5:
         return False
 
-    pattern = re.compile('^(?:[1-9]?\d|\*)(?:(?:[\/-][1-9]?\d)|'
+    pattern = re.compile('^(?:[1-9]?\d|\*)(?:(?:[/-][1-9]?\d)|'
                          '(?:,[1-9]?\d)+)?$')
 
     for v in creation_split:
@@ -285,7 +285,7 @@ def is_valid_policy_id(policy_id):
     """
     Validates a snapshot policy ID, also known as the snapshot policy "name".
     A valid snapshot policy name should look like: policy-00000001 - It should
-    always start with "cg-" and end with 8 hexadecimal characters in lower
+    always start with "policy-" and end with 8 hexadecimal characters in lower
     case.
 
     :type policy_id: str
@@ -372,7 +372,8 @@ def is_valid_ros_backup_job_id(ros_backup_job_id):
         be validated.
 
     :rtype: bool
-    :return: True or False depending on whether rvpsa_id passes validation.
+    :return: True or False depending on whether ros_backup_job_id passes
+        validation.
     """
     if ros_backup_job_id is None:
         return False
@@ -397,7 +398,8 @@ def is_valid_ros_destination_id(ros_destination_id):
         be validated.
 
     :rtype: bool
-    :return: True or False depending on whether rvpsa_id passes validation.
+    :return: True or False depending on whether ros_destination_id passes
+        validation.
     """
     if ros_destination_id is None:
         return False
@@ -418,11 +420,12 @@ def is_valid_ros_restore_job_id(ros_restore_job_id):
     with 8 hexadecimal characters in lower case.
 
     :type ros_restore_job_id: str
-    :param ros_restore_job_id: The remote object storage backup job name to
+    :param ros_restore_job_id: The remote object storage restore job name to
         be validated.
 
     :rtype: bool
-    :return: True or False depending on whether rvpsa_id passes validation.
+    :return: True or False depending on whether ros_restore_job_id passes
+        validation.
     """
     if ros_restore_job_id is None:
         return False
@@ -537,7 +540,8 @@ def is_valid_vpsa_display_name(vpsa_display_name):
     :param vpsa_display_name: The VPSA display name to be validated.
 
     :rtype: bool
-    :return: True or False depending on whether key passes validation.
+    :return: True or False depending on whether vpsa_display_name passes
+        validation.
     """
     if vpsa_display_name is None:
         return False
@@ -583,11 +587,11 @@ def is_valid_zcs_container_id(zcs_container_id):
     8 hexadecimal characters in lower case.
 
     :type zcs_container_id: str
-    :param zcs_container_id: The volume name to be validated.
+    :param zcs_container_id: The ZCS container name to be validated.
 
     :rtype: bool
-    :return: True or False depending on whether zcs_image_id passes
-    validation.
+    :return: True or False depending on whether zcs_container_id passes
+        validation.
     """
     if zcs_container_id is None:
         return False
@@ -608,11 +612,11 @@ def is_valid_zcs_image_id(zcs_image_id):
     lower case.
 
     :type zcs_image_id: str
-    :param zcs_image_id: The volume name to be validated.
+    :param zcs_image_id: The ZCS image name to be validated.
 
     :rtype: bool
     :return: True or False depending on whether zcs_image_id passes
-    validation.
+        validation.
     """
     if zcs_image_id is None:
         return False
