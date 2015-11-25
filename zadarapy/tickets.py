@@ -124,6 +124,7 @@ def close_ticket(session, ticket_id, return_type=None):
     if ticket_id < 1:
         raise ValueError('The ticket ID should be a positive integer ("{0}") '
                          'was passed.'.format(ticket_id))
+
     method = 'POST'
     path = '/api/tickets/{0}/close.json'.format(ticket_id)
 
@@ -153,8 +154,8 @@ def get_ticket_comments(session, ticket_id, return_type=None):
         return_type parameter.
     """
     if ticket_id < 1:
-        raise ValueError('The ticket ID should be a positive integer ("{0}") '
-                         'was passed.'.format(ticket_id))
+        raise ValueError('The ticket ID should be a positive integer ("{0}" '
+                         'was passed).'.format(ticket_id))
 
     method = 'GET'
     path = '/api/tickets/{0}/comments.json'.format(ticket_id)
@@ -187,8 +188,8 @@ def create_ticket_comment(session, ticket_id, comment, return_type=None):
         return_type parameter.
     """
     if ticket_id < 1:
-        raise ValueError('The ticket ID should be a positive integer ("{0}") '
-                         'was passed.'.format(ticket_id))
+        raise ValueError('The ticket ID should be a positive integer ("{0}" '
+                         'was passed).'.format(ticket_id))
 
     if comment is None:
         raise ValueError('A support ticket comment must be provided.')
@@ -208,7 +209,8 @@ def create_ticket_zsnap(session, ticket_id, return_type=None):
     """
     Creates a diagnostic "zsnap" file for the VPSA and attaches it to the
     provided support ticket for the VPSA.  This "zsnap" assists support in
-    locating any potential issues with the VPSA.
+    locating any potential issues with the VPSA.  No volume data is included
+    in any "zsnap".
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -227,8 +229,8 @@ def create_ticket_zsnap(session, ticket_id, return_type=None):
         return_type parameter.
     """
     if ticket_id < 1:
-        raise ValueError('The ticket ID should be a positive integer ("{0}") '
-                         'was passed.'.format(ticket_id))
+        raise ValueError('The ticket ID should be a positive integer ("{0}" '
+                         'was passed).'.format(ticket_id))
 
     method = 'POST'
     path = '/api/tickets/{0}/zsnap.json'.format(ticket_id)
