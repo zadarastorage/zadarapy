@@ -219,8 +219,8 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
 
     body_values['engine'] = io_engine_id
 
-    if zcs_engine_id not in\
-        ['None', 'tiny', 'small', 'medium', 'large', 'xlarge']:
+    if zcs_engine_id not in ['None', 'tiny', 'small', 'medium', 'large',
+                             'xlarge']:
         raise ValueError('{0} is not a valid ZCS engine type.'
                          .format(zcs_engine_id))
 
@@ -428,8 +428,8 @@ def change_vpsa_engines(session, vpsa_id, io_engine_id, zcs_engine_id,
 
     body_values['engine'] = io_engine_id
 
-    if zcs_engine_id not in\
-        ['None', 'tiny', 'small', 'medium', 'large', 'xlarge']:
+    if zcs_engine_id not in ['None', 'tiny', 'small', 'medium', 'large',
+                             'xlarge']:
         raise ValueError('{0} is not a valid ZCS engine type.'
                          .format(zcs_engine_id))
 

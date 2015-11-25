@@ -22,16 +22,16 @@ def get_logs(session, sort='DESC', severity=None, start=None, limit=None,
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
+    :type sort: str
+    :param sort: If set to 'DESC', logs will be returned newest first.  If set
+        to 'ASC', logs are returned oldest first.  Optional (set to 'DESC' by
+        default).
+
     :type severity: int
     :param severity: If set to None, all logs are returned.  If set to an
         integer, only messages for that severity are returned.  For example,
         critical messages have a 3 severity while warning messages have a 4
         severity.  Optional (will bet set to None by default).
-
-    :type sort: str
-    :param sort: If set to 'DESC', logs will be returned newest first.  If set
-        to 'ASC', logs are returned oldest first.  Optional (set to 'DESC' by
-        default).
 
     :type start: int
     :param start: The offset to start displaying logs from.  Optional.
