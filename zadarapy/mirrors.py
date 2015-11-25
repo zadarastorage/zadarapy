@@ -206,8 +206,7 @@ def get_all_remote_vpsas(session, start=None, limit=None, return_type=None):
 
 def get_remote_vpsa(session, rvpsa_id, return_type=None):
     """
-    Retrieves details for all remote VPSAs with which this VPSA has a
-    relationship.
+    Retrieves details for a single remote VPSA.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -332,7 +331,7 @@ def refresh_remote_vpsa(session, rvpsa_id, return_type=None):
                          .format(rvpsa_id))
 
     method = 'POST'
-    path = '/api/remote_vpsas/{0}/refresh.json'
+    path = '/api/remote_vpsas/{0}/refresh.json'.format(rvpsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
@@ -363,7 +362,7 @@ def remove_remote_vpsa(session, rvpsa_id, return_type=None):
                          .format(rvpsa_id))
 
     method = 'DELETE'
-    path = '/api/remote_vpsas/{0}.json'
+    path = '/api/remote_vpsas/{0}.json'.format(rvpsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
@@ -371,8 +370,7 @@ def remove_remote_vpsa(session, rvpsa_id, return_type=None):
 def get_remote_vpsa_pools(session, rvpsa_id, start=None, limit=None,
                           return_type=None):
     """
-    Removes a remote VPSA relationship.  There must be no active or paused
-    mirror jobs with the specified remote VPSA.
+    Retrieves details for all pools on the remote VPSA.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
