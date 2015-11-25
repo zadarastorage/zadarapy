@@ -68,8 +68,7 @@ def get_all_ros_destinations(session, start=None, limit=None,
 
 def get_ros_destination(session, ros_destination_id, return_type=None):
     """
-    Retrieves details for all remote object storage destinations configured on
-    the VPSA.
+    Retrieves details for a single remote object storage destination.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -227,7 +226,7 @@ def create_ros_destination(session, display_name, bucket, endpoint, username,
         raise ValueError('{0} is not a valid use_proxy parameter.  Allowed '
                          'values are: "YES" or "NO"'.format(use_proxy))
 
-    if use_proxy == 'true':
+    if use_proxy == 'YES':
         if not is_valid_hostname(proxy_host)\
                 or not is_valid_ip_address(proxy_host):
             raise ValueError('{0} is not a valid proxy hostname or IP '
