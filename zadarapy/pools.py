@@ -178,7 +178,7 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
 
     if pooltype not in ['OLTP', 'Repository', 'Transactional']:
         raise ValueError('"{0}" is not a valid pool type.  Allowed values '
-                         'are: "OLTP", "Repository", "Transactional"'
+                         'are: "OLTP", "Repository", or "Transactional"'
                          .format(pooltype))
 
     # Let's accept "Transactional" to stay consistent with the GUI.
@@ -437,8 +437,8 @@ def add_raid_groups_to_pool(session, pool_id, raid_groups, capacity,
     capacity = int(capacity)
 
     if capacity < 1:
-        raise ValueError('Storage pool must be >= 1 GB ("{0}" was given)'
-                         .format(capacity))
+        raise ValueError('Storage pool must be expanded by >= 1 GB ("{0}" '
+                         'was given)'.format(capacity))
 
     body_values['capacity'] = '{0}G'.format(capacity)
 
@@ -524,7 +524,7 @@ def update_pool_capacity_alerts(session, pool_id, capacityhistory=None,
         body_values['alertmode'] = alertmode
 
     if protectedmode is not None:
-        protectedmode = int(alertmode)
+        protectedmode = int(protectedmode)
         if protectedmode < 1:
             raise ValueError('Supplied protectedmode interval ("{0}") must '
                              'be at least one minute.'
