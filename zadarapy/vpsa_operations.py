@@ -71,7 +71,7 @@ def get_cloud(session, cloud_id, return_type=None):
 
 def get_all_vpsas(session, return_type=None):
     """
-    Retrieves details for all VPSAs.
+    Retrieves details for all VPSAs of the connecting user.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -98,7 +98,7 @@ def get_vpsa(session, vpsa_id, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type vpsa_id: str
+    :type vpsa_id: int
     :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
         example: '2653'.  Required.
 
@@ -278,7 +278,7 @@ def delete_vpsa(session, vpsa_id, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type vpsa_id: str
+    :type vpsa_id: int
     :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
         example: '2653'.  Required.
 
@@ -291,10 +291,7 @@ def delete_vpsa(session, vpsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if type(vpsa_id) is int:
-        vpsa_id = str(vpsa_id)
-
-    if not vpsa_id.isdigit():
+    if vpsa_id < 1:
         raise ValueError('The VPSA ID should be a positive integer.')
 
     method = 'DELETE'
@@ -311,7 +308,7 @@ def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type vpsa_id: str
+    :type vpsa_id: int
     :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
         example: '2653'.  Required.
 
@@ -343,10 +340,7 @@ def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if type(vpsa_id) is int:
-        vpsa_id = str(vpsa_id)
-
-    if not vpsa_id.isdigit():
+    if vpsa_id < 1:
         raise ValueError('The VPSA ID should be a positive integer.')
 
     body_values = {}
@@ -368,7 +362,7 @@ def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None):
             raise ValueError('The required "quantity" key was not found in '
                              'the drive dictionary.')
 
-        body_values[v['drive_type'] + '_drives'] = int(v['quantity'])
+        body_values[v['drive_type'] + '_drives'] = v['quantity']
 
     method = 'POST'
     path = '/api/vpsas/{0}/drives.json'.format(vpsa_id)
@@ -388,7 +382,7 @@ def change_vpsa_engines(session, vpsa_id, io_engine_id, zcs_engine_id,
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type vpsa_id: str
+    :type vpsa_id: int
     :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
         example: '2653'.  Required.
 
@@ -414,10 +408,7 @@ def change_vpsa_engines(session, vpsa_id, io_engine_id, zcs_engine_id,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if type(vpsa_id) is int:
-        vpsa_id = str(vpsa_id)
-
-    if not vpsa_id.isdigit():
+    if vpsa_id < 1:
         raise ValueError('The VPSA ID should be a positive integer.')
 
     body_values = {}
@@ -458,7 +449,7 @@ def change_vpsa_cache(session, vpsa_id, quantity, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type vpsa_id: str
+    :type vpsa_id: int
     :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
         example: '2653'.  Required.
 
@@ -476,10 +467,7 @@ def change_vpsa_cache(session, vpsa_id, quantity, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if type(vpsa_id) is int:
-        vpsa_id = str(vpsa_id)
-
-    if not vpsa_id.isdigit():
+    if vpsa_id < 1:
         raise ValueError('The VPSA ID should be a positive integer.')
 
     method = 'POST'
@@ -502,7 +490,7 @@ def assign_vpsa_public_ip(session, vpsa_id, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type vpsa_id: str
+    :type vpsa_id: int
     :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
         example: '2653'.  Required.
 
@@ -515,10 +503,7 @@ def assign_vpsa_public_ip(session, vpsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if type(vpsa_id) is int:
-        vpsa_id = str(vpsa_id)
-
-    if not vpsa_id.isdigit():
+    if vpsa_id < 1:
         raise ValueError('The VPSA ID should be a positive integer.')
 
     method = 'POST'
@@ -536,7 +521,7 @@ def remove_vpsa_public_ip(session, vpsa_id, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type vpsa_id: str
+    :type vpsa_id: int
     :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
         example: '2653'.  Required.
 
@@ -549,10 +534,7 @@ def remove_vpsa_public_ip(session, vpsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if type(vpsa_id) is int:
-        vpsa_id = str(vpsa_id)
-
-    if not vpsa_id.isdigit():
+    if vpsa_id < 1:
         raise ValueError('The VPSA ID should be a positive integer.')
 
     method = 'DELETE'
@@ -571,7 +553,7 @@ def hibernate_vpsa(session, vpsa_id, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type vpsa_id: str
+    :type vpsa_id: int
     :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
         example: '2653'.  Required.
 
@@ -584,10 +566,7 @@ def hibernate_vpsa(session, vpsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if type(vpsa_id) is int:
-        vpsa_id = str(vpsa_id)
-
-    if not vpsa_id.isdigit():
+    if vpsa_id < 1:
         raise ValueError('The VPSA ID should be a positive integer.')
 
     method = 'POST'
@@ -604,7 +583,7 @@ def resume_vpsa(session, vpsa_id, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type vpsa_id: str
+    :type vpsa_id: int
     :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
         example: '2653'.  Required.
 
@@ -617,10 +596,7 @@ def resume_vpsa(session, vpsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if type(vpsa_id) is int:
-        vpsa_id = str(vpsa_id)
-
-    if not vpsa_id.isdigit():
+    if vpsa_id < 1:
         raise ValueError('The VPSA ID should be a positive integer.')
 
     method = 'POST'
