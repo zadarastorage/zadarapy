@@ -166,8 +166,8 @@ def create_volume(session, pool_id, display_name, capacity, block,
 
     :type block: str
     :param block: If set to 'YES', this will be a block (iSCSI, iSER) volume.
-        If 'NO', it will be a NAS share/filesystem volume
-        (NFS and/or SMB/CIFS).  Required.
+        If 'NO', it will be a NAS share/filesystem volume (NFS and/or
+        SMB/CIFS).  Required.
 
     :type attachpolicies: str
     :param attachpolicies: If set to 'YES', the default snapshot policies for
@@ -248,9 +248,8 @@ def create_volume(session, pool_id, display_name, capacity, block,
     :type nfsrootsquash: str
     :param nfsrootsquash: For NAS shares, when using NFS, if set to 'YES',
         root squash will be enabled for this volume, which disables the 'root'
-        user's ability to write files to mount the volume.  If set to 'NO',
-        the 'root' user will be able to mount the volume.  Set to 'NO' by
-        default.  Optional.
+        user's ability to mount the volume.  If set to 'NO', the 'root' user
+        will be able to mount the volume.  Set to 'NO' by default.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -613,8 +612,7 @@ def rename_volume(session, volume_id, newname, return_type=None):
     newname = newname.strip()
 
     if not is_valid_field(newname):
-        raise ValueError('{0} is not a valid volume name.'
-                         .format(newname))
+        raise ValueError('{0} is not a valid volume name.'.format(newname))
 
     body_values['new_name'] = newname
 
@@ -1461,14 +1459,14 @@ def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
 
     body_values['display_name'] = display_name
 
-    if not is_valid_pool_id(remote_pool_id, True):
+    if not is_valid_pool_id(remote_pool_id, remote_pool_allowed=True):
         raise ValueError('{0} is not a valid remote pool ID.'
                          .format(remote_pool_id))
 
     body_values['remote_pool'] = remote_pool_id
 
     for policy in policies.split(','):
-        if not is_valid_raid_id(policy):
+        if not is_valid_snapshot_id(policy):
             raise ValueError('"{0}" in "{1}" is not a valid snapshot policy '
                              'ID.'.format(policy, policies))
 
