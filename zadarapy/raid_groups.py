@@ -299,10 +299,10 @@ def get_drives_in_raid_group(session, raid_id, start=None, limit=None,
         get_all_raid_groups.  For example: 'RaidGroup-1'.  Required.
 
     :type start: int
-    :param start: The offset to start displaying RAID groups from.  Optional.
+    :param start: The offset to start displaying drives from.  Optional.
 
     :type: limit: int
-    :param limit: The maximum number of RAID groups to return.  Optional.
+    :param limit: The maximum number of drives to return.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -396,21 +396,6 @@ def repair_raid_group(session, raid_id, return_type=None):
     """
     if not is_valid_raid_id(raid_id):
         raise ValueError('{0} is not a valid RAID group ID.'.format(raid_id))
-
-    drives = get_all_drives(session)
-
-    available_drives = False
-
-    for drive in drives['response']['disks']:
-        if drive['usage'] == 'Available':
-            available_drives = True
-            break
-
-    if not available_drives:
-        raise ValueError('{0} cannot be repaired because no available drives '
-                         'could be found on this VPSA.  Please add a drive of '
-                         'the appropriate type before attempting repair.'
-                         .format(raid_id))
 
     method = 'POST'
     path = '/api/raid_groups/{0}/repair.json'.format(raid_id)
