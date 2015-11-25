@@ -161,16 +161,12 @@ def create_snapshot_policy(session, display_name, create_policy,
 
     body_values['create_policy'] = create_policy
 
-    local_delete_policy = int(local_delete_policy)
-
     if local_delete_policy < 0:
         raise ValueError('The local_delete_policy parameter must not be '
                          'negative ("{0}" was passed).'
                          .format(local_delete_policy))
 
     body_values['delete_policy'] = 'N' + str(local_delete_policy)
-
-    remote_delete_policy = int(remote_delete_policy)
 
     if remote_delete_policy < 0:
         raise ValueError('The remote_delete_policy parameter must not be '
@@ -251,8 +247,6 @@ def update_snapshot_policy(session, policy_id, create_policy=None,
         body_values['create_policy'] = create_policy
 
     if local_delete_policy is not None:
-        local_delete_policy = int(local_delete_policy)
-
         if local_delete_policy < 0:
             raise ValueError('The local_delete_policy parameter must not be '
                              'negative ("{0}" was passed).'
@@ -261,8 +255,6 @@ def update_snapshot_policy(session, policy_id, create_policy=None,
         body_values['delete_policy'] = 'N' + str(local_delete_policy)
 
     if remote_delete_policy is not None:
-        remote_delete_policy = int(remote_delete_policy)
-
         if remote_delete_policy < 0:
             raise ValueError('The remote_delete_policy parameter must not be '
                              'negative ("{0}" was passed).'
