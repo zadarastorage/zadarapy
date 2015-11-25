@@ -179,7 +179,10 @@ class Session(object):
         else:
             conn = http.client.HTTPConnection(host)
 
-        headers = {"Content-Type": "application/json"}
+        headers = {}
+
+        if return_type != 'raw':
+            headers['Content-Type'] = "application/json"
 
         # Provisioning portal expects "X-Token" header, whereas VPSA expects
         # "X-Access-Key".
@@ -217,5 +220,7 @@ class Session(object):
 
         if return_type == 'json':
             return data.decode('UTF-8')
+        elif return_type == 'raw':
+            return data
         else:
             return api_return_dict
