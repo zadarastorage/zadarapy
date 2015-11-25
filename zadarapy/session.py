@@ -42,8 +42,8 @@ class Session(object):
         If no suitable configuration is found, an exception will be thrown.
 
         :type host: str
-        :param host: The hostname or IP address of the Zadara API.  This should
-            be passed directly instead of part of a URL.  e.g.
+        :param host: The hostname or IP address of the Zadara API.  This
+            should be passed directly instead of part of a URL.  e.g.
             'vsa-00000578-aws.zadaravpsa.com', not
             'https://vsa-00000578-aws.zadaravpsa.com/'.
 
@@ -55,8 +55,8 @@ class Session(object):
             needed for this object.
 
         :type secure: bool
-        :param secure: If True, the API call will be made over HTTPS, otherwise
-            HTTP will be used.
+        :param secure: If False, the API call will be made over HTTP,
+            otherwise HTTPS will be used.
         """
         self._config = None
 
@@ -66,9 +66,12 @@ class Session(object):
                 self._config = configparser.ConfigParser()
                 self._config.read(configfile)
 
-        if self._config is None and os.path.isfile('~/.zadarapy'):
-            self._config = configparser.ConfigParser()
-            self._config.read('~/.zadarapy')
+        if self._config is None and configfile is None:
+            configfile = os.path.expanduser('~/.zadarapy')
+
+            if os.path.isfile(configfile):
+                self._config = configparser.ConfigParser()
+                self._config.read(configfile)
 
         # Hostname for API endpoint
         if host is not None:
@@ -126,8 +129,8 @@ class Session(object):
             '/api/vpsas.json'.  Required.
 
         :type host: str
-        :param host: The hostname or IP address of the Zadara API.  This should
-            be passed directly instead of part of a URL.  e.g.
+        :param host: The hostname or IP address of the Zadara API.  This
+            should be passed directly instead of part of a URL.  e.g.
             'vsa-00000578-aws.zadaravpsa.com', not
             'https://vsa-00000578-aws.zadaravpsa.com/'.  Required.
 
@@ -135,8 +138,8 @@ class Session(object):
         :param key: The API key for the connecting user.  Required.
 
         :type secure: bool
-        :param secure: If True, the API call will be made over HTTPS, otherwise
-            HTTP will be used.  Required.
+        :param secure: If True, the API call will be made over HTTPS,
+            otherwise HTTP will be used.  Required.
 
         :type body: str
         :param body: For POST calls, a body should be supplied that *only*
@@ -150,7 +153,8 @@ class Session(object):
         :type return_type: str
         :param return_type: If this is set to the string 'json', this function
             will return a JSON string.  Otherwise, it will return a Python
-            dictionary.  Optional (will return a Python dictionary by default).
+            dictionary.  Optional (will return a Python dictionary by
+            default).
 
         :rtype: dict, str
         :returns: A dictionary or JSON data set as a string depending on
@@ -168,8 +172,8 @@ class Session(object):
 
         if not is_valid_hostname(self._host) and not is_valid_ip_address(
                 self._host):
-            raise ValueError(
-                '{0} is not a valid hostname or IP address'.format(self._host))
+            raise ValueError('{0} is not a valid hostname or IP address.'
+                             .format(self._host))
 
         if not is_valid_zadara_key(self._key):
             raise ValueError('{0} is not a valid API key'.format(self._key))
