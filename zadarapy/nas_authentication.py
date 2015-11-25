@@ -21,7 +21,6 @@ from zadarapy.validators import is_valid_hostname
 from zadarapy.validators import is_valid_ip_address
 
 
-
 def get_all_nas_users(session, start=None, limit=None, return_type=None):
     """
     Retrieves details for all NAS users configured on the VPSA.
