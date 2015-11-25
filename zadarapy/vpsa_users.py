@@ -67,8 +67,7 @@ def get_all_vpsa_users(session, start=None, limit=None, return_type=None):
 
 def delete_vpsa_user(session, username, return_type=None):
     """
-    Deletes a VPSA user.  Only a VPSA admin may perform this action.  This
-    action is irreversible.
+    Deletes a VPSA user.  Only a VPSA admin may perform this action.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
