@@ -257,50 +257,28 @@ def update_server(session, server_id, ip_address=None, iqn=None,
         For example: 'srv-00000001'.  Required.
 
     :type ip_address: str
-    :param ip_address: The IP address or subnet as defined in CIDR notation of
-        the server.  Optional.
+    :param ip_address: See documentation for create_server.  Optional.
 
     :type iqn: str
-    :param iqn: If using iSCSI/iSER, the IQN of the server.  For example -
-        "iqn.1993-08.org.debian:01:dea714656496".  Optional.
+    :param iqn: See documentation for create_server.  Optional.
 
     :type vpsa_chap_user: str
-    :param vpsa_chap_user: When using iSCSI/iSER, the CHAP user for the VPSA.
-        This would be typically entered in the server's iSCSI/iSER initiatior
-        configuration.  If set to 'None', a VPSA CHAP user will be auto
-        generated.  Optional.
+    :param vpsa_chap_user: See documentation for create_server.  Optional.
 
     :type vpsa_chap_secret: str
-    :param vpsa_chap_secret: When using iSCSI/iSER, the CHAP secret for the
-        VPSA.  This would be typically entered in the server's iSCSI/iSER
-        initiatior configuration.  If set to 'None', a VPSA CHAP secret will
-        be auto generated.  Must be between 12 to 16 characters in length.
-        Optional.
+    :param vpsa_chap_secret: See documentation for create_server.  Optional.
 
     :type host_chap_user: str
-    :param host_chap_user: When using iSCSI/iSER, the CHAP user for the
-        server.  If defined, the VPSA will use this to complete mutual CHAP
-        authentication with the server.  Note: for Windows systems, the host
-        CHAP user must be the server's IQN.  If set to 'None', mutual CHAP
-        won't be used.  Optional.
+    :param host_chap_user: See documentation for create_server.  Optional.
 
     :type host_chap_secret: str
-    :param host_chap_user: When using iSCSI/iSER, the CHAP secret for the
-        server.  If defined, the VPSA will use this to complete mutual CHAP
-        authentication with the server.  If set to 'None', mutual CHAP won't
-        be used.  Must be between 12 to 16 characters in length.  Optional.
+    :param host_chap_user: See documentation for create_server.  Optional.
 
     :type ipsec_iscsi: str
-    :param ipsec_iscsi: When accessing iSCSI/iSER block volumes from this
-        server, if set to 'YES', IPSec encryption will be mandated when
-        connecting from this server.  If 'NO', IPSec won't be used.  Set to
-        'NO' by default.  Optional.
+    :param ipsec_iscsi: See documentation for create_server.  Optional.
 
     :type ipsec_nfs: str
-    :param ipsec_nfs: When accessing NFS NAS shares from this server, if set
-        to 'YES', IPSec encryption will be mandated when connecting from this
-        server.  If 'NO', IPSec won't be used.  Set to 'NO' by default.
-        Optional.
+    :param ipsec_nfs: See documentation for create_server.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -477,10 +455,10 @@ def get_volumes_attached_to_server(session, server_id, start=None, limit=None,
         For example: 'srv-00000001'.  Required.
 
     :type start: int
-    :param start: The offset to start displaying servers from.  Optional.
+    :param start: The offset to start displaying volumes from.  Optional.
 
     :type: limit: int
-    :param limit: The maximum number of servers to return.  Optional.
+    :param limit: The maximum number of volumes to return.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
