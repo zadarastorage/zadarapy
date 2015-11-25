@@ -74,7 +74,7 @@ def delete_vpsa_user(session, username, return_type=None):
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type username: str
-    :param username: The VPSA user's username.
+    :param username: The VPSA user's username.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -105,10 +105,10 @@ def get_vpsa_user_api_key(session, username, password, return_type=None):
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type username: str
-    :param username: The VPSA user's username.
+    :param username: The VPSA user's username.  Required.
 
     :type password: str
-    :param password: The VPSA user's password.
+    :param password: The VPSA user's password.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -150,7 +150,7 @@ def reset_vpsa_user_api_key(session, username, return_type=None):
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type username: str
-    :param username: The VPSA user's username.
+    :param username: The VPSA user's username.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -185,13 +185,13 @@ def change_vpsa_user_password_by_password(session, username,
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type username: str
-    :param username: The VPSA user's username.
+    :param username: The VPSA user's username.  Required.
 
     :type existing_password: str
-    :param existing_password: The VPSA user's existing password.
+    :param existing_password: The VPSA user's existing password.  Required.
 
     :type new_password: str
-    :param new_password: The new password for the VPSA user.
+    :param new_password: The new password for the VPSA user.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -241,13 +241,13 @@ def change_vpsa_user_password_by_code(session, username, code, new_password,
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type username: str
-    :param username: The VPSA user's username.
+    :param username: The VPSA user's username.  Required.
 
     :type code: str
-    :param code: The password reset code e-mailed to the user.
+    :param code: The password reset code e-mailed to the user.  Required.
 
     :type new_password: str
-    :param new_password: The new password for the VPSA user.
+    :param new_password: The new password for the VPSA user.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -292,7 +292,7 @@ def generate_vpsa_user_password_reset_code(session, username,
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type username: str
-    :param username: The VPSA user's username.
+    :param username: The VPSA user's username.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
