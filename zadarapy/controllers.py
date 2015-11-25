@@ -94,7 +94,7 @@ def get_controller_performance(session, controller_id, interval=1,
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type controller_id: str
-    :param controller_id: The volume 'name' value as returned by
+    :param controller_id: The virtual controller 'name' value as returned by
         get_all_controllers.  For example: 'vsa-00000001-vc-0'.  Required.
 
     :type interval: int
@@ -110,7 +110,7 @@ def get_controller_performance(session, controller_id, interval=1,
         return_type parameter.
     """
     if not is_valid_controller_id(controller_id):
-        raise ValueError('{0} is not a valid controller ID.'
+        raise ValueError('{0} is not a valid virtual controller ID.'
                          .format(controller_id))
 
     interval = int(interval)
@@ -138,7 +138,7 @@ def get_cache_performance(session, controller_id, interval=1,
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type controller_id: str
-    :param controller_id: The volume 'name' value as returned by
+    :param controller_id: The virtual controller 'name' value as returned by
         get_all_controllers.  For example: 'vsa-00000001-vc-0'.  Required.
 
     :type interval: int
@@ -154,7 +154,7 @@ def get_cache_performance(session, controller_id, interval=1,
         return_type parameter.
     """
     if not is_valid_controller_id(controller_id):
-        raise ValueError('{0} is not a valid controller ID.'
+        raise ValueError('{0} is not a valid virtual controller ID.'
                          .format(controller_id))
 
     interval = int(interval)
@@ -183,7 +183,7 @@ def get_cache_stats(session, controller_id, interval=1,
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type controller_id: str
-    :param controller_id: The volume 'name' value as returned by
+    :param controller_id: The virtual controller 'name' value as returned by
         get_all_controllers.  For example: 'vsa-00000001-vc-0'.  Required.
 
     :type interval: int
@@ -199,7 +199,7 @@ def get_cache_stats(session, controller_id, interval=1,
         return_type parameter.
     """
     if not is_valid_controller_id(controller_id):
-        raise ValueError('{0} is not a valid controller ID.'
+        raise ValueError('{0} is not a valid virtual controller ID.'
                          .format(controller_id))
 
     interval = int(interval)
