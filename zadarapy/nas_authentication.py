@@ -327,7 +327,7 @@ def create_nas_group(session, groupname, nfs_gid=None, smb='NO',
     :type smb: str
     :param smb: When using SMB, if set to 'YES', this group will be usable by
         SMB/CIFS clients.  If set to 'NO', this group won't be usable by
-        SMB/CIFS clients.  Optional.
+        SMB/CIFS clients.  Optional (set to 'NO' by default).
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
