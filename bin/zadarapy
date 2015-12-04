@@ -18,6 +18,7 @@
 import argparse
 import sys
 from pprint import pprint
+from terminaltables import AsciiTable
 from zadarapy import drives
 from zadarapy import session
 
@@ -49,6 +50,7 @@ COMMANDS_DICT = [
                         }
                     }
                 ],
+                'subcommand_return_key': 'disks',
                 'subcommand_help': 'Displays details for all drives attached '
                                    'to the VPSA'
             }
@@ -163,9 +165,6 @@ def main():
     if parsed_args['json']:
         params['return_type'] = 'json'
 
-    # pprint(parsed_args)
-    #
-
     for command in COMMANDS_DICT:
         if command['command_name'] != parsed_args['command']:
             continue
@@ -190,8 +189,8 @@ def main():
                                       params['session'].zadara_key,
                                       protocol))
 
-                        print('Parameters sent to the zadarapy function "{0}"'
-                              .format(subcommand_function.__name__))
+                        print('Parameters sent to the zadarapy function '
+                              '"{0}":'.format(subcommand_function.__name__))
 
                         pprint(params)
 
@@ -200,7 +199,28 @@ def main():
                     if parsed_args['json']:
                         print(result)
                     else:
-                        pprint(result)
+                        table_data = [[]]
+
+                        for key in sorted(result['response']\
+                                [subcommand['subcommand_return_key']][0]):
+                            table_data[0].append(key)
+
+                        for return_dict in result['response']\
+                                [subcommand['subcommand_return_key']]:
+                            row = []
+
+                            for key in sorted(return_dict):
+                                row.append(str(return_dict[key]))
+
+                            table_data.append(row)
+
+                        table = AsciiTable(table_data)
+
+                        if parsed_args['verbose']:
+                            print('Raw Python dictionary response:')
+                            pprint(result)
+
+                        print(table.table)
 
                     sys.exit(0)
                 except RuntimeError as err:

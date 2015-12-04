@@ -1,4 +1,9 @@
 zadarapy
 Copyright 2015 Zadara Storage
 
-zadarapy utilizes software developed by the Python Software Foundation - https://www.python.org/psf/
+zadarapy utilizes software developed by:
+
+The Python Software Foundation - https://www.python.org/psf/
+
+terminaltables - https://github.com/Robpol86/terminaltables
+
