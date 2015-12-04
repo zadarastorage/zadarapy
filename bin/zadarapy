@@ -66,12 +66,12 @@ def main():
                            help='Values such as the API endpoint and API key '
                                 'can be parsed from this file, which is in '
                                 'INI format.  Defaults to ~/.zadarapy')
-    apiparser.add_argument('-e', '--api-endpoint', type=str, dest='host',
-                           metavar='<API endpoint hostname>',
-                           help='The API endpoint hostname can be provided '
-                                'here - alternatively, it can be defined '
-                                'through the ZADARA_HOST environment '
-                                'variable, or a configuration file')
+    apiparser.add_argument('-H', '--api-hostname', type=str, dest='host',
+                           metavar='<API hostname>',
+                           help='The API hostname can be provided here - '
+                                'alternatively, it can be defined through '
+                                'the ZADARA_HOST environment variable, or a '
+                                'configuration file')
     apiparser.add_argument('-i', '--insecure', action='store_true',
                            help='If passed, clear-text HTTP will be used '
                                 'instead of encrypted HTTPS')
@@ -122,6 +122,8 @@ def main():
                 metavar='subcommand', dest='subcommand'
             )
 
+            subcommandparser.required = True
+
             for subcommand in command['subcommands']:
                 subcommand_name, _ = subcommand['subcommand_info']
                 sub_action = subcommandparser.add_parser(
@@ -162,7 +164,7 @@ def main():
         params['return_type'] = 'json'
 
     # pprint(parsed_args)
-    # pprint(params)
+    #
 
     for command in COMMANDS_DICT:
         if command['command_name'] != parsed_args['command']:
@@ -177,16 +179,37 @@ def main():
                     continue
 
                 try:
+                    if parsed_args['verbose']:
+                        if params['session'].zadara_secure:
+                            protocol = 'HTTPS'
+                        else:
+                            protocol = 'HTTP'
+
+                        print('Connecting to {0} with API key {1} over {2}'
+                              .format(params['session'].zadara_host,
+                                      params['session'].zadara_key,
+                                      protocol))
+
+                        print('Parameters sent to the zadarapy function "{0}"'
+                              .format(subcommand_function.__name__))
+
+                        pprint(params)
+
                     result = subcommand_function(**params)
-                    pprint(result)
+
+                    if parsed_args['json']:
+                        print(result)
+                    else:
+                        pprint(result)
+
                     sys.exit(0)
                 except RuntimeError as err:
                     print('There was an error at runtime returned by the '
                           'API: "{0}"'.format(err))
+                    sys.exit(1)
                 except ValueError as err:
                     print('There was an error with a parameter passed to the '
                           'API: "{0}"'.format(err))
-                finally:
                     sys.exit(1)
 
 

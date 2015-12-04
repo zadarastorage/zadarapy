@@ -30,6 +30,10 @@ class Session(object):
     API endpoint.  It will gather the required authentication credentials, as
     well as the URL to utilize, then make the calls to the API.
     """
+    zadara_host = None
+    zadara_key = None
+    zadara_secure = None
+
     def __init__(self, host=None, key=None, configfile=None, secure=True):
         """
         Configuration details for working with the API will be gathered from
@@ -75,23 +79,23 @@ class Session(object):
 
         # Hostname for API endpoint
         if host is not None:
-            self._host = host
+            self.zadara_host = host
         elif os.getenv('ZADARA_HOST') is not None:
-            self._host = os.getenv('ZADARA_HOST')
+            self.zadara_host = os.getenv('ZADARA_HOST')
         elif self._config is not None:
             if self._config['DEFAULT'].get('host', None) is not None:
-                self._host = self._config['DEFAULT'].get('host')
+                self.zadara_host = self._config['DEFAULT'].get('host')
         else:
             raise ValueError('The API hostname was not defined.')
 
         # Authorization key for API endpoint
         if key is not None:
-            self._key = key
+            self.zadara_key = key
         elif os.getenv('ZADARA_KEY') is not None:
-            self._key = os.getenv('ZADARA_KEY')
+            self.zadara_key = os.getenv('ZADARA_KEY')
         elif self._config is not None:
             if self._config['DEFAULT'].get('key', None) is not None:
-                self._key = self._config['DEFAULT'].get('key')
+                self.zadara_key = self._config['DEFAULT'].get('key')
         else:
             raise ValueError('The API authentication key was not defined.')
 
@@ -99,16 +103,16 @@ class Session(object):
         true_values = ['True', 'true', 'Yes', 'yes', 'On', 'on', 'Y', 'y']
 
         if os.getenv('ZADARA_SECURE') in true_values:
-            self._secure = True
+            self.zadara_secure = True
         elif self._config is not None:
             if self._config['DEFAULT'].get('secure', None) in true_values:
-                self._secure = True
+                self.zadara_secure = True
             else:
-                self._secure = False
+                self.zadara_secure = False
         elif secure is False:
-            self._secure = False
+            self.zadara_secure = False
         else:
-            self._secure = True
+            self.zadara_secure = True
 
     def call_api(self, method, path, host=None, key=None, secure=None,
                  body=None, parameters=None, return_type=None):
@@ -162,21 +166,22 @@ class Session(object):
         """
         # Validate all inputs
         if host is None:
-            host = self._host
+            host = self.zadara_host
 
         if key is None:
-            key = self._key
+            key = self.zadara_key
 
         if secure is None:
-            secure = self._secure
+            secure = self.zadara_secure
 
-        if not is_valid_hostname(self._host) and not is_valid_ip_address(
-                self._host):
+        if not is_valid_hostname(self.zadara_host) and \
+                not is_valid_ip_address(self.zadara_host):
             raise ValueError('{0} is not a valid hostname or IP address.'
-                             .format(self._host))
+                             .format(self.zadara_host))
 
-        if not is_valid_zadara_key(self._key):
-            raise ValueError('{0} is not a valid API key'.format(self._key))
+        if not is_valid_zadara_key(self.zadara_key):
+            raise ValueError('{0} is not a valid API key'
+                             .format(self.zadara_key))
 
         if secure:
             conn = http.client.HTTPSConnection(host)
@@ -225,12 +230,16 @@ class Session(object):
                 raise RuntimeError('A general API error was returned: "{0}".'
                                    .format(api_return_dict['status-msg']))
 
+            if 'message' in api_return_dict:
+                raise RuntimeError('A general API error was returned: "{0}".'
+                                   .format(api_return_dict['message']))
+
             if 'status' in api_return_dict['response']:
                 if api_return_dict['response']['status'] != 0:
-                    raise RuntimeError('The API server returned an error: '
-                                       '"{0}".'
-                                       .format(api_return_dict['response']
-                                                              ['message']))
+                    raise RuntimeError(
+                        'The API server returned an error: "{0}".'
+                        .format(api_return_dict['response']['message'])
+                    )
             else:
                 raise RuntimeError('An invalid response was returned from '
                                    'the API.  Please investigate.')
