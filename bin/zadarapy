@@ -28,6 +28,26 @@ COMMANDS_DICT = [
         'help': 'Commands related to individual drives',
         'subcommands': [
             {
+                'subcommand_info': ('get', drives.get_drive),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['-i', '--id'],
+                        'option_keywords': {
+                            'dest': 'param_drive_id',
+                            'metavar': '<volume-xxxxxxxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The drive "name" value as returned by '
+                                    '"drives list".  For example: '
+                                    '"volume-00002a73".  Required.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': 'disk',
+                'subcommand_help': 'Displays details for a single drive on '
+                                   'the VPSA'
+            },
+            {
                 'subcommand_info': ('list', drives.get_all_drives),
                 'subcommand_options': [
                     {
@@ -53,10 +73,80 @@ COMMANDS_DICT = [
                 'subcommand_return_key': 'disks',
                 'subcommand_help': 'Displays details for all drives attached '
                                    'to the VPSA'
+            },
+            {
+                'subcommand_info': ('list-free', drives.get_free_drives),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['-s', '--start'],
+                        'option_keywords': {
+                            'dest': 'param_start',
+                            'metavar': 'n',
+                            'type': int,
+                            'help': 'The offset to start displaying drives '
+                                    'from'
+                        }
+                    },
+                    {
+                        'option_positional': ['-l', '--limit'],
+                        'option_keywords': {
+                            'dest': 'param_limit',
+                            'metavar': 'n',
+                            'type': int,
+                            'help': 'The maximum number of drives to return'
+                        }
+                    }
+                ],
+                'subcommand_return_key': 'disks',
+                'subcommand_help': 'Displays details for all drives '
+                                   'available for use on the VPSA (not '
+                                   'currently in a RAID group)'
             }
         ]
     }
 ]
+
+
+def format_return(data):
+    """
+    Format the returned Python dictionary or list of dictionaries into human
+    readable format.
+
+    :type data: dict, str
+    :param data: The data to be formatted.  This is typically the path to the
+        'subcommand_return_key' in the returned dictionary from the API.
+
+    :rtype str
+    :return: If a non empty list or dictionary, a human readable table will be
+        generated and returned.  If an empty list is detected, a simple
+        message will be returned.
+    """
+    table_data = [[]]
+
+    if type(data) is list:
+        if len(data) > 0:
+            for key in sorted(data[0]):
+                table_data[0].append(key)
+
+            for return_dict in data:
+                row = []
+
+                for key in sorted(return_dict):
+                    row.append(str(return_dict[key]))
+
+                table_data.append(row)
+        else:
+            return 'An empty result set was returned'
+    else:
+        row = []
+
+        for key, value in sorted(data.items()):
+            table_data[0].append(key)
+            row.append(str(value))
+
+        table_data.append(row)
+
+    return AsciiTable(table_data).table
 
 
 def main():
@@ -74,7 +164,7 @@ def main():
                                 'alternatively, it can be defined through '
                                 'the ZADARA_HOST environment variable, or a '
                                 'configuration file')
-    apiparser.add_argument('-i', '--insecure', action='store_true',
+    apiparser.add_argument('--insecure', action='store_true',
                            help='If passed, clear-text HTTP will be used '
                                 'instead of encrypted HTTPS')
     apiparser.add_argument('-j', '--json', action='store_true',
@@ -199,28 +289,14 @@ def main():
                     if parsed_args['json']:
                         print(result)
                     else:
-                        table_data = [[]]
-
-                        for key in sorted(result['response']\
-                                [subcommand['subcommand_return_key']][0]):
-                            table_data[0].append(key)
-
-                        for return_dict in result['response']\
-                                [subcommand['subcommand_return_key']]:
-                            row = []
-
-                            for key in sorted(return_dict):
-                                row.append(str(return_dict[key]))
-
-                            table_data.append(row)
-
-                        table = AsciiTable(table_data)
-
                         if parsed_args['verbose']:
                             print('Raw Python dictionary response:')
                             pprint(result)
 
-                        print(table.table)
+                        print(format_return(
+                            result['response']
+                            [subcommand['subcommand_return_key']]
+                        ))
 
                     sys.exit(0)
                 except RuntimeError as err:
