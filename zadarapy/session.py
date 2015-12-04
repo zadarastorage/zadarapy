@@ -190,7 +190,7 @@ class Session(object):
 
         # Provisioning portal expects "X-Token" header, whereas VPSA expects
         # "X-Access-Key".
-        if '/api/providers' in path or '/api/vpsas' in path:
+        if path.startswith('/api/providers') or path.startswith('/api/vpsas'):
             headers['X-Token'] = key
         else:
             headers['X-Access-Key'] = key
@@ -221,11 +221,11 @@ class Session(object):
         if return_type != 'raw':
             api_return_dict = json.loads(data.decode('UTF-8'))
 
-            if api_return_dict['status-msg']:
+            if 'status-msg' in api_return_dict:
                 raise RuntimeError('A general API error was returned: "{0}".'
                                    .format(api_return_dict['status-msg']))
 
-            if api_return_dict['response']['status']:
+            if 'status' in api_return_dict['response']:
                 if api_return_dict['response']['status'] != 0:
                     raise RuntimeError('The API server returned an error: '
                                        '"{0}".'

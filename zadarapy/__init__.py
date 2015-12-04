@@ -14,3 +14,9 @@
 # under the License.
 
 __version__ = '0.1'
+
+__all__ = ['container_services', 'controllers', 'drives', 'logs', 'mirrors',
+           'nas_authentication', 'pools', 'raid_groups',
+           'remote_object_storage', 'servers', 'session', 'settings',
+           'snapshot_policies', 'tickets', 'volumes', 'vpsa_operations',
+           'vpsa_users']

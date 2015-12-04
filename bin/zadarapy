@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#
 # Copyright 2015 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
@@ -16,8 +15,179 @@
 # under the License.
 
 
+import argparse
+import sys
+from pprint import pprint
+from zadarapy import drives
+from zadarapy import session
+
+COMMANDS_DICT = [
+    {
+        'command_name': 'drives',
+        'help': 'Commands related to individual drives',
+        'subcommands': [
+            {
+                'subcommand_info': ('list', drives.get_all_drives),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['-s', '--start'],
+                        'option_keywords': {
+                            'dest': 'param_start',
+                            'metavar': 'n',
+                            'type': int,
+                            'help': 'The offset to start displaying drives '
+                                    'from'
+                        }
+                    },
+                    {
+                        'option_positional': ['-l', '--limit'],
+                        'option_keywords': {
+                            'dest': 'param_limit',
+                            'metavar': 'n',
+                            'type': int,
+                            'help': 'The maximum number of drives to return'
+                        }
+                    }
+                ],
+                'subcommand_help': 'Displays details for all drives attached '
+                                   'to the VPSA'
+            }
+        ]
+    }
+]
+
+
 def main():
-    pass
+    # Parent Parsers
+    apiparser = argparse.ArgumentParser(add_help=False)
+    apiparser.add_argument('-c', '--api-configfile', type=str,
+                           dest='configfile',
+                           metavar='</path/to/configuration/file>',
+                           help='Values such as the API endpoint and API key '
+                                'can be parsed from this file, which is in '
+                                'INI format.  Defaults to ~/.zadarapy')
+    apiparser.add_argument('-e', '--api-endpoint', type=str, dest='host',
+                           metavar='<API endpoint hostname>',
+                           help='The API endpoint hostname can be provided '
+                                'here - alternatively, it can be defined '
+                                'through the ZADARA_HOST environment '
+                                'variable, or a configuration file')
+    apiparser.add_argument('-i', '--insecure', action='store_true',
+                           help='If passed, clear-text HTTP will be used '
+                                'instead of encrypted HTTPS')
+    apiparser.add_argument('-j', '--json', action='store_true',
+                           help='If passed, a JSON string will be returned '
+                                'instead of human readable format')
+    apiparser.add_argument('-k', '--api-key', type=str, dest='key',
+                           metavar='<API key>',
+                           help='The API key can be provided here -  '
+                                'alternatively, it can be defined through '
+                                'the ZADARA_KEY environment variable, or a '
+                                'configuration file')
+    apiparser.add_argument('-v', '--verbose', action='store_true',
+                           help='Enable verbose output for debugging '
+                                'purposes')
+
+    # Main Parser
+    parser = argparse.ArgumentParser(
+        prog='zadarapy',
+        description='%(prog)s is a command line utility that runs commands '
+                    'against a storage cloud or VPSA via the REST API using '
+                    'the zadarapy Python module'
+    )
+
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s 0.1',
+                        help='Prints the %(prog)s version and exits')
+
+    # Sub Parsers
+    commandsparser = parser.add_subparsers(
+        title='Commands - run "zadarapy <command> --help" for more '
+              'information about each command',
+        dest='command',
+        metavar='command'
+    )
+
+    commandsparser.required = True
+
+    for command in COMMANDS_DICT:
+        commandparser = commandsparser.add_parser(command['command_name'],
+                                                  description=command['help'],
+                                                  help=command['help'])
+
+        if 'subcommands' in command:
+            subcommandparser = commandparser.add_subparsers(
+                title='Sub Commands - run "zadarapy <command> <subcommand> '
+                      '--help for more information about each subcommand',
+                metavar='subcommand', dest='subcommand'
+            )
+
+            for subcommand in command['subcommands']:
+                subcommand_name, _ = subcommand['subcommand_info']
+                sub_action = subcommandparser.add_parser(
+                    subcommand_name,
+                    description=subcommand['subcommand_help'],
+                    help=subcommand['subcommand_help'], parents=[apiparser]
+                )
+
+                for subcommand_option in subcommand['subcommand_options']:
+                    sub_action.add_argument(
+                        *subcommand_option['option_positional'],
+                        **subcommand_option['option_keywords']
+                    )
+
+    # Dispatcher
+    parsed_args = vars(parser.parse_args())
+
+    secure = True
+
+    if parsed_args['insecure']:
+        secure = False
+
+    try:
+        parsed_args['param_session'] = session.Session(
+            host=parsed_args['host'],
+            key=parsed_args['key'],
+            configfile=parsed_args['configfile'],
+            secure=secure
+        )
+    except ValueError as err:
+        print('There was an error with a parameter passed to the API: "{0}"'
+              .format(err))
+
+    params = {k[6:]: v for k, v in parsed_args.items()
+              if k.startswith('param_')}
+
+    if parsed_args['json']:
+        params['return_type'] = 'json'
+
+    # pprint(parsed_args)
+    # pprint(params)
+
+    for command in COMMANDS_DICT:
+        if command['command_name'] != parsed_args['command']:
+            continue
+
+        if 'subcommands' in command:
+            for subcommand in command['subcommands']:
+                subcommand_name, subcommand_function = \
+                    subcommand['subcommand_info']
+
+                if subcommand_name != parsed_args['subcommand']:
+                    continue
+
+                try:
+                    result = subcommand_function(**params)
+                    pprint(result)
+                    sys.exit(0)
+                except RuntimeError as err:
+                    print('There was an error at runtime returned by the '
+                          'API: "{0}"'.format(err))
+                except ValueError as err:
+                    print('There was an error with a parameter passed to the '
+                          'API: "{0}"'.format(err))
+                finally:
+                    sys.exit(1)
 
 
 if __name__ == '__main__':
