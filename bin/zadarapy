@@ -22,16 +22,6 @@ from terminaltables import AsciiTable
 from zadarapy import drives
 from zadarapy import session
 
-START_OPTION = {
-    'option_positional': ['-s', '--start'],
-    'option_keywords': {
-        'dest': 'param_start',
-        'metavar': 'n',
-        'type': int,
-        'help': 'The offset to start displaying items from'
-    }
-}
-
 LIMIT_OPTION = {
     'option_positional': ['-l', '--limit'],
     'option_keywords': {
@@ -39,6 +29,16 @@ LIMIT_OPTION = {
         'metavar': 'n',
         'type': int,
         'help': 'The maximum number of items to return'
+    }
+}
+
+START_OPTION = {
+    'option_positional': ['-s', '--start'],
+    'option_keywords': {
+        'dest': 'param_start',
+        'metavar': 'n',
+        'type': int,
+        'help': 'The offset to start displaying items from'
     }
 }
 
@@ -70,8 +70,8 @@ COMMANDS_DICT = [
             {
                 'subcommand_info': ('list', drives.get_all_drives),
                 'subcommand_options': [
-                    START_OPTION,
-                    LIMIT_OPTION
+                    LIMIT_OPTION,
+                    START_OPTION
                 ],
                 'subcommand_return_key': 'disks',
                 'subcommand_help': 'Displays details for all drives attached '
@@ -80,8 +80,8 @@ COMMANDS_DICT = [
             {
                 'subcommand_info': ('list-free', drives.get_free_drives),
                 'subcommand_options': [
-                    START_OPTION,
-                    LIMIT_OPTION
+                    LIMIT_OPTION,
+                    START_OPTION
                 ],
                 'subcommand_return_key': 'disks',
                 'subcommand_help': 'Displays details for all drives '
