@@ -22,6 +22,26 @@ from terminaltables import AsciiTable
 from zadarapy import drives
 from zadarapy import session
 
+START_OPTION = {
+    'option_positional': ['-s', '--start'],
+    'option_keywords': {
+        'dest': 'param_start',
+        'metavar': 'n',
+        'type': int,
+        'help': 'The offset to start displaying items from'
+    }
+}
+
+LIMIT_OPTION = {
+    'option_positional': ['-l', '--limit'],
+    'option_keywords': {
+        'dest': 'param_limit',
+        'metavar': 'n',
+        'type': int,
+        'help': 'The maximum number of items to return'
+    }
+}
+
 COMMANDS_DICT = [
     {
         'command_name': 'drives',
@@ -50,25 +70,8 @@ COMMANDS_DICT = [
             {
                 'subcommand_info': ('list', drives.get_all_drives),
                 'subcommand_options': [
-                    {
-                        'option_positional': ['-s', '--start'],
-                        'option_keywords': {
-                            'dest': 'param_start',
-                            'metavar': 'n',
-                            'type': int,
-                            'help': 'The offset to start displaying drives '
-                                    'from'
-                        }
-                    },
-                    {
-                        'option_positional': ['-l', '--limit'],
-                        'option_keywords': {
-                            'dest': 'param_limit',
-                            'metavar': 'n',
-                            'type': int,
-                            'help': 'The maximum number of drives to return'
-                        }
-                    }
+                    START_OPTION,
+                    LIMIT_OPTION
                 ],
                 'subcommand_return_key': 'disks',
                 'subcommand_help': 'Displays details for all drives attached '
@@ -77,25 +80,8 @@ COMMANDS_DICT = [
             {
                 'subcommand_info': ('list-free', drives.get_free_drives),
                 'subcommand_options': [
-                    {
-                        'option_positional': ['-s', '--start'],
-                        'option_keywords': {
-                            'dest': 'param_start',
-                            'metavar': 'n',
-                            'type': int,
-                            'help': 'The offset to start displaying drives '
-                                    'from'
-                        }
-                    },
-                    {
-                        'option_positional': ['-l', '--limit'],
-                        'option_keywords': {
-                            'dest': 'param_limit',
-                            'metavar': 'n',
-                            'type': int,
-                            'help': 'The maximum number of drives to return'
-                        }
-                    }
+                    START_OPTION,
+                    LIMIT_OPTION
                 ],
                 'subcommand_return_key': 'disks',
                 'subcommand_help': 'Displays details for all drives '
@@ -152,33 +138,35 @@ def format_return(data):
 def main():
     # Parent Parsers
     apiparser = argparse.ArgumentParser(add_help=False)
-    apiparser.add_argument('-c', '--api-configfile', type=str,
-                           dest='configfile',
-                           metavar='</path/to/configuration/file>',
-                           help='Values such as the API endpoint and API key '
-                                'can be parsed from this file, which is in '
-                                'INI format.  Defaults to ~/.zadarapy')
-    apiparser.add_argument('-H', '--api-hostname', type=str, dest='host',
-                           metavar='<API hostname>',
-                           help='The API hostname can be provided here - '
-                                'alternatively, it can be defined through '
-                                'the ZADARA_HOST environment variable, or a '
-                                'configuration file')
-    apiparser.add_argument('--insecure', action='store_true',
-                           help='If passed, clear-text HTTP will be used '
-                                'instead of encrypted HTTPS')
-    apiparser.add_argument('-j', '--json', action='store_true',
-                           help='If passed, a JSON string will be returned '
-                                'instead of human readable format')
-    apiparser.add_argument('-k', '--api-key', type=str, dest='key',
-                           metavar='<API key>',
-                           help='The API key can be provided here -  '
-                                'alternatively, it can be defined through '
-                                'the ZADARA_KEY environment variable, or a '
-                                'configuration file')
-    apiparser.add_argument('-v', '--verbose', action='store_true',
-                           help='Enable verbose output for debugging '
-                                'purposes')
+    group1 = apiparser.add_argument_group('connection arguments',
+                                          'Connection options')
+    group1.add_argument('-c', '--api-configfile', type=str,
+                        dest='configfile',
+                        metavar='</path/to/configuration/file>',
+                        help='Values such as the API endpoint and API key '
+                             'can be parsed from this file, which is in '
+                             'INI format.  Defaults to ~/.zadarapy')
+    group1.add_argument('-H', '--api-hostname', type=str, dest='host',
+                        metavar='<API hostname>',
+                        help='The API hostname can be provided here - '
+                             'alternatively, it can be defined through '
+                             'the ZADARA_HOST environment variable, or a '
+                             'configuration file')
+    group1.add_argument('--insecure', action='store_true',
+                        help='If passed, clear-text HTTP will be used '
+                             'instead of encrypted HTTPS')
+    group1.add_argument('-j', '--json', action='store_true',
+                        help='If passed, a JSON string will be returned '
+                             'instead of human readable format')
+    group1.add_argument('-k', '--api-key', type=str, dest='key',
+                        metavar='<API key>',
+                        help='The API key can be provided here -  '
+                             'alternatively, it can be defined through '
+                             'the ZADARA_KEY environment variable, or a '
+                             'configuration file')
+    group1.add_argument('-v', '--verbose', action='store_true',
+                        help='Enable verbose output for debugging '
+                             'purposes')
 
     # Main Parser
     parser = argparse.ArgumentParser(
