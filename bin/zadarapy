@@ -32,6 +32,17 @@ LIMIT_OPTION = {
     }
 }
 
+INTERVAL_OPTION = {
+    'option_positional': ['-I', '--interval'],
+    'option_keywords': {
+        'dest': 'param_interval',
+        'metavar': 'n',
+        'type': int,
+        'default': 1,
+        'help': 'The interval to retrieve statistics for in seconds'
+    }
+}
+
 START_OPTION = {
     'option_positional': ['-s', '--start'],
     'option_keywords': {
@@ -39,6 +50,18 @@ START_OPTION = {
         'metavar': 'n',
         'type': int,
         'help': 'The offset to start displaying items from'
+    }
+}
+
+DRIVE_ID_OPTION = {
+    'option_positional': ['-i', '--id'],
+    'option_keywords': {
+        'dest': 'param_drive_id',
+        'metavar': '<volume-xxxxxxxx>',
+        'type': str,
+        'required': True,
+        'help': 'The drive "name" value as returned by "drives list".  For '
+                'example: "volume-00002a73".  Required.'
     }
 }
 
@@ -50,18 +73,7 @@ COMMANDS_DICT = [
             {
                 'subcommand_info': ('get', drives.get_drive),
                 'subcommand_options': [
-                    {
-                        'option_positional': ['-i', '--id'],
-                        'option_keywords': {
-                            'dest': 'param_drive_id',
-                            'metavar': '<volume-xxxxxxxx>',
-                            'type': str,
-                            'required': True,
-                            'help': 'The drive "name" value as returned by '
-                                    '"drives list".  For example: '
-                                    '"volume-00002a73".  Required.'
-                        }
-                    }
+                    DRIVE_ID_OPTION
                 ],
                 'subcommand_return_key': 'disk',
                 'subcommand_help': 'Displays details for a single drive on '
@@ -87,6 +99,84 @@ COMMANDS_DICT = [
                 'subcommand_help': 'Displays details for all drives '
                                    'available for use on the VPSA (not '
                                    'currently in a RAID group)'
+            },
+            {
+                'subcommand_info': ('performance',
+                                    drives.get_drive_performance),
+                'subcommand_options': [
+                    DRIVE_ID_OPTION,
+                    INTERVAL_OPTION
+                ],
+                'subcommand_return_key': 'usages',
+                'subcommand_help': 'Shreds all data on a drive.  THIS ACTION '
+                                   'IS IRREVERSIBLE.'
+            },
+            {
+                'subcommand_info': ('remove', drives.remove_drive),
+                'subcommand_options': [
+                    DRIVE_ID_OPTION,
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Removes an unused drive from the VPSA.'
+            },
+            {
+                'subcommand_info': ('rename', drives.rename_drive),
+                'subcommand_options': [
+                    DRIVE_ID_OPTION,
+                    {
+                        'option_positional': ['-d', '--display_name'],
+                        'option_keywords': {
+                            'dest': 'param_newname',
+                            'metavar': '<display name>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The new display name to set for the '
+                                    'drive.  Required.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Changes the display name for a drive.'
+            },
+            {
+                'subcommand_info': ('replace', drives.replace_drive),
+                'subcommand_options': [
+                    DRIVE_ID_OPTION,
+                    {
+                        'option_positional': ['-t', '--to_drive_id'],
+                        'option_keywords': {
+                            'dest': 'param_to_drive_id',
+                            'metavar': '<volume-xxxxxxxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The drive ID of the drive that will '
+                                    'will be used as the replacement.  '
+                                    'Required.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Replaces the drive identified by id with '
+                                   'the drive identified by display_name.'
+            },
+            {
+                'subcommand_info': ('shred', drives.shred_drive),
+                'subcommand_options': [
+                    DRIVE_ID_OPTION,
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Shreds all data on a drive.  THIS ACTION '
+                                   'IS IRREVERSIBLE.'
+            },
+            {
+                'subcommand_info': ('shred-cancel',
+                                    drives.cancel_shred_drive),
+                'subcommand_options': [
+                    DRIVE_ID_OPTION,
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Cancels a currently running shred drive '
+                                   'process.'
             }
         ]
     }
@@ -281,10 +371,13 @@ def main():
                             print('Raw Python dictionary response:')
                             pprint(result)
 
-                        print(format_return(
-                            result['response']
-                            [subcommand['subcommand_return_key']]
-                        ))
+                        if subcommand['subcommand_return_key'] is not None:
+                            print(format_return(
+                                result['response']
+                                [subcommand['subcommand_return_key']]
+                            ))
+                        else:
+                            print('Command returned success')
 
                     sys.exit(0)
                 except RuntimeError as err:

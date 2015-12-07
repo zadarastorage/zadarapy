@@ -213,7 +213,7 @@ def remove_drive(session, drive_id, return_type=None):
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def replace_drive(session, drive_id, toname, return_type=None):
+def replace_drive(session, drive_id, to_drive_id, return_type=None):
     """
     Replaces a drive, identified by drive_id parameter, with a new unallocated
     drive, identified by toname parameter, in a RAID group.  The replacement
@@ -227,9 +227,9 @@ def replace_drive(session, drive_id, toname, return_type=None):
         as returned by get_all_drives.  For example: 'volume-00002a73'.
         Required.
 
-    :type toname: str
-    :param toname: The replacement drive.  This is the drive 'display_name'
-        value as returned by get_drive_list.  For example, 'drive-000'.
+    :type to_drive_id: str
+    :param to_drive_id: The replacement drive.  This is the drive 'name' value
+        as returned by get_all_drives.  For example: 'volume-00002a76'.
         Required.
 
     :type return_type: str
@@ -246,13 +246,10 @@ def replace_drive(session, drive_id, toname, return_type=None):
 
     body_values = {}
 
-    toname = toname.strip()
+    if not is_valid_volume_id(to_drive_id):
+        raise ValueError('{0} is not a valid drive ID.'.format(to_drive_id))
 
-    if not is_valid_field(toname):
-        raise ValueError('{0} is not a valid drive display name.'
-                         .format(toname))
-
-    body_values['toname'] = toname
+    body_values['toname'] = to_drive_id
 
     method = 'POST'
     path = '/api/drives/{0}/replace.json'.format(drive_id)

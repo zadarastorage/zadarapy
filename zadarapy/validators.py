@@ -98,11 +98,13 @@ def is_valid_field(field, allow_quote=False, minimum=None, maximum=None):
     if not allow_quote and "'" in field:
         return False
 
-    if len(field) < minimum:
-        return False
+    if minimum:
+        if len(field) < minimum:
+            return False
 
-    if len(field) > maximum:
-        return False
+    if maximum:
+        if len(field) > maximum:
+            return False
 
     return True
 
