@@ -20,6 +20,7 @@ import sys
 from pprint import pprint
 from terminaltables import AsciiTable
 from zadarapy import drives
+from zadarapy import raid_groups
 from zadarapy import session
 
 LIMIT_OPTION = {
@@ -39,7 +40,8 @@ INTERVAL_OPTION = {
         'metavar': 'n',
         'type': int,
         'default': 1,
-        'help': 'The interval to retrieve statistics for in seconds'
+        'help': 'The interval to retrieve statistics for in seconds.  '
+                'Default: 1'
     }
 }
 
@@ -62,6 +64,29 @@ DRIVE_ID_OPTION = {
         'required': True,
         'help': 'The drive "name" value as returned by "drives list".  For '
                 'example: "volume-00002a73".  Required.'
+    }
+}
+
+RAID_GROUP_ID_OPTION = {
+    'option_positional': ['-i', '--id'],
+    'option_keywords': {
+        'dest': 'param_raid_id',
+        'metavar': '<RaidGroup-n>',
+        'type': str,
+        'required': True,
+        'help': 'The RAID group "name" value as returned by "raid-groups '
+                'list".  For example: "RaidGroup-1".  Required.'
+    }
+}
+
+RAID_GROUP_DISPLAY_NAME_OPTION = {
+    'option_positional': ['-d', '--display_name'],
+    'option_keywords': {
+        'dest': 'param_display_name',
+        'metavar': 'xxx',
+        'type': str,
+        'required': True,
+        'help': 'The display name to set for the RAID group.  Required.'
     }
 }
 
@@ -108,8 +133,7 @@ COMMANDS_DICT = [
                     INTERVAL_OPTION
                 ],
                 'subcommand_return_key': 'usages',
-                'subcommand_help': 'Shreds all data on a drive.  THIS ACTION '
-                                   'IS IRREVERSIBLE.'
+                'subcommand_help': 'Gets performance statistics for a drive'
             },
             {
                 'subcommand_info': ('remove', drives.remove_drive),
@@ -179,6 +203,230 @@ COMMANDS_DICT = [
                                    'process.'
             }
         ]
+    },
+    {
+        'command_name': 'raid-groups',
+        'help': 'Commands related to RAID groups',
+        'subcommands': [
+            {
+                'subcommand_info': ('create', raid_groups.create_raid_group),
+                'subcommand_options': [
+                    RAID_GROUP_DISPLAY_NAME_OPTION,
+                    {
+                        'option_positional': ['-D', '--disks'],
+                        'option_keywords': {
+                            'dest': 'param_disk',
+                            'metavar': '<volume-xxxxxxxx,volume-yyyyyyyy>',
+                            'type': str,
+                            'required': True,
+                            'help': 'A comma separated list of drive IDs '
+                                    'to use for the RAID group with no '
+                                    'spaces.  e.g.: '
+                                    '"volume-00000001,volume-00000002".  '
+                                    'Required.'
+                        }
+                    },
+                    {
+                        'option_positional': ['-p', '--protection'],
+                        'option_keywords': {
+                            'dest': 'param_protection',
+                            'choices': ['RAID1', 'RAID5', 'RAID6'],
+                            'type': str,
+                            'required': True,
+                            'help': 'The RAID type to use.  Required.'
+                        }
+                    },
+                    {
+                        'option_positional': ['-s', '--spare'],
+                        'option_keywords': {
+                            'dest': 'param_hot_spare',
+                            'choices': ['YES', 'NO'],
+                            'type': str,
+                            'default': 'NO',
+                            'help': 'Assign a hot spare to the RAID group.  '
+                                    'Default: NO'
+                        }
+                    },
+                    {
+                        'option_positional': ['-S', '--stripe-size'],
+                        'option_keywords': {
+                            'dest': 'param_stripe_size',
+                            'choices': [4, 16, 32, 64, 128, 256],
+                            'type': int,
+                            'default': 64,
+                            'help': 'The stripe size to use - RAID5 and '
+                                    'RAID6 only.  Default: 64'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Creates a new RAID group from provided '
+                                   'drives'
+            },
+            {
+                'subcommand_info': ('delete', raid_groups.delete_raid_group),
+                'subcommand_options': [
+                    RAID_GROUP_ID_OPTION,
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes an unused RAID group from the '
+                                   'VPSA.'
+            },
+            {
+                'subcommand_info': ('get', raid_groups.get_raid_group),
+                'subcommand_options': [
+                    RAID_GROUP_ID_OPTION
+                ],
+                'subcommand_return_key': 'raid_group',
+                'subcommand_help': 'Displays details for a single RAID group '
+                                   'on the VPSA'
+            },
+            {
+                'subcommand_info': ('hot-spare-add',
+                                    raid_groups.add_hot_spare_to_raid_group),
+                'subcommand_options': [
+                    RAID_GROUP_ID_OPTION,
+                    {
+                        'option_positional': ['-d', '--disk'],
+                        'option_keywords': {
+                            'dest': 'param_drive_id',
+                            'metavar': '<volume-xxxxxxxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The drive "name" value as returned by '
+                                    '"drives list".  For example: '
+                                    '"volume-00002a73".  Required.'
+                        }
+                    },
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Adds a hot spare to a RAID group using '
+                                   'an available drive'
+            },
+            {
+                'subcommand_info': ('hot-spare-remove',
+                                    raid_groups.
+                                    remove_hot_spare_from_raid_group),
+                'subcommand_options': [
+                    RAID_GROUP_ID_OPTION,
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Removes the hot spare from a RAID group'
+            },
+            {
+                'subcommand_info': ('list', raid_groups.get_all_raid_groups),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'raid_groups',
+                'subcommand_help': 'Displays details for all RAID groups on '
+                                   'the VPSA'
+            },
+            {
+                'subcommand_info': ('list-disks',
+                                    raid_groups.get_drives_in_raid_group),
+                'subcommand_options': [
+                    RAID_GROUP_ID_OPTION,
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'disks',
+                'subcommand_help': 'Displays all disks used in the provided '
+                                   'RAID group'
+            },
+            {
+                'subcommand_info': ('list-free',
+                                    raid_groups.get_free_raid_groups),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'raid_groups',
+                'subcommand_help': 'Displays details for all RAID groups '
+                                   'available for use on the VPSA (not '
+                                   'currently in a storage pool)'
+            },
+            {
+                'subcommand_info': ('media-scan-pause',
+                                    raid_groups.pause_raid_group_media_scan),
+                'subcommand_options': [
+                    RAID_GROUP_ID_OPTION,
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Pauses a media scan for a RAID5 or RAID6 '
+                                   'RAID group'
+            },
+            {
+                'subcommand_info': ('media-scan-start',
+                                    raid_groups.start_raid_group_media_scan),
+                'subcommand_options': [
+                    RAID_GROUP_ID_OPTION,
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Starts a media scan for a RAID5 or RAID6 '
+                                   'RAID group'
+            },
+            {
+                'subcommand_info': ('performance',
+                                    raid_groups.get_raid_group_performance),
+                'subcommand_options': [
+                    RAID_GROUP_ID_OPTION,
+                    INTERVAL_OPTION
+                ],
+                'subcommand_return_key': 'usages',
+                'subcommand_help': 'Gets performance statistics for a RAID '
+                                   'group'
+            },
+            {
+                'subcommand_info': ('rename', raid_groups.rename_raid_group),
+                'subcommand_options': [
+                    RAID_GROUP_ID_OPTION,
+                    RAID_GROUP_DISPLAY_NAME_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Changes the display name for a RAID '
+                                   'group'
+            },
+            {
+                'subcommand_info': ('repair', raid_groups.repair_raid_group),
+                'subcommand_options': [
+                    RAID_GROUP_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Repairs a RAID group with an available '
+                                   'drive'
+            },
+            {
+                'subcommand_info': ('resync-speed',
+                                    raid_groups.
+                                    update_raid_group_resync_speed),
+                'subcommand_options': [
+                    RAID_GROUP_ID_OPTION,
+                    {
+                        'option_positional': ['--minimum'],
+                        'option_keywords': {
+                            'dest': 'param_minimum',
+                            'metavar': 'n',
+                            'type': int,
+                            'help': 'The minimum MB/s to resync at'
+                        }
+                    },
+                    {
+                        'option_positional': ['--maximum'],
+                        'option_keywords': {
+                            'dest': 'param_maximum',
+                            'metavar': 'n',
+                            'type': int,
+                            'help': 'The maximum MB/s to resync at'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Updates the speed at which a degraded '
+                                   'RAID group will resync'
+            }
+        ]
     }
 ]
 
@@ -222,7 +470,7 @@ def format_return(data):
 
         table_data.append(row)
 
-    return AsciiTable(table_data).table
+    return AsciiTable(table_data, 'Count: ' + str(len(table_data) - 1)).table
 
 
 def main():

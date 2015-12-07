@@ -15,7 +15,6 @@
 
 
 import json
-from zadarapy.drives import get_all_drives
 from zadarapy.validators import is_valid_field
 from zadarapy.validators import is_valid_raid_id
 from zadarapy.validators import is_valid_volume_id
@@ -326,7 +325,7 @@ def get_drives_in_raid_group(session, raid_id, start=None, limit=None,
                             return_type=return_type)
 
 
-def rename_raid_group(session, raid_id, newname, return_type=None):
+def rename_raid_group(session, raid_id, display_name, return_type=None):
     """
     Sets the "display_name" RAID group parameter to a new value.
 
@@ -337,9 +336,9 @@ def rename_raid_group(session, raid_id, newname, return_type=None):
     :param raid_id: The drive 'name' value as returned by get_all_raid_groups.
         For example: 'RaidGroup-1'.  Required.
 
-    :type newname: str
-    :param newname: The new "display_name" to set.  May not contain a single
-        quote (') character.  Required.
+    :type display_name: str
+    :param display_name: The new "display_name" to set.  May not contain a
+        single quote (') character.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -355,13 +354,13 @@ def rename_raid_group(session, raid_id, newname, return_type=None):
 
     body_values = {}
 
-    newname = newname.strip()
+    display_name = display_name.strip()
 
-    if not is_valid_field(newname):
+    if not is_valid_field(display_name):
         raise ValueError('{0} is not a valid RAID group name.'
-                         .format(newname))
+                         .format(display_name))
 
-    body_values['newname'] = newname
+    body_values['newname'] = display_name
 
     method = 'POST'
     path = '/api/raid_groups/{0}/rename.json'.format(raid_id)
@@ -441,17 +440,17 @@ def update_raid_group_resync_speed(session, raid_id, minimum, maximum,
     minimum = int(minimum)
     maximum = int(maximum)
 
-    if min < 0 or max < 0:
+    if minimum < 0 or maximum < 0:
         raise ValueError('Minimum speed ({0}) and maximum speed ({1}) must '
                          'both be a positive integer.'
                          .format(minimum, maximum))
 
-    if min < max:
+    if minimum > maximum:
         raise ValueError('Minimum speed ({0}) must be less than maximum speed '
                          '({1}).'.format(minimum, maximum))
 
-    body_values['min'] = min
-    body_values['max'] = max
+    body_values['min'] = minimum
+    body_values['max'] = maximum
 
     method = 'POST'
     path = '/api/raid_groups/{0}/resync_speed.json'.format(raid_id)
@@ -485,12 +484,6 @@ def start_raid_group_media_scan(session, raid_id, return_type=None):
     """
     if not is_valid_raid_id(raid_id):
         raise ValueError('{0} is not a valid RAID group ID.'.format(raid_id))
-
-    raid_group = get_raid_group(session, raid_id)
-
-    if raid_group['response']['raid_group']['protection'] not in ['RAID5',
-                                                                  'RAID6']:
-        raise ValueError('{0} is not a RAID5 or RAID6 group.'.format(raid_id))
 
     method = 'POST'
     path = '/api/raid_groups/{0}/scrub.json'.format(raid_id)
