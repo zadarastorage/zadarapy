@@ -243,7 +243,7 @@ def delete_pool(session, pool_id, return_type=None):
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def rename_pool(session, pool_id, newname, return_type=None):
+def rename_pool(session, pool_id, display_name, return_type=None):
     """
     Sets the "display_name" pool parameter to a new value.
 
@@ -254,9 +254,9 @@ def rename_pool(session, pool_id, newname, return_type=None):
     :param pool_id: The pool 'name' value as returned by get_all_pools.  For
         example: 'pool-00000001'.  Required.
 
-    :type newname: str
-    :param newname: The new "display_name" to set.  May not contain a single
-        quote (') character.  Required.
+    :type display_name: str
+    :param display_name: The new "display_name" to set.  May not contain a
+        single quote (') character.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -272,13 +272,13 @@ def rename_pool(session, pool_id, newname, return_type=None):
 
     body_values = {}
 
-    newname = newname.strip()
+    display_name = display_name.strip()
 
-    if not is_valid_field(newname):
+    if not is_valid_field(display_name):
         raise ValueError('{0} is not a valid pool name.'
-                         .format(newname))
+                         .format(display_name))
 
-    body_values['new_name'] = newname
+    body_values['new_name'] = display_name
 
     method = 'POST'
     path = '/api/pools/{0}/rename.json'.format(pool_id)
@@ -606,7 +606,7 @@ def get_pool_mirror_destination_volumes(session, pool_id, start=None,
                             return_type=return_type)
 
 
-def set_pool_cache(session, pool_id, command, return_type=None):
+def set_pool_cache(session, pool_id, cache, return_type=None):
     """
     Toggle the SSD caching for a pool.
 
@@ -617,9 +617,9 @@ def set_pool_cache(session, pool_id, command, return_type=None):
     :param pool_id: The pool 'name' value as returned by get_all_pools.  For
         example: 'pool-00000001'.  Required.
 
-    :type command: str
-    :param command: Set to 'enable' to turn SSD caching on for this pool, or
-        'disable' to turn it off.  Required.
+    :type cache: str
+    :param cache: Set to 'YES' to turn SSD caching on for this pool, or
+        'NO' to turn it off.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -635,11 +635,14 @@ def set_pool_cache(session, pool_id, command, return_type=None):
 
     body_values = {}
 
-    if command not in ['enable', 'disable']:
-        raise ValueError('Command parameter must be set to either "enable" or '
-                         '"disable" ("{0}" was given).')
+    if cache not in ['YES', 'NO']:
+        raise ValueError('Command parameter must be set to either "YES" or '
+                         '"NO" ("{0}" was given).')
 
-    body_values['command'] = command
+    if cache == 'YES':
+        body_values['command'] = 'enable'
+    else:
+        body_values['command'] = 'disable'
 
     method = 'POST'
     path = '/api/pools/{0}/toggle_cache.json'.format(pool_id)

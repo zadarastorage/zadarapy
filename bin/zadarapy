@@ -20,14 +20,26 @@ import sys
 from pprint import pprint
 from terminaltables import AsciiTable
 from zadarapy import drives
+from zadarapy import pools
 from zadarapy import raid_groups
 from zadarapy import session
+
+DISPLAY_NAME_OPTION = {
+    'option_positional': ['-d', '--display_name'],
+    'option_keywords': {
+        'dest': 'param_display_name',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'The display name to set for the item.  Required.'
+    }
+}
 
 LIMIT_OPTION = {
     'option_positional': ['-l', '--limit'],
     'option_keywords': {
         'dest': 'param_limit',
-        'metavar': 'n',
+        'metavar': '<n>',
         'type': int,
         'help': 'The maximum number of items to return'
     }
@@ -37,7 +49,7 @@ INTERVAL_OPTION = {
     'option_positional': ['-I', '--interval'],
     'option_keywords': {
         'dest': 'param_interval',
-        'metavar': 'n',
+        'metavar': '<n>',
         'type': int,
         'default': 1,
         'help': 'The interval to retrieve statistics for in seconds.  '
@@ -49,7 +61,7 @@ START_OPTION = {
     'option_positional': ['-s', '--start'],
     'option_keywords': {
         'dest': 'param_start',
-        'metavar': 'n',
+        'metavar': '<n>',
         'type': int,
         'help': 'The offset to start displaying items from'
     }
@@ -67,6 +79,53 @@ DRIVE_ID_OPTION = {
     }
 }
 
+POOL_ID_OPTION = {
+    'option_positional': ['-i', '--id'],
+    'option_keywords': {
+        'dest': 'param_pool_id',
+        'metavar': '<pool-xxxxxxxx>',
+        'type': str,
+        'required': True,
+        'help': 'The storage pool "name" value as returned by "pools list".  '
+                'For example: "pool-00000001".  Required.'
+    }
+}
+
+POOL_RAID_GROUPS_OPTION = {
+    'option_positional': ['-r', '--raid-groups'],
+    'option_keywords': {
+        'dest': 'param_raid_groups',
+        'metavar': '<RaidGroup-n,RaidGroup-n>',
+        'type': str,
+        'required': True,
+        'help': 'A comma separated list of RAID groups to use for the '
+                'storage pool with no spaces.  e.g.: '
+                '"RaidGroup-3,RaidGroup-4".  Required.'
+    }
+}
+
+POOL_CAPACITY_OPTION = {
+    'option_positional': ['-C', '--capacity'],
+    'option_keywords': {
+        'dest': 'param_capacity',
+        'metavar': '<n>',
+        'type': int,
+        'required': True,
+        'help': 'The capacity in GB to create/expand by.  Required.'
+    }
+}
+
+POOL_CACHE_OPTION = {
+    'option_positional': ['--cache'],
+    'option_keywords': {
+        'dest': 'param_cache',
+        'choices': ['YES', 'NO'],
+        'type': str,
+        'required': True,
+        'help': 'Toggles the storage pool SSD cache.  Required.'
+    }
+}
+
 RAID_GROUP_ID_OPTION = {
     'option_positional': ['-i', '--id'],
     'option_keywords': {
@@ -76,17 +135,6 @@ RAID_GROUP_ID_OPTION = {
         'required': True,
         'help': 'The RAID group "name" value as returned by "raid-groups '
                 'list".  For example: "RaidGroup-1".  Required.'
-    }
-}
-
-RAID_GROUP_DISPLAY_NAME_OPTION = {
-    'option_positional': ['-d', '--display_name'],
-    'option_keywords': {
-        'dest': 'param_display_name',
-        'metavar': 'xxx',
-        'type': str,
-        'required': True,
-        'help': 'The display name to set for the RAID group.  Required.'
     }
 }
 
@@ -147,17 +195,7 @@ COMMANDS_DICT = [
                 'subcommand_info': ('rename', drives.rename_drive),
                 'subcommand_options': [
                     DRIVE_ID_OPTION,
-                    {
-                        'option_positional': ['-d', '--display_name'],
-                        'option_keywords': {
-                            'dest': 'param_newname',
-                            'metavar': '<display name>',
-                            'type': str,
-                            'required': True,
-                            'help': 'The new display name to set for the '
-                                    'drive.  Required.'
-                        }
-                    }
+                    DISPLAY_NAME_OPTION
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Changes the display name for a drive.'
@@ -205,13 +243,221 @@ COMMANDS_DICT = [
         ]
     },
     {
+        'command_name': 'pools',
+        'help': 'Commands related to storage pools',
+        'subcommands': [
+            {
+                'subcommand_info': ('cache', pools.set_pool_cache),
+                'subcommand_options': [
+                    POOL_ID_OPTION,
+                    POOL_CACHE_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Toggles the SSD caching for a pool'
+            },
+            {
+                'subcommand_info': ('capacity-alerts',
+                                    pools.update_pool_capacity_alerts),
+                'subcommand_options': [
+                    POOL_ID_OPTION,
+                    {
+                        'option_positional': ['-C', '--capacityhistory'],
+                        'option_keywords': {
+                            'dest': 'param_capacityhistory',
+                            'metavar': '<n>',
+                            'type': int,
+                            'help': 'The number of minutes used to calculate '
+                                    'pool exhaustion.'
+                        }
+                    },
+                    {
+                        'option_positional': ['-a', '--alertmode'],
+                        'option_keywords': {
+                            'dest': 'param_alertmode',
+                            'metavar': '<n>',
+                            'type': int,
+                            'help': 'The number of minutes before the '
+                                    'storage pool is predicted to reach '
+                                    'space exhaustion'
+                        }
+                    },
+                    {
+                        'option_positional': ['-p', '--protectedmode'],
+                        'option_keywords': {
+                            'dest': 'param_protectedmode',
+                            'metavar': '<n>',
+                            'type': int,
+                            'help': 'The number of minutes until pool space '
+                                    'exhaustion before protected mode is '
+                                    'enabled'
+                        }
+                    },
+                    {
+                        'option_positional': ['-e', '--emergencymode'],
+                        'option_keywords': {
+                            'dest': 'param_emergencymode',
+                            'metavar': '<n>',
+                            'type': int,
+                            'help': 'Start deleting old snapshots when '
+                                    'number of GB free is under this value'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Change capacity alert settings'
+            },
+            {
+                'subcommand_info': ('create', pools.create_pool),
+                'subcommand_options': [
+                    DISPLAY_NAME_OPTION,
+                    POOL_RAID_GROUPS_OPTION,
+                    POOL_CAPACITY_OPTION,
+                    {
+                        'option_positional': ['-p', '--pooltype'],
+                        'option_keywords': {
+                            'dest': 'param_pooltype',
+                            'choices': ['OLTP', 'Repository',
+                                        'Transactional'],
+                            'type': str,
+                            'required': True,
+                            'help': 'The storage pool type to create.  '
+                                    'Required.'
+                        }
+                    },
+                    POOL_CACHE_OPTION,
+                    {
+                        'option_positional': ['-m', '--mode'],
+                        'option_keywords': {
+                            'dest': 'param_mode',
+                            'choices': ['simple', 'stripe'],
+                            'type': str,
+                            'default': 'stripe',
+                            'help': 'The storage pool striping mode to use.  '
+                                    'Default: stripe'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Creates a new storage pool'
+            },
+            {
+                'subcommand_info': ('delete', pools.delete_pool),
+                'subcommand_options': [
+                    POOL_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes a storage pool'
+            },
+            {
+                'subcommand_info': ('expand', pools.add_raid_groups_to_pool),
+                'subcommand_options': [
+                    POOL_ID_OPTION,
+                    POOL_RAID_GROUPS_OPTION,
+                    POOL_CAPACITY_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Expands a storage pool with the provided '
+                                   'RAID groups'
+            },
+            {
+                'subcommand_info': ('get', pools.get_pool),
+                'subcommand_options': [
+                    POOL_ID_OPTION
+                ],
+                'subcommand_return_key': 'pool',
+                'subcommand_help': 'Displays details for a single storage '
+                                   'pool on the VPSA'
+            },
+            {
+                'subcommand_info': ('list', pools.get_all_pools),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'pools',
+                'subcommand_help': 'Displays details for all storage pools '
+                                   'on the VPSA'
+            },
+
+            {
+                'subcommand_info': ('list-raid-groups',
+                                    pools.get_raid_groups_in_pool),
+                'subcommand_options': [
+                    POOL_ID_OPTION,
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'raid_groups',
+                'subcommand_help': 'Displays all RAID groups in the storage '
+                                   'pool'
+            },
+            {
+                'subcommand_info': ('list-volumes',
+                                    pools.get_volumes_in_pool),
+                'subcommand_options': [
+                    POOL_ID_OPTION,
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'volumes',
+                'subcommand_help': 'Displays all volumes in the storage pool'
+            },
+            {
+                'subcommand_info': ('list-volumes-mirror',
+                                    pools.
+                                    get_pool_mirror_destination_volumes),
+                'subcommand_options': [
+                    POOL_ID_OPTION,
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'volumes',
+                'subcommand_help': 'Displays all mirror destination volumes '
+                                   'in the storage pool'
+            },
+            {
+                'subcommand_info': ('list-volumes-recycle-bin',
+                                    pools.get_volumes_in_pool_recycle_bin),
+                'subcommand_options': [
+                    POOL_ID_OPTION,
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'volumes',
+                'subcommand_help': 'Displays all volumes currently in the '
+                                   'pool\'s recycle bin'
+            },
+            {
+                'subcommand_info': ('performance',
+                                    pools.get_pool_performance),
+                'subcommand_options': [
+                    POOL_ID_OPTION,
+                    INTERVAL_OPTION
+                ],
+                'subcommand_return_key': 'usages',
+                'subcommand_help': 'Gets performance statistics for a '
+                                   'storage pool'
+            },
+            {
+                'subcommand_info': ('rename', pools.rename_pool),
+                'subcommand_options': [
+                    POOL_ID_OPTION,
+                    DISPLAY_NAME_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Changes the display name for a storage '
+                                   'pool'
+            }
+        ],
+    },
+    {
         'command_name': 'raid-groups',
         'help': 'Commands related to RAID groups',
         'subcommands': [
             {
                 'subcommand_info': ('create', raid_groups.create_raid_group),
                 'subcommand_options': [
-                    RAID_GROUP_DISPLAY_NAME_OPTION,
+                    DISPLAY_NAME_OPTION,
                     {
                         'option_positional': ['-D', '--disks'],
                         'option_keywords': {
@@ -382,7 +628,7 @@ COMMANDS_DICT = [
                 'subcommand_info': ('rename', raid_groups.rename_raid_group),
                 'subcommand_options': [
                     RAID_GROUP_ID_OPTION,
-                    RAID_GROUP_DISPLAY_NAME_OPTION
+                    DISPLAY_NAME_OPTION
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Changes the display name for a RAID '
@@ -436,7 +682,7 @@ def format_return(data):
     Format the returned Python dictionary or list of dictionaries into human
     readable format.
 
-    :type data: dict, str
+    :type data: dict, list
     :param data: The data to be formatted.  This is typically the path to the
         'subcommand_return_key' in the returned dictionary from the API.
 
