@@ -1021,8 +1021,9 @@ def main():
                         help='Enable verbose output for debugging '
                              'purposes')
     group1.add_argument('--vertical', action='store_true',
-                        help='Enable verbose output for debugging '
-                             'purposes')
+                        help='Display output in vertical form with a single '
+                             'output table per row - this makes viewing '
+                             'large amounts of output easier')
 
     # Main Parser
     parser = argparse.ArgumentParser(
