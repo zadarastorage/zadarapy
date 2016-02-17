@@ -70,7 +70,7 @@ def get_logs(session, sort='DESC', severity=None, start=None, limit=None,
                              .format(limit))
 
     method = 'GET'
-    path = '/api/nas/users.json'
+    path = '/api/messages.json'
 
     parameters = {k: v for k, v in (('sort', sort), ('severity', severity),
                                     ('start', start), ('limit', limit))

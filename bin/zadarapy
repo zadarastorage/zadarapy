@@ -19,10 +19,23 @@ import argparse
 import sys
 from pprint import pprint
 from terminaltables import AsciiTable
+from terminaltables import SingleTable
 from zadarapy import drives
 from zadarapy import pools
 from zadarapy import raid_groups
 from zadarapy import session
+from zadarapy import volumes
+
+CAPACITY_OPTION = {
+    'option_positional': ['-C', '--capacity'],
+    'option_keywords': {
+        'dest': 'param_capacity',
+        'metavar': '<n>',
+        'type': int,
+        'required': True,
+        'help': 'The capacity in GB to create/expand by.  Required.'
+    }
+}
 
 DISPLAY_NAME_OPTION = {
     'option_positional': ['-d', '--display_name'],
@@ -104,17 +117,6 @@ POOL_RAID_GROUPS_OPTION = {
     }
 }
 
-POOL_CAPACITY_OPTION = {
-    'option_positional': ['-C', '--capacity'],
-    'option_keywords': {
-        'dest': 'param_capacity',
-        'metavar': '<n>',
-        'type': int,
-        'required': True,
-        'help': 'The capacity in GB to create/expand by.  Required.'
-    }
-}
-
 POOL_CACHE_OPTION = {
     'option_positional': ['--cache'],
     'option_keywords': {
@@ -135,6 +137,164 @@ RAID_GROUP_ID_OPTION = {
         'required': True,
         'help': 'The RAID group "name" value as returned by "raid-groups '
                 'list".  For example: "RaidGroup-1".  Required.'
+    }
+}
+
+VOLUME_ID_OPTION = {
+    'option_positional': ['-i', '--id'],
+    'option_keywords': {
+        'dest': 'param_volume_id',
+        'metavar': '<volume-xxxxxxxx>',
+        'type': str,
+        'required': True,
+        'help': 'The volume "name" value as returned by "volume list".  For '
+                'example: "volume-00000001".  Required.'
+    }
+}
+
+VOLUME_BLOCK_OPTION = {
+    'option_positional': ['-b', '--block'],
+    'option_keywords': {
+        'dest': 'param_block',
+        'choices': ['YES', 'NO'],
+        'type': str,
+        'required': True,
+        'help': 'If YES, the volume will be block (iSCSI/iSER).  If NO, it '
+                'will be a NAS volume (NFS/SMB).  Required.'
+    }
+}
+
+VOLUME_ATTACHPOLICIES_OPTION = {
+    'option_positional': ['-a', '--attachpolicies'],
+    'option_keywords': {
+        'dest': 'param_attachpolicies',
+        'choices': ['YES', 'NO'],
+        'type': str,
+        'default': 'YES',
+        'help': 'If YES, the default snapshot policies for the VPSA will be '
+                'attached.  If NO, no snapshot policies will be assigned.  '
+                'Default: YES'
+    }
+}
+
+VOLUME_EXPORT_NAME_OPTION = {
+    'option_positional': ['-e', '--export-name'],
+    'option_keywords': {
+        'dest': 'param_export_name',
+        'metavar': '<xxx>',
+        'type': str,
+        'help': 'If set, the last part of the NFS/SMB export path will be '
+                'set to this value.  If not set, display_name will be used.'
+    }
+}
+
+VOLUME_ATIMEUPDATE_OPTION = {
+    'option_positional': ['--atimeupdate'],
+    'option_keywords': {
+        'dest': 'param_atimeupdate',
+        'choices': ['YES', 'NO'],
+        'type': str,
+        'default': 'NO',
+        'help': 'If YES, NAS shares will updated last accessed time each '
+                'time a file is accessed (impacts performance).  Default: NO'
+    }
+}
+
+VOLUME_SMBONLY_OPTION = {
+    'option_positional': ['--smbonly'],
+    'option_keywords': {
+        'dest': 'param_smbonly',
+        'choices': ['YES', 'NO'],
+        'type': str,
+        'default': 'NO',
+        'help': 'If YES, NAS shares will be accessible only via SMB '
+                '(improves performance).  Default: NO'
+    }
+}
+
+VOLUME_SMBGUEST_OPTION = {
+    'option_positional': ['--smbguest'],
+    'option_keywords': {
+        'dest': 'param_smbguest',
+        'choices': ['YES', 'NO'],
+        'type': str,
+        'default': 'NO',
+        'help': 'If YES, authentication will not be required to login to and '
+                'read/write from/to a SMB share.  Default: NO'
+    }
+}
+
+VOLUME_SMBWINDOWSACL_OPTION = {
+    'option_positional': ['--smbwindowsacl'],
+    'option_keywords': {
+        'dest': 'param_smbwindowsacl',
+        'choices': ['YES', 'NO'],
+        'type': str,
+        'default': 'NO',
+        'help': 'If YES, extended ACLs will be enabled for SMB shares.  '
+                'Default: NO'
+    }
+}
+
+VOLUME_SMBFILECREATEMASK_OPTION = {
+    'option_positional': ['--smbfilecreatemask'],
+    'option_keywords': {
+        'dest': 'param_smbfilecreatemask',
+        'metavar': '<nnnn>',
+        'type': str,
+        'default': '0744',
+        'help': 'For NAS shares, the permissions assigned to new files '
+                'created through SMB shares.  Default: 0744'
+    }
+}
+
+VOLUME_SMBDIRCREATEMASK_OPTION = {
+    'option_positional': ['--smbdircreatemask'],
+    'option_keywords': {
+        'dest': 'param_smbdircreatemask',
+        'metavar': '<nnnn>',
+        'type': str,
+        'default': '0755',
+        'help': 'For NAS shares, the permissions assigned to new directories '
+                'created through SMB shares.  Default: 0755'
+    }
+}
+
+VOLUME_SMBMAPARCHIVE_OPTION = {
+    'option_positional': ['--smbmaparchive'],
+    'option_keywords': {
+        'dest': 'param_smbmaparchive',
+        'choices': ['YES', 'NO'],
+        'type': str,
+        'default': 'YES',
+        'help': 'For NAS shares, when using SMB, if YES, a file\'s execute '
+                'bit will be used to flag the Archive file attribute.  '
+                'Default: YES'
+    }
+}
+
+VOLUME_SMBAIOSIZE_OPTION = {
+    'option_positional': ['--smbaiosize'],
+    'option_keywords': {
+        'dest': 'param_smbaiosize',
+        'choices': ['YES', 'NO'],
+        'type': str,
+        'default': 'NO',
+        'help': 'For NAS shares, when using SMB, if YES, file reads will be '
+                'performed asynchronously, which improves performance for '
+                'some workloads.  Default: NO'
+    }
+}
+
+VOLUME_NFSROOTSQUASH_OPTION = {
+    'option_positional': ['--nfsrootsquash'],
+    'option_keywords': {
+        'dest': 'param_nfsrootsquash',
+        'choices': ['YES', 'NO'],
+        'type': str,
+        'default': 'NO',
+        'help': 'For NAS shares, when using NFS, if YES, root squash is  '
+                'enabled.  Default: NO'
     }
 }
 
@@ -311,7 +471,7 @@ COMMANDS_DICT = [
                 'subcommand_options': [
                     DISPLAY_NAME_OPTION,
                     POOL_RAID_GROUPS_OPTION,
-                    POOL_CAPACITY_OPTION,
+                    CAPACITY_OPTION,
                     {
                         'option_positional': ['-p', '--pooltype'],
                         'option_keywords': {
@@ -353,7 +513,7 @@ COMMANDS_DICT = [
                 'subcommand_options': [
                     POOL_ID_OPTION,
                     POOL_RAID_GROUPS_OPTION,
-                    POOL_CAPACITY_OPTION
+                    CAPACITY_OPTION
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Expands a storage pool with the provided '
@@ -673,11 +833,81 @@ COMMANDS_DICT = [
                                    'RAID group will resync'
             }
         ]
+    },
+    {
+        'command_name': 'volumes',
+        'help': 'Commands related to volumes',
+        'subcommands': [
+            {
+                'subcommand_info': ('create', volumes.create_volume),
+                'subcommand_options': [
+                    POOL_ID_OPTION,
+                    DISPLAY_NAME_OPTION,
+                    CAPACITY_OPTION,
+                    VOLUME_BLOCK_OPTION,
+                    VOLUME_ATTACHPOLICIES_OPTION,
+                    {
+                        'option_positional': ['--crypt'],
+                        'option_keywords': {
+                            'dest': 'param_crypt',
+                            'choices': ['YES', 'NO'],
+                            'type': str,
+                            'default': 'NO',
+                            'help': 'If YES, encryption will be enabled '
+                                    'using the VPSA encryption key defined '
+                                    'by the user.  If NO, encryption will '
+                                    'not be enabled.  Default: NO'
+                        }
+                    },
+                    VOLUME_EXPORT_NAME_OPTION,
+                    VOLUME_ATIMEUPDATE_OPTION,
+                    VOLUME_SMBONLY_OPTION,
+                    VOLUME_SMBGUEST_OPTION,
+                    VOLUME_SMBWINDOWSACL_OPTION,
+                    VOLUME_SMBFILECREATEMASK_OPTION,
+                    VOLUME_SMBDIRCREATEMASK_OPTION,
+                    VOLUME_SMBMAPARCHIVE_OPTION,
+                    VOLUME_SMBAIOSIZE_OPTION,
+                    VOLUME_NFSROOTSQUASH_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Creates a new volume on the provided pool'
+            },
+            {
+                'subcommand_info': ('get', volumes.get_volume),
+                'subcommand_options': [
+                    VOLUME_ID_OPTION
+                ],
+                'subcommand_return_key': 'volume',
+                'subcommand_help': 'Displays details for a single volume on '
+                                   'the VPSA'
+            },
+            {
+                'subcommand_info': ('list', volumes.get_all_volumes),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'volumes',
+                'subcommand_help': 'Displays details for all volumes on the '
+                                   'VPSA'
+            },
+            {
+                'subcommand_info': ('list-free', volumes.get_free_volumes),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'volumes',
+                'subcommand_help': 'Displays details for all volumes not '
+                                   'currently attached to any servers'
+            }
+        ]
     }
 ]
 
 
-def format_return(data):
+def format_return(data, vertical=False):
     """
     Format the returned Python dictionary or list of dictionaries into human
     readable format.
@@ -686,37 +916,76 @@ def format_return(data):
     :param data: The data to be formatted.  This is typically the path to the
         'subcommand_return_key' in the returned dictionary from the API.
 
-    :rtype str
+    :type vertical: bool
+    :param vertical: If True, output will be displayed in a vertical format.
+        This makes the output of large amount of columns easier to read.
+
+    :rtype list
     :return: If a non empty list or dictionary, a human readable table will be
         generated and returned.  If an empty list is detected, a simple
         message will be returned.
     """
-    table_data = [[]]
+    if vertical:
+        table_data = []
+        table_formatted = []
 
-    if type(data) is list:
-        if len(data) > 0:
-            for key in sorted(data[0]):
-                table_data[0].append(key)
-
-            for return_dict in data:
-                row = []
-
-                for key in sorted(return_dict):
-                    row.append(str(return_dict[key]))
-
-                table_data.append(row)
+        if type(data) is list:
+            if len(data) > 0:
+                for return_dict in data:
+                    items = []
+                    for key, value in sorted(return_dict.items()):
+                        items.append([str(key), str(value)])
+                    table_data.append(items)
+            else:
+                return 'An empty result set was returned'
         else:
-            return 'An empty result set was returned'
+            items = []
+            for key, value in sorted(data.items()):
+                items.append([str(key), str(value)])
+
+            table_data.append(items)
+
+        for row in table_data:
+            table = SingleTable(row)
+            table.inner_heading_row_border = False
+            title = None
+            for item in row:
+                if item[0] == 'name':
+                    title = item[1]
+            if title is not None:
+                table.title = title
+            table_formatted.append(table.table)
+
+        return table_formatted
     else:
-        row = []
+        table_data = [[]]
 
-        for key, value in sorted(data.items()):
-            table_data[0].append(key)
-            row.append(str(value))
+        if type(data) is list:
+            if len(data) > 0:
+                for key in sorted(data[0]):
+                    table_data[0].append(key)
 
-        table_data.append(row)
+                for return_dict in data:
+                    row = []
 
-    return AsciiTable(table_data, 'Count: ' + str(len(table_data) - 1)).table
+                    for key in sorted(return_dict):
+                        row.append(str(return_dict[key]))
+
+                    table_data.append(row)
+            else:
+                return 'An empty result set was returned'
+        else:
+            row = []
+
+            for key, value in sorted(data.items()):
+                table_data[0].append(key)
+                row.append(str(value))
+
+            table_data.append(row)
+
+        return [AsciiTable(
+            table_data, 'Count: ' + str(len(table_data) - 1)
+        ).table]
 
 
 def main():
@@ -749,6 +1018,9 @@ def main():
                              'the ZADARA_KEY environment variable, or a '
                              'configuration file')
     group1.add_argument('-v', '--verbose', action='store_true',
+                        help='Enable verbose output for debugging '
+                             'purposes')
+    group1.add_argument('--vertical', action='store_true',
                         help='Enable verbose output for debugging '
                              'purposes')
 
@@ -866,10 +1138,14 @@ def main():
                             pprint(result)
 
                         if subcommand['subcommand_return_key'] is not None:
-                            print(format_return(
-                                result['response']
-                                [subcommand['subcommand_return_key']]
-                            ))
+                            tables = format_return(
+                                data=result['response']
+                                [subcommand['subcommand_return_key']],
+                                vertical=parsed_args['vertical']
+                            )
+
+                            for table in tables:
+                                print(table)
                         else:
                             print('Command returned success')
 

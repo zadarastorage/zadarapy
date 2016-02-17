@@ -309,11 +309,12 @@ def create_volume(session, pool_id, display_name, capacity, block,
     if block == 'YES':
         body_values['thin'] = 'YES'
     else:
-        if not is_valid_field(export_name):
-            raise ValueError('{0} is not a valid export name.'
-                             .format(export_name))
+        if export_name is not None:
+            if not is_valid_field(export_name):
+                raise ValueError('{0} is not a valid export name.'
+                                 .format(export_name))
 
-        body_values['export_name'] = export_name
+            body_values['export_name'] = export_name
 
         if atimeupdate not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid atimeupdate parameter.  '
