@@ -225,6 +225,30 @@ def is_valid_mask(mask):
     return True
 
 
+def is_valid_mgrjob_id(mgrjob_id):
+    """
+    Validates a migration job ID, also known as the migration job
+    "migration_job_name".  A valid migration job name should look like:
+    mgrjob-00000001 - It should always start with "mgrjob-" and end with 8
+    hexadecimal characters in lower case.
+
+    :type mgrjob_id: str
+    :param mgrjob_id: The consistency group name to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether cg_id passes validation.
+    """
+    if mgrjob_id is None:
+        return False
+
+    match = re.match('^mgrjob-[0-9a-f]{8}$', cg_id)
+
+    if not match:
+        return False
+
+    return True
+
+
 def is_valid_mirror_id(mirror_id):
     """
     Validates a mirror job ID, also known as the mirror job "job_name".
@@ -334,6 +358,27 @@ def is_valid_pool_id(pool_id, remote_pool_allowed=False):
         match = re.match('^pool-[0-9a-f]{8}$', pool_id)
 
     if not match:
+        return False
+
+    return True
+
+
+def is_valid_port(port):
+    """
+    Validates port range.  Port must be within 1-65535 range.
+
+    :type port: int
+    :param port: Theport to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether hostname passes validation.
+    """
+    if port is None:
+        return False
+
+    port = int(port)
+
+    if port < 1 or port > 65535:
         return False
 
     return True

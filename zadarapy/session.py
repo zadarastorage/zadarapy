@@ -21,6 +21,7 @@ import os
 from urllib.parse import urlencode
 from zadarapy.validators import is_valid_hostname
 from zadarapy.validators import is_valid_ip_address
+from zadarapy.validators import is_valid_port
 from zadarapy.validators import is_valid_zadara_key
 
 
@@ -34,7 +35,8 @@ class Session(object):
     zadara_key = None
     zadara_secure = None
 
-    def __init__(self, host=None, key=None, configfile=None, secure=True):
+    def __init__(self, host=None, port=None, key=None, configfile=None,
+                 secure=True):
         """
         Configuration details for working with the API will be gathered from
         the following, in order or preference:
@@ -50,6 +52,11 @@ class Session(object):
             should be passed directly instead of part of a URL.  e.g.
             'vsa-00000578-aws.zadaravpsa.com', not
             'https://vsa-00000578-aws.zadaravpsa.com/'.
+
+        :type port: int
+        :param port: The port for the API endpoint.  If set to None, the
+            default port for the HTTP mode will be used (80 for HTTP, 443 for
+            HTTPS).  Optional.
 
         :type key: str
         :param key: The API key for the connecting user.
@@ -88,6 +95,17 @@ class Session(object):
         else:
             raise ValueError('The API hostname was not defined.')
 
+        # Port for API endpoint
+        if port is not None:
+            self.zadara_port = port
+        elif os.getenv('ZADARA_PORT') is not None:
+            self.zadara_port = os.getenv('ZADARA_PORT')
+        elif self._config is not None:
+            if self._config['DEFAULT'].get('port', None) is not None:
+                self.zadara_port = self._config['DEFAULT'].get('port')
+        else:
+            self.zadara_port = None
+
         # Authorization key for API endpoint
         if key is not None:
             self.zadara_key = key
@@ -114,8 +132,8 @@ class Session(object):
         else:
             self.zadara_secure = True
 
-    def call_api(self, method, path, host=None, key=None, secure=None,
-                 body=None, parameters=None, return_type=None):
+    def call_api(self, method, path, host=None, port=None, key=None,
+                 secure=None, body=None, parameters=None, return_type=None):
         """
         Makes the actual REST call to the Zadara API endpoint.  If host, key,
         and/or secure are set as None, the instance variables will be used as
@@ -137,6 +155,11 @@ class Session(object):
             should be passed directly instead of part of a URL.  e.g.
             'vsa-00000578-aws.zadaravpsa.com', not
             'https://vsa-00000578-aws.zadaravpsa.com/'.  Required.
+
+        :type port: int
+        :param port: The port for the API endpoint.  If set to None, the
+            default port for the HTTP mode will be used (80 for HTTP, 443 for
+            HTTPS).  Optional.
 
         :type key: str
         :param key: The API key for the connecting user.  Required.
@@ -168,6 +191,9 @@ class Session(object):
         if host is None:
             host = self.zadara_host
 
+        if port is None:
+            port = self.zadara_port
+
         if key is None:
             key = self.zadara_key
 
@@ -179,14 +205,19 @@ class Session(object):
             raise ValueError('{0} is not a valid hostname or IP address.'
                              .format(self.zadara_host))
 
+        if port is not None:
+            if not is_valid_port(self.zadara_port):
+                raise ValueError('The supplied port "{0}" must be within '
+                                 '1-65535 range.')
+
         if not is_valid_zadara_key(self.zadara_key):
             raise ValueError('{0} is not a valid API key'
                              .format(self.zadara_key))
 
         if secure:
-            conn = http.client.HTTPSConnection(host)
+            conn = http.client.HTTPSConnection(host, port)
         else:
-            conn = http.client.HTTPConnection(host)
+            conn = http.client.HTTPConnection(host, port)
 
         headers = {}
 
@@ -210,9 +241,9 @@ class Session(object):
 
         response = conn.getresponse()
 
-        if response.status != 200:
+        if response.status not in [200, 302]:
             conn.close()
-            raise RuntimeError('API server did not return an HTTP 200 '
+            raise RuntimeError('API server did not return an HTTP 200 or 302 '
                                'response.  Status "{0} {1}" was returned '
                                'instead.  Please investigate.'
                                .format(response.status, response.reason))

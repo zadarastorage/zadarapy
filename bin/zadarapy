@@ -25,6 +25,7 @@ from zadarapy import pools
 from zadarapy import raid_groups
 from zadarapy import session
 from zadarapy import volumes
+from zadarapy import vpsa_operations
 
 CAPACITY_OPTION = {
     'option_positional': ['-C', '--capacity'],
@@ -37,8 +38,32 @@ CAPACITY_OPTION = {
     }
 }
 
+CG_ID_OPTION = {
+    'option_positional': ['--cg-id'],
+    'option_keywords': {
+        'dest': 'param_cg_id',
+        'metavar': '<cg-xxxxxxxx>',
+        'type': str,
+        'required': True,
+        'help': 'The volume "cg_name" value as returned by "volumes list".  '
+                'For example: "cg-00000001".  Required.'
+    }
+}
+
+CLOUD_ID_OPTION = {
+    'option_positional': ['-i', '--id'],
+    'option_keywords': {
+        'dest': 'param_cloud_id',
+        'metavar': '<cloud-name>',
+        'type': str,
+        'required': True,
+        'help': 'The cloud "name" value as returned by "vpsa-operations '
+                'list-clouds".  For example: "volume-00000001".  Required.'
+    }
+}
+
 DISPLAY_NAME_OPTION = {
-    'option_positional': ['-d', '--display_name'],
+    'option_positional': ['-d', '--display-name'],
     'option_keywords': {
         'dest': 'param_display_name',
         'metavar': '<xxx>',
@@ -48,13 +73,15 @@ DISPLAY_NAME_OPTION = {
     }
 }
 
-LIMIT_OPTION = {
-    'option_positional': ['-l', '--limit'],
+DRIVE_ID_OPTION = {
+    'option_positional': ['-i', '--id'],
     'option_keywords': {
-        'dest': 'param_limit',
-        'metavar': '<n>',
-        'type': int,
-        'help': 'The maximum number of items to return'
+        'dest': 'param_drive_id',
+        'metavar': '<volume-xxxxxxxx>',
+        'type': str,
+        'required': True,
+        'help': 'The drive "name" value as returned by "drives list".  For '
+                'example: "volume-00002a73".  Required.'
     }
 }
 
@@ -70,25 +97,38 @@ INTERVAL_OPTION = {
     }
 }
 
-START_OPTION = {
-    'option_positional': ['-s', '--start'],
+LIMIT_OPTION = {
+    'option_positional': ['-l', '--limit'],
     'option_keywords': {
-        'dest': 'param_start',
+        'dest': 'param_limit',
         'metavar': '<n>',
         'type': int,
-        'help': 'The offset to start displaying items from'
+        'help': 'The maximum number of items to return'
     }
 }
 
-DRIVE_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+MIGRATION_ID_OPTION = {
+    'option_positional': ['--migration-id'],
     'option_keywords': {
-        'dest': 'param_drive_id',
-        'metavar': '<volume-xxxxxxxx>',
+        'dest': 'param_mgrjob_id',
+        'metavar': '<mgrjob-xxxxxxxx>',
         'type': str,
         'required': True,
-        'help': 'The drive "name" value as returned by "drives list".  For '
-                'example: "volume-00002a73".  Required.'
+        'help': 'The volume "migration_job_name" value as returned by "'
+                '"volumes show-migration-job".  For example: '
+                '"mgrjob-00000001".  Required.'
+
+    }
+}
+
+POOL_CACHE_OPTION = {
+    'option_positional': ['--cache'],
+    'option_keywords': {
+        'dest': 'param_cache',
+        'choices': ['YES', 'NO'],
+        'type': str,
+        'required': True,
+        'help': 'Toggles the storage pool SSD cache.  Required.'
     }
 }
 
@@ -117,17 +157,6 @@ POOL_RAID_GROUPS_OPTION = {
     }
 }
 
-POOL_CACHE_OPTION = {
-    'option_positional': ['--cache'],
-    'option_keywords': {
-        'dest': 'param_cache',
-        'choices': ['YES', 'NO'],
-        'type': str,
-        'required': True,
-        'help': 'Toggles the storage pool SSD cache.  Required.'
-    }
-}
-
 RAID_GROUP_ID_OPTION = {
     'option_positional': ['-i', '--id'],
     'option_keywords': {
@@ -140,6 +169,78 @@ RAID_GROUP_ID_OPTION = {
     }
 }
 
+REMOTE_POOL_ID_OPTION = {
+    'option_positional': ['--remote-pool-id'],
+    'option_keywords': {
+        'dest': 'param_remote_pool_id',
+        'metavar': '<rpool-xxxxxxxx>',
+        'type': str,
+        'required': True,
+        'help': 'The remote storage pool "name" value as returned by '
+                '"mirrors list-remote-vpsas".  For example: '
+                '"rpool-00000001".  Required.'
+    }
+}
+
+ROS_BACKUP_JOB_ID_OPTION = {
+    'option_positional': ['-i', '--id'],
+    'option_keywords': {
+        'dest': 'param_ros_backup_job_id',
+        'metavar': '<bkpjobs-xxxxxxxx>',
+        'type': str,
+        'help': 'The remote object storage backup job "name" value as '
+                'returned by "remote-object-storage list-jobs".  For '
+                'example: "bkpjobs-00000001".'
+    }
+}
+
+SERVER_ID_LIST_OPTION = {
+    'option_positional': ['-S', '--server-ids'],
+    'option_keywords': {
+        'dest': 'param_servers',
+        'metavar': '<srv-xxxxxxxx,srv-yyyyyyyy>',
+        'type': str,
+        'required': True,
+        'help': 'A comma separated list of server records, or one server '
+                'record without any commas.'
+    }
+}
+
+SNAPSHOT_ID_OPTION = {
+    'option_positional': ['-i', '--id'],
+    'option_keywords': {
+        'dest': 'param_snapshot_id',
+        'metavar': '<snap-xxxxxxxx>',
+        'type': str,
+        'required': True,
+        'help': 'The snapshot "name" value as returned by "volumes '
+                'list-snapshots".  For example: "snap-00000001".  Required.'
+    }
+}
+
+SNAPSHOT_POLICY_ID_OPTION = {
+    'option_positional': ['-i', '--id'],
+    'option_keywords': {
+        'dest': 'param_policy_id',
+        'metavar': '<policy-xxxxxxxx>',
+        'type': str,
+        'required': True,
+        'help': 'The snapshot policy "name" value as returned by '
+                '"snapshot-policies list".  For example: "policy-00000001".  '
+                'Required.'
+    }
+}
+
+START_OPTION = {
+    'option_positional': ['-s', '--start'],
+    'option_keywords': {
+        'dest': 'param_start',
+        'metavar': '<n>',
+        'type': int,
+        'help': 'The offset to start displaying items from'
+    }
+}
+
 VOLUME_ID_OPTION = {
     'option_positional': ['-i', '--id'],
     'option_keywords': {
@@ -147,7 +248,7 @@ VOLUME_ID_OPTION = {
         'metavar': '<volume-xxxxxxxx>',
         'type': str,
         'required': True,
-        'help': 'The volume "name" value as returned by "volume list".  For '
+        'help': 'The volume "name" value as returned by "volumes list".  For '
                 'example: "volume-00000001".  Required.'
     }
 }
@@ -298,6 +399,19 @@ VOLUME_NFSROOTSQUASH_OPTION = {
     }
 }
 
+VPSA_ID_OPTION = {
+    'option_positional': ['-i', '--id'],
+    'option_keywords': {
+        'dest': 'param_vpsa_id',
+        'metavar': '<vpsa-id>',
+        'type': int,
+        'required': True,
+        'help': 'The VPSA "id" value as returned by "vpsa-operations '
+                'list-vpsas".  For example: "2653".  Required.'
+    }
+}
+
+
 COMMANDS_DICT = [
     {
         'command_name': 'drives',
@@ -403,6 +517,73 @@ COMMANDS_DICT = [
         ]
     },
     {
+        'command_name': 'migration',
+        'help': 'Commands related to migrating volumes',
+        'subcommands': [
+            {
+                'subcommand_info': ('cancel-volume-migration',
+                                    volumes.cancel_volume_migration),
+                'subcommand_options': [
+                    MIGRATION_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Cancels a volume migration job.'
+            },
+            {
+                'subcommand_info': ('migrate-volume', volumes.migrate_volume),
+                'subcommand_options': [
+                    CG_ID_OPTION,
+                    POOL_ID_OPTION,
+                    {
+                        'option_positional': ['-m', '--migrate-snapshots'],
+                        'option_keywords': {
+                            'dest': 'param_migrate_snaps',
+                            'choices': ['YES', 'NO'],
+                            'type': str,
+                            'default': 'YES',
+                            'help': 'If set to YES, all of the affected '
+                                    'volume\'s snapshots will be migrated '
+                                    'along with the volume.  Defaults to YES.'
+                        }
+                    },
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Migrates a volume from one storage pool '
+                                   'to another - this can be done while '
+                                   'clients continue to use the affected '
+                                   'volume.'
+            },
+            {
+                'subcommand_info': ('pause-volume-migration',
+                                    volumes.pause_volume_migration),
+                'subcommand_options': [
+                    MIGRATION_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Pauses a running volume migration job.'
+            },
+            {
+                'subcommand_info': ('resume-volume-migration',
+                                    volumes.resume_volume_migration),
+                'subcommand_options': [
+                    MIGRATION_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Resumes a paused volume migration job.'
+            },
+            {
+                'subcommand_info': ('show-volume-migration',
+                                    volumes.get_volume_migration),
+                'subcommand_options': [
+                    MIGRATION_ID_OPTION
+                ],
+                'subcommand_return_key': 'migration_job',
+                'subcommand_help': 'Displays details for a volume migration '
+                                   'job'
+            }
+        ]
+    },
+    {
         'command_name': 'pools',
         'help': 'Commands related to storage pools',
         'subcommands': [
@@ -442,7 +623,7 @@ COMMANDS_DICT = [
                         }
                     },
                     {
-                        'option_positional': ['-p', '--protectedmode'],
+                        'option_positional': ['-P', '--protectedmode'],
                         'option_keywords': {
                             'dest': 'param_protectedmode',
                             'metavar': '<n>',
@@ -473,7 +654,7 @@ COMMANDS_DICT = [
                     POOL_RAID_GROUPS_OPTION,
                     CAPACITY_OPTION,
                     {
-                        'option_positional': ['-p', '--pooltype'],
+                        'option_positional': ['-P', '--pooltype'],
                         'option_keywords': {
                             'dest': 'param_pooltype',
                             'choices': ['OLTP', 'Repository',
@@ -538,7 +719,6 @@ COMMANDS_DICT = [
                 'subcommand_help': 'Displays details for all storage pools '
                                    'on the VPSA'
             },
-
             {
                 'subcommand_info': ('list-raid-groups',
                                     pools.get_raid_groups_in_pool),
@@ -633,7 +813,7 @@ COMMANDS_DICT = [
                         }
                     },
                     {
-                        'option_positional': ['-p', '--protection'],
+                        'option_positional': ['-P', '--protection'],
                         'option_keywords': {
                             'dest': 'param_protection',
                             'choices': ['RAID1', 'RAID5', 'RAID6'],
@@ -839,6 +1019,42 @@ COMMANDS_DICT = [
         'help': 'Commands related to volumes',
         'subcommands': [
             {
+                'subcommand_info': ('attach-snapshot-policy',
+                                    volumes.add_volume_snapshot_policy),
+                'subcommand_options': [
+                    CG_ID_OPTION,
+                    SNAPSHOT_POLICY_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Attaches a snapshot policy to the '
+                                   'provided consistency group ID.'
+            },
+            {
+                'subcommand_info': ('clone',
+                                    volumes.create_clone),
+                'subcommand_options': [
+                    CG_ID_OPTION,
+                    DISPLAY_NAME_OPTION,
+                    {
+                        'option_positional': ['-i', '--id'],
+                        'option_keywords': {
+                            'dest': 'param_snapshot_id',
+                            'metavar': '<snap-xxxxxxxx>',
+                            'type': str,
+                            'help': 'The snapshot "name" value as returned '
+                                    'by "volumes list-snapshots".  For '
+                                    'example: "snap-00000001".  If no '
+                                    'snapshot is specified, the clone will '
+                                    'be taken from the current volume '
+                                    'contents.  Optional.'
+                            }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Clones a volume with its current data, '
+                                   'or based on a snapshot.'
+            },
+            {
                 'subcommand_info': ('create', volumes.create_volume),
                 'subcommand_options': [
                     POOL_ID_OPTION,
@@ -874,6 +1090,133 @@ COMMANDS_DICT = [
                 'subcommand_help': 'Creates a new volume on the provided pool'
             },
             {
+                'subcommand_info': ('create-mirror',
+                                    volumes.create_volume_mirror),
+                'subcommand_options': [
+                    CG_ID_OPTION,
+                    DISPLAY_NAME_OPTION,
+                    {
+                        'option_positional': ['-P', '--policy-id'],
+                        'option_keywords': {
+                            'dest': 'param_policies',
+                            'metavar': '<snap-xxxxxxxx,snap-yyyyyyyy>',
+                            'type': str,
+                            'help': 'The snapshot policy "name" value as '
+                                    'returned by "volumes '
+                                    'list-snapshot-policies".  For example: '
+                                    'example: "policy-00000001".  Mirroring '
+                                    'frequency is based on the frequency of '
+                                    'specified policies.  Can be more than '
+                                    'one policy, comma separated, with no '
+                                    'spaces.  Required.'
+                            }
+                    },
+                    REMOTE_POOL_ID_OPTION,
+                    {
+                        'option_positional': ['--remote-volume-name'],
+                        'option_keywords': {
+                            'dest': 'param_remote_volume_name',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The display name to set for the remote '
+                                    'volume.  Required.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Creates an asynchronous mirror job to a '
+                                   'remote VPSA based on the provided '
+                                   'snapshot policies.'
+            },
+            {
+                'subcommand_info': ('create-snapshot',
+                                    volumes.create_volume_snapshot),
+                'subcommand_options': [
+                    CG_ID_OPTION,
+                    DISPLAY_NAME_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Attaches a snapshot policy to the '
+                                   'provided consistency group ID.'
+            },
+            {
+                'subcommand_info': ('delete', volumes.delete_volume),
+                'subcommand_options': [
+                    VOLUME_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes a volume.  By default, deleted '
+                                   'volumes are moved to the pool\'s recycle '
+                                   'bin.'
+            },
+            {
+                'subcommand_info': ('delete-snapshot',
+                                    volumes.delete_volume_snapshot),
+                'subcommand_options': [
+                    SNAPSHOT_ID_OPTION,
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes a snapshot.'
+            },
+            {
+                'subcommand_info': ('detach-servers',
+                                    volumes.detach_servers_from_volume),
+                'subcommand_options': [
+                    VOLUME_ID_OPTION,
+                    SERVER_ID_LIST_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Detaches a list of server records (or '
+                                   'one server record without any commas) '
+                                   'from a volume.  Please ensure the '
+                                   'effected servers are not using the '
+                                   'volume.'
+            },
+            {
+                'subcommand_info': ('detach-snapshot-policy',
+                                    volumes.remove_volume_snapshot_policy),
+                'subcommand_options': [
+                    CG_ID_OPTION,
+                    SNAPSHOT_POLICY_ID_OPTION,
+                    {
+                        'option_positional': ['-D', '--delete-snapshots'],
+                        'option_keywords': {
+                            'dest': 'param_delete_snapshots',
+                            'choices': ['YES', 'NO'],
+                            'type': str,
+                            'required': True,
+                            'help': 'If set to YES, all snapshots taken by '
+                                    'the detached policy will be deleted.  '
+                                    'If set to NO, taken snapshots will be '
+                                    'retained.  Required.'
+                        }
+                    },
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Attaches a snapshot policy to the '
+                                   'provided consistency group ID.'
+            },
+            {
+                'subcommand_info': ('expand', volumes.expand_volume),
+                'subcommand_options': [
+                    VOLUME_ID_OPTION,
+                    CAPACITY_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Expands a volume'
+            },
+            {
+                'subcommand_info': ('export-name',
+                                    volumes.set_volume_export_name),
+                'subcommand_options': [
+                    VOLUME_ID_OPTION,
+                    VOLUME_EXPORT_NAME_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Changes a NAS share\'s export name.'
+            },
+            {
                 'subcommand_info': ('get', volumes.get_volume),
                 'subcommand_options': [
                     VOLUME_ID_OPTION
@@ -901,6 +1244,104 @@ COMMANDS_DICT = [
                 'subcommand_return_key': 'volumes',
                 'subcommand_help': 'Displays details for all volumes not '
                                    'currently attached to any servers'
+            },
+            {
+                'subcommand_info': ('list-servers',
+                                    volumes.get_servers_attached_to_volume),
+                'subcommand_options': [
+                    VOLUME_ID_OPTION,
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'servers',
+                'subcommand_help': 'Displays all servers attached to the '
+                                   'provided volume'
+            },
+            {
+                'subcommand_info': ('list-snapshot-policies',
+                                    volumes.
+                                    get_volume_attached_snapshot_policies),
+                'subcommand_options': [
+                    CG_ID_OPTION,
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'snapshot_policies',
+                'subcommand_help': 'Displays all snapshot policies attached '
+                                   'to the provided volume'
+            },
+            {
+                'subcommand_info': ('list-snapshots',
+                                    volumes.get_all_snapshots),
+                'subcommand_options': [
+                    CG_ID_OPTION,
+                    ROS_BACKUP_JOB_ID_OPTION,
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'snapshots',
+                'subcommand_help': 'Displays all snapshots taken by the '
+                                   'provided consistency group ID.  If a '
+                                   'remote object storage backup job is '
+                                   'specified, then only its snapshots will '
+                                   'be displayed.'
+            },
+            {
+                'subcommand_info': ('performance',
+                                    volumes.get_volume_performance),
+                'subcommand_options': [
+                    VOLUME_ID_OPTION,
+                    INTERVAL_OPTION
+                ],
+                'subcommand_return_key': 'usages',
+                'subcommand_help': 'Gets performance statistics for a volume.'
+            },
+            {
+                'subcommand_info': ('rename', volumes.rename_volume),
+                'subcommand_options': [
+                    VOLUME_ID_OPTION,
+                    DISPLAY_NAME_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Renames a volume.'
+            }
+        ]
+    },
+    {
+        'command_name': 'vpsa-operations',
+        'help': 'Commands related to creating, editing, and deleting VPSAs',
+        'subcommands': [
+            {
+                'subcommand_info': ('get-cloud', vpsa_operations.get_cloud),
+                'subcommand_options': [
+                    CLOUD_ID_OPTION
+                ],
+                'subcommand_return_key': 'provider',
+                'subcommand_help': 'Displays details for a single Zadara '
+                                   'storage cloud.'
+            },
+            {
+                'subcommand_info': ('get-vpsa', vpsa_operations.get_vpsa),
+                'subcommand_options': [
+                    VPSA_ID_OPTION
+                ],
+                'subcommand_return_key': 'vpsa',
+                'subcommand_help': 'Displays details for a single VPSA.'
+            },
+            {
+                'subcommand_info': ('list-clouds',
+                                    vpsa_operations.get_all_clouds),
+                'subcommand_options': [],
+                'subcommand_return_key': 'providers',
+                'subcommand_help': 'Displays details for all available '
+                                   'Zadara storage clouds.'
+            },
+            {
+                'subcommand_info': ('list-vpsas',
+                                    vpsa_operations.get_all_vpsas),
+                'subcommand_options': [],
+                'subcommand_return_key': 'vpsas',
+                'subcommand_help': 'Displays details for all VPSAs.'
             }
         ]
     }
@@ -954,6 +1395,7 @@ def format_return(data, vertical=False):
                     title = item[1]
             if title is not None:
                 table.title = title
+
             table_formatted.append(table.table)
 
         return table_formatted
@@ -1016,6 +1458,12 @@ def main():
                         help='The API key can be provided here -  '
                              'alternatively, it can be defined through '
                              'the ZADARA_KEY environment variable, or a '
+                             'configuration file')
+    group1.add_argument('-p', '--api-port', type=str, dest='port',
+                        metavar='<API port>',
+                        help='The API port can be provided here -  '
+                             'alternatively, it can be defined through '
+                             'the ZADARA_PORT environment variable, or a '
                              'configuration file')
     group1.add_argument('-v', '--verbose', action='store_true',
                         help='Enable verbose output for debugging '
@@ -1086,6 +1534,7 @@ def main():
     try:
         parsed_args['param_session'] = session.Session(
             host=parsed_args['host'],
+            port=parsed_args['port'],
             key=parsed_args['key'],
             configfile=parsed_args['configfile'],
             secure=secure
@@ -1139,14 +1588,25 @@ def main():
                             pprint(result)
 
                         if subcommand['subcommand_return_key'] is not None:
-                            tables = format_return(
-                                data=result['response']
-                                [subcommand['subcommand_return_key']],
-                                vertical=parsed_args['vertical']
-                            )
+                            # Calls to e-Commerce do not have 'response' key
+                            if 'response' in result:
+                                tables = format_return(
+                                    data=result['response']
+                                    [subcommand['subcommand_return_key']],
+                                    vertical=parsed_args['vertical']
+                                )
+                            else:
+                                tables = format_return(
+                                    data=result
+                                    [subcommand['subcommand_return_key']],
+                                    vertical=parsed_args['vertical']
+                                )
 
-                            for table in tables:
-                                print(table)
+                            if type(tables) is str:
+                                print(tables)
+                            else:
+                                for table in tables:
+                                    print(table)
                         else:
                             print('Command returned success')
 

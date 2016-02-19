@@ -1134,7 +1134,7 @@ def delete_volume_snapshot(session, snapshot_id, return_type=None):
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def get_volume_migration(session, cg_id, return_type=None):
+def get_volume_migration(session, mgrjob_id, return_type=None):
     """
     Retrieves details for a running volume migration job.  The job is queried
     using the consistency group ID (cg_name) for the volume, as returned by
@@ -1144,10 +1144,10 @@ def get_volume_migration(session, cg_id, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type cg_id: str
-    :param cg_id: The consistency group 'cg_name' value as returned by
-        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
-        Required.
+    :type mgrjob_id: str
+    :param mgrjob_id: The migration job 'migration_job_name' value as returned
+        by get_all_volumes for the desired volume.  For example:
+        'mgrjob-00000001'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1158,12 +1158,12 @@ def get_volume_migration(session, cg_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
+    if not is_valid_mgrjob_id(mgrjob_id):
+        raise ValueError('{0} is not a valid migration job ID.'
+                         .format(mgrjob_id))
 
     method = 'GET'
-    path = '/api/consistency_groups/{0}/show_migration.json'.format(cg_id)
+    path = '/api/consistency_groups/{0}/show_migration.json'.format(mgrjob_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
@@ -1228,7 +1228,7 @@ def migrate_volume(session, cg_id, pool_id, migrate_snaps='YES',
                             return_type=return_type)
 
 
-def pause_volume_migration(session, cg_id, return_type=None):
+def pause_volume_migration(session, mgrjob_id, return_type=None):
     """
     Pause a running volume migration job.  The job is paused using the
     consistency group ID (cg_name) for the volume, as returned by
@@ -1237,10 +1237,10 @@ def pause_volume_migration(session, cg_id, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type cg_id: str
-    :param cg_id: The consistency group 'cg_name' value as returned by
-        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
-        Required.
+    :type mgrjob_id: str
+    :param mgrjob_id: The migration job 'migration_job_name' value as returned
+        by get_all_volumes for the desired volume.  For example:
+        'mgrjob-00000001'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1251,17 +1251,17 @@ def pause_volume_migration(session, cg_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
+    if not is_valid_mgrjob_id(mgrjob_id):
+        raise ValueError('{0} is not a valid migration job ID.'
+                         .format(mgrjob_id))
 
     method = 'POST'
-    path = '/api/migration_jobs/{0}/pause.json'.format(cg_id)
+    path = '/api/migration_jobs/{0}/pause.json'.format(mgrjob_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def resume_volume_migration(session, cg_id, return_type=None):
+def resume_volume_migration(session, mgrjob_id, return_type=None):
     """
     Resume a paused volume migration job.  The job is resumed using the
     consistency group ID (cg_name) for the volume, as returned by
@@ -1270,10 +1270,10 @@ def resume_volume_migration(session, cg_id, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type cg_id: str
-    :param cg_id: The consistency group 'cg_name' value as returned by
-        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
-        Required.
+    :type mgrjob_id: str
+    :param mgrjob_id: The migration job 'migration_job_name' value as returned
+        by get_all_volumes for the desired volume.  For example:
+        'mgrjob-00000001'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1284,17 +1284,17 @@ def resume_volume_migration(session, cg_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
+    if not is_valid_mgrjob_id(mgrjob_id):
+        raise ValueError('{0} is not a valid migration job ID.'
+                         .format(mgrjob_id))
 
     method = 'POST'
-    path = '/api/migration_jobs/{0}/continue.json'.format(cg_id)
+    path = '/api/migration_jobs/{0}/continue.json'.format(mgrjob_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def cancel_volume_migration(session, cg_id, return_type=None):
+def cancel_volume_migration(session, mgrjob_id, return_type=None):
     """
     Cancel a volume migration job.  The job is canceled using the consistency
     group ID (cg_name) for the volume, as returned by get_all_volumes.
@@ -1302,10 +1302,10 @@ def cancel_volume_migration(session, cg_id, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type cg_id: str
-    :param cg_id: The consistency group 'cg_name' value as returned by
-        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
-        Required.
+    :type mgrjob_id: str
+    :param mgrjob_id: The migration job 'migration_job_name' value as returned
+        by get_all_volumes for the desired volume.  For example:
+        'mgrjob-00000001'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1316,12 +1316,12 @@ def cancel_volume_migration(session, cg_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
+    if not is_valid_mgrjob_id(mgrjob_id):
+        raise ValueError('{0} is not a valid migration job ID.'
+                         .format(mgrjob_id))
 
     method = 'POST'
-    path = '/api/migration_jobs/{0}/abort.json'.format(cg_id)
+    path = '/api/migration_jobs/{0}/abort.json'.format(mgrjob_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
@@ -1342,16 +1342,16 @@ def create_clone(session, cg_id, display_name, snapshot_id=None,
         get_all_volumes for the desired volume.  For example: 'cg-00000001'.
         Required.
 
+    :type display_name: str
+    :param display_name: A text label to assign to the clone.  For example:
+        'database-20151101'.  May not contain a single quote (') character.
+        Required.
+
     :type snapshot_id: str
     :param snapshot_id: The snapshot 'name' value as returned by
         get_all_volume_snapshots for the desired volume.  For example:
         'snap-00000001'.  If no snapshot is specified, the clone will have the
         contents of the volume at the time the clone was initiated.  Optional.
-
-    :type display_name: str
-    :param display_name: A text label to assign to the clone.  For example:
-        'database-20151101'.  May not contain a single quote (') character.
-        Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1391,7 +1391,7 @@ def create_clone(session, cg_id, display_name, snapshot_id=None,
 
 
 def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
-                         policies, remote_volume_name, wan_optimization='NO',
+                         policies, remote_volume_name, wan_optimization='YES',
                          return_type=None):
     """
     Create a mirror job for a volume.  A volume can be mirrored to another
@@ -1430,7 +1430,7 @@ def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
     :param remote_volume_name: A text label to assign to the remote volume
         that is generated by the mirror job.  This name must not already be
         taken by another volume or another mirrored volume on the remote VPSA.
-        May not containe a single quote (') character.  Required.
+        May not contain a single quote (') character.  Required.
 
     :type wan_optimization: str
     :param wan_optimization: If set to 'YES', the mirror will attempt to
