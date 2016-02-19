@@ -13,7 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
+from pprint import pprint
 import configparser
 import http.client
 import json
@@ -32,6 +32,7 @@ class Session(object):
     well as the URL to utilize, then make the calls to the API.
     """
     zadara_host = None
+    zadara_port = None
     zadara_key = None
     zadara_secure = None
 
@@ -118,18 +119,17 @@ class Session(object):
             raise ValueError('The API authentication key was not defined.')
 
         # If HTTPS or HTTP should be used
-        true_values = ['True', 'true', 'Yes', 'yes', 'On', 'on', 'Y', 'y']
+        false_values = ['False', 'false', 'No', 'no', 'Off', 'off', 'N', 'n']
 
-        if os.getenv('ZADARA_SECURE') in true_values:
-            self.zadara_secure = True
-        elif self._config is not None:
-            if self._config['DEFAULT'].get('secure', None) in true_values:
-                self.zadara_secure = True
-            else:
-                self.zadara_secure = False
-        elif secure is False:
+        if secure is False:
             self.zadara_secure = False
-        else:
+        elif os.getenv('ZADARA_SECURE') in false_values:
+            self.zadara_secure = False
+        elif self._config is not None:
+            if self._config['DEFAULT'].get('secure', None) in false_values:
+                self.zadara_secure = False
+
+        if self.zadara_secure is None:
             self.zadara_secure = True
 
     def call_api(self, method, path, host=None, port=None, key=None,

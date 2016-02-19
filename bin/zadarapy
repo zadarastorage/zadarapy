@@ -1459,7 +1459,7 @@ def main():
                              'alternatively, it can be defined through '
                              'the ZADARA_KEY environment variable, or a '
                              'configuration file')
-    group1.add_argument('-p', '--api-port', type=str, dest='port',
+    group1.add_argument('-p', '--api-port', type=int, dest='port',
                         metavar='<API port>',
                         help='The API port can be provided here -  '
                              'alternatively, it can be defined through '
