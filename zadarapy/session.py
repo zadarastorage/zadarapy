@@ -13,11 +13,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from pprint import pprint
 import configparser
 import http.client
 import json
 import os
+import sys
 from urllib.parse import urlencode
 from zadarapy.validators import is_valid_hostname
 from zadarapy.validators import is_valid_ip_address
@@ -119,15 +119,18 @@ class Session(object):
             raise ValueError('The API authentication key was not defined.')
 
         # If HTTPS or HTTP should be used
-        false_values = ['False', 'false', 'No', 'no', 'Off', 'off', 'N', 'n']
+        false_values = ['false', 'no', 'off', 'n']
 
         if secure is False:
             self.zadara_secure = False
-        elif os.getenv('ZADARA_SECURE') in false_values:
-            self.zadara_secure = False
-        elif self._config is not None:
-            if self._config['DEFAULT'].get('secure', None) in false_values:
+        elif os.getenv('ZADARA_SECURE') is not None:
+            if os.getenv('ZADARA_SECURE').lower() in false_values:
                 self.zadara_secure = False
+        elif self._config is not None:
+            if self._config['DEFAULT'].get('secure', None) is not None:
+                if self._config['DEFAULT'].get('secure').lower() in \
+                        false_values:
+                    self.zadara_secure = False
 
         if self.zadara_secure is None:
             self.zadara_secure = True
@@ -215,8 +218,22 @@ class Session(object):
                              .format(self.zadara_key))
 
         if secure:
+            # http.client can accept None port and use default, but we need to
+            # define it here so debug info can be outputted later on error.
+            if port is None:
+                port = 443
+
+            protocol = 'HTTPS'
+
             conn = http.client.HTTPSConnection(host, port)
         else:
+            # http.client can accept None port and use default, but we need to
+            # define it here so debug info can be outputted later on error.
+            if port is None:
+                port = 80
+
+            protocol = 'HTTP'
+
             conn = http.client.HTTPConnection(host, port)
 
         headers = {}
@@ -237,9 +254,14 @@ class Session(object):
         else:
             url = path
 
-        conn.request(method, url, headers=headers, body=body)
-
-        response = conn.getresponse()
+        try:
+            conn.request(method, url, headers=headers, body=body)
+            response = conn.getresponse()
+        except:
+            print('Could not connect to {0} on port {1} via {2} - please '
+                  'ensure this script can route to the API endpoint.'
+                  .format(host, port, protocol))
+            sys.exit(1)
 
         if response.status not in [200, 302]:
             conn.close()

@@ -1366,7 +1366,7 @@ def format_return(data, vertical=False):
         message will be returned.
     """
     if type(data) is str:
-            return data
+        return data
 
     if vertical:
         table_data = []
