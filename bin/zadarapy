@@ -547,7 +547,7 @@ COMMANDS_DICT = [
                         }
                     },
                 ],
-                'subcommand_return_key': None,
+                'subcommand_return_key': 'migration_job_name',
                 'subcommand_help': 'Migrates a volume from one storage pool '
                                    'to another - this can be done while '
                                    'clients continue to use the affected '
@@ -678,7 +678,7 @@ COMMANDS_DICT = [
                         }
                     }
                 ],
-                'subcommand_return_key': None,
+                'subcommand_return_key': 'pool_name',
                 'subcommand_help': 'Creates a new storage pool'
             },
             {
@@ -845,7 +845,7 @@ COMMANDS_DICT = [
                         }
                     }
                 ],
-                'subcommand_return_key': None,
+                'subcommand_return_key': 'raidgroup_name',
                 'subcommand_help': 'Creates a new RAID group from provided '
                                    'drives'
             },
@@ -1030,8 +1030,7 @@ COMMANDS_DICT = [
                                    'provided consistency group ID.'
             },
             {
-                'subcommand_info': ('clone',
-                                    volumes.create_clone),
+                'subcommand_info': ('clone', volumes.create_clone),
                 'subcommand_options': [
                     CG_ID_OPTION,
                     DISPLAY_NAME_OPTION,
@@ -1086,7 +1085,7 @@ COMMANDS_DICT = [
                     VOLUME_SMBAIOSIZE_OPTION,
                     VOLUME_NFSROOTSQUASH_OPTION
                 ],
-                'subcommand_return_key': None,
+                'subcommand_return_key': 'vol_name',
                 'subcommand_help': 'Creates a new volume on the provided pool'
             },
             {
@@ -1124,7 +1123,7 @@ COMMANDS_DICT = [
                         }
                     }
                 ],
-                'subcommand_return_key': None,
+                'subcommand_return_key': 'vpsa_mirror_job_name',
                 'subcommand_help': 'Creates an asynchronous mirror job to a '
                                    'remote VPSA based on the provided '
                                    'snapshot policies.'
@@ -1136,7 +1135,7 @@ COMMANDS_DICT = [
                     CG_ID_OPTION,
                     DISPLAY_NAME_OPTION
                 ],
-                'subcommand_return_key': None,
+                'subcommand_return_key': 'snapshot_name',
                 'subcommand_help': 'Attaches a snapshot policy to the '
                                    'provided consistency group ID.'
             },
@@ -1366,6 +1365,9 @@ def format_return(data, vertical=False):
         generated and returned.  If an empty list is detected, a simple
         message will be returned.
     """
+    if type(data) is str:
+            return data
+
     if vertical:
         table_data = []
         table_formatted = []
@@ -1378,7 +1380,7 @@ def format_return(data, vertical=False):
                         items.append([str(key), str(value)])
                     table_data.append(items)
             else:
-                return 'An empty result set was returned'
+                return data
         else:
             items = []
             for key, value in sorted(data.items()):
