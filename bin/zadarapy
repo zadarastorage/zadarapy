@@ -145,7 +145,7 @@ POOL_ID_OPTION = {
 }
 
 POOL_RAID_GROUPS_OPTION = {
-    'option_positional': ['-r', '--raid-groups'],
+    'option_positional': ['-R', '--raid-groups'],
     'option_keywords': {
         'dest': 'param_raid_groups',
         'metavar': '<RaidGroup-n,RaidGroup-n>',
@@ -1380,7 +1380,7 @@ def format_return(data, vertical=False):
                         items.append([str(key), str(value)])
                     table_data.append(items)
             else:
-                return data
+                return 'An empty result set was returned'
         else:
             items = []
             for key, value in sorted(data.items()):
@@ -1467,6 +1467,13 @@ def main():
                              'alternatively, it can be defined through '
                              'the ZADARA_PORT environment variable, or a '
                              'configuration file')
+    group1.add_argument('-r', '--return-fields', type=str, dest='fields',
+                        metavar='fieldname1,fieldname2',
+                        help='For commands that display API return data, '
+                             'this optionally defines which specific fields, '
+                             'by key name, to return.  Multiple fields can '
+                             'be specified as comma delimited.  For example: '
+                             'display_name,pool_name')
     group1.add_argument('-v', '--verbose', action='store_true',
                         help='Enable verbose output for debugging '
                              'purposes')
@@ -1592,17 +1599,39 @@ def main():
                         if subcommand['subcommand_return_key'] is not None:
                             # Calls to e-Commerce do not have 'response' key
                             if 'response' in result:
-                                tables = format_return(
-                                    data=result['response']
-                                    [subcommand['subcommand_return_key']],
-                                    vertical=parsed_args['vertical']
-                                )
+                                data = (result['response'][subcommand
+                                            ['subcommand_return_key']])
                             else:
-                                tables = format_return(
-                                    data=result
-                                    [subcommand['subcommand_return_key']],
-                                    vertical=parsed_args['vertical']
-                                )
+                                data = (result[subcommand
+                                            ['subcommand_return_key']])
+
+                            if parsed_args['fields'] is not None:
+                                fields = [x.strip() for x in
+                                          parsed_args['fields']
+                                          .split(',')]
+
+                                response = []
+
+                                for x in data:
+                                    response.append(
+                                        {k: v for k, v in x.items()
+                                         if k in fields}
+                                    )
+                            else:
+                                response = data
+
+                            if not response:
+                                print('None of the provided field '
+                                      'name(s) in "{0}" could be found '
+                                      'in the return data.'
+                                      .format(parsed_args['fields']))
+
+                                sys.exit(1)
+
+                            tables = format_return(
+                                data=response,
+                                vertical=parsed_args['vertical']
+                            )
 
                             if type(tables) is str:
                                 print(tables)
