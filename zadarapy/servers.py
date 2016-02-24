@@ -173,7 +173,7 @@ def create_server(session, display_name, ip_address=None, iqn=None,
     body_values['display_name'] = display_name
 
     if ip_address is None and iqn is None:
-        raise ValueError('Either ip_address or iqn parameter must be'
+        raise ValueError('Either ip_address or iqn parameter must be '
                          'defined.')
 
     if ip_address is not None:
@@ -396,7 +396,7 @@ def delete_server(session, server_id, return_type=None):
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def rename_server(session, server_id, newname, return_type=None):
+def rename_server(session, server_id, display_name, return_type=None):
     """
     Sets the "display_name" server parameter to a new value.
 
@@ -407,9 +407,9 @@ def rename_server(session, server_id, newname, return_type=None):
     :param server_id: The server 'name' value as returned by get_all_servers.
         For example: 'srv-00000001'.  Required.
 
-    :type newname: str
-    :param newname: The new "display_name" to set.  May not contain a single
-        quote (') character.  Required.
+    :type display_name: str
+    :param display_name: The new "display_name" to set.  May not contain a
+        single quote (') character.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -425,13 +425,13 @@ def rename_server(session, server_id, newname, return_type=None):
 
     body_values = {}
 
-    newname = newname.strip()
+    display_name = display_name.strip()
 
-    if not is_valid_field(newname):
+    if not is_valid_field(display_name):
         raise ValueError('{0} is not a valid server name.'
-                         .format(newname))
+                         .format(display_name))
 
-    body_values['new_name'] = newname
+    body_values['new_name'] = display_name
 
     method = 'POST'
     path = '/api/servers/{0}/rename.json'.format(server_id)
@@ -547,10 +547,14 @@ def attach_servers_to_volume(session, servers, volume_id, access_type=None,
     body_values['volume_name'] = volume_id
 
     if access_type is not None:
-        if access_type not in ['NFS', 'SMB']:
+        if access_type not in ['NFS', 'SMB', 'BOTH']:
             raise ValueError('"{0}" is not a valid access_type parameter.  '
-                             'Allowed values are: "NFS" or "SMB"'
+                             'Allowed values are: "NFS", "SMB", or "BOTH"'
                              .format(access_type))
+
+        # This allows an extra option through the command line utility
+        if access_type == 'BOTH':
+            access_type = None
 
         body_values['access_type'] = access_type
 

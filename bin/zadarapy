@@ -23,6 +23,7 @@ from terminaltables import SingleTable
 from zadarapy import drives
 from zadarapy import pools
 from zadarapy import raid_groups
+from zadarapy import servers
 from zadarapy import session
 from zadarapy import volumes
 from zadarapy import vpsa_operations
@@ -191,6 +192,18 @@ ROS_BACKUP_JOB_ID_OPTION = {
         'help': 'The remote object storage backup job "name" value as '
                 'returned by "remote-object-storage list-jobs".  For '
                 'example: "bkpjobs-00000001".'
+    }
+}
+
+SERVER_ID_OPTION = {
+    'option_positional': ['-i', '--id'],
+    'option_keywords': {
+        'dest': 'param_server_id',
+        'metavar': '<srv-xxxxxxxx>',
+        'type': str,
+        'required': True,
+        'help': 'The server "name" value as returned by "servers list".  For '
+                'example: "srv-00000001".  Required.'
     }
 }
 
@@ -1015,6 +1028,204 @@ COMMANDS_DICT = [
         ]
     },
     {
+        'command_name': 'servers',
+        'help': 'Commands related to servers',
+        'subcommands': [
+            {
+                'subcommand_info': ('attach-volume',
+                                    servers.attach_servers_to_volume),
+                'subcommand_options': [
+                    SERVER_ID_LIST_OPTION,
+                    VOLUME_ID_OPTION,
+                    {
+                        'option_positional': ['--access-type'],
+                        'option_keywords': {
+                            'dest': 'param_access_type',
+                            'choices': ['NFS', 'SMB', 'BOTH'],
+                            'type': str,
+                            'help': 'For NAS shares, the protocol to grant '
+                                    'access with.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--readonly'],
+                        'option_keywords': {
+                            'dest': 'param_readonly',
+                            'choices': ['YES', 'NO'],
+                            'type': str,
+                            'default': 'NO',
+                            'help': 'If set to "YES", the attached servers '
+                                    'will only be able to read the provided '
+                                    'volume.  Default: "NO"'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Attaches one or more server records to a '
+                                   'volume.'
+            },
+            {
+                'subcommand_info': ('create', servers.create_server),
+                'subcommand_options': [
+                    DISPLAY_NAME_OPTION,
+                    {
+                        'option_positional': ['--ip-address'],
+                        'option_keywords': {
+                            'dest': 'param_ip_address',
+                            'metavar': '<xxx.xxx.xxx.xxx/yy>',
+                            'type': str,
+                            'help': 'The source IP or CIDR of the server.  '
+                                    'Required for NAS share access, optional '
+                                    'for iSCSI.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--iqn'],
+                        'option_keywords': {
+                            'dest': 'param_iqn',
+                            'metavar': '<iqn.xxx:xx:xxx>',
+                            'type': str,
+                            'help': 'The server\'s iSCSI IQN.  Required for '
+                                    'iSCSI access, optional for NAS shares.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--vpsa-chap-user'],
+                        'option_keywords': {
+                            'dest': 'param_vpsa_chap_user',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'The VPSA\'s iSCSI CHAP username.  If '
+                                    'not supplied, a random value will be '
+                                    'generated.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--vpsa-chap-secret'],
+                        'option_keywords': {
+                            'dest': 'param_vpsa_chap_secret',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'The VPSA\'s iSCSI CHAP secret.  If not '
+                                    'supplied, a random value will be '
+                                    'generated.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--host-chap-user'],
+                        'option_keywords': {
+                            'dest': 'param_host_chap_user',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'The server\'s iSCSI CHAP username for '
+                                    'mutual authentication.  If not '
+                                    'supplied, mutual CHAP authentication '
+                                    'will not be used.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--host-chap-secret'],
+                        'option_keywords': {
+                            'dest': 'param_host_chap_secret',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'The server\'s iSCSI CHAP secret for '
+                                    'mutual authentication.  If not '
+                                    'supplied, mutual CHAP authentication '
+                                    'will not be used.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--ipsec-iscsi'],
+                        'option_keywords': {
+                            'dest': 'param_ipsec_iscsi',
+                            'choices': ['YES', 'NO'],
+                            'type': str,
+                            'default': 'NO',
+                            'help': 'If set to "YES", mandate IPSec for '
+                                    'iSCSI connections from this server.  '
+                                    'Default: NO'
+                        }
+                    },
+                    {
+                        'option_positional': ['--ipsec-nfs'],
+                        'option_keywords': {
+                            'dest': 'param_ipsec_nfs',
+                            'choices': ['YES', 'NO'],
+                            'type': str,
+                            'default': 'NO',
+                            'help': 'If set to "YES", mandate IPSec for '
+                                    'iSCSI connections from this server.  '
+                                    'Default: "NO"'
+                        }
+                    }
+                ],
+                'subcommand_return_key': 'server_name',
+                'subcommand_help': 'Creates a new server record'
+            },
+            {
+                'subcommand_info': ('delete', servers.delete_server),
+                'subcommand_options': [
+                    SERVER_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes a server record not currently '
+                                   'attached to any volume.'
+            },
+            {
+                'subcommand_info': ('get', servers.get_server),
+                'subcommand_options': [
+                    SERVER_ID_OPTION
+                ],
+                'subcommand_return_key': 'server',
+                'subcommand_help': 'Displays details for a single server '
+                                   'record.'
+            },
+            {
+                'subcommand_info': ('list', servers.get_all_servers),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'servers',
+                'subcommand_help': 'Displays details for all server records.'
+            },
+            {
+                'subcommand_info': ('list-attached-volumes',
+                                    servers.get_volumes_attached_to_server),
+                'subcommand_options': [
+                    SERVER_ID_OPTION,
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'volumes',
+                'subcommand_help': 'Displays all volumes attached to the '
+                                   'specified server record.'
+            },
+            {
+                'subcommand_info': ('performance',
+                                    servers.get_server_performance),
+                'subcommand_options': [
+                    SERVER_ID_OPTION,
+                    INTERVAL_OPTION
+                ],
+                'subcommand_return_key': 'usages',
+                'subcommand_help': 'Gets performance statistics for a server '
+                                   'record.'
+            },
+            {
+                'subcommand_info': ('rename', servers.rename_server),
+                'subcommand_options': [
+                    SERVER_ID_OPTION,
+                    DISPLAY_NAME_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Changes the display name for a server '
+                                   'record.'
+            }
+        ]
+    },
+    {
         'command_name': 'volumes',
         'help': 'Commands related to volumes',
         'subcommands': [
@@ -1193,7 +1404,7 @@ COMMANDS_DICT = [
                     },
                 ],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Attaches a snapshot policy to the '
+                'subcommand_help': 'Detaches a snapshot policy from the '
                                    'provided consistency group ID.'
             },
             {
@@ -1599,11 +1810,12 @@ def main():
                         if subcommand['subcommand_return_key'] is not None:
                             # Calls to e-Commerce do not have 'response' key
                             if 'response' in result:
-                                data = (result['response'][subcommand
-                                            ['subcommand_return_key']])
+                                data = (result['response']
+                                              [subcommand
+                                                  ['subcommand_return_key']])
                             else:
                                 data = (result[subcommand
-                                            ['subcommand_return_key']])
+                                               ['subcommand_return_key']])
 
                             if parsed_args['fields'] is not None:
                                 fields = [x.strip() for x in
@@ -1619,14 +1831,6 @@ def main():
                                     )
                             else:
                                 response = data
-
-                            if not response:
-                                print('None of the provided field '
-                                      'name(s) in "{0}" could be found '
-                                      'in the return data.'
-                                      .format(parsed_args['fields']))
-
-                                sys.exit(1)
 
                             tables = format_return(
                                 data=response,
