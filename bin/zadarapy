@@ -20,6 +20,7 @@ import sys
 from pprint import pprint
 from terminaltables import AsciiTable
 from terminaltables import SingleTable
+from zadarapy import controllers
 from zadarapy import drives
 from zadarapy import pools
 from zadarapy import raid_groups
@@ -60,6 +61,19 @@ CLOUD_ID_OPTION = {
         'required': True,
         'help': 'The cloud "name" value as returned by "vpsa-operations '
                 'list-clouds".  For example: "volume-00000001".  Required.'
+    }
+}
+
+CONTROLLER_ID_OPTION = {
+    'option_positional': ['-i', '--id'],
+    'option_keywords': {
+        'dest': 'param_controller_id',
+        'metavar': '<vsa-xxxxxxxx-vc-x>',
+        'type': str,
+        'required': True,
+        'help': 'The virtual controller "name" value as returned by '
+                '"controllers list.  For example: "volume-00000001".  '
+                'Required.'
     }
 }
 
@@ -426,6 +440,72 @@ VPSA_ID_OPTION = {
 
 
 COMMANDS_DICT = [
+    {
+        'command_name': 'controllers',
+        'help': 'Commands related to virtual controllers',
+        'subcommands': [
+            {
+                'subcommand_info': ('cache-performance',
+                                    controllers.get_cache_performance),
+                'subcommand_options': [
+                    INTERVAL_OPTION
+                ],
+                'subcommand_return_key': 'usages',
+                'subcommand_help': 'Gets performance statistics for the '
+                                   'SSD pool cache'
+            },
+            {
+                'subcommand_info': ('cache-stats',
+                                    controllers.get_cache_stats),
+                'subcommand_options': [
+                    INTERVAL_OPTION
+                ],
+                'subcommand_return_key': 'usages',
+                'subcommand_help': 'Gets usage and hit rate statistics for '
+                                   'the SSD pool cache'
+            },
+            {
+                'subcommand_info': ('controller-performance',
+                                    controllers.get_controller_performance),
+                'subcommand_options': [
+                    CONTROLLER_ID_OPTION,
+                    INTERVAL_OPTION
+                ],
+                'subcommand_return_key': 'usages',
+                'subcommand_help': 'Gets performance statistics for a '
+                                   'virtual controller'
+            },
+            {
+                'subcommand_info': ('failover',
+                                    controllers.failover_controller),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['--confirm'],
+                        'option_keywords': {
+                            'dest': 'param_confirm',
+                            'action': 'store_true',
+                            'required': True,
+                            'help': 'Controller failover will only be '
+                                    'performed if this flag is passed.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Initiate a controller failover - the '
+                                   'standby controller becomes active.'
+            },
+            {
+                'subcommand_info': ('list', controllers.get_all_controllers),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'vcontrollers',
+                'subcommand_help': 'Displays details for all virtual '
+                                   'controllers on the VPSA'
+            }
+        ]
+    },
     {
         'command_name': 'drives',
         'help': 'Commands related to individual drives',

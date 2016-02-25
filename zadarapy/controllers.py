@@ -61,13 +61,17 @@ def get_all_controllers(session, start=None, limit=None, return_type=None):
                             return_type=return_type)
 
 
-def failover_controller(session, return_type=None):
+def failover_controller(session, confirm, return_type=None):
     """
     Initiates a failover of the current active controller to the standby
     controller.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type confirm: bool
+    :param confirm: If True, failover will be performed.  This is a safeguard
+        for this function since it requires no other arguments.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -78,6 +82,9 @@ def failover_controller(session, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    if not confirm:
+        raise ValueError('The confirm parameter is not set to True - '
+                         'failover will not be performed.')
     method = 'POST'
     path = '/api/vcontrollers/failover.json'
 
@@ -128,8 +135,7 @@ def get_controller_performance(session, controller_id, interval=1,
                             return_type=return_type)
 
 
-def get_cache_performance(session, controller_id, interval=1,
-                          return_type=None):
+def get_cache_performance(session, interval=1, return_type=None):
     """
     Retrieves metering statistics for the VPSA's SSD cache for the specified
     interval.  Default interval is one second.
@@ -137,10 +143,6 @@ def get_cache_performance(session, controller_id, interval=1,
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type controller_id: str
-    :param controller_id: The virtual controller 'name' value as returned by
-        get_all_controllers.  For example: 'vsa-00000001-vc-0'.  Required.
-
     :type interval: int
     :param interval: The interval to collect statistics for, in seconds.
 
@@ -153,10 +155,6 @@ def get_cache_performance(session, controller_id, interval=1,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_controller_id(controller_id):
-        raise ValueError('{0} is not a valid virtual controller ID.'
-                         .format(controller_id))
-
     interval = int(interval)
 
     if interval < 1:
@@ -164,8 +162,7 @@ def get_cache_performance(session, controller_id, interval=1,
                          'supplied).'.format(interval))
 
     method = 'GET'
-    path = '/api/vcontrollers/{0}/cache_performance.json'\
-           .format(controller_id)
+    path = '/api/vcontrollers/cache_performance.json'
 
     parameters = {'interval': interval}
 
@@ -173,18 +170,13 @@ def get_cache_performance(session, controller_id, interval=1,
                             return_type=return_type)
 
 
-def get_cache_stats(session, controller_id, interval=1,
-                    return_type=None):
+def get_cache_stats(session, interval=1, return_type=None):
     """
     Retrieves usage statistics for the VPSA's SSD cache for the specified
     interval.  Default interval is one second.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
-
-    :type controller_id: str
-    :param controller_id: The virtual controller 'name' value as returned by
-        get_all_controllers.  For example: 'vsa-00000001-vc-0'.  Required.
 
     :type interval: int
     :param interval: The interval to collect statistics for, in seconds.
@@ -198,10 +190,6 @@ def get_cache_stats(session, controller_id, interval=1,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_controller_id(controller_id):
-        raise ValueError('{0} is not a valid virtual controller ID.'
-                         .format(controller_id))
-
     interval = int(interval)
 
     if interval < 1:
@@ -209,7 +197,7 @@ def get_cache_stats(session, controller_id, interval=1,
                          'supplied).'.format(interval))
 
     method = 'GET'
-    path = '/api/vcontrollers/{0}/cache_stats.json'.format(controller_id)
+    path = '/api/vcontrollers/cache_stats.json'
 
     parameters = {'interval': interval}
 
