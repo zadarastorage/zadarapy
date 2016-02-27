@@ -25,13 +25,14 @@ from zadarapy import drives
 from zadarapy import mirrors
 from zadarapy import pools
 from zadarapy import raid_groups
+from zadarapy import remote_object_storage
 from zadarapy import servers
 from zadarapy import session
 from zadarapy import volumes
 from zadarapy import vpsa_operations
 
 CAPACITY_OPTION = {
-    'option_positional': ['-C', '--capacity'],
+    'option_positional': ['--capacity'],
     'option_keywords': {
         'dest': 'param_capacity',
         'metavar': '<n>',
@@ -54,7 +55,7 @@ CG_ID_OPTION = {
 }
 
 CLOUD_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+    'option_positional': ['--cloud-id'],
     'option_keywords': {
         'dest': 'param_cloud_id',
         'metavar': '<cloud-name>',
@@ -65,8 +66,21 @@ CLOUD_ID_OPTION = {
     }
 }
 
+COMPRESSION_OPTION = {
+    'option_positional': ['--compression'],
+    'option_keywords': {
+        'dest': 'param_compression',
+        'choices': ['YES', 'NO'],
+        'type': str,
+        'default': 'YES',
+        'help': 'If set to "YES", backup data will be compressed in flight.  '
+                'If "NO", backup data will not be compressed.  Set to "YES" '
+                'by default.'
+    }
+}
+
 CONTROLLER_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+    'option_positional': ['--controller-id'],
     'option_keywords': {
         'dest': 'param_controller_id',
         'metavar': '<vsa-xxxxxxxx-vc-x>',
@@ -75,6 +89,19 @@ CONTROLLER_ID_OPTION = {
         'help': 'The virtual controller "name" value as returned by '
                 '"controllers list.  For example: "volume-00000001".  '
                 'Required.'
+    }
+}
+
+CRYPT_OPTION = {
+    'option_positional': ['--crypt'],
+    'option_keywords': {
+        'dest': 'param_crypt',
+        'choices': ['YES', 'NO'],
+        'type': str,
+        'default': 'NO',
+        'help': 'If YES, at rest encryption will be enabled for the volume '
+                'using the VPSA encryption key defined by the user.  If NO, '
+                'encryption will not be enabled.  Default: NO'
     }
 }
 
@@ -92,7 +119,7 @@ DELETE_SNAPSHOTS_OPTION = {
 }
 
 DISPLAY_NAME_OPTION = {
-    'option_positional': ['-d', '--display-name'],
+    'option_positional': ['--display-name'],
     'option_keywords': {
         'dest': 'param_display_name',
         'metavar': '<xxx>',
@@ -103,7 +130,7 @@ DISPLAY_NAME_OPTION = {
 }
 
 DRIVE_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+    'option_positional': ['--drive-id'],
     'option_keywords': {
         'dest': 'param_drive_id',
         'metavar': '<volume-xxxxxxxx>',
@@ -115,7 +142,7 @@ DRIVE_ID_OPTION = {
 }
 
 INTERVAL_OPTION = {
-    'option_positional': ['-I', '--interval'],
+    'option_positional': ['--interval'],
     'option_keywords': {
         'dest': 'param_interval',
         'metavar': '<n>',
@@ -127,7 +154,7 @@ INTERVAL_OPTION = {
 }
 
 LIMIT_OPTION = {
-    'option_positional': ['-l', '--limit'],
+    'option_positional': ['--limit'],
     'option_keywords': {
         'dest': 'param_limit',
         'metavar': '<n>',
@@ -151,7 +178,7 @@ MIGRATION_ID_OPTION = {
 }
 
 MIRROR_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+    'option_positional': ['--mirror-id'],
     'option_keywords': {
         'dest': 'param_mirror_id',
         'metavar': '<srcjvpsa-xxxxxxxx>',
@@ -176,7 +203,7 @@ POOL_CACHE_OPTION = {
 }
 
 POOL_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+    'option_positional': ['--pool-id'],
     'option_keywords': {
         'dest': 'param_pool_id',
         'metavar': '<pool-xxxxxxxx>',
@@ -188,7 +215,7 @@ POOL_ID_OPTION = {
 }
 
 POOL_RAID_GROUPS_OPTION = {
-    'option_positional': ['-R', '--raid-groups'],
+    'option_positional': ['--raid-groups'],
     'option_keywords': {
         'dest': 'param_raid_groups',
         'metavar': '<RaidGroup-n,RaidGroup-n>',
@@ -201,7 +228,7 @@ POOL_RAID_GROUPS_OPTION = {
 }
 
 RAID_GROUP_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+    'option_positional': ['--raid-group-id'],
     'option_keywords': {
         'dest': 'param_raid_id',
         'metavar': '<RaidGroup-n>',
@@ -226,7 +253,7 @@ REMOTE_POOL_ID_OPTION = {
 }
 
 REMOTE_VPSA_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+    'option_positional': ['--remote-vpsa-id'],
     'option_keywords': {
         'dest': 'param_rvpsa_id',
         'metavar': '<rvpsa-xxxxxxxx>',
@@ -239,19 +266,66 @@ REMOTE_VPSA_ID_OPTION = {
 }
 
 ROS_BACKUP_JOB_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+    'option_positional': ['--ros-backup-job-id'],
     'option_keywords': {
         'dest': 'param_ros_backup_job_id',
         'metavar': '<bkpjobs-xxxxxxxx>',
         'type': str,
         'help': 'The remote object storage backup job "name" value as '
-                'returned by "remote-object-storage list-jobs".  For '
+                'returned by "remote-object-storage list-backup-jobs".  For '
                 'example: "bkpjobs-00000001".'
     }
 }
 
+ROS_DESTINATION_ID_OPTION = {
+    'option_positional': ['--ros-destination-id'],
+    'option_keywords': {
+        'dest': 'param_ros_destination_id',
+        'metavar': '<obsdst-xxxxxxxx>',
+        'type': str,
+        'required': True,
+        'help': 'The remote object storage destination "name" value as '
+                'returned by "remote-object-storage list-destinations".  '
+                'For example: "obsdst-00000001".  Required.'
+    }
+}
+
+ROS_RESTORE_JOB_ID_OPTION = {
+    'option_positional': ['--ros-restore-job-id'],
+    'option_keywords': {
+        'dest': 'param_ros_restore_job_id',
+        'metavar': '<rstjobs-xxxxxxxx>',
+        'type': str,
+        'help': 'The remote object storage restore job "name" value as '
+                'returned by "remote-object-storage list-restore-jobs".  For '
+                'example: "rstjobs-00000001".'
+    }
+}
+
+ROS_RESTORE_MODE_OPTION = {
+    'option_positional': ['--restore-mode'],
+    'option_keywords': {
+        'dest': 'param_restore_mode',
+        'choices': ['restore', 'clone', 'import_seed'],
+        'type': str,
+        'required': True,
+        'help': 'When set to "restore", the volume can be immediately '
+                'attached to servers; data is retrieved from object storage '
+                'on demand and in a background process; and all data will '
+                'eventually be restored.  When set to "clone", the volume '
+                'can be immediately attached to servers; and starting with '
+                'zero capacity, data is retrieved from object storage only '
+                'on-demand when accessed by the attached servers.  When set '
+                'to "import_seed", a full capacity clone is created, '
+                'including snapshot time-stamping; The volume can be '
+                'attached to servers only after the volume\'s data was fully '
+                'retrieved from object storage; use this mode to import '
+                'initial data seed for remote mirroring.  Required.'
+        }
+}
+
 SERVER_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+    'option_positional': ['--server-id'],
     'option_keywords': {
         'dest': 'param_server_id',
         'metavar': '<srv-xxxxxxxx>',
@@ -263,7 +337,7 @@ SERVER_ID_OPTION = {
 }
 
 SERVER_ID_LIST_OPTION = {
-    'option_positional': ['-S', '--server-ids'],
+    'option_positional': ['--server-ids'],
     'option_keywords': {
         'dest': 'param_servers',
         'metavar': '<srv-xxxxxxxx,srv-yyyyyyyy>',
@@ -275,7 +349,7 @@ SERVER_ID_LIST_OPTION = {
 }
 
 SNAPSHOT_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+    'option_positional': ['--snapshot-id'],
     'option_keywords': {
         'dest': 'param_snapshot_id',
         'metavar': '<snap-xxxxxxxx>',
@@ -287,7 +361,7 @@ SNAPSHOT_ID_OPTION = {
 }
 
 SNAPSHOT_POLICY_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+    'option_positional': ['--snapshot-policy-id'],
     'option_keywords': {
         'dest': 'param_policy_id',
         'metavar': '<policy-xxxxxxxx>',
@@ -300,7 +374,7 @@ SNAPSHOT_POLICY_ID_OPTION = {
 }
 
 START_OPTION = {
-    'option_positional': ['-s', '--start'],
+    'option_positional': ['--start'],
     'option_keywords': {
         'dest': 'param_start',
         'metavar': '<n>',
@@ -310,7 +384,7 @@ START_OPTION = {
 }
 
 VOLUME_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+    'option_positional': ['--volume-id'],
     'option_keywords': {
         'dest': 'param_volume_id',
         'metavar': '<volume-xxxxxxxx>',
@@ -322,7 +396,7 @@ VOLUME_ID_OPTION = {
 }
 
 VOLUME_BLOCK_OPTION = {
-    'option_positional': ['-b', '--block'],
+    'option_positional': ['--block'],
     'option_keywords': {
         'dest': 'param_block',
         'choices': ['YES', 'NO'],
@@ -334,7 +408,7 @@ VOLUME_BLOCK_OPTION = {
 }
 
 VOLUME_ATTACHPOLICIES_OPTION = {
-    'option_positional': ['-a', '--attachpolicies'],
+    'option_positional': ['--attachpolicies'],
     'option_keywords': {
         'dest': 'param_attachpolicies',
         'choices': ['YES', 'NO'],
@@ -347,7 +421,7 @@ VOLUME_ATTACHPOLICIES_OPTION = {
 }
 
 VOLUME_EXPORT_NAME_OPTION = {
-    'option_positional': ['-e', '--export-name'],
+    'option_positional': ['--export-name'],
     'option_keywords': {
         'dest': 'param_export_name',
         'metavar': '<xxx>',
@@ -468,7 +542,7 @@ VOLUME_NFSROOTSQUASH_OPTION = {
 }
 
 VPSA_ID_OPTION = {
-    'option_positional': ['-i', '--id'],
+    'option_positional': ['--vpsa-id'],
     'option_keywords': {
         'dest': 'param_vpsa_id',
         'metavar': '<vpsa-id>',
@@ -741,19 +815,7 @@ COMMANDS_DICT = [
                                     mirrors.add_mirror_snapshot_policy),
                 'subcommand_options': [
                     MIRROR_ID_OPTION,
-                    {
-                        'option_positional': ['--snapshot-policy-id'],
-                        'option_keywords': {
-                            'dest': 'param_policy_id',
-                            'metavar': '<policy-xxxxxxxx>',
-                            'type': str,
-                            'required': True,
-                            'help': 'The snapshot policy "name" value as '
-                                    'returned by "snapshot-policies list".  '
-                                    'For example: "policy-00000001".  '
-                                    'Required.'
-                        }
-                    }
+                    SNAPSHOT_POLICY_ID_OPTION
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Adds an additional snapshot policy to an '
@@ -837,6 +899,7 @@ COMMANDS_DICT = [
                             'dest': 'param_username',
                             'metavar': '<xxx>',
                             'type': str,
+                            'required': True,
                             'help': 'The username of the admin GUI user on '
                                     'the remote VPSA'
                         }
@@ -847,6 +910,7 @@ COMMANDS_DICT = [
                             'dest': 'param_password',
                             'metavar': '<xxx>',
                             'type': str,
+                            'required': True,
                             'help': 'The password of the admin GUI user on '
                                     'the remote VPSA'
                         }
@@ -959,19 +1023,7 @@ COMMANDS_DICT = [
                                     mirrors.remove_mirror_snapshot_policy),
                 'subcommand_options': [
                     MIRROR_ID_OPTION,
-                    {
-                        'option_positional': ['--snapshot-policy-id'],
-                        'option_keywords': {
-                            'dest': 'param_policy_id',
-                            'metavar': '<policy-xxxxxxxx>',
-                            'type': str,
-                            'required': True,
-                            'help': 'The snapshot policy "name" value as '
-                                    'returned by "snapshot-policies list".  '
-                                    'For example: "policy-00000001".  '
-                                    'Required.'
-                        }
-                    },
+                    SNAPSHOT_POLICY_ID_OPTION,
                     DELETE_SNAPSHOTS_OPTION
                 ],
                 'subcommand_return_key': None,
@@ -984,19 +1036,7 @@ COMMANDS_DICT = [
                 'subcommand_options': [
                     REMOTE_VPSA_ID_OPTION,
                     DISPLAY_NAME_OPTION,
-                    {
-                        'option_positional': ['--snapshot-policy-id'],
-                        'option_keywords': {
-                            'dest': 'param_policy_id',
-                            'metavar': '<policy-xxxxxxxx>',
-                            'type': str,
-                            'required': True,
-                            'help': 'The snapshot policy "name" value as '
-                                    'returned by "snapshot-policies list".  '
-                                    'For example: "policy-00000001".  '
-                                    'Required.'
-                        }
-                    },
+                    SNAPSHOT_POLICY_ID_OPTION,
                     {
                         'option_positional': ['--local-snapshot-id'],
                         'option_keywords': {
@@ -1341,7 +1381,7 @@ COMMANDS_DICT = [
                                     '"drives list".  For example: '
                                     '"volume-00002a73".  Required.'
                         }
-                    },
+                    }
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Adds a hot spare to a RAID group using '
@@ -1469,6 +1509,476 @@ COMMANDS_DICT = [
                 'subcommand_return_key': None,
                 'subcommand_help': 'Updates the speed at which a degraded '
                                    'RAID group will resync'
+            }
+        ]
+    },
+    {
+        'command_name': 'remote-object-storage',
+        'help': 'Commands related to remote object storage (B2S3) backups',
+        'subcommands': [
+            {
+                'subcommand_info': ('backup-job-performance',
+                                    remote_object_storage.
+                                    get_ros_backup_job_performance),
+                'subcommand_options': [
+                    ROS_BACKUP_JOB_ID_OPTION,
+                    INTERVAL_OPTION
+                ],
+                'subcommand_return_key': 'usages',
+                'subcommand_help': 'Gets performance statistics for a remote '
+                                   'object storage backup job'
+            },
+            {
+                'subcommand_info': ('break-backup-job',
+                                    remote_object_storage.
+                                    break_ros_backup_job),
+                'subcommand_options': [
+                    ROS_BACKUP_JOB_ID_OPTION,
+                    DELETE_SNAPSHOTS_OPTION,
+                    {
+                        'option_positional': ['--purge-data'],
+                        'option_keywords': {
+                            'dest': 'param_purge_data',
+                            'choices': ['YES', 'NO'],
+                            'type': str,
+                            'default': 'NO',
+                            'help': 'If set to "YES", all data related to '
+                                    'this backup job will be deleted on the '
+                                    'remote object storage destination '
+                                    'endpoint.  If "NO", the data will '
+                                    'remain on the endpoint.  Set to "NO" '
+                                    'by default.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Breaks a remote object storage backup '
+                                   'job - this action is irreversible'
+            },
+            {
+                'subcommand_info': ('break-restore-job',
+                                    remote_object_storage.
+                                    break_ros_restore_job),
+                'subcommand_options': [
+                    ROS_BACKUP_JOB_ID_OPTION,
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Breaks a remote object storage restore '
+                                   'job - this action is irreversible'
+            },
+            {
+                'subcommand_info': ('change-backup-job-compression',
+                                    remote_object_storage.
+                                    update_ros_backup_job_compression),
+                'subcommand_options': [
+                    ROS_BACKUP_JOB_ID_OPTION,
+                    COMPRESSION_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Changes the compression setting for a '
+                                   'remote object storage backup job'
+            },
+            {
+                'subcommand_info': ('change-restore-job-mode',
+                                    remote_object_storage.
+                                    change_ros_restore_job_mode),
+                'subcommand_options': [
+                    ROS_RESTORE_JOB_ID_OPTION,
+                    ROS_RESTORE_MODE_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Changes the restore mode for a remote '
+                                   'object storage restore job'
+            },
+            {
+                'subcommand_info': ('create-backup-job',
+                                    remote_object_storage.
+                                    create_ros_backup_job),
+                'subcommand_options': [
+                    DISPLAY_NAME_OPTION,
+                    ROS_DESTINATION_ID_OPTION,
+                    VOLUME_ID_OPTION,
+                    SNAPSHOT_POLICY_ID_OPTION,
+                    COMPRESSION_OPTION
+                ],
+                'subcommand_return_key': 'obs_backup_job_name',
+                'subcommand_help': 'Create a new remote object storage '
+                                   'backup job based on the provided volume '
+                                   'and snapshot policy'
+            },
+            {
+                'subcommand_info': ('create-destination',
+                                    remote_object_storage.
+                                    create_ros_destination),
+                'subcommand_options': [
+                    DISPLAY_NAME_OPTION,
+                    {
+                        'option_positional': ['--bucket'],
+                        'option_keywords': {
+                            'dest': 'param_bucket',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The destination object storage bucket '
+                                    'name'
+                        }
+                    },
+                    {
+                        'option_positional': ['--endpoint'],
+                        'option_keywords': {
+                            'dest': 'param_endpoint',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The destination object storage '
+                                    'hostname.  For example, '
+                                    's3.amazonaws.com'
+                        }
+                    },
+                    {
+                        'option_positional': ['--username'],
+                        'option_keywords': {
+                            'dest': 'param_username',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The username/access key of the object '
+                                    'storage bucket'
+                        }
+                    },
+                    {
+                        'option_positional': ['--password'],
+                        'option_keywords': {
+                            'dest': 'param_password',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The password/secret key of the object '
+                                    'storage bucket'
+                        }
+                    },
+                    {
+                        'option_positional': ['--public'],
+                        'option_keywords': {
+                            'dest': 'param_public',
+                            'choices': ['YES', 'NO'],
+                            'type': str,
+                            'default': 'NO',
+                            'help': 'If set to YES, the remote object '
+                                    'storage destination will be accessed '
+                                    'through the VPSA\'s public IP address, '
+                                    'if assigned.  If NO, the private '
+                                    'data/management IP will be used (remote '
+                                    'object storage must be routable or '
+                                    'reachable via proxy). Defaults to NO.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--use-proxy'],
+                        'option_keywords': {
+                            'dest': 'param_use_proxy',
+                            'choices': ['YES', 'NO'],
+                            'type': str,
+                            'default': 'NO',
+                            'help': 'If set to YES, the remote object '
+                                    'storage destination will be accessed '
+                                    'through the specified HTTP proxy '
+                                    'server.  If NO, a direct routed '
+                                    'connection will be used (remote '
+                                    'object storage endpoint must be '
+                                    'routable from source IP). Defaults to '
+                                    'NO.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--proxy-host'],
+                        'option_keywords': {
+                            'dest': 'param_proxy_host',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'If --use-proxy is set to YES, the HTTP '
+                                    'proxy hostname or IP to connect to the '
+                                    'endpoint through'
+                        }
+                    },
+                    {
+                        'option_positional': ['--proxy-port'],
+                        'option_keywords': {
+                            'dest': 'param_proxy_host',
+                            'metavar': '<n>',
+                            'type': int,
+                            'help': 'If --use-proxy is set to YES, the HTTP '
+                                    'proxy port number to connect to the '
+                                    'endpoint through'
+                        }
+                    },
+                    {
+                        'option_positional': ['--proxy-username'],
+                        'option_keywords': {
+                            'dest': 'param_proxy_username',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'If --use-proxy is set to YES, the HTTP '
+                                    'proxy username to connect to the '
+                                    'endpoint through - do not define to not '
+                                    'use authentication'
+                        }
+                    },
+                    {
+                        'option_positional': ['--proxy-password'],
+                        'option_keywords': {
+                            'dest': 'param_proxy_password',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'If --use-proxy is set to YES, the HTTP '
+                                    'proxy password to connect to the '
+                                    'endpoint through - do not define to not '
+                                    'use authentication'
+                        }
+                    },
+                ],
+                'subcommand_return_key': 'obs_destination',
+                'subcommand_help': 'Create a new remote object storage '
+                                   'destination where backups may be stored'
+            },
+            {
+                'subcommand_info': ('create-restore-job',
+                                    remote_object_storage.
+                                    create_ros_restore_job),
+                'subcommand_options': [
+                    DISPLAY_NAME_OPTION,
+                    ROS_DESTINATION_ID_OPTION,
+                    POOL_ID_OPTION,
+                    ROS_RESTORE_MODE_OPTION,
+                    {
+                        'option_positional': ['--volume-name'],
+                        'option_keywords': {
+                            'dest': 'param_volume_name',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The display name to set for the '
+                                    'restored volume.  Required.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--local-snapshot-id'],
+                        'option_keywords': {
+                            'dest': 'param_local_snapshot_id',
+                            'metavar': '<snap-xxxxxxxx>',
+                            'type': str,
+                            'help': 'Either --local-snapshot-id or '
+                                    '--object-store-key must be passed.  '
+                                    'When --local-snapshot-id is used, the '
+                                    'restore job is initiated based on the '
+                                    'original internal snapshot ID'
+                        }
+                    },
+                    {
+                        'option_positional': ['--object-store-key'],
+                        'option_keywords': {
+                            'dest': 'param_object_store_key',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'Either --local-snapshot-id or '
+                                    '--object-store-key must be passed.  '
+                                    'When --object-store-key is used, it is '
+                                    'the full object storage key for the '
+                                    '"path" to the individual snapshot to be '
+                                    'restored.  For example: '
+                                    '"cloud1.'
+                                    'C97E9A00ADE7489BB08A9AB3B0B6484F/'
+                                    'myvpsa.vsa-00000169/'
+                                    'myvol.volume-00000011/'
+                                    '2015-07-01T09:26:01+'
+                                    '0000_snap-0000003e/".  This is useful '
+                                    'when there is no local_snapshot_id to '
+                                    'reference; for example, if the snapshot '
+                                    'is being restored to a different VPSA '
+                                    'than the original source.'
+                        }
+                    },
+                    CRYPT_OPTION
+                ],
+                'subcommand_return_key': 'obs_restore_job_name',
+                'subcommand_help': 'Create a new remote object storage '
+                                   'restore job to the provided pool based '
+                                   'on the provided volume and snapshot policy'
+            },
+            {
+                'subcommand_info': ('get-backup-job',
+                                    remote_object_storage.
+                                    get_ros_backup_job),
+                'subcommand_options': [
+                    ROS_BACKUP_JOB_ID_OPTION
+                ],
+                'subcommand_return_key': 'obs_backup_job',
+                'subcommand_help': 'Displays details for a single remote '
+                                   'object storage backup job'
+            },
+            {
+                'subcommand_info': ('get-destination',
+                                    remote_object_storage.
+                                    get_ros_destination),
+                'subcommand_options': [
+                    ROS_DESTINATION_ID_OPTION
+                ],
+                'subcommand_return_key': 'obs_destination',
+                'subcommand_help': 'Displays details for a single remote '
+                                   'object storage destination'
+            },
+            {
+                'subcommand_info': ('get-restore-job',
+                                    remote_object_storage.
+                                    get_ros_restore_job),
+                'subcommand_options': [
+                    ROS_RESTORE_JOB_ID_OPTION
+                ],
+                'subcommand_return_key': 'obs_backup_job',
+                'subcommand_help': 'Displays details for a single remote '
+                                   'object storage restore job'
+            },
+            {
+                'subcommand_info': ('list-backup-jobs',
+                                    remote_object_storage.
+                                    get_all_ros_backup_jobs),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'obs_backup_jobs',
+                'subcommand_help': 'Displays details for all remote object '
+                                   'storage backup jobs'
+            },
+            {
+                'subcommand_info': ('list-destination-backup-jobs',
+                                    remote_object_storage.
+                                    get_all_ros_destination_backup_jobs),
+                'subcommand_options': [
+                    ROS_DESTINATION_ID_OPTION,
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'obs_backup_jobs',
+                'subcommand_help': 'Displays details for all remote object '
+                                   'storage backup jobs by destination'
+            },
+            {
+                'subcommand_info': ('list-destinations',
+                                    remote_object_storage.
+                                    get_all_ros_destinations),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'obs_destinations',
+                'subcommand_help': 'Displays details for all remote object '
+                                   'storage destinations'
+            },
+            {
+                'subcommand_info': ('list-restore-jobs',
+                                    remote_object_storage.
+                                    get_all_ros_restore_jobs),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'obs_restore_jobs',
+                'subcommand_help': 'Displays details for all remote object '
+                                   'storage restore jobs'
+            },
+            {
+                'subcommand_info': ('list-destination-restore-jobs',
+                                    remote_object_storage.
+                                    get_all_ros_destination_restore_jobs),
+                'subcommand_options': [
+                    ROS_DESTINATION_ID_OPTION,
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'obs_restore_jobs',
+                'subcommand_help': 'Displays details for all remote object '
+                                   'storage restore jobs by destination'
+            },
+            {
+                'subcommand_info': ('pause-backup-job',
+                                    remote_object_storage.
+                                    pause_ros_backup_job),
+                'subcommand_options': [
+                    ROS_BACKUP_JOB_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Pauses a remote object storage backup '
+                                   'job'
+            },
+            {
+                'subcommand_info': ('pause-restore-job',
+                                    remote_object_storage.
+                                    pause_ros_restore_job),
+                'subcommand_options': [
+                    ROS_RESTORE_JOB_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Pauses a remote object storage restore '
+                                   'job'
+            },
+            {
+                'subcommand_info': ('remove-destination',
+                                    remote_object_storage.
+                                    remove_ros_destination),
+                'subcommand_options': [
+                    ROS_DESTINATION_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Removes a remote object storage '
+                                   'destination'
+            },
+            {
+                'subcommand_info': ('replace-backup-job-snapshot-policy',
+                                    remote_object_storage.
+                                    replace_ros_backup_job_snapshot_policy),
+                'subcommand_options': [
+                    ROS_BACKUP_JOB_ID_OPTION,
+                    SNAPSHOT_POLICY_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Replaces the remote object storage '
+                                   'backup job snapshot policy with the '
+                                   'specified policy'
+            },
+            {
+                'subcommand_info': ('restore-job-performance',
+                                    remote_object_storage.
+                                    get_ros_restore_job_performance),
+                'subcommand_options': [
+                    ROS_RESTORE_JOB_ID_OPTION,
+                    INTERVAL_OPTION
+                ],
+                'subcommand_return_key': 'usages',
+                'subcommand_help': 'Gets performance statistics for a remote '
+                                   'object storage restore job'
+            },
+            {
+                'subcommand_info': ('resume-backup-job',
+                                    remote_object_storage.
+                                    resume_ros_backup_job),
+                'subcommand_options': [
+                    ROS_BACKUP_JOB_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Resumes a paused remote object storage '
+                                   'backup job'
+            },
+            {
+                'subcommand_info': ('resume-restore-job',
+                                    remote_object_storage.
+                                    resume_ros_restore_job),
+                'subcommand_options': [
+                    ROS_RESTORE_JOB_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Resumes a paused remote object storage '
+                                   'restore job'
             }
         ]
     },
@@ -1691,7 +2201,7 @@ COMMANDS_DICT = [
                     CG_ID_OPTION,
                     DISPLAY_NAME_OPTION,
                     {
-                        'option_positional': ['-i', '--id'],
+                        'option_positional': ['--snapshot-id'],
                         'option_keywords': {
                             'dest': 'param_snapshot_id',
                             'metavar': '<snap-xxxxxxxx>',
@@ -1717,19 +2227,7 @@ COMMANDS_DICT = [
                     CAPACITY_OPTION,
                     VOLUME_BLOCK_OPTION,
                     VOLUME_ATTACHPOLICIES_OPTION,
-                    {
-                        'option_positional': ['--crypt'],
-                        'option_keywords': {
-                            'dest': 'param_crypt',
-                            'choices': ['YES', 'NO'],
-                            'type': str,
-                            'default': 'NO',
-                            'help': 'If YES, encryption will be enabled '
-                                    'using the VPSA encryption key defined '
-                                    'by the user.  If NO, encryption will '
-                                    'not be enabled.  Default: NO'
-                        }
-                    },
+                    CRYPT_OPTION,
                     VOLUME_EXPORT_NAME_OPTION,
                     VOLUME_ATIMEUPDATE_OPTION,
                     VOLUME_SMBONLY_OPTION,
@@ -2060,7 +2558,7 @@ def main():
                              'alternatively, it can be defined through '
                              'the ZADARA_HOST environment variable, or a '
                              'configuration file')
-    group1.add_argument('--insecure', action='store_true',
+    group1.add_argument('-i', '--insecure', action='store_true',
                         help='If passed, clear-text HTTP will be used '
                              'instead of encrypted HTTPS')
     group1.add_argument('-k', '--api-key', type=str, dest='key',
@@ -2089,7 +2587,7 @@ def main():
     group2.add_argument('-v', '--verbose', action='store_true',
                         help='Enable verbose output for debugging '
                              'purposes')
-    group2.add_argument('--vertical', action='store_true',
+    group2.add_argument('-V', '--vertical', action='store_true',
                         help='Display output in vertical form with a single '
                              'output table per row - this makes viewing '
                              'large amounts of output easier')
