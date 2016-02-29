@@ -71,7 +71,7 @@ COMPRESSION_OPTION = {
     'option_keywords': {
         'dest': 'param_compression',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'default': 'YES',
         'help': 'If set to "YES", backup data will be compressed in flight.  '
                 'If "NO", backup data will not be compressed.  Set to "YES" '
@@ -97,7 +97,7 @@ CRYPT_OPTION = {
     'option_keywords': {
         'dest': 'param_crypt',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'default': 'NO',
         'help': 'If YES, at rest encryption will be enabled for the volume '
                 'using the VPSA encryption key defined by the user.  If NO, '
@@ -110,7 +110,7 @@ DELETE_SNAPSHOTS_OPTION = {
     'option_keywords': {
         'dest': 'param_delete_snapshots',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'required': True,
         'help': 'If set to YES, all snapshots taken by the specified policy '
                 'will be deleted.  If set to NO, taken snapshots will be '
@@ -196,7 +196,7 @@ POOL_CACHE_OPTION = {
     'option_keywords': {
         'dest': 'param_cache',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'required': True,
         'help': 'Toggles the storage pool SSD cache.  Required.'
     }
@@ -307,7 +307,7 @@ ROS_RESTORE_MODE_OPTION = {
     'option_keywords': {
         'dest': 'param_restore_mode',
         'choices': ['restore', 'clone', 'import_seed'],
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'When set to "restore", the volume can be immediately '
                 'attached to servers; data is retrieved from object storage '
@@ -400,7 +400,7 @@ VOLUME_BLOCK_OPTION = {
     'option_keywords': {
         'dest': 'param_block',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'required': True,
         'help': 'If YES, the volume will be block (iSCSI/iSER).  If NO, it '
                 'will be a NAS volume (NFS/SMB).  Required.'
@@ -412,7 +412,7 @@ VOLUME_ATTACHPOLICIES_OPTION = {
     'option_keywords': {
         'dest': 'param_attachpolicies',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'default': 'YES',
         'help': 'If YES, the default snapshot policies for the VPSA will be '
                 'attached.  If NO, no snapshot policies will be assigned.  '
@@ -436,7 +436,7 @@ VOLUME_ATIMEUPDATE_OPTION = {
     'option_keywords': {
         'dest': 'param_atimeupdate',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'default': 'NO',
         'help': 'If YES, NAS shares will updated last accessed time each '
                 'time a file is accessed (impacts performance).  Default: NO'
@@ -448,7 +448,7 @@ VOLUME_SMBONLY_OPTION = {
     'option_keywords': {
         'dest': 'param_smbonly',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'default': 'NO',
         'help': 'If YES, NAS shares will be accessible only via SMB '
                 '(improves performance).  Default: NO'
@@ -460,7 +460,7 @@ VOLUME_SMBGUEST_OPTION = {
     'option_keywords': {
         'dest': 'param_smbguest',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'default': 'NO',
         'help': 'If YES, authentication will not be required to login to and '
                 'read/write from/to a SMB share.  Default: NO'
@@ -472,7 +472,7 @@ VOLUME_SMBWINDOWSACL_OPTION = {
     'option_keywords': {
         'dest': 'param_smbwindowsacl',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'default': 'NO',
         'help': 'If YES, extended ACLs will be enabled for SMB shares.  '
                 'Default: NO'
@@ -508,7 +508,7 @@ VOLUME_SMBMAPARCHIVE_OPTION = {
     'option_keywords': {
         'dest': 'param_smbmaparchive',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'default': 'YES',
         'help': 'For NAS shares, when using SMB, if YES, a file\'s execute '
                 'bit will be used to flag the Archive file attribute.  '
@@ -521,7 +521,7 @@ VOLUME_SMBAIOSIZE_OPTION = {
     'option_keywords': {
         'dest': 'param_smbaiosize',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'default': 'NO',
         'help': 'For NAS shares, when using SMB, if YES, file reads will be '
                 'performed asynchronously, which improves performance for '
@@ -534,7 +534,7 @@ VOLUME_NFSROOTSQUASH_OPTION = {
     'option_keywords': {
         'dest': 'param_nfsrootsquash',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'default': 'NO',
         'help': 'For NAS shares, when using NFS, if YES, root squash is  '
                 'enabled.  Default: NO'
@@ -558,7 +558,7 @@ WAN_OPTIMIZATION_OPTION = {
     'option_keywords': {
         'dest': 'param_wan_optimization',
         'choices': ['YES', 'NO'],
-        'type': str,
+        'type': str.upper,
         'default': 'YES',
         'help': 'If set to \'YES\', the mirror will attempt to reduce the '
                 'amount of data needing to be synchronized to the remote '
@@ -762,7 +762,7 @@ COMMANDS_DICT = [
                         'option_keywords': {
                             'dest': 'param_migrate_snaps',
                             'choices': ['YES', 'NO'],
-                            'type': str,
+                            'type': str.upper,
                             'default': 'YES',
                             'help': 'If set to YES, all of the affected '
                                     'volume\'s snapshots will be migrated '
@@ -920,7 +920,7 @@ COMMANDS_DICT = [
                         'option_keywords': {
                             'dest': 'param_public',
                             'choices': ['YES', 'NO'],
-                            'type': str,
+                            'type': str.upper,
                             'default': 'NO',
                             'help': 'If set to YES, the remote VPSA will be '
                                     'discovered through the VPSA\'s public '
@@ -1169,7 +1169,7 @@ COMMANDS_DICT = [
                         'option_keywords': {
                             'dest': 'param_mode',
                             'choices': ['simple', 'stripe'],
-                            'type': str,
+                            'type': str.lower,
                             'default': 'stripe',
                             'help': 'The storage pool striping mode to use.  '
                                     'Default: stripe'
@@ -1315,7 +1315,7 @@ COMMANDS_DICT = [
                         'option_keywords': {
                             'dest': 'param_protection',
                             'choices': ['RAID1', 'RAID5', 'RAID6'],
-                            'type': str,
+                            'type': str.upper,
                             'required': True,
                             'help': 'The RAID type to use.  Required.'
                         }
@@ -1325,7 +1325,7 @@ COMMANDS_DICT = [
                         'option_keywords': {
                             'dest': 'param_hot_spare',
                             'choices': ['YES', 'NO'],
-                            'type': str,
+                            'type': str.upper,
                             'default': 'NO',
                             'help': 'Assign a hot spare to the RAID group.  '
                                     'Default: NO'
@@ -1540,7 +1540,7 @@ COMMANDS_DICT = [
                         'option_keywords': {
                             'dest': 'param_purge_data',
                             'choices': ['YES', 'NO'],
-                            'type': str,
+                            'type': str.upper,
                             'default': 'NO',
                             'help': 'If set to "YES", all data related to '
                                     'this backup job will be deleted on the '
@@ -1662,7 +1662,7 @@ COMMANDS_DICT = [
                         'option_keywords': {
                             'dest': 'param_public',
                             'choices': ['YES', 'NO'],
-                            'type': str,
+                            'type': str.upper,
                             'default': 'NO',
                             'help': 'If set to YES, the remote object '
                                     'storage destination will be accessed '
@@ -1678,7 +1678,7 @@ COMMANDS_DICT = [
                         'option_keywords': {
                             'dest': 'param_use_proxy',
                             'choices': ['YES', 'NO'],
-                            'type': str,
+                            'type': str.upper,
                             'default': 'NO',
                             'help': 'If set to YES, the remote object '
                                     'storage destination will be accessed '
@@ -1997,7 +1997,7 @@ COMMANDS_DICT = [
                         'option_keywords': {
                             'dest': 'param_access_type',
                             'choices': ['NFS', 'SMB', 'BOTH'],
-                            'type': str,
+                            'type': str.upper,
                             'help': 'For NAS shares, the protocol to grant '
                                     'access with.'
                         }
@@ -2007,7 +2007,7 @@ COMMANDS_DICT = [
                         'option_keywords': {
                             'dest': 'param_readonly',
                             'choices': ['YES', 'NO'],
-                            'type': str,
+                            'type': str.upper,
                             'default': 'NO',
                             'help': 'If set to "YES", the attached servers '
                                     'will only be able to read the provided '
@@ -2095,7 +2095,7 @@ COMMANDS_DICT = [
                         'option_keywords': {
                             'dest': 'param_ipsec_iscsi',
                             'choices': ['YES', 'NO'],
-                            'type': str,
+                            'type': str.upper,
                             'default': 'NO',
                             'help': 'If set to "YES", mandate IPSec for '
                                     'iSCSI connections from this server.  '
@@ -2107,10 +2107,10 @@ COMMANDS_DICT = [
                         'option_keywords': {
                             'dest': 'param_ipsec_nfs',
                             'choices': ['YES', 'NO'],
-                            'type': str,
+                            'type': str.upper,
                             'default': 'NO',
                             'help': 'If set to "YES", mandate IPSec for '
-                                    'iSCSI connections from this server.  '
+                                    'NFS connections from this server.  '
                                     'Default: "NO"'
                         }
                     }
