@@ -290,6 +290,8 @@ def discover_remote_vpsa(session, ip_address, username, password, public,
 
     body_values['password'] = password
 
+    public = public.upper()
+
     if public not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid public parameter.  '
                          'Allowed values are: "YES" or "NO"'.format(public))
@@ -566,6 +568,8 @@ def resume_broken_mirror(session, rvpsa_id, display_name, policy_id,
 
     body_values['remote_snapname'] = remote_snapshot_id
 
+    wan_optimization = wan_optimization.upper()
+
     if wan_optimization not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid wan_optimization parameter.  '
                          'Allowed values are: "YES" or "NO"'
@@ -675,6 +679,8 @@ def remove_mirror_snapshot_policy(session, mirror_id, policy_id,
 
     body_values['policyname'] = policy_id
 
+    delete_snapshots = delete_snapshots.upper()
+
     if delete_snapshots not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid delete_snapshots parameter.  '
                          'Allowed values are: "YES" or "NO"'
@@ -727,6 +733,8 @@ def update_mirror_wan_optimization(session, mirror_id, wan_optimization,
                          .format(mirror_id))
 
     body_values = {}
+
+    wan_optimization = wan_optimization.upper()
 
     if wan_optimization not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid wan_optimization parameter.  '

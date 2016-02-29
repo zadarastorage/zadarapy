@@ -346,6 +346,8 @@ def create_nas_group(session, groupname, nfs_gid=None, smb='NO',
 
     body_values['groupname'] = quote(groupname.strip())
 
+    smb = smb.upper()
+
     if nfs_gid is None and smb not in ['YES', 'NO']:
         raise ValueError('Either the "nfs_gid" must be defined or "smb" must '
                          'be set to "YES".')
@@ -356,12 +358,11 @@ def create_nas_group(session, groupname, nfs_gid=None, smb='NO',
 
         body_values['nfs_gid'] = nfs_gid
 
-    if smb is not None:
-        if smb not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smb parameter.  Allowed '
-                             'values are: "YES" or "NO"'.format(smb))
+    if smb not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid smb parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(smb))
 
-        body_values['smb'] = smb
+    body_values['smb'] = smb
 
     method = 'POST'
     path = '/api/nas/groups.json'

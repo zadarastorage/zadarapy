@@ -175,6 +175,8 @@ def create_snapshot_policy(session, display_name, create_policy,
 
     body_values['destination_policy'] = 'N' + str(remote_delete_policy)
 
+    allow_empty = allow_empty.upper()
+
     if allow_empty not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid allow_empty parameter.  '
                          'Allowed values are: "YES" or "NO"'
@@ -263,6 +265,8 @@ def update_snapshot_policy(session, policy_id, create_policy=None,
         body_values['destination_policy'] = 'N' + str(remote_delete_policy)
 
     if allow_empty is not None:
+        allow_empty = allow_empty.upper()
+        
         if allow_empty not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid allow_empty parameter.  '
                              'Allowed values are: "YES" or "NO"'

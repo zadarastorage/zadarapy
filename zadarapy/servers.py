@@ -218,12 +218,16 @@ def create_server(session, display_name, ip_address=None, iqn=None,
 
         body_values['hostchapsecret'] = host_chap_secret
 
+    ipsec_iscsi = ipsec_iscsi.upper()
+
     if ipsec_iscsi not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid ipsec_iscsi parameter.  '
                          'Allowed values are: "YES" or "NO"'
                          .format(ipsec_iscsi))
 
     body_values['ipsec_iscsi'] = ipsec_iscsi
+
+    ipsec_nfs = ipsec_nfs.upper()
 
     if ipsec_nfs not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid ipsec_nfs parameter.  '
@@ -337,6 +341,8 @@ def update_server(session, server_id, ip_address=None, iqn=None,
         body_values['hostchapsecret'] = host_chap_secret
 
     if ipsec_iscsi is not None:
+        ipsec_iscsi = ipsec_iscsi.upper()
+
         if ipsec_iscsi not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid ipsec_iscsi parameter.  '
                              'Allowed values are: "YES" or "NO"'
@@ -345,6 +351,8 @@ def update_server(session, server_id, ip_address=None, iqn=None,
         body_values['ipsec_iscsi'] = ipsec_iscsi
 
     if ipsec_nfs is not None:
+        ipsec_nfs = ipsec_nfs.upper()
+
         if ipsec_nfs not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid ipsec_nfs parameter.  '
                              'Allowed values are: "YES" or "NO"'
@@ -557,6 +565,8 @@ def attach_servers_to_volume(session, servers, volume_id, access_type=None,
             access_type = None
 
         body_values['access_type'] = access_type
+
+    readonly = readonly.upper()
 
     if readonly not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid readonly parameter.  '

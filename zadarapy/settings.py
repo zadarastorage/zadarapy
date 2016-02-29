@@ -177,6 +177,8 @@ def set_smb_trusted_domains(session, allow_trusted_domains, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    allow_trusted_domains = allow_trusted_domains.upper()
+
     if allow_trusted_domains not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid allow_trusted_domains '
                          'parameter.  Allowed values are: "YES" or "NO"'
@@ -216,6 +218,8 @@ def set_recycle_bin(session, recycle_bin, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    recycle_bin = recycle_bin.upper()
+    
     if recycle_bin not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid recycle_bin parameter.  '
                          'Allowed values are: "YES" or "NO"'

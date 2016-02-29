@@ -283,11 +283,15 @@ def create_volume(session, pool_id, display_name, capacity, block,
 
     body_values['capacity'] = '{0}G'.format(capacity)
 
+    block = block.upper()
+
     if block not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid block parameter.  Allowed '
                          'values are: "YES" or "NO"'.format(block))
 
     body_values['block'] = block
+
+    attachpolicies = attachpolicies.upper()
 
     if attachpolicies not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid attachpolicies parameter.  '
@@ -295,6 +299,8 @@ def create_volume(session, pool_id, display_name, capacity, block,
                          .format(attachpolicies))
 
     body_values['attachpolicies'] = attachpolicies
+
+    crypt = crypt.upper()
 
     if crypt not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid crypt parameter.  Allowed '
@@ -316,12 +322,16 @@ def create_volume(session, pool_id, display_name, capacity, block,
 
             body_values['export_name'] = export_name
 
+        atimeupdate = atimeupdate.upper()
+
         if atimeupdate not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid atimeupdate parameter.  '
                              'Allowed values are: "YES" or "NO"'
                              .format(atimeupdate))
 
         body_values['atimeupdate'] = atimeupdate
+
+        smbonly = smbonly.upper()
 
         if smbonly not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid smbonly parameter.  '
@@ -330,12 +340,16 @@ def create_volume(session, pool_id, display_name, capacity, block,
 
         body_values['smbonly'] = smbonly
 
+        smbguest = smbguest.upper()
+
         if smbguest not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid smbguest parameter.  '
                              'Allowed values are: "YES" or "NO"'
                              .format(smbguest))
 
         body_values['smbguest'] = smbguest
+
+        smbwindowsacl = smbwindowsacl.upper()
 
         if smbwindowsacl not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid smbwindowsacl parameter.  '
@@ -351,12 +365,14 @@ def create_volume(session, pool_id, display_name, capacity, block,
 
         body_values['smbfilecreatemask'] = smbfilecreatemask
 
-        if not is_valid_mask(smbfilecreatemask):
+        if not is_valid_mask(smbdircreatemask):
             raise ValueError('smbdircreatemask must be a valid octal UNIX '
                              'style permission mask ("{0}" was given).'
                              .format(smbdircreatemask))
 
         body_values['smbdircreatemask'] = smbdircreatemask
+
+        smbmaparchive = smbmaparchive.upper()
 
         if smbmaparchive not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid smbmaparchive parameter.  '
@@ -364,6 +380,8 @@ def create_volume(session, pool_id, display_name, capacity, block,
                              .format(smbmaparchive))
 
         body_values['smbmaparchive'] = smbmaparchive
+
+        smbaiosize = smbaiosize.upper()
 
         if smbaiosize not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid smbaiosize parameter.  '
@@ -378,6 +396,8 @@ def create_volume(session, pool_id, display_name, capacity, block,
             smbaiosize = '1'
 
         body_values['smbaiosize'] = smbaiosize
+
+        nfsrootsquash = nfsrootsquash.upper()
 
         if nfsrootsquash not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid nfsrootsquash parameter.  '
@@ -454,6 +474,8 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
     body_values = {}
 
     if atimeupdate is not None:
+        atimeupdate = atimeupdate.upper()
+
         if atimeupdate not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid atimeupdate parameter.  '
                              'Allowed values are: "YES" or "NO"'
@@ -462,6 +484,8 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
         body_values['atimeupdate'] = atimeupdate
 
     if smbonly is not None:
+        smbonly = smbonly.upper()
+
         if smbonly not in ['YES', 'NO']:
                 raise ValueError('"{0}" is not a valid smbonly parameter.  '
                                  'Allowed values are: "YES" or "NO"'
@@ -470,6 +494,8 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
         body_values['smbonly'] = smbonly
 
     if smbguest is not None:
+        smbguest = smbguest.upper()
+
         if smbguest not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid smbguest parameter.  '
                              'Allowed values are: "YES" or "NO"'
@@ -478,6 +504,8 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
         body_values['smbguest'] = smbguest
 
     if smbwindowsacl is not None:
+        smbwindowsacl = smbwindowsacl.upper()
+
         if smbwindowsacl not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid smbwindowsacl parameter.  '
                              'Allowed values are: "YES" or "NO"'
@@ -502,6 +530,8 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
         body_values['smbdircreatemask'] = smbdircreatemask
 
     if smbmaparchive is not None:
+        smbmaparchive = smbmaparchive.upper()
+
         if smbmaparchive not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid smbmaparchive parameter.  '
                              'Allowed values are: "YES" or "NO"'
@@ -510,6 +540,8 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
         body_values['smbmaparchive'] = smbmaparchive
 
     if smbaiosize is not None:
+        smbaiosize = smbaiosize.upper()
+
         if smbaiosize not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid smbaiosize parameter.  '
                              'Allowed values are: "YES" or "NO"'
@@ -525,6 +557,8 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
         body_values['smbaiosize'] = smbaiosize
 
     if nfsrootsquash is not None:
+        nfsrootsquash = nfsrootsquash.upper()
+
         if nfsrootsquash not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid nfsrootsquash parameter.  '
                              'Allowed values are: "YES" or "NO"'
@@ -962,6 +996,8 @@ def remove_volume_snapshot_policy(session, cg_id, policy_id, delete_snapshots,
 
     body_values['policy'] = policy_id
 
+    delete_snapshots = delete_snapshots.upper()
+
     if delete_snapshots not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid delete_snapshots parameter.  '
                          'Allowed values are: "YES" or "NO"'
@@ -1211,6 +1247,8 @@ def migrate_volume(session, cg_id, pool_id, migrate_snaps='YES',
         raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
 
     body_values['poolname'] = pool_id
+
+    migrate_snaps = migrate_snaps.upper()
 
     if migrate_snaps not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid migrate_snaps parameter.  '
@@ -1478,6 +1516,8 @@ def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
                          .format(remote_volume_name))
 
     body_values['new_cg_name'] = remote_volume_name
+
+    wan_optimization = wan_optimization.upper()
 
     if wan_optimization not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid wan_optimization parameter.  '

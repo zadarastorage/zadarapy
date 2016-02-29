@@ -219,6 +219,8 @@ def create_raid_group(session, display_name, protection, disk,
     if stripe_size is not None:
         body_values['stripe_size'] = stripe_size
 
+    hot_spare = hot_spare.upper()
+
     if hot_spare not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid hot spare setting.  Allowed '
                          'values are: "YES" or "NO"'.format(hot_spare))

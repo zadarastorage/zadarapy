@@ -462,11 +462,15 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
 
     body_values['imagename'] = zcs_image_id
 
+    start = start.upper()
+
     if start not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid start parameter.  Allowed '
                          'values are: "YES" or "NO"'.format(start))
 
     body_values['start'] = start
+
+    use_public_ip = use_public_ip.upper()
 
     if use_public_ip not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid use_public_ip parameter.  '

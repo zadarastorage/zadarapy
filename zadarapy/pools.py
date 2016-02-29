@@ -187,6 +187,8 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
 
     body_values['pooltype'] = pooltype
 
+    cache = cache.upper()
+
     if cache not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid cache setting.  Allowed '
                          'values are: "YES" or "NO"'.format(cache))
@@ -634,6 +636,8 @@ def set_pool_cache(session, pool_id, cache, return_type=None):
         raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
 
     body_values = {}
+
+    cache = cache.upper()
 
     if cache not in ['YES', 'NO']:
         raise ValueError('Command parameter must be set to either "YES" or '

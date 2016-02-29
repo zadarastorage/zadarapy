@@ -208,6 +208,8 @@ def create_ros_destination(session, display_name, bucket, endpoint, username,
 
     body_values['password'] = password
 
+    public = public.upper()
+
     if public in ['YES', 'NO']:
         if public == 'YES':
             body_values['connectVia'] = 'public'
@@ -216,6 +218,8 @@ def create_ros_destination(session, display_name, bucket, endpoint, username,
     else:
         raise ValueError('{0} is not a valid public parameter.  Allowed '
                          'values are: "YES" or "NO"'.format(public))
+
+    use_proxy = use_proxy.upper()
 
     if use_proxy in ['YES', 'NO']:
         if use_proxy == 'YES':
@@ -362,6 +366,8 @@ def update_ros_destination(session, ros_destination_id, bucket=None,
         body_values['password'] = password
 
     if public is not None:
+        public = public.upper()
+
         if public in ['YES', 'NO']:
             if public == 'YES':
                 body_values['connectVia'] = 'public'
@@ -372,6 +378,8 @@ def update_ros_destination(session, ros_destination_id, bucket=None,
                              'values are: "YES" or "NO"'.format(public))
 
     if use_proxy is not None:
+        use_proxy = use_proxy.upper()
+
         if use_proxy in ['YES', 'NO']:
             if use_proxy == 'YES':
                 body_values['use_proxy'] = 'true'
@@ -694,6 +702,8 @@ def create_ros_backup_job(session, display_name, ros_destination_id,
 
     body_values['policy'] = policy_id
 
+    compression = compression.upper()
+
     if compression not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid compression parameter.  '
                          'Allowed values are: "YES" or "NO"'
@@ -811,12 +821,16 @@ def break_ros_backup_job(session, ros_backup_job_id, purge_data,
 
     body_values = {}
 
+    purge_data = purge_data.upper()
+
     if purge_data not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid purge_data parameter.  '
                          'Allowed values are: "YES" or "NO"'
                          .format(purge_data))
 
     body_values['purge_data'] = purge_data
+
+    delete_snapshots = delete_snapshots.upper()
 
     if delete_snapshots not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid delete_snapshots parameter.  '
@@ -867,6 +881,8 @@ def update_ros_backup_job_compression(session, ros_backup_job_id, compression,
                          'backup job ID.'.format(ros_backup_job_id))
 
     body_values = {}
+
+    compression = compression.upper()
 
     if compression not in ['YES', 'NO']:
         raise ValueError('"{0}" is not a valid compression parameter.  '
@@ -1132,6 +1148,8 @@ def create_ros_restore_job(session, display_name, ros_destination_id, pool_id,
                              .format(object_store_key))
 
         body_values['key'] = object_store_key
+
+    crypt = crypt.upper()
 
     if crypt not in ['YES', 'NO']:
         raise ValueError('{0} is not a valid crypt parameter.  Allowed '
