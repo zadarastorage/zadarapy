@@ -458,10 +458,11 @@ def join_active_directory(session, display_name, username, password,
     :param netbios_name: The NetBIOS name for the Active Directory domain.
         For example: 'MYCOMPANY'.  Required.
 
-    :type dns: list
-    :param dns: A Python list of up to three DNS server IP addresses for the
-        Active Directory domain.  Must have at least one DNS IP address
-        defined.  The address must be routable by the VPSA.  Required.
+    :type dns: list, str
+    :param dns: A Python list or comma separated string of up to three DNS
+        server IP addresses for the Active Directory domain.  Must have at
+        least one DNS IP address defined.  The address must be routable by the
+        VPSA.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -503,6 +504,9 @@ def join_active_directory(session, display_name, username, password,
 
     body_values['workgroup'] = netbios_name
 
+    if type(dns) is str:
+        dns = [x.strip() for x in dns.split(',')]
+
     if type(dns) is not list:
         raise ValueError('The dns parameter must be a Python list.')
 
@@ -528,10 +532,11 @@ def update_active_directory_dns(session, dns, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type dns: list
-    :param dns: A Python list of up to three DNS server IP addresses for the
-        Active Directory domain.  Must have at least one DNS IP address
-        defined.  The address must be routable by the VPSA.  Required.
+    :type dns: list, str
+    :param dns: A Python list or comma separated string of up to three DNS
+        server IP addresses for the Active Directory domain.  Must have at
+        least one DNS IP address defined.  The address must be routable by the
+        VPSA.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -543,6 +548,9 @@ def update_active_directory_dns(session, dns, return_type=None):
         return_type parameter.
     """
     body_values = {}
+
+    if type(dns) is str:
+        dns = [x.strip() for x in dns.split(',')]
 
     if type(dns) is not list:
         raise ValueError('The dns parameter must be a Python list.')

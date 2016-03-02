@@ -24,6 +24,7 @@ from zadarapy import container_services
 from zadarapy import controllers
 from zadarapy import drives
 from zadarapy import mirrors
+from zadarapy import nas_authentication
 from zadarapy import pools
 from zadarapy import raid_groups
 from zadarapy import remote_object_storage
@@ -33,6 +34,42 @@ from zadarapy import snapshot_policies
 from zadarapy import volumes
 from zadarapy import vpsa_operations
 from zadarapy import vpsa_users
+
+ACTIVE_DIRECTORY_DNS_OPTION = {
+    'option_positional': ['--dns'],
+    'option_keywords': {
+        'dest': 'param_dns',
+        'metavar': '<xxx.xxx.xxx.xxx,yyy.yyy.yyy.yyy>',
+        'type': str,
+        'required': True,
+        'help': 'A comma separated list of up to three DNS server IP '
+                'addresses for the Active Directory domain.  Must have at '
+                'least one DNS IP address defined.'
+    }
+}
+
+ACTIVE_DIRECTORY_USERNAME_OPTION = {
+    'option_positional': ['--username'],
+    'option_keywords': {
+        'dest': 'param_username',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'A username that has administrative permission to the Active '
+                'Directory (typically, part of the "Domain Admins" group).'
+    }
+}
+
+ACTIVE_DIRECTORY_PASSWORD_OPTION = {
+    'option_positional': ['--password'],
+    'option_keywords': {
+        'dest': 'param_password',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'The password for the Active Directory "username"'
+    }
+}
 
 CAPACITY_OPTION = {
     'option_positional': ['--capacity'],
@@ -191,6 +228,28 @@ MIRROR_ID_OPTION = {
                 'list".  For example: "srcjvpsa-00000001".  Must be run on '
                 'the mirror\'s source VPSA.  Required.'
 
+    }
+}
+
+NAS_GROUPNAME_OPTION = {
+    'option_positional': ['--groupname'],
+    'option_keywords': {
+        'dest': 'param_groupname',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'The NAS "groupname".  Required.'
+    }
+}
+
+NAS_USERNAME_OPTION = {
+    'option_positional': ['--username'],
+    'option_keywords': {
+        'dest': 'param_username',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'The NAS "username".  Required.'
     }
 }
 
@@ -1362,6 +1421,239 @@ COMMANDS_DICT = [
         ]
     },
     {
+        'command_name': 'nas-authentication',
+        'help': 'Commands related to NFS and SMB authentication',
+        'subcommands': [
+            {
+                'subcommand_info': ('change-user-smb-password',
+                                    nas_authentication.
+                                    change_nas_user_smb_password),
+                'subcommand_options': [
+                    NAS_USERNAME_OPTION,
+                    {
+                        'option_positional': ['--smb-password'],
+                        'option_keywords': {
+                            'dest': 'param_smb_password',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'The new SMB password to set'
+                        }
+                    },
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Changes the SMB password for the '
+                                   'provided NAS username'
+            },
+            {
+                'subcommand_info': ('create-group',
+                                    nas_authentication.create_nas_group),
+                'subcommand_options': [
+                    NAS_GROUPNAME_OPTION,
+                    {
+                        'option_positional': ['--nfs-gid'],
+                        'option_keywords': {
+                            'dest': 'param_nfs_gid',
+                            'metavar': '<n>',
+                            'type': int,
+                            'help': 'When using NFS, this is the '
+                                    'groupname\'s uid as returned by "id -g '
+                                    '<username>" on the client system'
+                        }
+                    },
+                    {
+                        'option_positional': ['--smb'],
+                        'option_keywords': {
+                            'dest': 'param_smb',
+                            'choices': ['YES', 'NO'],
+                            'type': str.upper,
+                            'default': 'NO',
+                            'help': 'When using SMB, if set to YES, this '
+                                    'group will be usable by SMB/CIFS '
+                                    'clients.  If set to NO, this group '
+                                    'won\'t be usable by SMB/CIFS clients.  '
+                                    'Default is set to NO'
+                        }
+                    }
+                ],
+                'subcommand_return_key': 'nas_group_name',
+                'subcommand_help': 'Creates a new NAS group on the VPSA'
+            },
+            {
+                'subcommand_info': ('create-user',
+                                    nas_authentication.create_nas_user),
+                'subcommand_options': [
+                    NAS_USERNAME_OPTION,
+                    {
+                        'option_positional': ['--nfs-uid'],
+                        'option_keywords': {
+                            'dest': 'param_nfs_uid',
+                            'metavar': '<n>',
+                            'type': int,
+                            'help': 'When using NFS, this is the username\'s '
+                                    'uid as returned by "id <username>" on '
+                                    'the client system'
+                        }
+                    },
+                    {
+                        'option_positional': ['--smb-password'],
+                        'option_keywords': {
+                            'dest': 'param_smb_password',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'When using SMB, the password to assign '
+                                    'to the SMB user.  This is only '
+                                    'necessary when not using guest access '
+                                    'on the volume and when not integrated '
+                                    'with an Active Directory server.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--smb-groupname'],
+                        'option_keywords': {
+                            'dest': 'param_smb_groupname',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'When using SMB, the primary group for '
+                                    'the user can optionally be designated '
+                                    'with the NAS group designated here.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': 'nas_user_name',
+                'subcommand_help': 'Creates a new NAS user on the VPSA'
+            },
+            {
+                'subcommand_info': ('delete-group',
+                                    nas_authentication.delete_nas_group),
+                'subcommand_options': [
+                    NAS_GROUPNAME_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes a NAS group'
+            },
+            {
+                'subcommand_info': ('delete-user',
+                                    nas_authentication.delete_nas_user),
+                'subcommand_options': [
+                    NAS_USERNAME_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes a NAS user'
+            },
+            {
+                'subcommand_info': ('get-active-directory',
+                                    nas_authentication.get_active_directory),
+                'subcommand_options': [],
+                'subcommand_return_key': 'smb_ads',
+                'subcommand_help': 'Displays details for the currently '
+                                   'configured Active Directory on the VPSA'
+            },
+            {
+                'subcommand_info': ('get-group',
+                                    nas_authentication.get_nas_group),
+                'subcommand_options': [
+                    NAS_GROUPNAME_OPTION
+                ],
+                'subcommand_return_key': 'group',
+                'subcommand_help': 'Displays details for a single NAS group '
+                                   'on the VPSA'
+            },
+            {
+                'subcommand_info': ('get-user',
+                                    nas_authentication.get_nas_user),
+                'subcommand_options': [
+                    NAS_USERNAME_OPTION
+                ],
+                'subcommand_return_key': 'user',
+                'subcommand_help': 'Displays details for a single NAS user '
+                                   'on the VPSA'
+            },
+            {
+                'subcommand_info': ('join-active-directory',
+                                    nas_authentication.join_active_directory),
+                'subcommand_options': [
+                    DISPLAY_NAME_OPTION,
+                    ACTIVE_DIRECTORY_USERNAME_OPTION,
+                    ACTIVE_DIRECTORY_PASSWORD_OPTION,
+                    {
+                        'option_positional': ['--dns-domain'],
+                        'option_keywords': {
+                            'dest': 'param_dns_domain',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The DNS domain name for the Active '
+                                    'Directory domain to be joined.  For '
+                                    'example: "ad.mycompany.com"'
+                        }
+                    },
+                    {
+                        'option_positional': ['--netbios-name'],
+                        'option_keywords': {
+                            'dest': 'param_netbios_name',
+                            'metavar': '<xxx>',
+                            'type': str.upper,
+                            'required': True,
+                            'help': 'The NetBIOS name for the Active '
+                                    'Directory domain.  For example: '
+                                    '"MYCOMPANY"'
+                        }
+                    },
+                    ACTIVE_DIRECTORY_DNS_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Joins a VPSA to an Active Directory - '
+                                   'which enables user and group integration '
+                                   'for SMB shares'
+            },
+            {
+                'subcommand_info': ('leave-active-directory',
+                                    nas_authentication.
+                                    leave_active_directory),
+                'subcommand_options': [
+                    ACTIVE_DIRECTORY_USERNAME_OPTION,
+                    ACTIVE_DIRECTORY_PASSWORD_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Makes the VPSA leave the configured '
+                                   'Active Directory'
+            },
+            {
+                'subcommand_info': ('list-groups',
+                                    nas_authentication.get_all_nas_groups),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'groups',
+                'subcommand_help': 'Displays details for all NAS groups on '
+                                   'the VPSA'
+            },
+            {
+                'subcommand_info': ('list-users',
+                                    nas_authentication.get_all_nas_users),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'users',
+                'subcommand_help': 'Displays details for all NAS users on '
+                                   'the VPSA'
+            },
+            {
+                'subcommand_info': ('update-active-directory-dns',
+                                    nas_authentication.
+                                    update_active_directory_dns),
+                'subcommand_options': [
+                    ACTIVE_DIRECTORY_DNS_OPTION
+                ],
+                'subcommand_return_key': 'groups',
+                'subcommand_help': 'Displays details for all NAS groups on '
+                                   'the VPSA'
+            },
+        ]
+    },
+    {
         'command_name': 'pools',
         'help': 'Commands related to storage pools',
         'subcommands': [
@@ -1577,7 +1869,7 @@ COMMANDS_DICT = [
                 'subcommand_options': [
                     DISPLAY_NAME_OPTION,
                     {
-                        'option_positional': ['-D', '--disks'],
+                        'option_positional': ['--disks'],
                         'option_keywords': {
                             'dest': 'param_disk',
                             'metavar': '<volume-xxxxxxxx,volume-yyyyyyyy>',
@@ -1591,7 +1883,7 @@ COMMANDS_DICT = [
                         }
                     },
                     {
-                        'option_positional': ['-P', '--protection'],
+                        'option_positional': ['--protection'],
                         'option_keywords': {
                             'dest': 'param_protection',
                             'choices': ['RAID1', 'RAID5', 'RAID6'],
@@ -1601,7 +1893,7 @@ COMMANDS_DICT = [
                         }
                     },
                     {
-                        'option_positional': ['-s', '--spare'],
+                        'option_positional': ['--spare'],
                         'option_keywords': {
                             'dest': 'param_hot_spare',
                             'choices': ['YES', 'NO'],
@@ -1612,7 +1904,7 @@ COMMANDS_DICT = [
                         }
                     },
                     {
-                        'option_positional': ['-S', '--stripe-size'],
+                        'option_positional': ['--stripe-size'],
                         'option_keywords': {
                             'dest': 'param_stripe_size',
                             'choices': [4, 16, 32, 64, 128, 256],
@@ -1651,7 +1943,7 @@ COMMANDS_DICT = [
                 'subcommand_options': [
                     RAID_GROUP_ID_OPTION,
                     {
-                        'option_positional': ['-d', '--disk'],
+                        'option_positional': ['--disk'],
                         'option_keywords': {
                             'dest': 'param_drive_id',
                             'metavar': '<volume-xxxxxxxx>',
@@ -3280,13 +3572,23 @@ def main():
 
                         if subcommand['subcommand_return_key'] is not None:
                             # Calls to e-Commerce do not have 'response' key
+                            # and some API calls don't return a response key
+                            # if the response is empty
                             if 'response' in result:
-                                data = (result['response']
-                                              [subcommand
-                                                  ['subcommand_return_key']])
+                                try:
+                                    data = (result['response']
+                                            [subcommand
+                                            ['subcommand_return_key']])
+                                except KeyError:
+                                    print('An empty result set was returned')
+                                    sys.exit(0)
                             else:
-                                data = (result[subcommand
-                                               ['subcommand_return_key']])
+                                try:
+                                    data = (result[subcommand
+                                            ['subcommand_return_key']])
+                                except KeyError:
+                                    print('An empty result set was returned')
+                                    sys.exit(0)
 
                             if parsed_args['fields'] is not None:
                                 fields = [x.strip() for x in
