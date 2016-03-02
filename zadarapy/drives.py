@@ -137,7 +137,7 @@ def get_drive(session, drive_id, return_type=None):
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def rename_drive(session, drive_id, newname, return_type=None):
+def rename_drive(session, drive_id, display_name, return_type=None):
     """
     Sets the "display_name" drive parameter to a new value.
 
@@ -148,9 +148,9 @@ def rename_drive(session, drive_id, newname, return_type=None):
     :param drive_id: The drive 'name' value as returned by get_all_drives.
         For example: 'volume-00002a73'.  Required.
 
-    :type newname: str
-    :param newname: The new "display_name" to set.  May not contain a single
-        quote (') character.  Required.
+    :type display_name: str
+    :param display_name: The new "display_name" to set.  May not contain a
+        single quote (') character.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -166,13 +166,13 @@ def rename_drive(session, drive_id, newname, return_type=None):
 
     body_values = {}
 
-    newname = newname.strip()
+    display_name = display_name.strip()
 
-    if not is_valid_field(newname):
+    if not is_valid_field(display_name):
         raise ValueError('{0} is not a valid drive display name.'
-                         .format(newname))
+                         .format(display_name))
 
-    body_values['newname'] = newname
+    body_values['newname'] = display_name
 
     method = 'POST'
     path = '/api/drives/{0}/rename.json'.format(drive_id)

@@ -29,6 +29,7 @@ from zadarapy import raid_groups
 from zadarapy import remote_object_storage
 from zadarapy import servers
 from zadarapy import session
+from zadarapy import snapshot_policies
 from zadarapy import volumes
 from zadarapy import vpsa_operations
 
@@ -2434,6 +2435,120 @@ COMMANDS_DICT = [
                                    'record.'
             }
         ]
+    },
+    {
+        'command_name': 'snapshot-policies',
+        'help': 'Commands related to snapshot policies',
+        'subcommands': [
+            {
+                'subcommand_info': ('create',
+                                    snapshot_policies.create_snapshot_policy),
+                'subcommand_options': [
+                    DISPLAY_NAME_OPTION,
+                    {
+                        'option_positional': ['--create-policy'],
+                        'option_keywords': {
+                            'dest': 'param_create_policy',
+                            'metavar': '<x x x x x>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The frequency to take snapshots.  This '
+                                    'is defined in UNIX cron style format.  '
+                                    'For example: "0 3 * * *" would take a '
+                                    'snapshot at 3 AM every day.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--local-delete-policy'],
+                        'option_keywords': {
+                            'dest': 'param_local_delete_policy',
+                            'metavar': '<n>',
+                            'type': int,
+                            'required': True,
+                            'help': 'The number of snapshots to retain on '
+                                    'the local VPSA before removing.  For '
+                                    'example, if 10 is specified, when the '
+                                    '11th snapshot is created, the oldest '
+                                    'snapshot will be deleted.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--remote-delete-policy'],
+                        'option_keywords': {
+                            'dest': 'param_remote_delete_policy',
+                            'metavar': '<n>',
+                            'type': int,
+                            'required': True,
+                            'help': 'The number of snapshots to retain on '
+                                    'the remote VPSA before removing.  For '
+                                    'example, if 10 is specified, when the '
+                                    '11th snapshot is created, the oldest '
+                                    'snapshot will be deleted.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--allow-empty'],
+                        'option_keywords': {
+                            'dest': 'param_allow_empty',
+                            'choices': ['YES', 'NO'],
+                            'type': str.upper,
+                            'default': 'NO',
+                            'help': 'If set to YES, snapshots will be taken '
+                                    'even when no data has been changed on '
+                                    'the volume (creates empty snapshots).  '
+                                    'If set to NO, snapshots will only be '
+                                    'created if data has changed.  Set to NO '
+                                    'by default.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': 'snapshot_policy_name',
+                'subcommand_help': 'Creates a new snapshot policy'
+            },
+            {
+                'subcommand_info': ('delete',
+                                    snapshot_policies.delete_snapshot_policy),
+                'subcommand_options': [
+                    SNAPSHOT_POLICY_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes a snapshot policy - the policy '
+                                   'must not be in use by any volume or '
+                                   'mirror'
+            },
+            {
+                'subcommand_info': ('get',
+                                    snapshot_policies.get_snapshot_policy),
+                'subcommand_options': [
+                    SNAPSHOT_POLICY_ID_OPTION
+                ],
+                'subcommand_return_key': 'snapshot_policy',
+                'subcommand_help': 'Displays details for a single snapshot '
+                                   'policy'
+            },
+            {
+                'subcommand_info': ('list',
+                                    snapshot_policies.
+                                    get_all_snapshot_policies),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'snapshot_policies',
+                'subcommand_help': 'Displays details for all snapshot '
+                                   'policies'
+            },
+            {
+                'subcommand_info': ('rename',
+                                    snapshot_policies.rename_snapshot_policy),
+                'subcommand_options': [
+                    SNAPSHOT_POLICY_ID_OPTION,
+                    DISPLAY_NAME_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Renames a snapshot policy'
+            }
+        ],
     },
     {
         'command_name': 'volumes',

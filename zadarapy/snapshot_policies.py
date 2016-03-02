@@ -133,7 +133,7 @@ def create_snapshot_policy(session, display_name, create_policy,
     :type allow_empty: str
     :param allow_empty: If set to 'YES', snapshots will be taken even when no
         data has been changed on the volume (creates empty snapshots).  If set
-        to 'NO', snapshots will only created if data has changed.  Optional
+        to 'NO', snapshots will only be created if data has changed.  Optional
         (will be set to 'NO' by default).
 
     :type return_type: str

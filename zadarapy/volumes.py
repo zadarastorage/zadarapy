@@ -615,7 +615,7 @@ def delete_volume(session, volume_id, return_type=None):
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def rename_volume(session, volume_id, newname, return_type=None):
+def rename_volume(session, volume_id, display_name, return_type=None):
     """
     Sets the "display_name" volume parameter to a new value.
 
@@ -626,9 +626,9 @@ def rename_volume(session, volume_id, newname, return_type=None):
     :param volume_id: The volume 'name' value as returned by get_all_volumes.
         For example: 'volume-00000001'.  Required.
 
-    :type newname: str
-    :param newname: The new "display_name" to set.  May not contain a single
-        quote (') character.  Required.
+    :type display_name: str
+    :param display_name: The new "display_name" to set.  May not contain a
+        single quote (') character.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -644,12 +644,13 @@ def rename_volume(session, volume_id, newname, return_type=None):
 
     body_values = {}
 
-    newname = newname.strip()
+    display_name = display_name.strip()
 
-    if not is_valid_field(newname):
-        raise ValueError('{0} is not a valid volume name.'.format(newname))
+    if not is_valid_field(display_name):
+        raise ValueError('{0} is not a valid volume name.'
+                         .format(display_name))
 
-    body_values['new_name'] = newname
+    body_values['new_name'] = display_name
 
     method = 'POST'
     path = '/api/volumes/{0}/rename.json'.format(volume_id)
