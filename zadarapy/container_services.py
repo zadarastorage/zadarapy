@@ -376,12 +376,13 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
         arguments to the script/program, use the "args" parameter of this
         function.  Optional.
 
-    :type volumes: list
+    :type volumes: list, str
     :param volumes: A Python list of Python dictionaries that contain several
         pieces of information about the NAS share volumes (NFS/SMB only, no
         iSCSI/ISER) that should be attached to the container when launched.
-        Every list item should be a dictionary that contains the following
-        keys:
+        If passed as a string, a conversion to a Python list via json.loads
+        will be attempted.  Every list item should be a dictionary that
+        contains the following keys:
 
         * "volume" - This key should contain the volume 'name' value as
           returned by get_all_volumes.  For example: 'volume-00000001'.
@@ -398,27 +399,23 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
         [{"volume":"volume-00000001","path":"/vol1","access":"rw"},
          {"volume":"volume-00000002","path":"/vol2","access":"r"}]
 
-        Please note that the example is not a string, rather a representation
-        of what the "pprint" function might return.  Optional.
-
-    :type args: list
+    :type args: list, str
     :param args: A Python list of Python dictionaries that contain arguments
         to pass to the ZCS container entry point program or script as defined
-        by "entrypoint".  Every list item should be a dictionary
-        that contains one key, "arg", whose value is the argument to pass to
-        the ZCS container.  For example, if the entrypoint is
+        by "entrypoint".  If passed as a string, a conversion to a Python list
+        via json.loads will be attempted.  Every list item should be a
+        dictionary that contains one key, "arg", whose value is the argument
+        to pass to the ZCS container.  For example, if the entrypoint is
         "/usr/sbin/sshd", these arguments will be passed to sshd.  e.g.:
 
         [{"arg":"-p 2222"},{"arg":"-f /etc/ssh/sshd_config"}]
 
-        Please note that the example is not a string, rather a representation
-        of what the "pprint" function might return.  Optional.
-
-    :type envvars: list
+    :type envvars: list, str
     :param envvars: A Python list of Python dictionaries that contain
         information about environment variables to pass into the ZCS
-        container.  Every list item should be a dictionary that contains the
-        the following keys:
+        container.  If passed as a string, a conversion to a Python list via
+        json.loads will be attempted.  Every list item should be a dictionary
+        that contains the the following keys:
 
         * "variable" - This key should contain the name of the environment
           variable to create.  For example: "IP_ADDRESS".
@@ -433,9 +430,6 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
         [{"variable":"IP_ADDRESS","value":"172.20.125.100"},
          {"variable":"USERNAME","value":"zcs_container_01"},
          {"variable":"PASSWORD","value":"very_strong_password"}]
-
-        Please note that the example is not a string, rather a representation
-        of what the "pprint" function might return.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -488,6 +482,9 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
     body_values['entrypoint'] = entrypoint
 
     if volumes is not None:
+        if type(volumes) is str:
+            volumes = json.loads(volumes)
+
         if type(volumes) is not list:
             raise ValueError('The passed "volumes" parameter is not a Python '
                              'list.')
@@ -527,6 +524,9 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
         body_values['volumes'] = volumes
 
     if args is not None:
+        if type(args) is str:
+            args = json.loads(args)
+
         if type(args) is not list:
             raise ValueError('The passed "args" parameter is not a Python '
                              'list.')
@@ -549,6 +549,9 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
         body_values['args'] = args
 
     if envvars is not None:
+        if type(volumes) is str:
+            envvars = json.loads(envvars)
+
         if type(envvars) is not list:
             raise ValueError('The passed "envvars" parameter is not a Python '
                              'list.')

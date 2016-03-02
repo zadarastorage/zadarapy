@@ -20,6 +20,7 @@ import sys
 from pprint import pprint
 from terminaltables import AsciiTable
 from terminaltables import SingleTable
+from zadarapy import container_services
 from zadarapy import controllers
 from zadarapy import drives
 from zadarapy import mirrors
@@ -47,7 +48,7 @@ CG_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_cg_id',
         'metavar': '<cg-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'The volume "cg_name" value as returned by "volumes list".  '
                 'For example: "cg-00000001".  Required.'
@@ -84,7 +85,7 @@ CONTROLLER_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_controller_id',
         'metavar': '<vsa-xxxxxxxx-vc-x>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'The virtual controller "name" value as returned by '
                 '"controllers list.  For example: "volume-00000001".  '
@@ -134,7 +135,7 @@ DRIVE_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_drive_id',
         'metavar': '<volume-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'The drive "name" value as returned by "drives list".  For '
                 'example: "volume-00002a73".  Required.'
@@ -168,7 +169,7 @@ MIGRATION_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_mgrjob_id',
         'metavar': '<mgrjob-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'The volume "migration_job_name" value as returned by '
                 '"volumes show-migration-job".  For example: '
@@ -182,7 +183,7 @@ MIRROR_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_mirror_id',
         'metavar': '<srcjvpsa-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'The mirror job "job_name" value as returned by "mirrors '
                 'list".  For example: "srcjvpsa-00000001".  Must be run on '
@@ -207,7 +208,7 @@ POOL_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_pool_id',
         'metavar': '<pool-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'The storage pool "name" value as returned by "pools list".  '
                 'For example: "pool-00000001".  Required.'
@@ -244,7 +245,7 @@ REMOTE_POOL_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_remote_pool_id',
         'metavar': '<rpool-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'The remote storage pool "name" value as returned by '
                 '"mirrors list-remote-pools".  For example: '
@@ -257,7 +258,7 @@ REMOTE_VPSA_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_rvpsa_id',
         'metavar': '<rvpsa-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'The remote VPSA "name" value as returned by '
                 '"mirrors list-remote-vpsas".  For example: '
@@ -270,7 +271,7 @@ ROS_BACKUP_JOB_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_ros_backup_job_id',
         'metavar': '<bkpjobs-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'help': 'The remote object storage backup job "name" value as '
                 'returned by "remote-object-storage list-backup-jobs".  For '
                 'example: "bkpjobs-00000001".'
@@ -282,7 +283,7 @@ ROS_DESTINATION_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_ros_destination_id',
         'metavar': '<obsdst-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'The remote object storage destination "name" value as '
                 'returned by "remote-object-storage list-destinations".  '
@@ -295,7 +296,7 @@ ROS_RESTORE_JOB_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_ros_restore_job_id',
         'metavar': '<rstjobs-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'help': 'The remote object storage restore job "name" value as '
                 'returned by "remote-object-storage list-restore-jobs".  For '
                 'example: "rstjobs-00000001".'
@@ -329,7 +330,7 @@ SERVER_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_server_id',
         'metavar': '<srv-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'The server "name" value as returned by "servers list".  For '
                 'example: "srv-00000001".  Required.'
@@ -341,7 +342,7 @@ SERVER_ID_LIST_OPTION = {
     'option_keywords': {
         'dest': 'param_servers',
         'metavar': '<srv-xxxxxxxx,srv-yyyyyyyy>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'A comma separated list of server records, or one server '
                 'record without any commas.'
@@ -353,7 +354,7 @@ SNAPSHOT_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_snapshot_id',
         'metavar': '<snap-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'The snapshot "name" value as returned by "volumes '
                 'list-snapshots".  For example: "snap-00000001".  Required.'
@@ -365,7 +366,7 @@ SNAPSHOT_POLICY_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_policy_id',
         'metavar': '<policy-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'The snapshot policy "name" value as returned by '
                 '"snapshot-policies list".  For example: "policy-00000001".  '
@@ -388,7 +389,7 @@ VOLUME_ID_OPTION = {
     'option_keywords': {
         'dest': 'param_volume_id',
         'metavar': '<volume-xxxxxxxx>',
-        'type': str,
+        'type': str.lower,
         'required': True,
         'help': 'The volume "name" value as returned by "volumes list".  For '
                 'example: "volume-00000001".  Required.'
@@ -568,8 +569,262 @@ WAN_OPTIMIZATION_OPTION = {
     }
 }
 
+ZCS_CONTAINER_ID_OPTION = {
+    'option_positional': ['--zcs-container-id'],
+    'option_keywords': {
+        'dest': 'param_zcs_container_id',
+        'metavar': '<container-xxxxxxxx>',
+        'type': str.lower,
+        'required': True,
+        'help': 'The ZCS container "name" value as returned by '
+                '"container-services list-containers".  For example: '
+                '"container-00000001".  Required.'
+    }
+}
+
+ZCS_IMAGE_ID_OPTION = {
+    'option_positional': ['--zcs-image-id'],
+    'option_keywords': {
+        'dest': 'param_zcs_image_id',
+        'metavar': '<img-xxxxxxxx>',
+        'type': str.lower,
+        'required': True,
+        'help': 'The ZCS image "name" value as returned by '
+                '"container-services list-images".  For example: '
+                '"img-00000001".  Required.'
+    }
+}
+
 
 COMMANDS_DICT = [
+    {
+        'command_name': 'container-services',
+        'help': 'Commands related to Zadara Container Services (ZCS)',
+        'subcommands': [
+            {
+                'subcommand_info': ('create-container',
+                                    container_services.create_zcs_container),
+                'subcommand_options': [
+                    DISPLAY_NAME_OPTION,
+                    ZCS_IMAGE_ID_OPTION,
+                    {
+                        'option_positional': ['--start'],
+                        'option_keywords': {
+                            'dest': 'param_start',
+                            'choices': ['YES', 'NO'],
+                            'type': str.upper,
+                            'help': 'If set to YES, the container will be '
+                                    'started on creation.  If set to NO, '
+                                    'the container will be created in the '
+                                    'stopped state'
+                        }
+                    },
+                    {
+                        'option_positional': ['--use-public-ip'],
+                        'option_keywords': {
+                            'dest': 'param_use_public_ip',
+                            'choices': ['YES', 'NO'],
+                            'type': str.upper,
+                            'default': 'NO',
+                            'help': 'If set to YES, the ZCS container will '
+                                    'listen on VPSA\'s public IP address '
+                                    '(only valid on VPSAs with a public IP '
+                                    'address).  If set to NO, the '
+                                    'container will listen on the same '
+                                    'private IP address that is used for '
+                                    'addressing the storage.  Set to NO by '
+                                    'default.'
+                        }
+                    },
+                    {
+                        'option_positional': ['--entrypoint'],
+                        'option_keywords': {
+                            'dest': 'param_entrypoint',
+                            'metavar': '</path/to/entry/program>',
+                            'type': str,
+                            'help': 'The full path to the program or script '
+                                    'inside the ZCS container to run when '
+                                    'the container starts.  For example: '
+                                    '"/usr/local/bin/entry.sh"'
+                        }
+                    },
+                    {
+                        'option_positional': ['--volumes'],
+                        'option_keywords': {
+                            'dest': 'param_volumes',
+                            'metavar': '<valid_json>',
+                            'type': str,
+                            'help': 'Please see documentation from the '
+                                    'zadarapy module, function '
+                                    'create_zcs_container, parameter volumes '
+                                    'for more on how use this parameter'
+                        }
+                    },
+                    {
+                        'option_positional': ['--args'],
+                        'option_keywords': {
+                            'dest': 'param_args',
+                            'metavar': '<valid_json>',
+                            'type': str,
+                            'help': 'Please see documentation from the '
+                                    'zadarapy module, function '
+                                    'create_zcs_container, parameter args '
+                                    'for more on how use this parameter'
+                        }
+                    },
+                    {
+                        'option_positional': ['--envvars'],
+                        'option_keywords': {
+                            'dest': 'param_envvars',
+                            'metavar': '<valid_json>',
+                            'type': str,
+                            'help': 'Please see documentation from the '
+                                    'zadarapy module, function '
+                                    'create_zcs_container, parameter envvars '
+                                    'for more on how use this parameter'
+                        }
+                    }
+                ],
+                'subcommand_return_key': 'container_name',
+                'subcommand_help': 'Creates a new ZCS container from the '
+                                   'provided ZCS image ID'
+            },
+            {
+                'subcommand_info': ('create-image',
+                                    container_services.create_zcs_image),
+                'subcommand_options': [
+                    DISPLAY_NAME_OPTION,
+                    {
+                        'option_positional': ['--path'],
+                        'option_keywords': {
+                            'dest': 'param_path',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'When importing from Docker Hub, this is '
+                                    'the name of the Docker image; for '
+                                    'example: "ubuntu" or "zadara/ssh".  '
+                                    'When importing from a volume (requires '
+                                    'the --volume-id parameter), the full '
+                                    'path on the volume to the Docker image '
+                                    'tar file; for example: '
+                                    '"images/testimage.tar".'
+                        }
+                    },
+                    {
+                        'option_positional': ['--volume-id'],
+                        'option_keywords': {
+                            'dest': 'param_volume_id',
+                            'metavar': '<volume-xxxxxxxx>',
+                            'type': str.lower,
+                            'help': 'The volume "name" value as returned by '
+                                    '"volumes list".  For example: '
+                                    '"volume-00000001".  When specified, the '
+                                    'ZCS image will be imported from this '
+                                    'volume.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': 'image_name',
+                'subcommand_help': 'Displays details for a single ZCS image'
+            },
+            {
+                'subcommand_info': ('delete-container',
+                                    container_services.delete_zcs_container),
+                'subcommand_options': [
+                    ZCS_CONTAINER_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes a ZCS container.  The container '
+                                   'must first be stopped.'
+            },
+            {
+                'subcommand_info': ('delete-image',
+                                    container_services.delete_zcs_image),
+                'subcommand_options': [
+                    ZCS_IMAGE_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes a ZCS image if no containers '
+                                   'exist from the image'
+            },
+            {
+                'subcommand_info': ('get-container',
+                                    container_services.get_zcs_container),
+                'subcommand_options': [
+                    ZCS_IMAGE_ID_OPTION
+                ],
+                'subcommand_return_key': 'images',
+                'subcommand_help': 'Displays details for a single ZCS image'
+            },
+            {
+                'subcommand_info': ('get-image',
+                                    container_services.get_zcs_image),
+                'subcommand_options': [
+                    ZCS_IMAGE_ID_OPTION
+                ],
+                'subcommand_return_key': 'images',
+                'subcommand_help': 'Displays details for a single ZCS image'
+            },
+            {
+                'subcommand_info': ('list-containers',
+                                    container_services.
+                                    get_all_zcs_containers),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'containers',
+                'subcommand_help': 'Displays details for all ZCS containers '
+                                   'on the VPSA'
+            },
+            {
+                'subcommand_info': ('list-containers-by-image',
+                                    container_services.
+                                    get_all_zcs_containers_by_image),
+                'subcommand_options': [
+                    ZCS_IMAGE_ID_OPTION,
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'containers',
+                'subcommand_help': 'Displays details for all ZCS containers '
+                                   'on the VPSA spawned from the specified '
+                                   'ZCS image'
+            },
+            {
+                'subcommand_info': ('list-images',
+                                    container_services.get_all_zcs_images),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'images',
+                'subcommand_help': 'Displays details for all ZCS images on '
+                                   'the VPSA'
+            },
+            {
+                'subcommand_info': ('start-container',
+                                    container_services.start_zcs_container),
+                'subcommand_options': [
+                    ZCS_CONTAINER_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Starts a container that is currently '
+                                   'stopped'
+            },
+            {
+                'subcommand_info': ('stop-container',
+                                    container_services.stop_zcs_container),
+                'subcommand_options': [
+                    ZCS_CONTAINER_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Stops a container that is currently '
+                                   'running'
+            }
+        ]
+    },
     {
         'command_name': 'controllers',
         'help': 'Commands related to virtual controllers',
@@ -702,11 +957,11 @@ COMMANDS_DICT = [
                 'subcommand_options': [
                     DRIVE_ID_OPTION,
                     {
-                        'option_positional': ['-t', '--to_drive_id'],
+                        'option_positional': ['--to_drive_id'],
                         'option_keywords': {
                             'dest': 'param_to_drive_id',
                             'metavar': '<volume-xxxxxxxx>',
-                            'type': str,
+                            'type': str.lower,
                             'required': True,
                             'help': 'The drive ID of the drive that will '
                                     'will be used as the replacement.  '
@@ -758,7 +1013,7 @@ COMMANDS_DICT = [
                     CG_ID_OPTION,
                     POOL_ID_OPTION,
                     {
-                        'option_positional': ['-m', '--migrate-snapshots'],
+                        'option_positional': ['--migrate-snapshots'],
                         'option_keywords': {
                             'dest': 'param_migrate_snaps',
                             'choices': ['YES', 'NO'],
