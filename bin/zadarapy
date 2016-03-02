@@ -32,6 +32,7 @@ from zadarapy import session
 from zadarapy import snapshot_policies
 from zadarapy import volumes
 from zadarapy import vpsa_operations
+from zadarapy import vpsa_users
 
 CAPACITY_OPTION = {
     'option_positional': ['--capacity'],
@@ -552,6 +553,29 @@ VPSA_ID_OPTION = {
         'required': True,
         'help': 'The VPSA "id" value as returned by "vpsa-operations '
                 'list-vpsas".  For example: "2653".  Required.'
+    }
+}
+
+VPSA_USERNAME_OPTION = {
+    'option_positional': ['--username'],
+    'option_keywords': {
+        'dest': 'param_username',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'The VPSA "username" value as returned by "vpsa-users list". '
+                'Required.'
+    }
+}
+
+VPSA_PASSWORD_OPTION = {
+    'option_positional': ['--password'],
+    'option_keywords': {
+        'dest': 'param_password',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'The password for the supplied VPSA "username".  Required.'
     }
 }
 
@@ -2813,6 +2837,182 @@ COMMANDS_DICT = [
                 'subcommand_options': [],
                 'subcommand_return_key': 'vpsas',
                 'subcommand_help': 'Displays details for all VPSAs.'
+            }
+        ]
+    },
+    {
+        'command_name': 'vpsa-users',
+        'help': 'Commands related to VPSA GUI and API users',
+        'subcommands': [
+            {
+                'subcommand_info': ('change-password-by-code',
+                                    vpsa_users.
+                                    change_vpsa_user_password_by_code),
+                'subcommand_options': [
+                    VPSA_USERNAME_OPTION,
+                    {
+                        'option_positional': ['--code'],
+                        'option_keywords': {
+                            'dest': 'param_code',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The reset password code as e-mailed to '
+                                    'the user'
+                        }
+                    },
+                    {
+                        'option_positional': ['--new-password'],
+                        'option_keywords': {
+                            'dest': 'param_new_password',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The new password for the supplied VPSA '
+                                    'username'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Resets a user\'s password if the current '
+                                   'password is unknown.  Use subcommand '
+                                   '"generate-password-reset-code" to '
+                                   'generate a new code.'
+            },
+            {
+                'subcommand_info': ('change-password-by-password',
+                                    vpsa_users.
+                                    change_vpsa_user_password_by_password),
+                'subcommand_options': [
+                    VPSA_USERNAME_OPTION,
+                    {
+                        'option_positional': ['--existing-password'],
+                        'option_keywords': {
+                            'dest': 'param_existing_password',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The existing password for the supplied '
+                                    'VPSA username'
+                        }
+                    },
+                    {
+                        'option_positional': ['--new-password'],
+                        'option_keywords': {
+                            'dest': 'param_new_password',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The new password for the supplied VPSA '
+                                    'username'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Resets a user\'s password if the current '
+                                   'password is known.  Use '
+                                   'change-password-by-code if it is unknown.'
+            },
+            {
+                'subcommand_info': ('delete', vpsa_users.delete_vpsa_user),
+                'subcommand_options': [
+                    VPSA_USERNAME_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes a VPSA user - may only be done '
+                                   'by the VPSA primary user'
+            },
+            {
+                'subcommand_info': ('disable-cloud-admin-access',
+                                    vpsa_users.disable_cloud_admin_access),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['--confirm'],
+                        'option_keywords': {
+                            'dest': 'param_confirm',
+                            'action': 'store_true',
+                            'required': True,
+                            'help': 'Cloud admin access will only be '
+                                    'disabled if this flag is passed.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Disables the ability of a storage cloud '
+                                   'administrator to access the VPSA GUI of '
+                                   'this VPSA to assist in troubleshooting.  '
+                                   'This does not grant access to any volume '
+                                   'data.  Enabled by default.'
+            },
+            {
+                'subcommand_info': ('enable-cloud-admin-access',
+                                    vpsa_users.enable_cloud_admin_access),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['--confirm'],
+                        'option_keywords': {
+                            'dest': 'param_confirm',
+                            'action': 'store_true',
+                            'required': True,
+                            'help': 'Cloud admin access will only be '
+                                    'enabled if this flag is passed.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Enables the ability of a storage cloud '
+                                   'administrator to access the VPSA GUI of '
+                                   'this VPSA to assist in troubleshooting.  '
+                                   'This does not grant access to any volume '
+                                   'data.  Enabled by default.'
+            },
+            {
+                'subcommand_info': ('generate-password-reset-code',
+                                    vpsa_users.
+                                    generate_vpsa_user_password_reset_code),
+                'subcommand_options': [
+                    VPSA_USERNAME_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'E-mails a password reset code to the '
+                                   'supplied username\'s e-mail address.  '
+                                   'Used in conjunction with the '
+                                   '"change-password-by-code" subcommand.'
+            },
+            {
+                'subcommand_info': ('get-api-key',
+                                    vpsa_users.get_vpsa_user_api_key),
+                'subcommand_options': [
+                    VPSA_USERNAME_OPTION,
+                    VPSA_PASSWORD_OPTION
+                ],
+                'subcommand_return_key': 'user',
+                'subcommand_help': 'Displays details for a user, including '
+                                   'the API "access_key", authorized by the '
+                                   'provided VPSA username and password - an '
+                                   'API access key is not needed to call '
+                                   'this command.'
+            },
+            {
+                'subcommand_info': ('list', vpsa_users.get_all_vpsa_users),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'users',
+                'subcommand_help': 'Displays details for all GUI and API '
+                                   'users on the VPSA'
+            },
+            {
+                'subcommand_info': ('reset-api-key',
+                                    vpsa_users.reset_vpsa_user_api_key),
+                'subcommand_options': [
+                    VPSA_USERNAME_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Resets a user\'s API access key for the '
+                                   'given username - may only be done by an '
+                                   'administrative user'
             }
         ]
     }

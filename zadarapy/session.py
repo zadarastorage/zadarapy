@@ -294,9 +294,6 @@ class Session(object):
                             'The API server returned an error: "{0}".'
                             .format(api_return_dict['response']['message'])
                         )
-                else:
-                    raise RuntimeError('An invalid response was returned '
-                                       'from the API.  Please investigate.')
 
         if return_type == 'json':
             return data.decode('UTF-8')

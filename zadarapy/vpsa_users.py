@@ -319,7 +319,7 @@ def generate_vpsa_user_password_reset_code(session, username,
                             return_type=return_type)
 
 
-def enable_cloud_admin_access(session, return_type=None):
+def enable_cloud_admin_access(session, confirm, return_type=None):
     """
     Enables the ability of a storage cloud administrator to access the VPSA
     GUI of this VPSA to assist in troubleshooting.  This does not grant access
@@ -328,6 +328,10 @@ def enable_cloud_admin_access(session, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
+    :type confirm: bool
+    :param confirm: If True, cloud admin access will be enabled.  This is a
+        safeguard for this function since it requires no other arguments.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -337,13 +341,17 @@ def enable_cloud_admin_access(session, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    if not confirm:
+        raise ValueError('The confirm parameter is not set to True - '
+                         'cloud admin access will not be enabled.')
+
     method = 'POST'
     path = '/api/users/admin_access/enable.json'
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def disable_cloud_admin_access(session, return_type=None):
+def disable_cloud_admin_access(session, confirm, return_type=None):
     """
     Disables the ability of a storage cloud administrator to access the VPSA
     GUI of this VPSA to assist in troubleshooting.  This does not grant access
@@ -352,6 +360,10 @@ def disable_cloud_admin_access(session, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
+    :type confirm: bool
+    :param confirm: If True, cloud admin access will be disabled.  This is a
+        safeguard for this function since it requires no other arguments.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -361,6 +373,10 @@ def disable_cloud_admin_access(session, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    if not confirm:
+        raise ValueError('The confirm parameter is not set to True - '
+                         'cloud admin access will not be disabled.')
+
     method = 'POST'
     path = '/api/users/admin_access/disable.json'
 
