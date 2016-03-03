@@ -23,6 +23,7 @@ from terminaltables import SingleTable
 from zadarapy import container_services
 from zadarapy import controllers
 from zadarapy import drives
+from zadarapy import logs
 from zadarapy import mirrors
 from zadarapy import nas_authentication
 from zadarapy import pools
@@ -31,6 +32,7 @@ from zadarapy import remote_object_storage
 from zadarapy import servers
 from zadarapy import session
 from zadarapy import snapshot_policies
+from zadarapy import tickets
 from zadarapy import volumes
 from zadarapy import vpsa_operations
 from zadarapy import vpsa_users
@@ -442,6 +444,17 @@ START_OPTION = {
         'metavar': '<n>',
         'type': int,
         'help': 'The offset to start displaying items from'
+    }
+}
+
+TICKET_ID_OPTION = {
+    'option_positional': ['--ticket-id'],
+    'option_keywords': {
+        'dest': 'param_ticket_id',
+        'metavar': '<n>',
+        'type': int,
+        'help': 'The ticket "id" value as returned by "tickets list".  For '
+                'example: 103538.  Required.'
     }
 }
 
@@ -1076,6 +1089,47 @@ COMMANDS_DICT = [
                 'subcommand_help': 'Cancels a currently running shred drive '
                                    'process.'
             }
+        ]
+    },
+    {
+        'command_name': 'logs',
+        'help': 'Commands related to VPSA logs',
+        'subcommands': [
+            {
+                'subcommand_info': ('list', logs.get_logs),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['--sort'],
+                        'option_keywords': {
+                            'dest': 'param_sort',
+                            'choices': ['ASC', 'DESC'],
+                            'type': str.upper,
+                            'default': 'DESC',
+                            'help': 'If set to DESC, logs will be returned '
+                                    'newest first.  If set to ASC, logs are '
+                                    'returned oldest first.  Default is DESC'
+                        }
+                    },
+                    {
+                        'option_positional': ['--severity'],
+                        'option_keywords': {
+                            'dest': 'param_severity',
+                            'metavar': '<n>',
+                            'type': int,
+                            'help': 'If not defined, all logs are returned.  '
+                                    'If set to an integer, only messages for '
+                                    'that severity are returned.  For '
+                                    'example, critical messages have a 3 '
+                                    'severity while warning messages have a '
+                                    '4 severity.'
+                        }
+                    },
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'messages',
+                'subcommand_help': 'Displays logs from the VPSA'
+            },
         ]
     },
     {
@@ -2867,6 +2921,101 @@ COMMANDS_DICT = [
         ],
     },
     {
+        'command_name': 'tickets',
+        'help': 'Commands related to VPSA support tickets',
+        'subcommands': [
+            {
+                'subcommand_info': ('close', tickets.close_ticket),
+                'subcommand_options': [
+                    TICKET_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Closes the support ticket with the '
+                                   'provided ticket ID'
+            },
+            {
+                'subcommand_info': ('create-comment',
+                                    tickets.create_ticket_comment),
+                'subcommand_options': [
+                    TICKET_ID_OPTION,
+                    {
+                        'option_positional': ['--comment'],
+                        'option_keywords': {
+                            'dest': 'param_comment',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'The comment to add to the ticket'
+                            }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Creates a new comment in an existing '
+                                   'support ticket by the provided ticket ID'
+            },
+            {
+                'subcommand_info': ('create-ticket', tickets.create_ticket),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['--subject'],
+                        'option_keywords': {
+                            'dest': 'param_subject',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'The subject for the ticket (analogous '
+                                    'to an e-mail subject).  For example: '
+                                    '"Help With Expanding Pool"'
+                            }
+                    },
+                    {
+                        'option_positional': ['--description'],
+                        'option_keywords': {
+                            'dest': 'param_description',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'The full body of the ticket (analogous '
+                                    'to an e-mail body).  For example: '
+                                    '"I would like more information on best '
+                                    'practices for expanding my "pool1" '
+                                    'storage pool.'
+                            }
+                    }
+                ],
+                'subcommand_return_key': 'ticket_id',
+                'subcommand_help': 'Creates a new support ticket for the VPSA'
+            },
+            {
+                'subcommand_info': ('create-zsnap',
+                                    tickets.create_ticket_zsnap),
+                'subcommand_options': [
+                    TICKET_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Creates a diagnostic file called a '
+                                   '"zsnap" for support staff to review'
+            },
+            {
+                'subcommand_info': ('get-comments',
+                                    tickets.get_ticket_comments),
+                'subcommand_options': [
+                    TICKET_ID_OPTION
+                ],
+                'subcommand_return_key': 'comments',
+                'subcommand_help': 'Displays details for all comments for a '
+                                   'support ticket'
+            },
+            {
+                'subcommand_info': ('list', tickets.get_all_tickets),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'tickets',
+                'subcommand_help': 'Displays details for all support tickets '
+                                   'created from the VPSA'
+            }
+        ]
+    },
+    {
         'command_name': 'volumes',
         'help': 'Commands related to volumes',
         'subcommands': [
@@ -3329,7 +3478,7 @@ def format_return(data, vertical=False):
         generated and returned.  If an empty list is detected, a simple
         message will be returned.
     """
-    if type(data) is str:
+    if type(data) in [int, str]:
         return data
 
     if vertical:
@@ -3610,7 +3759,7 @@ def main():
                                 vertical=parsed_args['vertical']
                             )
 
-                            if type(tables) is str:
+                            if type(tables) in [int, str]:
                                 print(tables)
                             else:
                                 for table in tables:

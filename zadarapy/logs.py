@@ -53,9 +53,9 @@ def get_logs(session, sort='DESC', severity=None, start=None, limit=None,
                          'values are: "DESC" or "ASC"'.format(sort))
 
     if sort == 'ASC':
-        sort = '[{"property":"created_at","direction":"ASC"}]'
+        sort = '[{"property":"msg-time","direction":"ASC"}]'
     else:
-        sort = '[{"property":"created_at","direction":"DESC"}]'
+        sort = '[{"property":"msg-time","direction":"DESC"}]'
 
     if start is not None:
         start = int(start)

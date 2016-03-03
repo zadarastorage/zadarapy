@@ -128,8 +128,7 @@ def close_ticket(session, ticket_id, return_type=None):
     method = 'POST'
     path = '/api/tickets/{0}/close.json'.format(ticket_id)
 
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.call_api(method=method, path=path, return_type=return_type)
 
 
 def get_ticket_comments(session, ticket_id, return_type=None):
