@@ -31,6 +31,7 @@ from zadarapy import raid_groups
 from zadarapy import remote_object_storage
 from zadarapy import servers
 from zadarapy import session
+from zadarapy import settings
 from zadarapy import snapshot_policies
 from zadarapy import tickets
 from zadarapy import volumes
@@ -2803,6 +2804,220 @@ COMMANDS_DICT = [
                 'subcommand_return_key': None,
                 'subcommand_help': 'Changes the display name for a server '
                                    'record.'
+            }
+        ]
+    },
+    {
+        'command_name': 'settings',
+        'help': 'Commands related to VPSA settings',
+        'subcommands': [
+            {
+                'subcommand_info': ('create-zcs-image-repository',
+                                    settings.create_zcs_image_repository),
+                'subcommand_options': [
+                    POOL_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Creates a ZCS image repository on the '
+                                   'specified pool - this consumes 100GB of '
+                                   'space from the pool'
+            },
+            {
+                'subcommand_info': ('delete-zcs-image-repository',
+                                    settings.delete_zcs_image_repository),
+                'subcommand_options': [
+                    POOL_ID_OPTION,
+                    {
+                        'option_positional': ['--confirm'],
+                        'option_keywords': {
+                            'dest': 'param_confirm',
+                            'action': 'store_true',
+                            'required': True,
+                            'help': 'ZCS image repository will only be '
+                                    'deleted if this flag is passed.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes the ZCS image repository'
+            },
+            {
+                'subcommand_info': ('download-metering-database',
+                                    settings.download_metering_database),
+                'subcommand_options': [],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Downloads the metering database'
+            },
+            {
+                'subcommand_info': ('get-nfs-domain',
+                                    settings.get_nfs_domain),
+                'subcommand_options': [],
+                'subcommand_return_key': 'nfs_domain',
+                'subcommand_help': 'Displays the NFS domain for the VPSA'
+            },
+            {
+                'subcommand_info': ('get-public-ip',
+                                    settings.get_public_ip),
+                'subcommand_options': [],
+                'subcommand_return_key': 'public_ips',
+                'subcommand_help': 'Retrieves public IPs associated with the '
+                                   'VPSA'
+            },
+            {
+                'subcommand_info': ('get-zcs-settings',
+                                    settings.get_zcs_settings),
+                'subcommand_options': [],
+                'subcommand_return_key': 'container_service_settings',
+                'subcommand_help': 'Retrieves details for Zadara Container '
+                                   'Services, such as the configured '
+                                   'network, ports, etc.'
+            },
+            {
+                'subcommand_info': ('migrate-zcs-image-repository',
+                                    settings.migrate_zcs_image_repository),
+                'subcommand_options': [
+                    POOL_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Migrates the ZCS image repository to the '
+                                   'specified pool'
+            },
+            {
+                'subcommand_info': ('set-encryption-password',
+                                    settings.set_encryption_password),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['--password'],
+                        'option_keywords': {
+                            'dest': 'param_password',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'Sets the password used to encrypt '
+                                    'volumes.  CAUTION: THIS PASSWORD IS NOT '
+                                    'STORED ON THE VPSA - IT IS THE USER\'S '
+                                    'RESPONSIBILITY TO MAINTAIN ACCESS TO '
+                                    'THE PASSWORD.  LOSS OF THE PASSWORD MAY '
+                                    'RESULT IN UNRECOVERABLE DATA.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Sets the encryption password globally on '
+                                   'the VPSA.  This password is used when '
+                                   'enabling the encryption option for a '
+                                   'volume.'
+            },
+            {
+                'subcommand_info': ('set-multizone-read-mode',
+                                    settings.set_multizone_read_mode),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['--read-mode'],
+                        'option_keywords': {
+                            'dest': 'param_read_mode',
+                            'choices': ['roundrobin', 'localcopy'],
+                            'type': str.lower,
+                            'required': True,
+                            'help': 'For multizone environments, if set to '
+                                    '"roundrobin", data will be read from '
+                                    'storage nodes in all protection zones.  '
+                                    'If set to "localcopy", data from the '
+                                    'local protection zone will be favored.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Modifies where data is read from in '
+                                   'multizone environments'
+            },
+            {
+                'subcommand_info': ('set-nfs-domain',
+                                    settings.set_nfs_domain),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['--domain'],
+                        'option_keywords': {
+                            'dest': 'param_create_policy',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'Sets the NFS domain to the provided '
+                                    'value'
+                        }
+                    }
+                ],
+                'subcommand_return_key': 'nfs_domain',
+                'subcommand_help': 'Displays the NFS domain for the VPSA'
+            },
+            {
+                'subcommand_info': ('set-recycle-bin',
+                                    settings.set_recycle_bin),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['--recycle-bin'],
+                        'option_keywords': {
+                            'dest': 'param_recycle_bin',
+                            'choices': ['YES', 'NO'],
+                            'required': True,
+                            'help': 'If set to YES, deleted volumes are '
+                                    'moved to the recycle bin, where they '
+                                    'may be restored in case of accidental '
+                                    'deletion (volumes are permanently '
+                                    'deleted from the recycle bin after '
+                                    'seven days).  If set to NO, deleted '
+                                    'volumes are immediately deleted.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Turns the recycle bin on or off globally '
+                                   'for all pools.'
+            },
+            {
+                'subcommand_info': ('set-smb-charset',
+                                    settings.set_smb_charset),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['--charset'],
+                        'option_keywords': {
+                            'dest': 'param_charset',
+                            'choices': ['UTF-8', 'ISO-8859-1'],
+                            'type': str.upper,
+                            'required': True,
+                            'help': 'Sets the SMB character set to either '
+                                    'UTF-8 or ISO-8859-1 depending on the '
+                                    'passed value'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Sets the character set used by the '
+                                   'SMB/CIFS server for all SMB/CIFS shared '
+                                   'volumes'
+            },
+            {
+                'subcommand_info': ('set-smb-trusted-domains',
+                                    settings.set_smb_trusted_domains),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['--allow-trusted-domains'],
+                        'option_keywords': {
+                            'dest': 'param_allow_trusted_domains',
+                            'choices': ['YES', 'NO'],
+                            'required': True,
+                            'help': 'For VPSAs joined to an Active Directory '
+                                    'domain, if set to YES, Active Directory '
+                                    'trusted domains will be allowed.  If '
+                                    'set to NO, Active Directory trusted '
+                                    'domains will not be allowed.'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Sets whether or not the SMB/CIFS server '
+                                   'should allow Active Directory trusted '
+                                   'domains'
             }
         ]
     },

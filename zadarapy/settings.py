@@ -460,13 +460,17 @@ def migrate_zcs_image_repository(session, pool_id, return_type=None):
                             return_type=return_type)
 
 
-def delete_zcs_image_repository(session, return_type=None):
+def delete_zcs_image_repository(session, confirm, return_type=None):
     """
     Deletes the ZCS image repository.  There must be no ZCS images on the
     VPSA.  100 GB will be freed from the pool where it resides.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type confirm: bool
+    :param confirm: If True, the ZCS image repository will be deleted.  This
+        is a safeguard for this function since it requires no other arguments.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -477,6 +481,10 @@ def delete_zcs_image_repository(session, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    if not confirm:
+        raise ValueError('The confirm parameter is not set to True - '
+                         'the ZCS image repository will not be deleted.')
+
     method = 'DELETE'
     path = '/api/settings/images_repository.json'
 
