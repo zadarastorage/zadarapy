@@ -14,6 +14,7 @@
 # under the License.
 
 
+import json
 from zadarapy.validators import is_valid_controller_id
 
 
@@ -61,7 +62,7 @@ def get_all_controllers(session, start=None, limit=None, return_type=None):
                             return_type=return_type)
 
 
-def failover_controller(session, confirm, return_type=None):
+def failover_controller(session, confirm, force='NO', return_type=None):
     """
     Initiates a failover of the current active controller to the standby
     controller.
@@ -72,6 +73,11 @@ def failover_controller(session, confirm, return_type=None):
     :type confirm: bool
     :param confirm: If True, failover will be performed.  This is a safeguard
         for this function since it requires no other arguments.
+
+    :type force: str
+    :param force: If set to 'YES', ignore non-critical warnings and force the
+        VPSA to accept the request.  If 'NO', return message on warning and
+        abort.  Set to 'NO' by default.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -85,10 +91,24 @@ def failover_controller(session, confirm, return_type=None):
     if not confirm:
         raise ValueError('The confirm parameter is not set to True - '
                          'failover will not be performed.')
+
+    body_values = {}
+
+    force = force.upper()
+
+    if force not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(force))
+
+    body_values['force'] = force
+
     method = 'POST'
     path = '/api/vcontrollers/failover.json'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    body = json.dumps(body_values)
+
+    return session.call_api(method=method, path=path, body=body,
+                            return_type=return_type)
 
 
 def get_controller_performance(session, controller_id, interval=1,

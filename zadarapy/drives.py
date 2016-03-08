@@ -213,7 +213,8 @@ def remove_drive(session, drive_id, return_type=None):
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def replace_drive(session, drive_id, to_drive_id, return_type=None):
+def replace_drive(session, drive_id, to_drive_id, force='NO',
+                  return_type=None):
     """
     Replaces a drive, identified by drive_id parameter, with a new unallocated
     drive, identified by toname parameter, in a RAID group.  The replacement
@@ -231,6 +232,11 @@ def replace_drive(session, drive_id, to_drive_id, return_type=None):
     :param to_drive_id: The replacement drive.  This is the drive 'name' value
         as returned by get_all_drives.  For example: 'volume-00002a76'.
         Required.
+
+    :type force: str
+    :param force: If set to 'YES', ignore non-critical warnings and force the
+        VPSA to accept the request.  If 'NO', return message on warning and
+        abort.  Set to 'NO' by default.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -251,6 +257,14 @@ def replace_drive(session, drive_id, to_drive_id, return_type=None):
 
     body_values['toname'] = to_drive_id
 
+    force = force.upper()
+
+    if force not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(force))
+
+    body_values['force'] = force
+
     method = 'POST'
     path = '/api/drives/{0}/replace.json'.format(drive_id)
 
@@ -260,7 +274,7 @@ def replace_drive(session, drive_id, to_drive_id, return_type=None):
                             return_type=return_type)
 
 
-def shred_drive(session, drive_id, return_type=None):
+def shred_drive(session, drive_id, force='NO', return_type=None):
     """
     Initializes drive shredding for an individual drive.  Drive must not be
     participating in a RAID group.  CAUTION: This procedure will permanently
@@ -272,6 +286,11 @@ def shred_drive(session, drive_id, return_type=None):
     :type drive_id: str
     :param drive_id: The drive 'name' value as returned by get_all_drives.
         For example: 'volume-00002a73'.  Required.
+
+    :type force: str
+    :param force: If set to 'YES', ignore non-critical warnings and force the
+        VPSA to accept the request.  If 'NO', return message on warning and
+        abort.  Set to 'NO' by default.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -285,10 +304,23 @@ def shred_drive(session, drive_id, return_type=None):
     if not is_valid_volume_id(drive_id):
         raise ValueError('{0} is not a valid drive ID.'.format(drive_id))
 
+    body_values = {}
+
+    force = force.upper()
+
+    if force not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(force))
+
+    body_values['force'] = force
+
     method = 'POST'
     path = '/api/drives/{0}/shred.json'.format(drive_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    body = json.dumps(body_values)
+
+    return session.call_api(method=method, path=path, body=body,
+                            return_type=return_type)
 
 
 def cancel_shred_drive(session, drive_id, return_type=None):

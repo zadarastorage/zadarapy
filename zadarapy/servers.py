@@ -94,7 +94,8 @@ def get_server(session, server_id, return_type=None):
 def create_server(session, display_name, ip_address=None, iqn=None,
                   vpsa_chap_user=None, vpsa_chap_secret=None,
                   host_chap_user=None, host_chap_secret=None,
-                  ipsec_iscsi='NO', ipsec_nfs='NO', return_type=None):
+                  ipsec_iscsi='NO', ipsec_nfs='NO', force='NO',
+                  return_type=None):
     """
     Creates a new server.  A valid server record must be attached to a volume
     before a client with the corresponding IP or IQN can access the volume.
@@ -154,6 +155,11 @@ def create_server(session, display_name, ip_address=None, iqn=None,
         to 'YES', IPSec encryption will be mandated when connecting from this
         server.  If 'NO', IPSec won't be used.  Set to 'NO' by default.
         Optional.
+
+    :type force: str
+    :param force: If set to 'YES', ignore non-critical warnings and force the
+        VPSA to accept the request.  If 'NO', return message on warning and
+        abort.  Set to 'NO' by default.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -236,6 +242,14 @@ def create_server(session, display_name, ip_address=None, iqn=None,
 
     body_values['ipsec_nfs'] = ipsec_nfs
 
+    force = force.upper()
+
+    if force not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(force))
+
+    body_values['force'] = force
+
     method = 'POST'
     path = '/api/servers.json'
 
@@ -248,7 +262,8 @@ def create_server(session, display_name, ip_address=None, iqn=None,
 def update_server(session, server_id, ip_address=None, iqn=None,
                   vpsa_chap_user=None, vpsa_chap_secret=None,
                   host_chap_user=None, host_chap_secret=None,
-                  ipsec_iscsi=None, ipsec_nfs=None, return_type=None):
+                  ipsec_iscsi=None, ipsec_nfs=None, force='NO',
+                  return_type=None):
     """
     Updates a server.  Parameters set to 'None' will not have their existing
     values changed.  The server must not be attached to any volumes.
@@ -283,6 +298,11 @@ def update_server(session, server_id, ip_address=None, iqn=None,
 
     :type ipsec_nfs: str
     :param ipsec_nfs: See documentation for create_server.  Optional.
+
+    :type force: str
+    :param force: If set to 'YES', ignore non-critical warnings and force the
+        VPSA to accept the request.  If 'NO', return message on warning and
+        abort.  Set to 'NO' by default.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -365,6 +385,14 @@ def update_server(session, server_id, ip_address=None, iqn=None,
                          '"ip_address", "iqn", "vpsa_chap_user", '
                          '"vpsa_chap_secret", "host_chap_user", '
                          '"host_chap_secret", "ipsec_iscsi", "ipsec_nfs"')
+
+    force = force.upper()
+
+    if force not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(force))
+
+    body_values['force'] = force
 
     method = 'POST'
     path = '/api/servers/{0}/config.json'.format(server_id)
@@ -503,7 +531,7 @@ def get_volumes_attached_to_server(session, server_id, start=None, limit=None,
 
 
 def attach_servers_to_volume(session, servers, volume_id, access_type=None,
-                             readonly='NO', return_type=None):
+                             readonly='NO', force='NO', return_type=None):
     """
     Attaches one or more servers to a volume.
 
@@ -532,6 +560,11 @@ def attach_servers_to_volume(session, servers, volume_id, access_type=None,
     :param readonly: If set to 'YES', the share will only be readable by this
         server.  If set to 'NO', this server will be able to read and write to
         the share.  Optional.
+
+    :type force: str
+    :param force: If set to 'YES', ignore non-critical warnings and force the
+        VPSA to accept the request.  If 'NO', return message on warning and
+        abort.  Set to 'NO' by default.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -574,6 +607,14 @@ def attach_servers_to_volume(session, servers, volume_id, access_type=None,
                          .format(access_type))
 
     body_values['readonly'] = readonly
+
+    force = force.upper()
+
+    if force not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(force))
+
+    body_values['force'] = force
 
     method = 'POST'
     path = '/api/servers/{0}/volumes.json'.format(servers)

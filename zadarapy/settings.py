@@ -116,7 +116,7 @@ def set_multizone_read_mode(session, read_mode, return_type=None):
                             return_type=return_type)
 
 
-def set_smb_charset(session, charset, return_type=None):
+def set_smb_charset(session, charset, force='NO', return_type=None):
     """
     Sets the character set used by the SMB/CIFS server for all SMB/CIFS
     shared volumes.
@@ -129,6 +129,11 @@ def set_smb_charset(session, charset, return_type=None):
         UTF-8.  If set to 'ISO-8859-1', it will be set to ISO-8859-1.  'UTF-8'
         is the default value.  Required.
 
+    :type force: str
+    :param force: If set to 'YES', ignore non-critical warnings and force the
+        VPSA to accept the request.  If 'NO', return message on warning and
+        abort.  Set to 'NO' by default.  Optional.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -138,12 +143,22 @@ def set_smb_charset(session, charset, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    body_values = {}
+
     if charset not in ['UTF-8', 'ISO-8859-1']:
         raise ValueError('"{0}" is not a valid charset parameter.  Allowed '
                          'values are: "UTF-8" or "ISO-8859-1"'
                          .format(charset))
 
-    body_values = {'charset': charset}
+    body_values['charset'] = charset
+
+    force = force.upper()
+
+    if force not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(force))
+
+    body_values['force'] = force
 
     method = 'POST'
     path = '/api/settings/smb_charset.json'
@@ -154,7 +169,8 @@ def set_smb_charset(session, charset, return_type=None):
                             return_type=return_type)
 
 
-def set_smb_trusted_domains(session, allow_trusted_domains, return_type=None):
+def set_smb_trusted_domains(session, allow_trusted_domains, force='NO',
+                            return_type=None):
     """
     Sets whether or not the SMB/CIFS server should allow Active Directory
     trusted domains.
@@ -168,6 +184,11 @@ def set_smb_trusted_domains(session, allow_trusted_domains, return_type=None):
         allowed.  If set to 'NO', Active Directory trusted domains will not be
         allowed.  The default value is 'YES'.  Required.
 
+    :type force: str
+    :param force: If set to 'YES', ignore non-critical warnings and force the
+        VPSA to accept the request.  If 'NO', return message on warning and
+        abort.  Set to 'NO' by default.  Optional.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -177,6 +198,8 @@ def set_smb_trusted_domains(session, allow_trusted_domains, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    body_values = {}
+
     allow_trusted_domains = allow_trusted_domains.upper()
 
     if allow_trusted_domains not in ['YES', 'NO']:
@@ -184,7 +207,15 @@ def set_smb_trusted_domains(session, allow_trusted_domains, return_type=None):
                          'parameter.  Allowed values are: "YES" or "NO"'
                          .format(allow_trusted_domains))
 
-    body_values = {'allow': allow_trusted_domains}
+    body_values['allow'] = allow_trusted_domains
+
+    force = force.upper()
+
+    if force not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(force))
+
+    body_values['force'] = force
 
     method = 'POST'
     path = '/api/settings/smb_trusted_domains.json'

@@ -139,7 +139,8 @@ def get_raid_group(session, raid_id, return_type=None):
 
 
 def create_raid_group(session, display_name, protection, disk,
-                      stripe_size=64, hot_spare='NO', return_type=None):
+                      stripe_size=64, hot_spare='NO', force='NO',
+                      return_type=None):
     """
     Creates a new RAID group from comma separated list of drives in 'drive'
     body parameter.  The drives must not be currently participating in a RAID
@@ -172,6 +173,11 @@ def create_raid_group(session, display_name, protection, disk,
     :param hot_spare: If set to 'YES', a hot spare will be assigned to the
         RAID group from the group of drives defined in the 'drive' parameter.
         Optional, set to 'NO' by default.
+
+    :type force: str
+    :param force: If set to 'YES', ignore non-critical warnings and force the
+        VPSA to accept the request.  If 'NO', return message on warning and
+        abort.  Set to 'NO' by default.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -247,6 +253,14 @@ def create_raid_group(session, display_name, protection, disk,
                              '{0} were supplied.'.format(protection_width))
 
     body_values['protection_width'] = protection_width
+
+    force = force.upper()
+
+    if force not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(force))
+
+    body_values['force'] = force
 
     method = 'POST'
     path = '/api/raid_groups.json'
@@ -522,7 +536,8 @@ def pause_raid_group_media_scan(session, raid_id, return_type=None):
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def add_hot_spare_to_raid_group(session, raid_id, drive_id, return_type=None):
+def add_hot_spare_to_raid_group(session, raid_id, drive_id, force='NO',
+                                return_type=None):
     """
     Attaches a drive as a hot spare to an existing RAID group, as identified
     by the drive_id attribute.
@@ -537,6 +552,11 @@ def add_hot_spare_to_raid_group(session, raid_id, drive_id, return_type=None):
     :type drive_id: str
     :param drive_id: The drive 'name' value as returned by get_all_drives.
         For example: 'volume-00002a73'.  Required.
+
+    :type force: str
+    :param force: If set to 'YES', ignore non-critical warnings and force the
+        VPSA to accept the request.  If 'NO', return message on warning and
+        abort.  Set to 'NO' by default.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -556,6 +576,14 @@ def add_hot_spare_to_raid_group(session, raid_id, drive_id, return_type=None):
         raise ValueError('{0} is not a valid drive ID.'.format(drive_id))
 
     body_values['disk'] = drive_id
+
+    force = force.upper()
+
+    if force not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(force))
+
+    body_values['force'] = force
 
     method = 'POST'
     path = '/api/raid_groups/{0}/hot_spares.json'.format(raid_id)

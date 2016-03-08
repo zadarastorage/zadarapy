@@ -582,7 +582,7 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
                             return_type=return_type)
 
 
-def delete_volume(session, volume_id, return_type=None):
+def delete_volume(session, volume_id, force='NO', return_type=None):
     """
     Deletes a volume.  If the recycle bin is enabled, volume will be moved to
     the pool's recycle bin, where it can either be recovered, or it will be
@@ -597,6 +597,11 @@ def delete_volume(session, volume_id, return_type=None):
     :param volume_id: The volume 'name' value as returned by get_all_volumes.
         For example: 'volume-00000001'.  Required.
 
+    :type force: str
+    :param force: If set to 'YES', ignore non-critical warnings and force the
+        VPSA to accept the request.  If 'NO', return message on warning and
+        abort.  Set to 'NO' by default.  Optional.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -609,10 +614,23 @@ def delete_volume(session, volume_id, return_type=None):
     if not is_valid_volume_id(volume_id):
         raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
 
+    body_values = {}
+
+    force = force.upper()
+
+    if force not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(force))
+
+    body_values['force'] = force
+
+    body = json.dumps(body_values)
+
     method = 'DELETE'
     path = '/api/volumes/{0}.json'.format(volume_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.call_api(method=method, path=path, body=body,
+                            return_type=return_type)
 
 
 def rename_volume(session, volume_id, display_name, return_type=None):

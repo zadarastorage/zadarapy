@@ -184,6 +184,19 @@ DRIVE_ID_OPTION = {
     }
 }
 
+FORCE_OPTION = {
+    'option_positional': ['--force'],
+    'option_keywords': {
+        'dest': 'param_force',
+        'choices': ['YES', 'NO'],
+        'type': str.upper,
+        'default': 'NO',
+        'help': 'If set to YES, ignore non-critical warnings and force the '
+                'VPSA to accept the request.  If NO, return message on '
+                'warning and abort.  Default: NO'
+    }
+}
+
 INTERVAL_OPTION = {
     'option_positional': ['--interval'],
     'option_keywords': {
@@ -971,7 +984,8 @@ COMMANDS_DICT = [
                             'help': 'Controller failover will only be '
                                     'performed if this flag is passed.'
                         }
-                    }
+                    },
+                    FORCE_OPTION
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Initiate a controller failover - the '
@@ -1065,7 +1079,8 @@ COMMANDS_DICT = [
                                     'will be used as the replacement.  '
                                     'Required.'
                         }
-                    }
+                    },
+                    FORCE_OPTION
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Replaces the drive identified by id with '
@@ -1075,6 +1090,7 @@ COMMANDS_DICT = [
                 'subcommand_info': ('shred', drives.shred_drive),
                 'subcommand_options': [
                     DRIVE_ID_OPTION,
+                    FORCE_OPTION
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Shreds all data on a drive.  THIS ACTION '
@@ -1968,7 +1984,8 @@ COMMANDS_DICT = [
                             'help': 'The stripe size to use - RAID5 and '
                                     'RAID6 only.  Default: 64'
                         }
-                    }
+                    },
+                    FORCE_OPTION
                 ],
                 'subcommand_return_key': 'raidgroup_name',
                 'subcommand_help': 'Creates a new RAID group from provided '
@@ -2008,7 +2025,8 @@ COMMANDS_DICT = [
                                     '"drives list".  For example: '
                                     '"volume-00002a73".  Required.'
                         }
-                    }
+                    },
+                    FORCE_OPTION
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Adds a hot spare to a RAID group using '
@@ -2640,7 +2658,8 @@ COMMANDS_DICT = [
                                     'will only be able to read the provided '
                                     'volume.  Default: "NO"'
                         }
-                    }
+                    },
+                    FORCE_OPTION
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Attaches one or more server records to a '
@@ -2740,7 +2759,8 @@ COMMANDS_DICT = [
                                     'NFS connections from this server.  '
                                     'Default: "NO"'
                         }
-                    }
+                    },
+                    FORCE_OPTION
                 ],
                 'subcommand_return_key': 'server_name',
                 'subcommand_help': 'Creates a new server record'
@@ -2989,7 +3009,8 @@ COMMANDS_DICT = [
                                     'UTF-8 or ISO-8859-1 depending on the '
                                     'passed value'
                         }
-                    }
+                    },
+                    FORCE_OPTION
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Sets the character set used by the '
@@ -3012,7 +3033,8 @@ COMMANDS_DICT = [
                                     'set to NO, Active Directory trusted '
                                     'domains will not be allowed.'
                         }
-                    }
+                    },
+                    FORCE_OPTION
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Sets whether or not the SMB/CIFS server '
@@ -3306,7 +3328,8 @@ COMMANDS_DICT = [
             {
                 'subcommand_info': ('delete', volumes.delete_volume),
                 'subcommand_options': [
-                    VOLUME_ID_OPTION
+                    VOLUME_ID_OPTION,
+                    FORCE_OPTION
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Deletes a volume.  By default, deleted '
