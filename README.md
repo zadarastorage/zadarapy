@@ -6,16 +6,14 @@ zadarapy is Python module and command line utility that utilizes the [Zadara Sto
 
 ## Usage
 
-The eventual goal will be to publish this module as installable by pip, and everything will be seemless (e.g. pip install zadarapy).  But that will wait until the full module has testing.
-
-For now, this module only supports Python 3.  Work is being done to make it work with Python 2.
+The eventual goal will be to publish this module as installable by pip, and everything will be seamless (e.g. pip install zadarapy).  But that will wait until the full module has testing.
 
 For now, to try this module/script out, you can do:
 
 ```
 cd /path/to/where/you/want/code
 git clone git@github.com:zadarastorage/zadarapy.git
-cd /usr/local/lib/python3.5/site-packages # or wherever your Python 3 include path is
+cd /usr/local/lib/pythonx.x/site-packages # or wherever your Python include path is
 sudo ln -s /path/to/zadarapy/zadarapy
 cd /usr/local/bin
 ln -s /path/to/zadarapy/bin/zadarapy
