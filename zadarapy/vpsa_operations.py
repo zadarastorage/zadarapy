@@ -14,6 +14,9 @@
 # under the License.
 
 
+from future.standard_library import install_aliases
+install_aliases()
+
 from urllib.parse import quote
 from urllib.parse import urlencode
 from zadarapy.validators import is_valid_field

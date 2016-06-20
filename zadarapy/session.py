@@ -13,6 +13,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from future.standard_library import install_aliases
+install_aliases()
+
 import configparser
 import http.client
 import json
@@ -217,9 +220,9 @@ class Session(object):
             raise ValueError('{0} is not a valid API key'
                              .format(self.zadara_key))
 
+        # http.client can accept None port and use default, but we need to
+        # define it here so debug info can be outputted later on error.
         if secure:
-            # http.client can accept None port and use default, but we need to
-            # define it here so debug info can be outputted later on error.
             if port is None:
                 port = 443
 
@@ -227,8 +230,6 @@ class Session(object):
 
             conn = http.client.HTTPSConnection(host, port)
         else:
-            # http.client can accept None port and use default, but we need to
-            # define it here so debug info can be outputted later on error.
             if port is None:
                 port = 80
 
@@ -242,11 +243,9 @@ class Session(object):
             headers['Content-Type'] = "application/json"
 
         # Provisioning portal expects "X-Token" header, whereas VPSA expects
-        # "X-Access-Key".
-        if path.startswith('/api/providers') or path.startswith('/api/vpsas'):
-            headers['X-Token'] = key
-        else:
-            headers['X-Access-Key'] = key
+        # "X-Access-Key".  Just set both.
+        headers['X-Access-Key'] = key
+        headers['X-Token'] = key
 
         # Ignore parameters if set to None or an empty dictionary is passed.
         if parameters:
@@ -274,32 +273,28 @@ class Session(object):
 
         conn.close()
 
-        api_return_dict = None
-
-        if return_type != 'raw':
-            api_return_dict = json.loads(data.decode('UTF-8'))
-
-            if 'status-msg' in api_return_dict:
-                raise RuntimeError('A general API error was returned: "{0}".'
-                                   .format(api_return_dict['status-msg']))
-
-            if 'message' in api_return_dict:
-                raise RuntimeError('A general API error was returned: "{0}".'
-                                   .format(api_return_dict['message']))
-
-            if 'response' in api_return_dict:
-                if 'status' in api_return_dict['response']:
-                    if api_return_dict['response']['status'] != 0:
-                        raise RuntimeError(
-                            'The API server returned an error: "{0}".'
-                            .format(api_return_dict['response']['message'])
-                        )
+        if return_type == 'raw':
+            return data
 
         if return_type == 'json':
             return data.decode('UTF-8')
 
-        if return_type == 'raw':
-            return data
+        api_return_dict = json.loads(data.decode('UTF-8'))
 
-        if api_return_dict:
-            return api_return_dict
+        if 'status-msg' in api_return_dict:
+            raise RuntimeError('A general API error was returned: "{0}".'
+                               .format(api_return_dict['status-msg']))
+
+        if 'message' in api_return_dict:
+            raise RuntimeError('A general API error was returned: "{0}".'
+                               .format(api_return_dict['message']))
+
+        if 'response' in api_return_dict:
+            if 'status' in api_return_dict['response']:
+                if api_return_dict['response']['status'] != 0:
+                    raise RuntimeError(
+                        'The API server returned an error: "{0}".'
+                        .format(api_return_dict['response']['message'])
+                    )
+
+        return api_return_dict

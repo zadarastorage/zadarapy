@@ -14,8 +14,12 @@
 # under the License.
 
 
+from future.standard_library import install_aliases
+install_aliases()
+
 import json
 from urllib.parse import quote
+from zadarapy.validators import is_valid_email
 from zadarapy.validators import is_valid_field
 
 
@@ -62,6 +66,53 @@ def get_all_vpsa_users(session, start=None, limit=None, return_type=None):
                   if v is not None}
 
     return session.call_api(method=method, path=path, parameters=parameters,
+                            return_type=return_type)
+
+
+def create_vpsa_user(session, username, email, return_type=None):
+    """
+    Creates a VPSA user.  User will receive a temporary password at the
+    provided email address and will be forced to change it on first login.
+    Only a VPSA admin may perform this action.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type username: str
+    :param username: The VPSA user's username.  Required.
+
+    :type email: str
+    :param email: The VPSA user's email address.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    body_values = {}
+
+    if not is_valid_field(username):
+        raise ValueError('{0} is not a valid VPSA username.'
+                         .format(username))
+
+    body_values['username'] = username
+
+    if not is_valid_email(email):
+        raise ValueError('{0} is not a valid email address.'
+                         .format(email))
+
+    body_values['email'] = email
+
+    method = 'POST'
+    path = '/api/users.json'
+
+    body = json.dumps(body_values)
+
+    return session.call_api(method=method, path=path, body=body,
                             return_type=return_type)
 
 

@@ -68,6 +68,26 @@ def is_valid_controller_id(controller_id):
     return True
 
 
+def is_valid_email(email):
+    """
+    Validates an email address.
+
+    :type email: str
+    :param email: The email address to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether field passes validation.
+    """
+    if email is None:
+        return False
+
+    if not re.match('^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$',
+                    email):
+        return False
+
+    return True
+
+
 def is_valid_field(field, allow_quote=False, minimum=None, maximum=None):
     """
     Validates a generic user inputted field, such as a "name" for an
@@ -618,7 +638,8 @@ def is_valid_zadara_key(key):
     if len(key) != 20:
         return False
 
-    allowed = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+    allowed = set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345'
+                  '6789')
 
     if not allowed.issuperset(key):
         return False

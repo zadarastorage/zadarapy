@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 # Copyright 2015 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
@@ -3213,7 +3213,7 @@ COMMANDS_DICT = [
                                     'to an e-mail body).  For example: '
                                     '"I would like more information on best '
                                     'practices for expanding my "pool1" '
-                                    'storage pool.'
+                                    'storage pool."'
                             }
                     }
                 ],
@@ -3591,6 +3591,37 @@ COMMANDS_DICT = [
                 'subcommand_help': 'Resets a user\'s password if the current '
                                    'password is known.  Use '
                                    'change-password-by-code if it is unknown.'
+            },
+            {
+                'subcommand_info': ('create', vpsa_users.create_vpsa_user),
+                'subcommand_options': [
+                    {
+                        'option_positional': ['--username'],
+                        'option_keywords': {
+                            'dest': 'param_username',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The VPSA user\'s desired username'
+                        }
+                    },
+                    {
+                        'option_positional': ['--email'],
+                        'option_keywords': {
+                            'dest': 'param_email',
+                            'metavar': '<xxx@yyy.zzz>',
+                            'type': str,
+                            'required': True,
+                            'help': 'The VPSA user\'s email address'
+                        }
+                    }
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Creates a VPSA user - may only be done '
+                                   'by the VPSA primary user.  User will '
+                                   'receive a temporary password at the '
+                                   'provided email address and will be '
+                                   'forced to change it.'
             },
             {
                 'subcommand_info': ('delete', vpsa_users.delete_vpsa_user),
