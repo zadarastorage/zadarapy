@@ -94,8 +94,8 @@ class Session(object):
         elif os.getenv('ZADARA_HOST') is not None:
             self.zadara_host = os.getenv('ZADARA_HOST')
         elif self._config is not None:
-            if self._config['DEFAULT'].get('host', None) is not None:
-                self.zadara_host = self._config['DEFAULT'].get('host')
+            if self._config.defaults().get('host', None) is not None:
+                self.zadara_host = self._config.defaults().get('host')
         else:
             raise ValueError('The API hostname was not defined.')
 
@@ -105,8 +105,8 @@ class Session(object):
         elif os.getenv('ZADARA_PORT') is not None:
             self.zadara_port = os.getenv('ZADARA_PORT')
         elif self._config is not None:
-            if self._config['DEFAULT'].get('port', None) is not None:
-                self.zadara_port = self._config['DEFAULT'].get('port')
+            if self._config.defaults().get('port', None) is not None:
+                self.zadara_port = self._config.defaults().get('port')
         else:
             self.zadara_port = None
 
@@ -116,8 +116,8 @@ class Session(object):
         elif os.getenv('ZADARA_KEY') is not None:
             self.zadara_key = os.getenv('ZADARA_KEY')
         elif self._config is not None:
-            if self._config['DEFAULT'].get('key', None) is not None:
-                self.zadara_key = self._config['DEFAULT'].get('key')
+            if self._config.defaults().get('key', None) is not None:
+                self.zadara_key = self._config.defaults().get('key')
         else:
             raise ValueError('The API authentication key was not defined.')
 
@@ -130,8 +130,8 @@ class Session(object):
             if os.getenv('ZADARA_SECURE').lower() in false_values:
                 self.zadara_secure = False
         elif self._config is not None:
-            if self._config['DEFAULT'].get('secure', None) is not None:
-                if self._config['DEFAULT'].get('secure').lower() in \
+            if self._config.defaults().get('secure', None) is not None:
+                if self._config.defaults().get('secure').lower() in \
                         false_values:
                     self.zadara_secure = False
 
