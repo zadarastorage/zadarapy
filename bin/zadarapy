@@ -3747,9 +3747,6 @@ def format_return(data, vertical=False):
         generated and returned.  If an empty list is detected, a simple
         message will be returned.
     """
-    if type(data) in [int, str]:
-        return data
-
     if vertical:
         table_data = []
         table_formatted = []
@@ -4026,6 +4023,10 @@ def main():
                                     )
                             else:
                                 response = data
+
+                            if type(response) not in ['dict', 'list']:
+                                print(response)
+                                sys.exit(0)
 
                             tables = format_return(
                                 data=response,
