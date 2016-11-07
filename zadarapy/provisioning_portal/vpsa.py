@@ -17,59 +17,8 @@
 from future.standard_library import install_aliases
 install_aliases()
 
-from urllib.parse import quote
 from urllib.parse import urlencode
 from zadarapy.validators import is_valid_field
-
-
-def get_all_clouds(session, return_type=None):
-    """
-    Retrieves details for all available storage clouds.
-
-    :type session: zadarapy.session.Session
-    :param session: A valid zadarapy.session.Session object.
-
-    :type return_type: str
-    :param return_type: If this is set to the string 'json', this function
-        will return a JSON string.  Otherwise, it will return a Python
-        dictionary.  Optional (will return a Python dictionary by default).
-
-    :rtype: dict, str
-    :returns: A dictionary or JSON data set as a string depending on
-        return_type parameter.
-    """
-    method = 'GET'
-    path = '/api/providers.json'
-
-    return session.call_api(method=method, path=path, return_type=return_type)
-
-
-def get_cloud(session, cloud_id, return_type=None):
-    """
-    Retrieves details for a single cloud.
-
-    :type session: zadarapy.session.Session
-    :param session: A valid zadarapy.session.Session object.  Required.
-
-    :type cloud_id: str
-    :param cloud_id: The cloud 'key' value as returned by get_all_clouds.  For
-        example: 'aws' or 'aws-jp1'.  Required.
-
-    :type return_type: str
-    :param return_type: If this is set to the string 'json', this function
-        will return a JSON string.  Otherwise, it will return a Python
-        dictionary.  Optional (will return a Python dictionary by default).
-
-    :rtype: dict, str
-    :returns: A dictionary or JSON data set as a string depending on
-        return_type parameter.
-    """
-    cloud_id = quote(cloud_id.strip())
-
-    method = 'GET'
-    path = '/api/providers/{0}.json'.format(cloud_id)
-
-    return session.call_api(method=method, path=path, return_type=return_type)
 
 
 def get_all_vpsas(session, return_type=None):

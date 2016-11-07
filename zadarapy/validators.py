@@ -13,6 +13,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from future.standard_library import install_aliases
+install_aliases()
 
 import ipaddress
 import re
@@ -261,7 +263,7 @@ def is_valid_mgrjob_id(mgrjob_id):
     if mgrjob_id is None:
         return False
 
-    match = re.match('^mgrjob-[0-9a-f]{8}$', cg_id)
+    match = re.match('^mgrjob-[0-9a-f]{8}$', mgrjob_id)
 
     if not match:
         return False

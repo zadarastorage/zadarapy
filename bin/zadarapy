@@ -18,25 +18,28 @@
 import argparse
 import sys
 from pprint import pprint
+
 from terminaltables import AsciiTable
 from terminaltables import SingleTable
-from zadarapy import container_services
-from zadarapy import controllers
-from zadarapy import drives
-from zadarapy import logs
-from zadarapy import mirrors
-from zadarapy import nas_authentication
-from zadarapy import pools
-from zadarapy import raid_groups
-from zadarapy import remote_object_storage
-from zadarapy import servers
+
 from zadarapy import session
-from zadarapy import settings
-from zadarapy import snapshot_policies
-from zadarapy import tickets
-from zadarapy import volumes
-from zadarapy import vpsa_operations
-from zadarapy import vpsa_users
+from zadarapy.provisioning_portal import cloud
+from zadarapy.provisioning_portal import vpsa
+from zadarapy.vpsa import container_services
+from zadarapy.vpsa import controllers
+from zadarapy.vpsa import drives
+from zadarapy.vpsa import logs
+from zadarapy.vpsa import mirrors
+from zadarapy.vpsa import nas_authentication
+from zadarapy.vpsa import pools
+from zadarapy.vpsa import raid_groups
+from zadarapy.vpsa import remote_object_storage
+from zadarapy.vpsa import servers
+from zadarapy.vpsa import settings
+from zadarapy.vpsa import snapshot_policies
+from zadarapy.vpsa import tickets
+from zadarapy.vpsa import volumes
+from zadarapy.vpsa import vpsa_users
 
 ACTIVE_DIRECTORY_DNS_OPTION = {
     'option_positional': ['--dns'],
@@ -3486,7 +3489,17 @@ COMMANDS_DICT = [
         'help': 'Commands related to creating, editing, and deleting VPSAs',
         'subcommands': [
             {
-                'subcommand_info': ('get-cloud', vpsa_operations.get_cloud),
+                'subcommand_info': ('delete-vpsa', vpsa.delete_vpsa),
+                'subcommand_options': [
+                    VPSA_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes a VPSA.  This is a moderated '
+                                   'action and must be approved by an '
+                                   'administrator.'
+            },
+            {
+                'subcommand_info': ('get-cloud', cloud.get_cloud),
                 'subcommand_options': [
                     CLOUD_ID_OPTION
                 ],
@@ -3495,7 +3508,7 @@ COMMANDS_DICT = [
                                    'storage cloud.'
             },
             {
-                'subcommand_info': ('get-vpsa', vpsa_operations.get_vpsa),
+                'subcommand_info': ('get-vpsa', vpsa.get_vpsa),
                 'subcommand_options': [
                     VPSA_ID_OPTION
                 ],
@@ -3504,7 +3517,7 @@ COMMANDS_DICT = [
             },
             {
                 'subcommand_info': ('list-clouds',
-                                    vpsa_operations.get_all_clouds),
+                                    cloud.get_all_clouds),
                 'subcommand_options': [],
                 'subcommand_return_key': 'providers',
                 'subcommand_help': 'Displays details for all available '
@@ -3512,7 +3525,7 @@ COMMANDS_DICT = [
             },
             {
                 'subcommand_info': ('list-vpsas',
-                                    vpsa_operations.get_all_vpsas),
+                                    vpsa.get_all_vpsas),
                 'subcommand_options': [],
                 'subcommand_return_key': 'vpsas',
                 'subcommand_help': 'Displays details for all VPSAs.'
@@ -4024,7 +4037,7 @@ def main():
                             else:
                                 response = data
 
-                            if type(response) not in ['dict', 'list']:
+                            if type(response) not in [dict, list]:
                                 print(response)
                                 sys.exit(0)
 
