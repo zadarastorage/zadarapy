@@ -3983,8 +3983,10 @@ def main():
                         else:
                             protocol = 'HTTP'
 
-                        print('Connecting to {0} with API key {1} over {2}'
+                        print('Connecting to {0} on port {1} with API key '
+                              '{2} over protocol {3}'
                               .format(params['session'].zadara_host,
+                                      params['session'].zadara_port,
                                       params['session'].zadara_key,
                                       protocol))
 

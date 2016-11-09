@@ -212,6 +212,7 @@ class Session(object):
                              .format(self.zadara_host))
 
         if port is not None:
+            port = int(port)
             if not is_valid_port(self.zadara_port):
                 raise ValueError('The supplied port "{0}" must be within '
                                  '1-65535 range.')
