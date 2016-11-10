@@ -835,12 +835,12 @@ COMMANDS_DICT = [
                                     '"volumes list".  For example: '
                                     '"volume-00000001".  When specified, the '
                                     'ZCS image will be imported from this '
-                                    'volume.'
+                                    'volume instead of Docker Hub.'
                         }
                     }
                 ],
                 'subcommand_return_key': 'image_name',
-                'subcommand_help': 'Displays details for a single ZCS image'
+                'subcommand_help': 'Creates a ZCS image'
             },
             {
                 'subcommand_info': ('delete-container',
@@ -869,7 +869,8 @@ COMMANDS_DICT = [
                     ZCS_IMAGE_ID_OPTION
                 ],
                 'subcommand_return_key': 'images',
-                'subcommand_help': 'Displays details for a single ZCS image'
+                'subcommand_help': 'Displays details for a single ZCS '
+                                   'container'
             },
             {
                 'subcommand_info': ('get-image',
@@ -1400,8 +1401,9 @@ COMMANDS_DICT = [
                     START_OPTION
                 ],
                 'subcommand_return_key': 'sugested_jobs',
-                'subcommand_help': 'Displays details for all remote VPSAs '
-                                   'discovered by the VPSA'
+                'subcommand_help': 'Displays details of suggested volumes '
+                                   'from which previously broken mirrors can '
+                                   'can be resumed from remote VPSA'
             },
             {
                 'subcommand_info': ('pause', mirrors.pause_mirror),
@@ -1440,7 +1442,7 @@ COMMANDS_DICT = [
                     DELETE_SNAPSHOTS_OPTION
                 ],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Adds an additional snapshot policy to an '
+                'subcommand_help': 'Removes a snapshot policy from an '
                                    'existing mirror job'
             },
             {
@@ -1721,9 +1723,9 @@ COMMANDS_DICT = [
                 'subcommand_options': [
                     ACTIVE_DIRECTORY_DNS_OPTION
                 ],
-                'subcommand_return_key': 'groups',
-                'subcommand_help': 'Displays details for all NAS groups on '
-                                   'the VPSA'
+                'subcommand_return_key': None,
+                'subcommand_help': 'Leave the currently configured Active '
+                                   'Directory domain'
             },
         ]
     },
@@ -2001,7 +2003,7 @@ COMMANDS_DICT = [
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Deletes an unused RAID group from the '
-                                   'VPSA.'
+                                   'VPSA'
             },
             {
                 'subcommand_info': ('get', raid_groups.get_raid_group),
@@ -3325,8 +3327,7 @@ COMMANDS_DICT = [
                     DISPLAY_NAME_OPTION
                 ],
                 'subcommand_return_key': 'snapshot_name',
-                'subcommand_help': 'Attaches a snapshot policy to the '
-                                   'provided consistency group ID.'
+                'subcommand_help': 'Creates a snapshot'
             },
             {
                 'subcommand_info': ('delete', volumes.delete_volume),
@@ -3346,7 +3347,7 @@ COMMANDS_DICT = [
                     SNAPSHOT_ID_OPTION,
                 ],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Deletes a snapshot.'
+                'subcommand_help': 'Deletes a snapshot'
             },
             {
                 'subcommand_info': ('detach-servers',
@@ -3391,7 +3392,7 @@ COMMANDS_DICT = [
                     VOLUME_EXPORT_NAME_OPTION
                 ],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Changes a NAS share\'s export name.'
+                'subcommand_help': 'Changes a NAS share\'s export name'
             },
             {
                 'subcommand_info': ('get', volumes.get_volume),
@@ -3480,7 +3481,7 @@ COMMANDS_DICT = [
                     DISPLAY_NAME_OPTION
                 ],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Renames a volume.'
+                'subcommand_help': 'Renames a volume'
             }
         ]
     },
@@ -3505,7 +3506,7 @@ COMMANDS_DICT = [
                 ],
                 'subcommand_return_key': 'provider',
                 'subcommand_help': 'Displays details for a single Zadara '
-                                   'storage cloud.'
+                                   'storage cloud'
             },
             {
                 'subcommand_info': ('get-vpsa', vpsa.get_vpsa),
@@ -3513,7 +3514,7 @@ COMMANDS_DICT = [
                     VPSA_ID_OPTION
                 ],
                 'subcommand_return_key': 'vpsa',
-                'subcommand_help': 'Displays details for a single VPSA.'
+                'subcommand_help': 'Displays details for a single VPSA'
             },
             {
                 'subcommand_info': ('list-clouds',
@@ -3521,14 +3522,14 @@ COMMANDS_DICT = [
                 'subcommand_options': [],
                 'subcommand_return_key': 'providers',
                 'subcommand_help': 'Displays details for all available '
-                                   'Zadara storage clouds.'
+                                   'Zadara storage clouds'
             },
             {
                 'subcommand_info': ('list-vpsas',
                                     vpsa.get_all_vpsas),
                 'subcommand_options': [],
                 'subcommand_return_key': 'vpsas',
-                'subcommand_help': 'Displays details for all VPSAs.'
+                'subcommand_help': 'Displays details for all VPSAs'
             }
         ]
     },
