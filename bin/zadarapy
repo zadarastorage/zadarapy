@@ -878,7 +878,7 @@ COMMANDS_DICT = [
                 'subcommand_options': [
                     ZCS_IMAGE_ID_OPTION
                 ],
-                'subcommand_return_key': 'images',
+                'subcommand_return_key': 'image',
                 'subcommand_help': 'Displays details for a single ZCS image'
             },
             {
@@ -950,7 +950,7 @@ COMMANDS_DICT = [
                 'subcommand_options': [
                     INTERVAL_OPTION
                 ],
-                'subcommand_return_key': 'usages',
+                'subcommand_return_key': 'zcache_usages',
                 'subcommand_help': 'Gets performance statistics for the '
                                    'SSD pool cache'
             },
@@ -1057,7 +1057,7 @@ COMMANDS_DICT = [
                     DRIVE_ID_OPTION,
                 ],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Removes an unused drive from the VPSA.'
+                'subcommand_help': 'Removes an unused drive from the VPSA'
             },
             {
                 'subcommand_info': ('rename', drives.rename_drive),
@@ -1066,7 +1066,7 @@ COMMANDS_DICT = [
                     DISPLAY_NAME_OPTION
                 ],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Changes the display name for a drive.'
+                'subcommand_help': 'Changes the display name for a drive'
             },
             {
                 'subcommand_info': ('replace', drives.replace_drive),
@@ -1197,7 +1197,7 @@ COMMANDS_DICT = [
                     MIGRATION_ID_OPTION
                 ],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Pauses a running volume migration job.'
+                'subcommand_help': 'Pauses a running volume migration job'
             },
             {
                 'subcommand_info': ('resume-volume-migration',
@@ -1206,7 +1206,7 @@ COMMANDS_DICT = [
                     MIGRATION_ID_OPTION
                 ],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Resumes a paused volume migration job.'
+                'subcommand_help': 'Resumes a paused volume migration job'
             },
             {
                 'subcommand_info': ('show-volume-migration',
@@ -1345,7 +1345,7 @@ COMMANDS_DICT = [
                         }
                     }
                 ],
-                'subcommand_return_key': None,
+                'subcommand_return_key': 'remote_vpsa_name',
                 'subcommand_help': 'Discovers a remote VPSA for use as a '
                                    'mirror target'
             },
@@ -1480,7 +1480,7 @@ COMMANDS_DICT = [
                     },
                     WAN_OPTIMIZATION_OPTION
                 ],
-                'subcommand_return_key': None,
+                'subcommand_return_key': 'vpsa_mirror_job_name',
                 'subcommand_help': 'Resumes a previously broken mirror job '
                                    'if a suitable snapshot can be found on '
                                    'the remote VPSA'
@@ -1724,7 +1724,7 @@ COMMANDS_DICT = [
                     ACTIVE_DIRECTORY_DNS_OPTION
                 ],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Leave the currently configured Active '
+                'subcommand_help': 'Change the DNS servers for the Active '
                                    'Directory domain'
             },
         ]
