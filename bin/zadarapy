@@ -1261,7 +1261,7 @@ COMMANDS_DICT = [
                     CG_ID_OPTION,
                     DISPLAY_NAME_OPTION,
                     {
-                        'option_positional': ['-P', '--policy-id'],
+                        'option_positional': ['--policy-id'],
                         'option_keywords': {
                             'dest': 'param_policies',
                             'metavar': '<snap-xxxxxxxx,snap-yyyyyyyy>',
@@ -1748,7 +1748,7 @@ COMMANDS_DICT = [
                 'subcommand_options': [
                     POOL_ID_OPTION,
                     {
-                        'option_positional': ['-C', '--capacityhistory'],
+                        'option_positional': ['--capacityhistory'],
                         'option_keywords': {
                             'dest': 'param_capacityhistory',
                             'metavar': '<n>',
@@ -1758,7 +1758,7 @@ COMMANDS_DICT = [
                         }
                     },
                     {
-                        'option_positional': ['-a', '--alertmode'],
+                        'option_positional': ['--alertmode'],
                         'option_keywords': {
                             'dest': 'param_alertmode',
                             'metavar': '<n>',
@@ -1769,7 +1769,7 @@ COMMANDS_DICT = [
                         }
                     },
                     {
-                        'option_positional': ['-P', '--protectedmode'],
+                        'option_positional': ['--protectedmode'],
                         'option_keywords': {
                             'dest': 'param_protectedmode',
                             'metavar': '<n>',
@@ -1780,7 +1780,7 @@ COMMANDS_DICT = [
                         }
                     },
                     {
-                        'option_positional': ['-e', '--emergencymode'],
+                        'option_positional': ['--emergencymode'],
                         'option_keywords': {
                             'dest': 'param_emergencymode',
                             'metavar': '<n>',
@@ -1800,7 +1800,7 @@ COMMANDS_DICT = [
                     POOL_RAID_GROUPS_OPTION,
                     CAPACITY_OPTION,
                     {
-                        'option_positional': ['-P', '--pooltype'],
+                        'option_positional': ['--pooltype'],
                         'option_keywords': {
                             'dest': 'param_pooltype',
                             'choices': ['OLTP', 'Repository',
@@ -1813,7 +1813,7 @@ COMMANDS_DICT = [
                     },
                     POOL_CACHE_OPTION,
                     {
-                        'option_positional': ['-m', '--mode'],
+                        'option_positional': ['--mode'],
                         'option_keywords': {
                             'dest': 'param_mode',
                             'choices': ['simple', 'stripe'],
