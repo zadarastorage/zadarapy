@@ -1,6 +1,6 @@
 configparser>=3.5.0
-docutils>=0.10
 future>=0.15.2
+ipaddress>=1.0.17
 terminaltables>=2.1.0
 tox>=2.1.1
 wheel>=0.26.0

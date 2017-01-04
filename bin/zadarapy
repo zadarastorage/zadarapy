@@ -207,7 +207,7 @@ INTERVAL_OPTION = {
         'metavar': '<n>',
         'type': int,
         'default': 1,
-        'help': 'The interval to retrieve statistics for in seconds.  '
+        'help': 'The interval to retrieve statistics for in minutes.  '
                 'Default: 1'
     }
 }

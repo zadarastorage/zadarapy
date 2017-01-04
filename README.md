@@ -1,5 +1,7 @@
 # zadarapy
 
+## THIS SOFTWARE IS PRE-ALPHA QUALITY - IT IS OFFERED WITHOUT WARRANTY OF FITNESS
+
 ## Introduction
 
 zadarapy is Python module and command line utility that utilizes the [Zadara Storage](http://www.zadarastorage.com/) REST [API](http://vpsa-api.zadarastorage.com/).  This code is provided without warranty or guarantees of fitness.
