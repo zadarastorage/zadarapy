@@ -411,7 +411,7 @@ def update_zcs_settings(session, network, lowport, highport,
     body_values['highport'] = highport
 
     method = 'POST'
-    path = '/api/settings/encryption.json'
+    path = '/api/settings/container_service.json'
 
     body = json.dumps(body_values)
 
