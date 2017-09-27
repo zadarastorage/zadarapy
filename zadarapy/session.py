@@ -13,6 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from __future__ import print_function
 from future.standard_library import install_aliases
 install_aliases()
 
@@ -257,11 +258,10 @@ class Session(object):
         try:
             conn.request(method, url, headers=headers, body=body)
             response = conn.getresponse()
-        except:
-            print('Could not connect to {0} on port {1} via {2} - please '
-                  'ensure this script can route to the API endpoint.'
-                  .format(host, port, protocol))
-            sys.exit(1)
+        except BaseException as exc:
+            print('Could not connect to {0} on port {1} via {2}: {3}'.
+            format(host, port, protocol, str(exc)), file=sys.stderr)
+            raise
 
         if response.status not in [200, 302]:
             conn.close()
