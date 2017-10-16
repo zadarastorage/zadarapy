@@ -13,7 +13,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from __future__ import print_function
 from future.standard_library import install_aliases
 install_aliases()
 
@@ -21,7 +20,6 @@ import configparser
 import http.client
 import json
 import os
-import sys
 from urllib.parse import urlencode
 from zadarapy.validators import is_valid_hostname
 from zadarapy.validators import is_valid_ip_address
@@ -259,9 +257,8 @@ class Session(object):
             conn.request(method, url, headers=headers, body=body)
             response = conn.getresponse()
         except BaseException as exc:
-            print('Could not connect to {0} on port {1} via {2}: {3}'.
-            format(host, port, protocol, str(exc)), file=sys.stderr)
-            raise
+            raise OSError('Could not connect to {0} on port {1} via {2}: {3}'.
+                          format(host, port, protocol, str(exc)))
 
         if response.status not in [200, 302]:
             conn.close()

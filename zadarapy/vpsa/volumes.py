@@ -950,7 +950,9 @@ def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
 
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
-        return_type parameter.
+        return_type parameter. Upon success, the dictionary will contain an entry
+        like 'response':{'snapshot_rule_name': 'rule-00000003'...}, which identifies
+        the snapshot rule that has been created by adding the snapshot policy to the volume.
     """
     if not is_valid_cg_id(cg_id):
         raise ValueError('{0} is not a valid consistency group ID.'
@@ -973,7 +975,7 @@ def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
                             return_type=return_type)
 
 
-def remove_volume_snapshot_policy(session, cg_id, policy_id, delete_snapshots,
+def remove_volume_snapshot_policy(session, snapshot_rule_name, delete_snapshots,
                                   return_type=None):
     """
     Removes a snapshot policy from a volume.
@@ -981,14 +983,10 @@ def remove_volume_snapshot_policy(session, cg_id, policy_id, delete_snapshots,
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type cg_id: str
-    :param cg_id: The consistency group 'cg_name' value as returned by
-        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
+    :type snapshot_rule_name: str
+    :param snapshot_rule_name: The name of the snapshot rule, as returned by the
+        'add_volume_snapshot_policy' API. For example: 'rule-00000003'.
         Required.
-
-    :type policy_id: str
-    :param policy_id: The snapshot policy 'name' value as returned by
-        get_all_snapshot_policies.  For example: 'policy-00000001'.  Required.
 
     :type delete_snapshots: str
     :param delete_snapshots: If set to 'YES', all snapshots created by the
@@ -1003,17 +1001,11 @@ def remove_volume_snapshot_policy(session, cg_id, policy_id, delete_snapshots,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
+    if not is_valid_snapshot_rule_name(snapshot_rule_name):
+        raise ValueError('{0} is not a valid snapshot rule name.'
+                         .format(snapshot_rule_name))
 
     body_values = {}
-
-    if not is_valid_policy_id(policy_id):
-        raise ValueError('{0} is not a valid snapshot policy ID.'
-                         .format(policy_id))
-
-    body_values['policy'] = policy_id
 
     delete_snapshots = delete_snapshots.upper()
 
@@ -1025,7 +1017,7 @@ def remove_volume_snapshot_policy(session, cg_id, policy_id, delete_snapshots,
     body_values['delete_snapshots'] = delete_snapshots
 
     method = 'POST'
-    path = '/api/consistency_groups/{0}/detach_policy.json'.format(cg_id)
+    path = '/api/consistency_groups/{0}/detach_policy.json'.format(snapshot_rule_name)
 
     body = json.dumps(body_values)
 

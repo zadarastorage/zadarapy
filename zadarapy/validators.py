@@ -353,6 +353,31 @@ def is_valid_policy_id(policy_id):
     return True
 
 
+def is_valid_snapshot_rule_name(snap_rule_name):
+    """
+    Validates a snapshot rule name.
+    A snapshot rule name identifies a particular volume being attached to
+    a particular snapshot policy. A valid snapshot rule name should look
+    like: rule-00000001 - It should always start with "rule-" and end
+    with 8 hexadecimal characters in lower case.
+
+    :type nap_rule_name: str
+    :param snap_rule_name: The snapshot rule name to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether snap_rule_name passes validation.
+    """
+    if snap_rule_name is None:
+        return False
+
+    match = re.match('^rule-[0-9a-f]{8}$', snap_rule_name)
+
+    if not match:
+        return False
+
+    return True
+
+
 def is_valid_pool_id(pool_id, remote_pool_allowed=False):
     """
     Validates a storage pool ID, also known as the pool "name".  A valid pool
