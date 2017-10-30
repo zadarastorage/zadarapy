@@ -15,6 +15,8 @@ For now, to try this module/script out, you can do:
 ```
 cd /path/to/where/you/want/code
 git clone git@github.com:zadarastorage/zadarapy.git
+cd zadarapy
+pip install -r requirements.txt
 cd /usr/local/lib/pythonx.x/site-packages # or wherever your Python include path is
 sudo ln -s /path/to/zadarapy/zadarapy
 cd /usr/local/bin
