@@ -76,12 +76,13 @@ def upgrade_vpsa_version(session, cloud_name, vpsa_id, image, when=None,
 
     body_values['image'] = image
 
-    when = when.strip()
+    if when is not None:
+        when = when.strip()
 
-    if not is_valid_field(when):
-        raise ValueError('{0} is not a valid when value.'.format(when))
+        if not is_valid_field(when):
+            raise ValueError('{0} is not a valid when value.'.format(when))
 
-    body_values['when'] = when
+        body_values['when'] = when
 
     method = 'POST'
     path = '/api/clouds/{0}/vpsas/{1}/upgrade.json'.format(cloud_name, vpsa_id)
