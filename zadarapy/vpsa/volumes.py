@@ -137,7 +137,7 @@ def get_volume(session, volume_id, return_type=None):
 
 
 def create_volume(session, pool_id, display_name, capacity, block,
-                  attachpolicies='YES', crypt='NO', export_name=None,
+                  attachpolicies='YES', crypt='NO', dedupe='NO', compress='NO', export_name=None,
                   atimeupdate='NO', smbonly='NO', smbguest='NO',
                   smbwindowsacl='NO', smbfilecreatemask='0744',
                   smbdircreatemask='0755', smbmaparchive='YES',
@@ -177,6 +177,14 @@ def create_volume(session, pool_id, display_name, capacity, block,
     :type crypt: str
     :param crypt: If set to 'YES', the volume will be encrypted with the
         VPSA's encryption password, as defined by the storage administrator.
+        If 'NO', it won't.  Optional.
+
+    :type dedupe: str
+    :param dedupe: If set to 'YES', deduplication will be enabled on the volume.
+        If 'NO', it won't.  Optional.
+
+    :type compress: str
+    :param compress: If set to 'YES', compression will be enabled on the volume.
         If 'NO', it won't.  Optional.
 
     :type export_name: str
@@ -307,6 +315,22 @@ def create_volume(session, pool_id, display_name, capacity, block,
                          'values are: "YES" or "NO"'.format(crypt))
 
     body_values['crypt'] = crypt
+
+    dedupe = dedupe.upper()
+
+    if dedupe not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid dedupe parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(dedupe))
+
+    body_values['dedupe'] = dedupe
+
+    compress = compress.upper()
+
+    if compress not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid compress parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(compress))
+
+    body_values['compress'] = compress
 
     # If block is set to 'YES', enable thin provisioning by default.  This
     # only needs to be set for block volumes, as NAS shares will always be
