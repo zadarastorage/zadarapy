@@ -6,24 +6,15 @@
 
 zadarapy is Python module and command line utility that utilizes the [Zadara Storage](http://www.zadarastorage.com/) REST [API](http://vpsa-api.zadarastorage.com/).  This code is provided without warranty or guarantees of fitness.
 
+## Installation
+
+Either from your OS or inside a virtualenv/venv:
+
+```pip install zadarapy```
+
 ## Usage
 
-The eventual goal will be to publish this module as installable by pip, and everything will be seamless (e.g. pip install zadarapy).
-
-For now, to try this module/script out, you can do:
-
-```
-cd /path/to/where/you/want/code
-git clone git@github.com:zadarastorage/zadarapy.git
-cd zadarapy
-pip install -r requirements.txt
-cd /usr/local/lib/pythonx.x/site-packages # or wherever your Python include path is
-sudo ln -s /path/to/zadarapy/zadarapy
-cd /usr/local/bin
-ln -s /path/to/zadarapy/bin/zadarapy
-```
-
-Now that the zadarapy module is in the global include path, you should be able to run it directly:
+A utility called "zadarapy" should be put in your system path:
 
 ```
 zadarapy --help
