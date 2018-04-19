@@ -365,7 +365,8 @@ def is_valid_snapshot_rule_name(snap_rule_name):
     :param snap_rule_name: The snapshot rule name to be validated.
 
     :rtype: bool
-    :return: True or False depending on whether snap_rule_name passes validation.
+    :return: True or False depending on whether snap_rule_name passes
+        validation.
     """
     if snap_rule_name is None:
         return False

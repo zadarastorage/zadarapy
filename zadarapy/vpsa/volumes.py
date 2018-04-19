@@ -137,11 +137,12 @@ def get_volume(session, volume_id, return_type=None):
 
 
 def create_volume(session, pool_id, display_name, capacity, block,
-                  attachpolicies='YES', crypt='NO', dedupe='NO', compress='NO', export_name=None,
-                  atimeupdate='NO', smbonly='NO', smbguest='NO',
-                  smbwindowsacl='NO', smbfilecreatemask='0744',
-                  smbdircreatemask='0755', smbmaparchive='YES',
-                  smbaiosize='NO', nfsrootsquash='NO', return_type=None):
+                  attachpolicies='YES', crypt='NO', dedupe='NO',
+                  compress='NO', export_name=None, atimeupdate='NO',
+                  smbonly='NO', smbguest='NO', smbwindowsacl='NO',
+                  smbfilecreatemask='0744', smbdircreatemask='0755',
+                  smbmaparchive='YES', smbaiosize='NO', nfsrootsquash='NO',
+                  return_type=None):
     """
     Creates a new volume.  The 'block' parameter determines if it should be a
     block (iSCSI or iSER) volume or NAS share (NFS and/or SMB/CIFS).
@@ -180,12 +181,12 @@ def create_volume(session, pool_id, display_name, capacity, block,
         If 'NO', it won't.  Optional.
 
     :type dedupe: str
-    :param dedupe: If set to 'YES', deduplication will be enabled on the volume.
-        If 'NO', it won't.  Optional.
+    :param dedupe: If set to 'YES', deduplication will be enabled on the
+        volume.  If 'NO', it won't.  Optional.
 
     :type compress: str
-    :param compress: If set to 'YES', compression will be enabled on the volume.
-        If 'NO', it won't.  Optional.
+    :param compress: If set to 'YES', compression will be enabled on the
+        volume.  If 'NO', it won't.  Optional.
 
     :type export_name: str
     :param export_name: For NAS shares, the export name will be the part of
@@ -974,9 +975,10 @@ def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
 
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
-        return_type parameter. Upon success, the dictionary will contain an entry
-        like 'response':{'snapshot_rule_name': 'rule-00000003'...}, which identifies
-        the snapshot rule that has been created by adding the snapshot policy to the volume.
+        return_type parameter. Upon success, the dictionary will contain an
+        entry like 'response':{'snapshot_rule_name': 'rule-00000003'...},
+        which identifies the snapshot rule that has been created by adding the
+        snapshot policy to the volume.
     """
     if not is_valid_cg_id(cg_id):
         raise ValueError('{0} is not a valid consistency group ID.'
@@ -999,8 +1001,8 @@ def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
                             return_type=return_type)
 
 
-def remove_volume_snapshot_policy(session, snapshot_rule_name, delete_snapshots,
-                                  return_type=None):
+def remove_volume_snapshot_policy(session, snapshot_rule_name,
+                                  delete_snapshots, return_type=None):
     """
     Removes a snapshot policy from a volume.
 
@@ -1008,8 +1010,8 @@ def remove_volume_snapshot_policy(session, snapshot_rule_name, delete_snapshots,
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type snapshot_rule_name: str
-    :param snapshot_rule_name: The name of the snapshot rule, as returned by the
-        'add_volume_snapshot_policy' API. For example: 'rule-00000003'.
+    :param snapshot_rule_name: The name of the snapshot rule, as returned by
+        the 'add_volume_snapshot_policy' API. For example: 'rule-00000003'.
         Required.
 
     :type delete_snapshots: str
@@ -1041,7 +1043,8 @@ def remove_volume_snapshot_policy(session, snapshot_rule_name, delete_snapshots,
     body_values['delete_snapshots'] = delete_snapshots
 
     method = 'POST'
-    path = '/api/consistency_groups/{0}/detach_policy.json'.format(snapshot_rule_name)
+    path = '/api/consistency_groups/{0}/detach_policy.json'\
+        .format(snapshot_rule_name)
 
     body = json.dumps(body_values)
 
