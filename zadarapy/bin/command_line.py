@@ -283,6 +283,17 @@ POOL_CACHE_OPTION = {
     }
 }
 
+POOL_COW_CACHE_OPTION = {
+    'option_positional': ['--cowcache'],
+    'option_keywords': {
+        'dest': 'param_cowcache',
+        'choices': ['YES', 'NO'],
+        'type': str.upper,
+        'required': True,
+        'help': 'Toggles the storage pool CoW cache.  Required.'
+    }
+}
+
 POOL_ID_OPTION = {
     'option_positional': ['--pool-id'],
     'option_keywords': {
@@ -535,6 +546,29 @@ VOLUME_ATIMEUPDATE_OPTION = {
     }
 }
 
+VOLUME_NFSROOTSQUASH_OPTION = {
+    'option_positional': ['--nfsrootsquash'],
+    'option_keywords': {
+        'dest': 'param_nfsrootsquash',
+        'choices': ['YES', 'NO'],
+        'type': str.upper,
+        'default': 'NO',
+        'help': 'For NAS shares, when using NFS, if YES, root squash is  '
+                'enabled.  Default: NO'
+    }
+}
+
+VOLUME_READAHEADKB_OPTION = {
+    'option_positional': ['--readaheadkb'],
+    'option_keywords': {
+        'dest': 'param_readaheadkb',
+        'choices': [16, 64, 128, 256, 512],
+        'type': int,
+        'default': 512,
+        'help': 'Sets the read ahead size in KB.  Default: 512'
+    }
+}
+
 VOLUME_SMBONLY_OPTION = {
     'option_positional': ['--smbonly'],
     'option_keywords': {
@@ -621,15 +655,28 @@ VOLUME_SMBAIOSIZE_OPTION = {
     }
 }
 
-VOLUME_NFSROOTSQUASH_OPTION = {
-    'option_positional': ['--nfsrootsquash'],
+VOLUME_SMBBROWSEABLE_OPTION = {
+    'option_positional': ['--smbbrowseable'],
     'option_keywords': {
-        'dest': 'param_nfsrootsquash',
+        'dest': 'param_smbbrowseable',
         'choices': ['YES', 'NO'],
         'type': str.upper,
-        'default': 'NO',
-        'help': 'For NAS shares, when using NFS, if YES, root squash is  '
-                'enabled.  Default: NO'
+        'default': 'YES',
+        'help': 'For NAS shares, when using SMB, if YES, the share will be '
+                'visible when browsing the VPSA IP; i.e. at \\\\ip.of.vpsa.  '
+                'Default: YES'
+    }
+}
+
+VOLUME_HIDDENFILES_OPTION = {
+    'option_positional': ['--hiddenfiles'],
+    'option_keywords': {
+        'dest': 'param_hiddenfiles',
+        'metavar': '</xxx/yyy/zzz/>',
+        'type': str,
+        'help': 'For NAS shares, when using SMB/CIFS, this is a forward '
+                'delimited list of filenames and/or wildcards to be hidden '
+                'from users by the VPSA.'
     }
 }
 
@@ -1794,6 +1841,15 @@ COMMANDS_DICT = [
                 'subcommand_help': 'Change capacity alert settings'
             },
             {
+                'subcommand_info': ('cowcache', pools.set_pool_cowcache),
+                'subcommand_options': [
+                    POOL_ID_OPTION,
+                    POOL_COW_CACHE_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Toggles the CoW caching for a pool'
+            },
+            {
                 'subcommand_info': ('create', pools.create_pool),
                 'subcommand_options': [
                     DISPLAY_NAME_OPTION,
@@ -1803,12 +1859,13 @@ COMMANDS_DICT = [
                         'option_positional': ['--pooltype'],
                         'option_keywords': {
                             'dest': 'param_pooltype',
-                            'choices': ['OLTP', 'Repository',
+                            'choices': ['Archival', 'Repository',
                                         'Transactional'],
+                            'default': 'Repository',
                             'type': str,
                             'required': True,
                             'help': 'The storage pool type to create.  '
-                                    'Required.'
+                                    'Default: Repository'
                         }
                     },
                     POOL_CACHE_OPTION,
@@ -3061,13 +3118,15 @@ COMMANDS_DICT = [
                         'option_positional': ['--create-policy'],
                         'option_keywords': {
                             'dest': 'param_create_policy',
-                            'metavar': '<x x x x x>',
+                            'metavar': '<x x x x x> -or- "manual"',
                             'type': str,
                             'required': True,
                             'help': 'The frequency to take snapshots.  This '
                                     'is defined in UNIX cron style format.  '
                                     'For example: "0 3 * * *" would take a '
-                                    'snapshot at 3 AM every day.'
+                                    'snapshot at 3 AM every day.  If '
+                                    '"manual", an On Demand policy will be '
+                                    'created.'
                         }
                     },
                     {
@@ -3307,6 +3366,8 @@ COMMANDS_DICT = [
                     CRYPT_OPTION,
                     VOLUME_EXPORT_NAME_OPTION,
                     VOLUME_ATIMEUPDATE_OPTION,
+                    VOLUME_NFSROOTSQUASH_OPTION,
+                    VOLUME_READAHEADKB_OPTION,
                     VOLUME_SMBONLY_OPTION,
                     VOLUME_SMBGUEST_OPTION,
                     VOLUME_SMBWINDOWSACL_OPTION,
@@ -3314,7 +3375,7 @@ COMMANDS_DICT = [
                     VOLUME_SMBDIRCREATEMASK_OPTION,
                     VOLUME_SMBMAPARCHIVE_OPTION,
                     VOLUME_SMBAIOSIZE_OPTION,
-                    VOLUME_NFSROOTSQUASH_OPTION
+                    VOLUME_SMBBROWSEABLE_OPTION
                 ],
                 'subcommand_return_key': 'vol_name',
                 'subcommand_help': 'Creates a new volume on the provided pool'
@@ -3407,7 +3468,43 @@ COMMANDS_DICT = [
                 'subcommand_info': ('list', volumes.get_all_volumes),
                 'subcommand_options': [
                     LIMIT_OPTION,
-                    START_OPTION
+                    START_OPTION,
+                    {
+                        'option_positional': ['--showonlyblock'],
+                        'option_keywords': {
+                            'dest': 'param_showonlyblock',
+                            'choices': ['YES', 'NO'],
+                            'type': str.upper,
+                            'default': 'NO',
+                            'help': 'If set to "YES", only block volumes '
+                                    'will be displayed.  If "NO", it will '
+                                    'show any volume.  Default: NO'
+                        },
+                    },
+                    {
+                        'option_positional': ['--showonlyfile'],
+                        'option_keywords': {
+                            'dest': 'param_showonlyfile',
+                            'choices': ['YES', 'NO'],
+                            'type': str.upper,
+                            'default': 'NO',
+                            'help': 'If set to "YES", only NAS volumes will '
+                                    'be displayed.  If "NO", it will show '
+                                    'any volume.  Default: NO'
+                        },
+                    },
+                    {
+                        'option_positional': ['--display-name'],
+                        'option_keywords': {
+                            'dest': 'param_display_name',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'The text label assigned to the volume '
+                                    'to search for; e.g. "user-files".  If '
+                                    'not specified, it will show any '
+                                    'volume.  Optional.'
+                        },
+                    },
                 ],
                 'subcommand_return_key': 'volumes',
                 'subcommand_help': 'Displays details for all volumes on the '

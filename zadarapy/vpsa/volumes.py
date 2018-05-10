@@ -18,7 +18,8 @@ import json
 from zadarapy.validators import *
 
 
-def get_all_volumes(session, start=None, limit=None, return_type=None):
+def get_all_volumes(session, start=None, limit=None, showonlyblock='NO',
+                    showonlyfile='NO', display_name=None, return_type=None):
     """
     Retrieves details for all volumes configured on the VPSA.
 
@@ -30,6 +31,21 @@ def get_all_volumes(session, start=None, limit=None, return_type=None):
 
     :type: limit: int
     :param limit: The maximum number of volumes to return.  Optional.
+
+    :type showonlyblock: str
+    :param showonlyblock: If set to 'YES', only block volumes will be
+        displayed.  If 'NO', it will show any volume.  Set to 'NO' by default.
+        Optional.
+
+    :type showonlyfile: str
+    :param showonlyfile: If set to 'YES', only NAS volumes will be displayed.
+        If 'NO', it will show any volume.  Set to 'NO' by default.  Optional.
+
+    :type display_name: str
+    :param display_name: The text label assigned to the volume to search for.
+        For example: 'user-files', 'database', etc.  May not contain a single
+        quote (') character.  If set to None type, it will show any volume.
+        Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -52,10 +68,34 @@ def get_all_volumes(session, start=None, limit=None, return_type=None):
             raise ValueError('Supplied limit ("{0}") cannot be negative.'
                              .format(limit))
 
+    showonlyblock = showonlyblock.upper()
+
+    if showonlyblock not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid showonlyblock parameter.  '
+                         'Allowed values are: "YES" or "NO"'
+                         .format(showonlyblock))
+
+    showonlyfile = showonlyfile.upper()
+
+    if showonlyfile not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid showonlyfile parameter.  '
+                         'Allowed values are: "YES" or "NO"'
+                         .format(showonlyfile))
+
+    if display_name is not None:
+        display_name = display_name.strip()
+
+        if not is_valid_field(display_name):
+            raise ValueError('{0} is not a valid volume name.'
+                             .format(display_name))
+
     method = 'GET'
     path = '/api/volumes.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
+    parameters = {k: v for k, v in (('start', start), ('limit', limit),
+                                    ('showonlyblock', showonlyblock),
+                                    ('showonlyfile', showonlyfile),
+                                    ('display_name', display_name))
                   if v is not None}
 
     return session.call_api(method=method, path=path, parameters=parameters,
@@ -139,13 +179,17 @@ def get_volume(session, volume_id, return_type=None):
 def create_volume(session, pool_id, display_name, capacity, block,
                   attachpolicies='YES', crypt='NO', dedupe='NO',
                   compress='NO', export_name=None, atimeupdate='NO',
-                  smbonly='NO', smbguest='NO', smbwindowsacl='NO',
-                  smbfilecreatemask='0744', smbdircreatemask='0755',
-                  smbmaparchive='YES', smbaiosize='NO', nfsrootsquash='NO',
-                  return_type=None):
+                  nfsrootsquash='NO', readaheadkb='512', smbonly='NO',
+                  smbguest='NO', smbwindowsacl='NO', smbfilecreatemask='0744',
+                  smbdircreatemask='0755', smbmaparchive='YES',
+                  smbaiosize='NO', smbbrowseable='YES', smbhiddenfiles=None,
+                  smbhideunreadable='NO', smbhideunwriteable='NO',
+                  smbhidedotfiles='YES', smbstoredosattributes='NO',
+                  smbenableoplocks='YES', return_type=None):
     """
     Creates a new volume.  The 'block' parameter determines if it should be a
-    block (iSCSI or iSER) volume or NAS share (NFS and/or SMB/CIFS).
+    block (iSCSI, iSER, or Fiber Channel) volume or NAS file share (NFS and/or
+    SMB/CIFS).
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -201,6 +245,20 @@ def create_volume(session, pool_id, display_name, capacity, block,
         This incurs a performance penalty.  If 'NO', the atime parameter will
         be only updated occasionally.  Set to 'NO' by default.  Optional.
 
+    :type nfsrootsquash: str
+    :param nfsrootsquash: For NAS shares, when using NFS, if set to 'YES',
+        root squash will be enabled for this volume, which disables the 'root'
+        user's ability to mount the volume.  If set to 'NO', the 'root' user
+        will be able to mount the volume.  Set to 'NO' by default.  Optional.
+
+    :type readaheadkb: str
+    :param readaheadkb: Sets the read ahead size in KB.  Read ahead will
+        attempt to prefetch data ahead of the existing IO request in an
+        attempt to improve throughput.  For most workloads, the default value
+        of 512KB should be ok - though if IOs are expected to be small and
+        random, a smaller value might help performance.  Allowed values are:
+        16, 64, 128, 256, or 512.  Set to '512' by default.  Optional.
+
     :type smbonly: str
     :param smbonly: For NAS shares, if set to 'YES', this volume will be
         optimized for SMB/CIFS access only, and therefore will no longer be
@@ -254,11 +312,67 @@ def create_volume(session, pool_id, display_name, capacity, block,
         nature.  If set to 'NO', asynchronous reads are disabled.  Set to 'NO'
         by default.  Optional.
 
-    :type nfsrootsquash: str
-    :param nfsrootsquash: For NAS shares, when using NFS, if set to 'YES',
-        root squash will be enabled for this volume, which disables the 'root'
-        user's ability to mount the volume.  If set to 'NO', the 'root' user
-        will be able to mount the volume.  Set to 'NO' by default.  Optional.
+    :type smbbrowseable: str
+    :param smbbrowseable: For NAS shares, when using SMB/CIFS, if set to
+        'YES', the share will be visible when browsing the VPSA IP; i.e. at
+        \\ip.of.vpsa.  If set to 'NO', the share will not be visible.  This
+        is not an access control, regardless of visibility, the share is
+        reachable if the user enters the full UNC of the share and has the
+        needed permissions - this just shows or hides the share when browsing.
+        Set to 'YES' by default.  Optional.
+
+    :type smbhiddenfiles: str
+    :param smbhiddenfiles: For NAS shares, when using SMB/CIFS, this is a
+        forward slash delimited list of filenames and/or wildcards to be
+        hidden from users by the VPSA.  For example, the string
+        '/desktop.ini/$*/hidden*/' will hide all files named desktop.ini, or
+        starting with the character '$', or starting with the string 'hidden'.
+        If set to None, no custom hiding rules will be enforced.  This
+        is not an access control, regardless of visibility, the files are
+        reachable if the user enters the full UNC of the file and has the
+        needed permissions - this just hides the file when browsing.
+        Optional.
+
+    :type smbhideunreadable: str
+    :param smbhideunreadable: For NAS shares, when using SMB/CIFS, if set to
+        'YES', any file or folder unreadable by the user due to permissions
+        will also be hidden from the user while browsing the share.  If set to
+        'NO', then unreadable files and folders  will be shown when browsing,
+        but will still be unreadable.  Set to 'NO' by default.  Optional.
+
+    :type smbhideunwriteable: str
+    :param smbhideunwriteable: For NAS shares, when using SMB/CIFS, if set to
+        'YES', any file or folder unwriteable by the user due to permissions
+        will also be hidden from the user while browsing the share.  If set to
+        'NO', then unwriteable files and folders will be shown when browsing,
+        but will still be unwriteable.  Set to 'NO' by default.  Optional.
+
+    :type smbhidedotfiles: str
+    :param smbhidedotfiles: For NAS shares, when using SMB/CIFS, if set to
+        'YES', files or folders that start with a period (.) will be hidden
+        from the user while browsing the share.  If set to 'NO', then files or
+        folders will be shown when browsing.  This is not an access control,
+        regardless of visibility, the files are reachable if the user enters
+        the full UNC of the file and has the needed permissions - this just
+        hides the files or folders when browsing.  Set to 'YES' by default.
+        Optional.
+
+    :type smbstoredosattributes: str
+    :param smbstoredosattributes: For NAS shares, when using SMB/CIFS, if set
+        to 'YES', files or folders will keep any extended DOS attributes
+        assigned to them from the client.  For example; "Hidden", "Archive",
+        "Read-Only", and "System".  It will also preserve file and folder
+        creation times from the client.  If set to 'NO', DOS attributes will
+        not be preserved from the client.  Setting this to 'YES' may incur a
+        performance penalty under heavy loads.  Set to 'NO' by default.
+        Optional.
+
+    :type smbenableoplocks: str
+    :param smbenableoplocks: For NAS shares, when using SMB/CIFS, if set to
+        'YES', the VPSA will maintain oplock information from clients; i.e.
+        read only, write, exclusive write, etc.  If set to 'NO', the VPSA will
+        not maintain oplock information, allowing any client to take any
+        permissible operation.  Set to 'YES' by default.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -356,6 +470,23 @@ def create_volume(session, pool_id, display_name, capacity, block,
 
         body_values['atimeupdate'] = atimeupdate
 
+        nfsrootsquash = nfsrootsquash.upper()
+
+        if nfsrootsquash not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid nfsrootsquash parameter.  '
+                             'Allowed values are: "YES" or "NO"'
+                             .format(nfsrootsquash))
+
+        body_values['nfsrootsquash'] = nfsrootsquash
+
+        if readaheadkb not in ['16', '64', '128', '256', '512']:
+            raise ValueError('"{0}" is not a valid readaheadkb parameter.  '
+                             'Allowed values are: "16", "64", "128", "256", '
+                             'or "512"'
+                             .format(readaheadkb))
+
+        body_values['readaheadkb'] = readaheadkb
+
         smbonly = smbonly.upper()
 
         if smbonly not in ['YES', 'NO']:
@@ -422,14 +553,68 @@ def create_volume(session, pool_id, display_name, capacity, block,
 
         body_values['smbaiosize'] = smbaiosize
 
-        nfsrootsquash = nfsrootsquash.upper()
+        smbbrowseable = smbbrowseable.upper()
 
-        if nfsrootsquash not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid nfsrootsquash parameter.  '
+        if smbbrowseable not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid smbbrowseable parameter.  '
                              'Allowed values are: "YES" or "NO"'
-                             .format(nfsrootsquash))
+                             .format(smbbrowseable))
 
-        body_values['nfsrootsquash'] = nfsrootsquash
+        body_values['smbbrowseable'] = smbbrowseable
+
+        if smbhiddenfiles is not None:
+            if not is_valid_smb_hidden_files(smbhiddenfiles):
+                raise ValueError(
+                    '"{0}" is not a valid smbhiddenfiles parameter.  String '
+                    'must start and end with a forward slash (/).'
+                    .format(smbhiddenfiles))
+
+            body_values['smbhiddenfiles'] = smbhiddenfiles
+
+        smbhideunreadable = smbhideunreadable.upper()
+
+        if smbhideunreadable not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid smbhideunreadable '
+                             'parameter.  Allowed values are: "YES" or "NO"'
+                             .format(smbbrowseable))
+
+        body_values['smbhideunreadable'] = smbhideunreadable
+
+        smbhideunwriteable = smbhideunwriteable.upper()
+
+        if smbhideunwriteable not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid smbhideunwriteable '
+                             'parameter.  Allowed values are: "YES" or "NO"'
+                             .format(smbhideunwriteable))
+
+        body_values['smbhideunwriteable'] = smbhideunwriteable
+
+        smbhidedotfiles = smbhidedotfiles.upper()
+
+        if smbhidedotfiles not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid smbhidedotfiles '
+                             'parameter.  Allowed values are: "YES" or "NO"'
+                             .format(smbhidedotfiles))
+
+        body_values['smbhidedotfiles'] = smbhidedotfiles
+
+        smbstoredosattributes = smbstoredosattributes.upper()
+
+        if smbstoredosattributes not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid smbstoredosattributes '
+                             'parameter.  Allowed values are: "YES" or "NO"'
+                             .format(smbstoredosattributes))
+
+        body_values['smbstoredosattributes'] = smbstoredosattributes
+
+        smbenableoplocks = smbenableoplocks.upper()
+
+        if smbenableoplocks not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid smbenableoplocks '
+                             'parameter.  Allowed values are: "YES" or "NO"'
+                             .format(smbenableoplocks))
+
+        body_values['smbenableoplocks'] = smbenableoplocks
 
     method = 'POST'
     path = '/api/volumes.json'

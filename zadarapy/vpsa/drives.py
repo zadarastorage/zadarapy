@@ -217,8 +217,8 @@ def replace_drive(session, drive_id, to_drive_id, force='NO',
                   return_type=None):
     """
     Replaces a drive, identified by drive_id parameter, with a new unallocated
-    drive, identified by toname parameter, in a RAID group.  The replacement
-    drive must not be currently allocated to a RAID group.
+    drive, identified by to_drive_id parameter, in a RAID group.  The
+    replacement drive must not be currently allocated to a RAID group.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -278,7 +278,7 @@ def shred_drive(session, drive_id, force='NO', return_type=None):
     """
     Initializes drive shredding for an individual drive.  Drive must not be
     participating in a RAID group.  CAUTION: This procedure will permanently
-    destroy data and is irreversiable.
+    destroy data and is irreversible.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.

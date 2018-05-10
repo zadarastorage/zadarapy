@@ -116,7 +116,8 @@ def create_snapshot_policy(session, display_name, create_policy,
     :type create_policy: str
     :param create_policy: The frequency to take snapshots.  This is defined in
         UNIX cron style format.  For example: '0 3 * * *' would take a
-        snapshot at 3 AM every day.  Required.
+        snapshot at 3 AM every day.  Alternatively, if "manual" is specified,
+        an "On Demand" snapshot policy will be created.  Required.
 
     :type local_delete_policy: int
     :param local_delete_policy: The number of snapshots to retain on the local

@@ -144,7 +144,8 @@ def create_raid_group(session, display_name, protection, disk,
     """
     Creates a new RAID group from comma separated list of drives in 'drive'
     body parameter.  The drives must not be currently participating in a RAID
-    group.
+    group.  Creation will fail if drives are not of identical capacity - this
+    can be overridden with the "force" parameter.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -421,8 +422,8 @@ def repair_raid_group(session, raid_id, return_type=None):
 def update_raid_group_resync_speed(session, raid_id, minimum, maximum,
                                    return_type=None):
     """
-    Updates the speed at which a RAID group will rebuild using the min and max
-    arguments.
+    Updates the speed at which a RAID group will rebuild using the minimum and
+    maximum arguments.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -658,7 +659,7 @@ def get_raid_group_performance(session, raid_id, interval=1,
                          'supplied).'.format(interval))
 
     method = 'GET'
-    path = '/api/drives/{0}/performance.json'.format(raid_id)
+    path = '/api/raid_groups/{0}/performance.json'.format(raid_id)
 
     parameters = {'interval': interval}
 

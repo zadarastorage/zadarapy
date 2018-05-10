@@ -312,6 +312,9 @@ def is_valid_policy_creation(policy_creation):
     if policy_creation is None:
         return False
 
+    if policy_creation.lower() == "manual":
+        return True
+
     creation_split = policy_creation.split(' ')
 
     if len(creation_split) != 5:
@@ -348,6 +351,28 @@ def is_valid_policy_id(policy_id):
     match = re.match('^policy-[0-9a-f]{8}$', policy_id)
 
     if not match:
+        return False
+
+    return True
+
+
+def is_valid_smb_hidden_files(smb_hidden_files):
+    """
+    Validates smbhiddenfiles NAS volume parameter.  String should be forward
+    slash (/) delimited.
+
+    :type smb_hidden_files: str
+    :param smb_hidden_files: The smbhiddenfiles parameter to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether smb_hidden_files passes
+        validation.
+    """
+    if smb_hidden_files is None:
+        return False
+
+    if not smb_hidden_files.startswith("/") or \
+       not smb_hidden_files.endswith("/"):
         return False
 
     return True

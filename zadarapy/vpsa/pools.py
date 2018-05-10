@@ -94,7 +94,7 @@ def get_pool(session, pool_id, return_type=None):
 
 
 def create_pool(session, display_name, raid_groups, capacity, pooltype,
-                cache='NO', mode='stripe', return_type=None):
+                cache='NO', cowcache='YES', mode='stripe', return_type=None):
     """
     Creates a new storage pool.  A storage pool is an abstraction over RAID
     groups.  Multiple RAID groups can, and often do, participate in a single
@@ -120,18 +120,28 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
         RAID groups.  Required.
 
     :type pooltype: str
-    :param pooltype: Whether the pool should be set to OLTP (Transactional) or
-        Repository type.  OLTP is useful for smaller pools with random data
-        access, but Repository should always be used for large storage pools
-        (>= 10TB) for all use cases.  OLTP type requires 4x as much metadata,
-        as the blocks are one quarter the size.  To stay consistent with the
-        GUI, "Transactional" will also be accepted - it will just be converted
-        to "OLTP".  Must be the string 'OLTP', 'Repository', or
-        'Transactional'.  Required.
+    :param pooltype: Whether the pool should be set to Transactional,
+        Repository, or Archival type.  Transactional is useful for more space
+        efficient writes on snapshots, but requires 4x as much memory,
+        therefore is limited to 20TB maximum space.  Repository is a good
+        general purpose option that suits all workloads up to 100TB.  Archival
+        can be used when >100TB pools are mandatory, but comes with
+        restrictions such as minimum 1 hour snapshot interval (instead of 1
+        minute).  Please see the VSPA User Guide "Pools" section for a more
+        descriptive definition of these types.  Must be the string
+        'Transactional', 'Repository', or 'Archival'.  Required.
 
     :type cache: str
     :param cache: If set to 'YES', SSD caching will be enabled for this pool.
         Optional, set to 'NO' by default.
+
+    :type cowcache: str
+    :param cowcache: If set to 'YES', the pool's copy on write (CoW)
+        operations will occur on SSD for elevated performance instead of
+        directly on the underlying drives.  In certain extreme scenarios, this
+        may be detrimental.  It is suggested to leave 'YES' unless instructed
+        by a Zadara Storage representative.  Optional, set to 'YES' by
+        default.
 
     :type mode: str
     :param mode: If set to 'stripe', use striping to distribute data across
@@ -176,14 +186,15 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
 
     body_values['raid_groups'] = raid_groups
 
-    if pooltype not in ['OLTP', 'Repository', 'Transactional']:
+    if pooltype not in ['Transactional', 'Repository', 'Archival']:
         raise ValueError('"{0}" is not a valid pool type.  Allowed values '
-                         'are: "OLTP", "Repository", or "Transactional"'
+                         'are: "Transactional", "Repository", or "Archival"'
                          .format(pooltype))
 
-    # Let's accept "Transactional" to stay consistent with the GUI.
     if pooltype == 'Transactional':
-        pooltype = 'OLTP'
+        pooltype = 'Transactional Workloads'
+    else:
+        pooltype = '{0} Storage'.format(pooltype)
 
     body_values['pooltype'] = pooltype
 
@@ -194,6 +205,14 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
                          'values are: "YES" or "NO"'.format(cache))
 
     body_values['cache'] = cache
+
+    cowcache = cowcache.upper()
+
+    if cowcache not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid cowcache setting.  Allowed '
+                         'values are: "YES" or "NO"'.format(cowcache))
+
+    body_values['cowcache'] = cowcache
 
     if mode not in ['stripe', 'simple']:
         raise ValueError('"{0}" is not a valid pool mode.  Allowed values '
@@ -336,7 +355,11 @@ def get_raid_groups_in_pool(session, pool_id, start=None, limit=None,
     method = 'GET'
     path = '/api/pools/{0}/raid_groups.json'.format(pool_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    parameters = {k: v for k, v in (('start', start), ('limit', limit))
+                  if v is not None}
+
+    return session.call_api(method=method, path=path, parameters=parameters,
+                            return_type=return_type)
 
 
 def get_volumes_in_pool(session, pool_id, start=None, limit=None,
@@ -640,16 +663,68 @@ def set_pool_cache(session, pool_id, cache, return_type=None):
     cache = cache.upper()
 
     if cache not in ['YES', 'NO']:
-        raise ValueError('Command parameter must be set to either "YES" or '
+        raise ValueError('cache parameter must be set to either "YES" or '
                          '"NO" ("{0}" was given).')
 
     if cache == 'YES':
-        body_values['command'] = 'enable'
+        body_values['command'] = 'Enable'
     else:
-        body_values['command'] = 'disable'
+        body_values['command'] = 'Disable'
 
     method = 'POST'
     path = '/api/pools/{0}/toggle_cache.json'.format(pool_id)
+
+    body = json.dumps(body_values)
+
+    return session.call_api(method=method, path=path, body=body,
+                            return_type=return_type)
+
+
+def set_pool_cowcache(session, pool_id, cowcache, return_type=None):
+    """
+    Toggle the CoW caching for a pool.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type pool_id: str
+    :param pool_id: The pool 'name' value as returned by get_all_pools.  For
+        example: 'pool-00000001'.  Required.
+
+    :type cowcache: str
+    :param cowcache: If set to 'YES', the pool's copy on write (CoW)
+        operations will occur on SSD for elevated performance instead of
+        directly on the underlying drives.  In certain extreme scenarios, this
+        may be detrimental.  It is suggested to leave 'YES' unless instructed
+        by a Zadara Storage representative.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    if not is_valid_pool_id(pool_id):
+        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+
+    body_values = {}
+
+    cowcache = cowcache.upper()
+
+    if cowcache not in ['YES', 'NO']:
+        raise ValueError('cowcache parameter must be set to either "YES" or '
+                         '"NO" ("{0}" was given).')
+
+    if cowcache == 'YES':
+        body_values['cowcache'] = 'true'
+    else:
+        body_values['cowcache'] = 'false'
+
+    method = 'POST'
+    path = '/api/pools/{0}/cow_cache.json'.format(pool_id)
 
     body = json.dumps(body_values)
 
