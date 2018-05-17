@@ -988,7 +988,7 @@ def get_servers_attached_to_volume(session, volume_id, start=None, limit=None,
                             return_type=return_type)
 
 
-def detach_servers_from_volume(session, volume_id, servers, return_type=None):
+def detach_servers_from_volume(session, volume_id, servers, force='NO', return_type=None):
     """
     Detach one or more server records from a volume.  Caution: detaching a
     server record from a volume while an affected server is using the volume
@@ -1005,6 +1005,11 @@ def detach_servers_from_volume(session, volume_id, servers, return_type=None):
     :param servers: A comma separated string of servers with no spaces
         around the commas.  The value must match server's 'name'
         attribute.  For example: 'srv-00000001,srv-00000002'.  Required.
+
+    :type force: str
+    :param force: If set to 'YES', ignore non-critical warnings and force the
+        VPSA to accept the request.  If 'NO', return message on warning and
+        abort.  Set to 'NO' by default.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1026,6 +1031,14 @@ def detach_servers_from_volume(session, volume_id, servers, return_type=None):
                              .format(server, servers))
 
     body_values['servers'] = servers
+
+    force = force.upper()
+
+    if force not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(force))
+
+    body_values['force'] = force
 
     method = 'POST'
     path = '/api/volumes/{0}/detach.json'.format(volume_id)
