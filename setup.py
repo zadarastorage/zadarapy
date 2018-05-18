@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='zadarapy',
-    version='0.2',
+    version='0.3',
     packages=find_packages(),
     install_requires=['configparser>=3.5.0', 'future>=0.15.2',
                       'ipaddress>=1.0.17', 'terminaltables>=2.1.0'],
