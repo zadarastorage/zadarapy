@@ -562,9 +562,9 @@ VOLUME_READAHEADKB_OPTION = {
     'option_positional': ['--readaheadkb'],
     'option_keywords': {
         'dest': 'param_readaheadkb',
-        'choices': [16, 64, 128, 256, 512],
-        'type': int,
-        'default': 512,
+        'choices': ['16', '64', '128', '256', '512'],
+        'type': str,
+        'default': '512',
         'help': 'Sets the read ahead size in KB.  Default: 512'
     }
 }

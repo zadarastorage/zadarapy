@@ -988,7 +988,8 @@ def get_servers_attached_to_volume(session, volume_id, start=None, limit=None,
                             return_type=return_type)
 
 
-def detach_servers_from_volume(session, volume_id, servers, force='NO', return_type=None):
+def detach_servers_from_volume(session, volume_id, servers, force='NO',
+                               return_type=None):
     """
     Detach one or more server records from a volume.  Caution: detaching a
     server record from a volume while an affected server is using the volume
@@ -1741,7 +1742,7 @@ def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
     body_values['remote_pool'] = remote_pool_id
 
     for policy in policies.split(','):
-        if not is_valid_snapshot_id(policy):
+        if not is_valid_policy_id(policy):
             raise ValueError('"{0}" in "{1}" is not a valid snapshot policy '
                              'ID.'.format(policy, policies))
 
