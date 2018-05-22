@@ -15,8 +15,6 @@
 
 
 import json
-from zadarapy.validators import is_valid_hostname
-from zadarapy.validators import is_valid_ip_address
 from zadarapy.validators import is_valid_pool_id
 
 
@@ -64,9 +62,6 @@ def set_nfs_domain(session, domain, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_hostname(domain):
-        raise ValueError('{0} is not a valid NFS domain.'.format(domain))
-
     body_values = {'domain': domain}
 
     method = 'POST'
@@ -386,11 +381,6 @@ def update_zcs_settings(session, network, lowport, highport,
         return_type parameter.
     """
     body_values = {}
-
-    if not is_valid_ip_address(network, accept_cidr=True):
-        raise ValueError('The network parameter must be a valid network'
-                         'subnet in CIDR notation ("{0}" was passed).'
-                         .format(network))
 
     body_values['network'] = network
 

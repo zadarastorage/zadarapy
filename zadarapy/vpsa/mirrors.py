@@ -275,9 +275,6 @@ def discover_remote_vpsa(session, ip_address, username, password, public,
     """
     body_values = {}
 
-    if not is_valid_ip_address(ip_address):
-        raise ValueError('{0} is not a valid IP address.'.format(ip_address))
-
     body_values['ip'] = ip_address
 
     if not is_valid_field(username):

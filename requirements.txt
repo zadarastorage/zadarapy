@@ -1,5 +1,4 @@
 configparser>=3.5.0
 future>=0.15.2
-ipaddress>=1.0.17
 terminaltables>=2.1.0
 wheel>=0.26.0

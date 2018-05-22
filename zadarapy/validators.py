@@ -16,7 +16,6 @@
 from future.standard_library import install_aliases
 install_aliases()
 
-import ipaddress
 import re
 
 
@@ -126,68 +125,6 @@ def is_valid_field(field, allow_quote=False, minimum=None, maximum=None):
 
     if maximum:
         if len(field) > maximum:
-            return False
-
-    return True
-
-
-def is_valid_hostname(hostname):
-    """
-    Validates hostnames.  A hostname may not be longer than 255 characters.
-    Also, each field split by "." is validated against a valid character set
-    for hostnames.
-
-    :type hostname: str
-    :param hostname: The hostname to be validated.
-
-    :rtype: bool
-    :return: True or False depending on whether hostname passes validation.
-    """
-    if hostname is None:
-        return False
-
-    if len(hostname) > 255:
-        return False
-
-    allowed = re.compile('(?!-)[A-Z\d-]{1,63}(?<!-)$', re.IGNORECASE)
-    match = all(allowed.match(x) for x in hostname.split('.'))
-
-    if not match:
-        return False
-
-    return True
-
-
-def is_valid_ip_address(address, accept_cidr=False):
-    """
-    Validates IP addresses.  Depending on accept_cidr parameter, it will
-    accept either individual addresses or subnets in CIDR notation.
-
-    :type address: str
-    :param address: The data to be validated.
-
-    :type accept_cidr: bool
-    :param accept_cidr: If False, accept IP addresses only.  If True, accept
-        both IP addresses and IP CIDR subnet notations.  Set to False by
-        default.
-
-    :rtype: bool
-    :return: True or False depending on whether address passes validation.
-    """
-    if address is None:
-        return False
-
-    if not accept_cidr:
-        try:
-            ipaddress.ip_address(address)
-        except:
-            return False
-    else:
-        try:
-            ipaddress.ip_address(address)
-        except ValueError:
-            ipaddress.ip_network(address)
-        except:
             return False
 
     return True
@@ -386,7 +323,7 @@ def is_valid_snapshot_rule_name(snap_rule_name):
     like: rule-00000001 - It should always start with "rule-" and end
     with 8 hexadecimal characters in lower case.
 
-    :type nap_rule_name: str
+    :type snap_rule_name: str
     :param snap_rule_name: The snapshot rule name to be validated.
 
     :rtype: bool

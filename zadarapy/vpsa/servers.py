@@ -183,10 +183,6 @@ def create_server(session, display_name, ip_address=None, iqn=None,
                          'defined.')
 
     if ip_address is not None:
-        if not is_valid_ip_address(ip_address, True):
-            raise ValueError('{0} is not a valid IP address or CIDR.'
-                             .format(ip_address))
-
         body_values['iscsi'] = ip_address
 
     if iqn is not None:
@@ -319,10 +315,6 @@ def update_server(session, server_id, ip_address=None, iqn=None,
     body_values = {}
 
     if ip_address is not None:
-        if not is_valid_ip_address(ip_address, True):
-            raise ValueError('{0} is not a valid IP address or CIDR.'
-                             .format(ip_address))
-
         body_values['iscsi'] = ip_address
 
     if iqn is not None:

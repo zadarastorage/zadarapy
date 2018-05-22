@@ -20,8 +20,6 @@ install_aliases()
 import json
 from urllib.parse import quote
 from zadarapy.validators import is_valid_field
-from zadarapy.validators import is_valid_hostname
-from zadarapy.validators import is_valid_ip_address
 
 
 def get_all_nas_users(session, start=None, limit=None, return_type=None):
@@ -496,10 +494,6 @@ def join_active_directory(session, display_name, username, password,
 
     body_values['password'] = password
 
-    if not is_valid_hostname(dns_domain):
-        raise ValueError('{0} is not a valid DNS domain name.'
-                         .format(dns_domain))
-
     body_values['realm'] = dns_domain
 
     if netbios_name is None:
@@ -512,10 +506,6 @@ def join_active_directory(session, display_name, username, password,
 
     if type(dns) is not list:
         raise ValueError('The dns parameter must be a Python list.')
-
-    for v in dns:
-        if not is_valid_ip_address(v):
-            raise ('{0} is not a valid IP address.'.format(v))
 
     body_values['dns'] = dns
 
@@ -557,10 +547,6 @@ def update_active_directory_dns(session, dns, return_type=None):
 
     if type(dns) is not list:
         raise ValueError('The dns parameter must be a Python list.')
-
-    for v in dns:
-        if not is_valid_ip_address(v):
-            raise ('{0} is not a valid IP address.'.format(v))
 
     body_values['dns'] = dns
 

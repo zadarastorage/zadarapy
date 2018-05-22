@@ -21,8 +21,6 @@ import http.client
 import json
 import os
 from urllib.parse import urlencode
-from zadarapy.validators import is_valid_hostname
-from zadarapy.validators import is_valid_ip_address
 from zadarapy.validators import is_valid_port
 from zadarapy.validators import is_valid_zadara_key
 
@@ -204,11 +202,6 @@ class Session(object):
 
         if secure is None:
             secure = self.zadara_secure
-
-        if not is_valid_hostname(self.zadara_host) and \
-                not is_valid_ip_address(self.zadara_host):
-            raise ValueError('{0} is not a valid hostname or IP address.'
-                             .format(self.zadara_host))
 
         if port is not None:
             port = int(port)

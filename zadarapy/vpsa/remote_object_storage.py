@@ -190,10 +190,6 @@ def create_ros_destination(session, display_name, bucket, endpoint, username,
 
     body_values['bucket'] = bucket
 
-    if not is_valid_hostname(endpoint):
-        raise ValueError('{0} is not a valid endpoint hostname.'
-                         .format(endpoint))
-
     body_values['endpoint'] = endpoint
 
     if not is_valid_field(username):
@@ -231,11 +227,6 @@ def create_ros_destination(session, display_name, bucket, endpoint, username,
                          'values are: "YES" or "NO"'.format(use_proxy))
 
     if use_proxy == 'YES':
-        if not is_valid_hostname(proxy_host)\
-                or not is_valid_ip_address(proxy_host):
-            raise ValueError('{0} is not a valid proxy hostname or IP '
-                             'address.'.format(proxy_host))
-
         body_values['proxyhost'] = proxy_host
 
         proxy_port = int(proxy_port)
@@ -345,10 +336,6 @@ def update_ros_destination(session, ros_destination_id, bucket=None,
         body_values['bucket'] = bucket
 
     if endpoint is not None:
-        if not is_valid_hostname(endpoint):
-            raise ValueError('{0} is not a valid endpoint hostname.'
-                             .format(endpoint))
-
         body_values['endpoint'] = endpoint
 
     if username is not None:
@@ -391,11 +378,6 @@ def update_ros_destination(session, ros_destination_id, bucket=None,
                              .format(use_proxy))
 
     if proxy_host is not None or use_proxy == 'YES':
-        if not is_valid_hostname(proxy_host)\
-                or not is_valid_ip_address(proxy_host):
-            raise ValueError('{0} is not a valid proxy hostname or IP '
-                             'address.'.format(proxy_host))
-
         body_values['proxyhost'] = proxy_host
 
     if proxy_port is not None or use_proxy == 'YES':

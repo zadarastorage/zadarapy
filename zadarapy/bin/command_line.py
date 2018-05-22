@@ -23,6 +23,7 @@ from terminaltables import AsciiTable
 from terminaltables import SingleTable
 
 from zadarapy import session
+from zadarapy import __version__
 from zadarapy.provisioning_portal import cloud
 from zadarapy.provisioning_portal import vpsa
 from zadarapy.vpsa import container_services
@@ -3989,7 +3990,7 @@ def main():
     )
 
     parser.add_argument('--version', action='version',
-                        version='%(prog)s 0.1',
+                        version='%(prog)s {0}'.format(__version__),
                         help='Prints the %(prog)s version and exits')
 
     # Sub Parsers
