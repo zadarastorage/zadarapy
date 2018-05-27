@@ -531,3 +531,45 @@ def download_metering_database(session, return_type='raw'):
     path = '/api/settings/metering_db'
 
     return session.call_api(method=method, path=path, return_type=return_type)
+
+def enable_defrag(session, return_type='json'):
+    """
+    Enables NAS share (XFS) defragging on the VPSA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    method = 'POST'
+    path = '/api/settings/defrag_enable'
+
+    return session.call_api(method=method, path=path, return_type=return_type)
+
+def disable_defrag(session, return_type='json'):
+    """
+    Disables NAS share (XFS) defragging on the VPSA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    method = 'POST'
+    path = '/api/settings/defrag_disable'
+
+    return session.call_api(method=method, path=path, return_type=return_type)

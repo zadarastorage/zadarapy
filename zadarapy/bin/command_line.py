@@ -2925,11 +2925,25 @@ COMMANDS_DICT = [
                 'subcommand_help': 'Deletes the ZCS image repository'
             },
             {
+                'subcommand_info': ('disable-defrag',
+                                    settings.disable_defrag),
+                'subcommand_options': [],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Disables NAS share (XFS) defragging on the VPSA'
+            },
+            {
                 'subcommand_info': ('download-metering-database',
                                     settings.download_metering_database),
                 'subcommand_options': [],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Downloads the metering database'
+            },
+            {
+                'subcommand_info': ('enable-defrag',
+                                    settings.enable_defrag),
+                'subcommand_options': [],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Enables NAS share (XFS) defragging on the VPSA'
             },
             {
                 'subcommand_info': ('get-nfs-domain',
