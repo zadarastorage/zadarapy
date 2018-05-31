@@ -2929,7 +2929,8 @@ COMMANDS_DICT = [
                                     settings.disable_defrag),
                 'subcommand_options': [],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Disables NAS share (XFS) defragging on the VPSA'
+                'subcommand_help': 'Disables NAS share (XFS) defragging on '
+                                   'the VPSA'
             },
             {
                 'subcommand_info': ('download-metering-database',
@@ -2943,7 +2944,8 @@ COMMANDS_DICT = [
                                     settings.enable_defrag),
                 'subcommand_options': [],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Enables NAS share (XFS) defragging on the VPSA'
+                'subcommand_help': 'Enables NAS share (XFS) defragging on '
+                                   'the VPSA'
             },
             {
                 'subcommand_info': ('get-nfs-domain',

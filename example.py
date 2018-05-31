@@ -4,6 +4,7 @@ from pprint import pprint
 from zadarapy import session
 from zadarapy.vpsa.raid_groups import *
 
+
 def main():
     # Create a session that defines endpoint, connectivity method, etc.
     zadara_session = session.Session(host='localhost', key='XXX', port=8080,
@@ -18,6 +19,7 @@ def main():
     groups = get_all_raid_groups(session=zadara_session, return_type='json')
 
     print(groups)
+
 
 if __name__ == '__main__':
     main()

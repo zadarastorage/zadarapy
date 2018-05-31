@@ -532,6 +532,7 @@ def download_metering_database(session, return_type='raw'):
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
+
 def enable_defrag(session, return_type='json'):
     """
     Enables NAS share (XFS) defragging on the VPSA.
@@ -552,6 +553,7 @@ def enable_defrag(session, return_type='json'):
     path = '/api/settings/defrag_enable'
 
     return session.call_api(method=method, path=path, return_type=return_type)
+
 
 def disable_defrag(session, return_type='json'):
     """

@@ -206,13 +206,20 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
 
     body_values['cache'] = cache
 
-    cowcache = cowcache.upper()
+    # CoW cache can only be enabled or disabled for pools where primary cache
+    # is enabled.
+    if cache == 'YES':
+        cowcache = cowcache.upper()
 
-    if cowcache not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid cowcache setting.  Allowed '
-                         'values are: "YES" or "NO"'.format(cowcache))
+        if cowcache not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid cowcache setting.  '
+                             'Allowed values are: "YES" or "NO"'
+                             .format(cowcache))
 
-    body_values['cowcache'] = cowcache
+        if cowcache == 'YES':
+            body_values['cowcache'] = 'true'
+        else:
+            body_values['cowcache'] = 'false'
 
     if mode not in ['stripe', 'simple']:
         raise ValueError('"{0}" is not a valid pool mode.  Allowed values '
