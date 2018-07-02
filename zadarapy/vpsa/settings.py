@@ -18,6 +18,28 @@ import json
 from zadarapy.validators import is_valid_pool_id
 
 
+def get_vpsa_config(session, return_type=None):
+    """
+    Retrieves various configuration details for the VPSA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    method = 'GET'
+    path = '/api/config.json'
+
+    return session.call_api(method=method, path=path, return_type=return_type)
+
+
 def get_nfs_domain(session, return_type=None):
     """
     Retrieves the NFS domain for the VPSA.

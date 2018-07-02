@@ -18,6 +18,7 @@ import json
 from zadarapy.validators import is_valid_field
 from zadarapy.validators import is_valid_pool_id
 from zadarapy.validators import is_valid_raid_id
+from zadarapy.validators import is_valid_volume_id
 
 
 def get_all_pools(session, start=None, limit=None, return_type=None):
@@ -231,6 +232,106 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
         mode = 'simple'
 
     body_values['mode'] = mode
+
+    method = 'POST'
+    path = '/api/pools.json'
+
+    body = json.dumps(body_values)
+
+    return session.call_api(method=method, path=path, body=body,
+                            return_type=return_type)
+
+
+def create_raid10_pool(session, display_name, drives, pooltype,
+                       cache='NO', cowcache='YES', return_type=None):
+    """
+    Creates a new RAID10 storage pool.  This is similar to the "create_pool"
+    API, except the the caller passes a list of drives, and not a list of RAID
+    groups. The VPSA will create the needed RAID groups.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type display_name: str
+    :param display_name: See documentation for create_volume.  Required.
+
+    :type drives: str
+    :param drives: A comma separated string of drives with no spaces
+        around the commas. Note that drives are named as 'volume-00000001'
+        etc.  For example: 'volume-00000012','volume-00000013'.  Required.
+
+    :type pooltype: str
+    :param pooltype: See documentation for create_volume.  Required.
+
+    :type cache: str
+    :param cache: See documentation for create_volume.  Optional, set to 'NO'
+        by default.
+
+    :type cowcache: str
+    :param cowcache: See documentation for create_volume.  Optional, set to
+        'YES' by default.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    body_values = {}
+
+    display_name = display_name.strip()
+
+    if not is_valid_field(display_name):
+        raise ValueError('{0} is not a valid pool name.'.format(display_name))
+
+    body_values['display_name'] = display_name
+
+    dr = drives.split(',')
+
+    for drive in dr:
+        if not is_valid_volume_id(drive):
+            raise ValueError('"{0}" in "{1}" is not a valid drive ID.'
+                             .format(drive, drives))
+
+    body_values['disks'] = drives
+
+    if pooltype not in ['Transactional', 'Repository', 'Archival']:
+        raise ValueError('"{0}" is not a valid pool type.  Allowed values '
+                         'are: "Transactional", "Repository", or "Archival"'
+                         .format(pooltype))
+
+    if pooltype == 'Transactional':
+        pooltype = 'Transactional Workloads'
+    else:
+        pooltype = '{0} Storage'.format(pooltype)
+
+    body_values['pooltype'] = pooltype
+
+    cache = cache.upper()
+
+    if cache not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid cache setting.  Allowed '
+                         'values are: "YES" or "NO"'.format(cache))
+
+    body_values['cache'] = cache
+
+    # CoW cache can only be enabled or disabled for pools where primary cache
+    # is enabled.
+    if cache == 'YES':
+        cowcache = cowcache.upper()
+
+        if cowcache not in ['YES', 'NO']:
+            raise ValueError('"{0}" is not a valid cowcache setting.  '
+                             'Allowed values are: "YES" or "NO"'
+                             .format(cowcache))
+
+        if cowcache == 'YES':
+            body_values['cowcache'] = 'true'
+        else:
+            body_values['cowcache'] = 'false'
 
     method = 'POST'
     path = '/api/pools.json'
