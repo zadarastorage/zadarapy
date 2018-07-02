@@ -253,7 +253,7 @@ def create_raid10_pool(session, display_name, drives, pooltype,
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type display_name: str
-    :param display_name: See documentation for create_volume.  Required.
+    :param display_name: See documentation for create_pool.  Required.
 
     :type drives: str
     :param drives: A comma separated string of drives with no spaces
@@ -261,14 +261,14 @@ def create_raid10_pool(session, display_name, drives, pooltype,
         etc.  For example: 'volume-00000012','volume-00000013'.  Required.
 
     :type pooltype: str
-    :param pooltype: See documentation for create_volume.  Required.
+    :param pooltype: See documentation for create_pool.  Required.
 
     :type cache: str
-    :param cache: See documentation for create_volume.  Optional, set to 'NO'
+    :param cache: See documentation for create_pool.  Optional, set to 'NO'
         by default.
 
     :type cowcache: str
-    :param cowcache: See documentation for create_volume.  Optional, set to
+    :param cowcache: See documentation for create_pool.  Optional, set to
         'YES' by default.
 
     :type return_type: str
