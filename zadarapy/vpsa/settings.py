@@ -344,6 +344,42 @@ def set_encryption_password(session, password, return_type=None):
                             return_type=return_type)
 
 
+def restore_encryption_password(session, password, return_type=None):
+    """
+    In cases where an encryption password is set on a VPSA, this can be used
+    to restore the password.  For example, when restoring a VPSA from
+    hibernation, the encryption password must be restored before encrypted
+    volumes become available.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type password: str
+    :param password: The existing encryption password of the VPSA.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    if password is None:
+        raise ValueError('A password must be specified.')
+
+    body_values = {'encryption_pwd': password}
+
+    method = 'POST'
+    path = '/api/settings/restore_encryption.json'
+
+    body = json.dumps(body_values)
+
+    return session.call_api(method=method, path=path, body=body,
+                            return_type=return_type)
+
+
 def get_zcs_settings(session, return_type=None):
     """
     Retrieves details for Zadara Container Services, such as the configured
