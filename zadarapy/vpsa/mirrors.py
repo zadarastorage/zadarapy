@@ -62,6 +62,36 @@ def get_all_mirrors(session, start=None, limit=None, return_type=None):
                             return_type=return_type)
 
 
+def get_mirror(session, mirror_id, return_type=None):
+    """
+    Retrieves details for the specified mirror job configured on the VPSA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type mirror_id: str
+    :param mirror_id: The mirror job 'job_name' value as returned by
+        create_volume_mirror.  For example: 'srcjvpsa-00000001'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    if not is_valid_mirror_id(mirror_id):
+        raise ValueError('{0} is not a valid mirror job ID.'
+                         .format(mirror_id))
+
+    method = 'GET'
+    path = '/api/mirror_jobs/{0}.json'.format(mirror_id)
+
+    return session.call_api(method=method, path=path, return_type=return_type)
+
+
 def pause_mirror(session, mirror_id, return_type=None):
     """
     Pauses a mirror job.  This should only be initiated from the source VPSA.
@@ -275,8 +305,6 @@ def discover_remote_vpsa(session, ip_address, username, password, public,
     """
     body_values = {}
 
-    body_values['ip'] = ip_address
-
     if not is_valid_field(username):
         raise ValueError('{0} is not a valid VPSA username.'.format(username))
 
@@ -286,6 +314,8 @@ def discover_remote_vpsa(session, ip_address, username, password, public,
         raise ValueError('{0} is not a valid VPSA password.'.format(password))
 
     body_values['password'] = password
+
+    body_values['ip'] = ip_address
 
     public = public.upper()
 

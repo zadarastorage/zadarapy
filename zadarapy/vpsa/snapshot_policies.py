@@ -123,13 +123,16 @@ def create_snapshot_policy(session, display_name, create_policy,
     :param local_delete_policy: The number of snapshots to retain on the local
         VPSA before removing.  For example, if 10 is specified, when the
         11th snapshot is created, the oldest snapshot will be deleted.
-        Required.
+        If None is specified, this means "no deletion policy", i.e.,
+        snapshots will not be deleted. This is allowed only when creation
+        policy is 'manual'. Required.
 
     :type remote_delete_policy: int
     :param remote_delete_policy: The number of snapshots to retain on the
         remote VPSA or object storage destination before removing.  For
         example, if 10 is specified, when the 11th snapshot is created, the
-        oldest snapshot will be deleted.  Required.
+        oldest snapshot will be deleted.  If None is specified, this means
+        "no deletion policy", i.e., snapshots will not be deleted.  Required.
 
     :type allow_empty: str
     :param allow_empty: If set to 'YES', snapshots will be taken even when no
@@ -162,19 +165,30 @@ def create_snapshot_policy(session, display_name, create_policy,
 
     body_values['create_policy'] = create_policy
 
-    if local_delete_policy < 0:
-        raise ValueError('The local_delete_policy parameter must not be '
-                         'negative ("{0}" was passed).'
-                         .format(local_delete_policy))
+    if local_delete_policy is not None:
+        if local_delete_policy < 0:
+            raise ValueError('The local_delete_policy parameter must not be '
+                             'negative ("{0}" was passed).'
+                             .format(local_delete_policy))
+        body_values['delete_policy'] = 'N' + str(local_delete_policy)
+    else:
+        if create_policy != "manual":
+            raise ValueError('The local_delete_policy parameter cannot be '
+                             'None unless the create_policy parameter is '
+                             '"manual" ("{0}" create_policy was passed).'
+                             .format(create_policy))
+        # Cannot pass None to API - must be empty string
+        body_values['delete_policy'] = ''
 
-    body_values['delete_policy'] = 'N' + str(local_delete_policy)
-
-    if remote_delete_policy < 0:
-        raise ValueError('The remote_delete_policy parameter must not be '
-                         'negative ("{0}" was passed).'
-                         .format(remote_delete_policy))
-
-    body_values['destination_policy'] = 'N' + str(remote_delete_policy)
+    if remote_delete_policy is not None:
+        if remote_delete_policy < 0:
+            raise ValueError('The remote_delete_policy parameter must not be '
+                             'negative ("{0}" was passed).'
+                             .format(remote_delete_policy))
+        body_values['destination_policy'] = 'N' + str(remote_delete_policy)
+    else:
+        # Cannot pass None to API - must be empty string
+        body_values['destination_policy'] = ''
 
     allow_empty = allow_empty.upper()
 
@@ -267,7 +281,7 @@ def update_snapshot_policy(session, policy_id, create_policy=None,
 
     if allow_empty is not None:
         allow_empty = allow_empty.upper()
-        
+
         if allow_empty not in ['YES', 'NO']:
             raise ValueError('"{0}" is not a valid allow_empty parameter.  '
                              'Allowed values are: "YES" or "NO"'
