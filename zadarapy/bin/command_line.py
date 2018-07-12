@@ -1260,7 +1260,7 @@ COMMANDS_DICT = [
                 'subcommand_info': ('show-volume-migration',
                                     volumes.get_volume_migration),
                 'subcommand_options': [
-                    MIGRATION_ID_OPTION
+                    CG_ID_OPTION
                 ],
                 'subcommand_return_key': 'migration_job',
                 'subcommand_help': 'Displays details for a volume migration '

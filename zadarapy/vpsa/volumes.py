@@ -1407,20 +1407,27 @@ def delete_volume_snapshot(session, snapshot_id, return_type=None):
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def get_volume_migration(session, mgrjob_id, return_type=None):
+def get_volume_migration(session, cg_id, return_type=None):
     """
     Retrieves details for a running volume migration job.  The job is queried
     using the consistency group ID (cg_name) for the volume, as returned by
-    get_all_volumes.  To check if a volume is currently migrating, check if
-    the value for the volume's "status" parameter is set to "Migrating".
+    get_all_volumes. Note that after volume migration successfully completes,
+    the consistency group ID of the volume will change.  The new consistency
+    group ID is returned by this API via the 'dst_cg_name' parameter, whereas
+    the current consistency group ID is also returned by this API, via the
+    'src_cg_name' parameter. To check if a volume is currently migrating,
+    check if the value for the volume's "status" parameter is set to
+    "Migrating".
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type mgrjob_id: str
-    :param mgrjob_id: The migration job 'migration_job_name' value as returned
-        by get_all_volumes for the desired volume.  For example:
-        'mgrjob-00000001'.  Required.
+    :type cg_id: str
+    :param cg_id: The consistency group 'cg_name' value as returned by
+        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
+        Note that this can be either the current consistency group ID, or
+        the future consistency group ID, which is also returned by this
+        API as explained above.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1431,12 +1438,12 @@ def get_volume_migration(session, mgrjob_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_mgrjob_id(mgrjob_id):
-        raise ValueError('{0} is not a valid migration job ID.'
-                         .format(mgrjob_id))
+    if not is_valid_cg_id(cg_id):
+        raise ValueError('{0} is not a valid consistency group ID.'
+                         .format(cg_id))
 
     method = 'GET'
-    path = '/api/consistency_groups/{0}/show_migration.json'.format(mgrjob_id)
+    path = '/api/consistency_groups/{0}/show_migration.json'.format(cg_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
