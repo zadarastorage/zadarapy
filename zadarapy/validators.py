@@ -564,6 +564,25 @@ def is_valid_snapshot_id(snapshot_id):
 
     return True
 
+def is_valid_vc_index(vc_index):
+    """
+    Validates vc_index.  vc_index must be within 0-65535 range.
+
+    :type vc_index: int
+    :param vc_index: The vc index to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether vc index passes validation.
+    """
+    if vc_index is None:
+        return False
+
+    vc_index = int(vc_index)
+
+    if vc_index < 0 or vc_index > 65535:
+        return False
+
+    return True
 
 def is_valid_volume_id(volume_id):
     """
@@ -625,14 +644,14 @@ def is_valid_zadara_key(key):
     if key is None:
         return False
 
-    if len(key) != 20:
-        return False
+    #if len(key) != 20:
+    #    return False
 
-    allowed = set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345'
-                  '6789')
+    #allowed = set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345'
+    #              '6789')
 
-    if not allowed.issuperset(key):
-        return False
+    #if not allowed.issuperset(key):
+    #    return False
 
     return True
 

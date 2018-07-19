@@ -253,9 +253,9 @@ class Session(object):
             raise OSError('Could not connect to {0} on port {1} via {2}: {3}'.
                           format(host, port, protocol, str(exc)))
 
-        if response.status not in [200, 302]:
+        if response.status not in [200, 201, 302]:
             conn.close()
-            raise RuntimeError('API server did not return an HTTP 200 or 302 '
+            raise RuntimeError('API server did not return an HTTP 200, 201 or 302 '
                                'response.  Status "{0} {1}" was returned '
                                'instead.  Please investigate.'
                                .format(response.status, response.reason))
