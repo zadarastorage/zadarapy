@@ -26,6 +26,7 @@ from zadarapy import session
 from zadarapy import __version__
 from zadarapy.provisioning_portal import cloud
 from zadarapy.provisioning_portal import vpsa
+from zadarapy.command_center import vpsaos
 from zadarapy.vpsa import container_services
 from zadarapy.vpsa import controllers
 from zadarapy.vpsa import drives
@@ -41,6 +42,9 @@ from zadarapy.vpsa import snapshot_policies
 from zadarapy.vpsa import tickets
 from zadarapy.vpsa import volumes
 from zadarapy.vpsa import vpsa_users
+from zadarapy.vpsaos import vpsaos_controllers
+from zadarapy.vpsaos import vpsaos_drives
+from zadarapy.vpsaos import vpsaos_settings
 
 ACTIVE_DIRECTORY_DNS_OPTION = {
     'option_positional': ['--dns'],
@@ -110,6 +114,18 @@ CLOUD_ID_OPTION = {
         'required': True,
         'help': 'The cloud "name" value as returned by "vpsa-operations '
                 'list-clouds".  For example: "volume-00000001".  Required.'
+    }
+}
+
+CLOUD_NAME_OPTION = {
+    'option_positional': ['--cloud-name'],
+    'option_keywords': {
+        'dest': 'param_cloud_name',
+        'metavar': '<cloud-name>',
+        'type': str,
+        'required': True,
+        'help': 'The cloud "name" value as returned by "vpsa-operations '
+                'list-clouds".  For example: "zadara-dev2".  Required.'
     }
 }
 
@@ -188,6 +204,28 @@ DRIVE_ID_OPTION = {
     }
 }
 
+DRIVE_TYPE_OPTION = {
+    'option_positional': ['--drive-type'],
+    'option_keywords': {
+        'dest': 'param_drive_type',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'The drive type.  Required.'
+    }
+}
+
+ENCRYPTION_PWD_OPTION = {
+    'option_positional': ['--encryption-pwd'],
+    'option_keywords': {
+        'dest': 'param_encryption_pwd',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'The encryption password.  Required.'
+    }
+}
+
 FORCE_OPTION = {
     'option_positional': ['--force'],
     'option_keywords': {
@@ -251,6 +289,18 @@ MIRROR_ID_OPTION = {
     }
 }
 
+NAME_OPTION = {
+    'option_positional': ['--name'],
+    'option_keywords': {
+        'dest': 'param_name',
+        'metavar': '<volume-xxxxxxxx>',
+        'type': str.lower,
+        'required': True,
+        'help': 'The drive "name" value as returned by "drives list".  For '
+                'example: "volume-00000001".  Required.'
+    }
+}
+
 NAS_GROUPNAME_OPTION = {
     'option_positional': ['--groupname'],
     'option_keywords': {
@@ -270,6 +320,17 @@ NAS_USERNAME_OPTION = {
         'type': str,
         'required': True,
         'help': 'The NAS "username".  Required.'
+    }
+}
+
+POLICY_ID_OPTION = {
+    'option_positional': ['--policy-id'],
+    'option_keywords': {
+        'dest': 'param_policy_id',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'The policy "id".  Required.'
     }
 }
 
@@ -317,6 +378,17 @@ POOL_RAID_GROUPS_OPTION = {
         'help': 'A comma separated list of RAID groups to use for the '
                 'storage pool with no spaces.  e.g.: '
                 '"RaidGroup-3,RaidGroup-4".  Required.'
+    }
+}
+
+QUANTITY_OPTION = {
+    'option_positional': ['--quantity'],
+    'option_keywords': {
+        'dest': 'param_quantity',
+        'metavar': '<n>',
+        'type': int,
+        'required': True,
+        'help': 'The number of vcs to be removed.  Required.'
     }
 }
 
@@ -476,6 +548,17 @@ START_OPTION = {
     }
 }
 
+STATE_OPTION = {
+    'option_positional': ['--state'],
+    'option_keywords': {
+        'dest': 'param_state',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'The encryption state enable/disable.  Required'
+    }
+}
+
 TICKET_ID_OPTION = {
     'option_positional': ['--ticket-id'],
     'option_keywords': {
@@ -484,6 +567,19 @@ TICKET_ID_OPTION = {
         'type': int,
         'help': 'The ticket "id" value as returned by "tickets list".  For '
                 'example: 103538.  Required.'
+    }
+}
+
+VC_INDEX_OPTION = {
+    'option_positional': ['--vc-index'],
+    'option_keywords': {
+        'dest': 'param_vc_index',
+        'metavar': '<n>',
+        'type': int,
+        'required': True,
+        'help': 'The virtual controller "index" value as returned by '
+                '"VPSAOS controllers list. '
+                'Required.'
     }
 }
 
@@ -713,6 +809,18 @@ VPSA_PASSWORD_OPTION = {
         'type': str,
         'required': True,
         'help': 'The password for the supplied VPSA "username".  Required.'
+    }
+}
+
+VSA_ID_OPTION = {
+    'option_positional': ['--vsa-id'],
+    'option_keywords': {
+        'dest': 'param_vsa_id',
+        'metavar': '<vsa-id>',
+        'type': str,
+        'required': True,
+        'help': 'The "vsa_id" value as returned by "vpsa-operations '
+                'list-vpsas".  For example: "vsa-000007de".  Required.'
     }
 }
 
@@ -3852,6 +3960,129 @@ COMMANDS_DICT = [
                                    'given username - may only be done by an '
                                    'administrative user'
             }
+        ]
+    },
+    {
+        'command_name': 'vpsaos-controllers',
+        'help': 'Commands related to VPSAOS virtual controllers',
+        'subcommands': [
+            {
+                'subcommand_info': ('get', vpsaos_controllers.get_virtual_controller),
+                'subcommand_options': [
+                    VC_INDEX_OPTION
+                ],
+                'subcommand_return_key': 'vc',
+                'subcommand_help': 'Displays details for a single virtual '
+                                   'controller on the VPSAOS'
+            },
+            {
+                'subcommand_info': ('get-drives', vpsaos_controllers.get_virtual_controller_drives),
+                'subcommand_options': [
+                    VC_INDEX_OPTION
+                ],
+                'subcommand_return_key': 'disks',
+                'subcommand_help': 'Displays drives for a virtual controller'
+            },
+            {
+                'subcommand_info': ('list', vpsaos_controllers.get_all_controllers),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'vcs',
+                'subcommand_help': 'Displays details for all virtual '
+                                   'controllers on the VPSAOS'
+            },
+            {
+                'subcommand_info': ('remove-proxy-vcs', vpsaos_controllers.remove_proxy_vcs),
+                'subcommand_options': [
+                    QUANTITY_OPTION,
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Removes proxy VCs '
+            }
+        ]
+    },
+    {
+        'command_name': 'vpsaos-drives',
+        'help': 'Commands related to VPSAOS drives',
+        'subcommands': [
+            {
+                'subcommand_info': ('get', vpsaos_drives.get_one_drive),
+                'subcommand_options': [
+                    NAME_OPTION
+                ],
+                'subcommand_return_key': 'disk',
+                'subcommand_help': 'Displays details for a single drive '
+                                   'on the VPSAOS'
+            },
+            {
+                'subcommand_info': ('list', vpsaos_drives.get_all_drives),
+                'subcommand_options': [
+                    LIMIT_OPTION,
+                    START_OPTION
+                ],
+                'subcommand_return_key': 'disks',
+                'subcommand_help': 'Displays details for all drives '
+                                   'on the VPSAOS'
+            },
+        ]
+    },
+    {
+        'command_name': 'vpsaos-operations',
+        'help': 'Commands related to adding proxy vcs, drives to VPSAOS',
+        'subcommands': [
+            {
+                'subcommand_info': ('add-proxy-vcs', vpsaos.add_proxy_vcs),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION,
+                    VSA_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Add proxy vc to the VPSAOS '
+            },
+            {
+                'subcommand_info': ('add-drives', vpsaos.add_drives),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION,
+                    VSA_ID_OPTION,
+                    DRIVE_TYPE_OPTION,
+                    QUANTITY_OPTION,
+                    POLICY_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Add drives to the VPSAOS'
+            },
+        ]
+    },
+    {
+        'command_name': 'vpsaos-settings',
+        'help': 'Commands related to VPSAOS settings like encryption',
+        'subcommands': [
+            {
+                'subcommand_info': ('set-encryption', vpsaos_settings.set_encryption),
+                'subcommand_options': [
+                    ENCRYPTION_PWD_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Set encryption. '
+            },
+            {
+                'subcommand_info': ('set-encryption-state', vpsaos_settings.set_encryption_state),
+                'subcommand_options': [
+                    STATE_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Set encryption state. '
+            },
+            {
+                'subcommand_info': ('restore-encryption', vpsaos_settings.restore_encryption),
+                'subcommand_options': [
+                    ENCRYPTION_PWD_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Restore encryption. '
+            },
         ]
     }
 ]
