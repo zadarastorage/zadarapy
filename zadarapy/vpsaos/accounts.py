@@ -150,7 +150,7 @@ def disable_account(session, accountid, return_type=None):
                          .format(accountid))
 
     method = 'POST'
-    path = '/api/zios/accounts/%s/disbale.json' %accountid
+    path = '/api/zios/accounts/%s/disable.json' %accountid
 
     return session.call_api(method=method, path=path, secure=True,
                             return_type=return_type)
