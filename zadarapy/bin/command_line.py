@@ -215,6 +215,17 @@ DRIVE_TYPE_OPTION = {
     }
 }
 
+DRIVE_QUANTITY_OPTION = {
+    'option_positional': ['--drive-quantity'],
+    'option_keywords': {
+        'dest': 'param_drive_quantity',
+        'metavar': '<n>',
+        'type': int,
+        'required': True,
+        'help': 'The number of drives to be added.  Required.'
+    }
+}
+
 ENCRYPTION_PWD_OPTION = {
     'option_positional': ['--encryption-pwd'],
     'option_keywords': {
@@ -236,6 +247,27 @@ FORCE_OPTION = {
         'help': 'If set to YES, ignore non-critical warnings and force the '
                 'VPSA to accept the request.  If NO, return message on '
                 'warning and abort.  Default: NO'
+    }
+}
+
+ID_OPTION = {
+    'option_positional': ['--id'],
+    'option_keywords': {
+        'dest': 'param_id',
+        'metavar': '<n>',
+        'type': int,
+        'help': 'The VPSAOS "id" as returned by get_vpsaoss'
+    }
+}
+
+IMAGE_OPTION = {
+    'option_positional': ['--image'],
+    'option_keywords': {
+        'dest': 'param_image',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'The VPSAOS "image" for example zios-00.00-1389.img. Required'
     }
 }
 
@@ -323,6 +355,16 @@ NAS_USERNAME_OPTION = {
     }
 }
 
+POLICY_DESC_OPTION = {
+    'option_positional': ['--policy-desc'],
+    'option_keywords': {
+        'dest': 'param_policy_desc',
+        'metavar': '<xxx>',
+        'type': str,
+        'help': 'The policy description.'
+    }
+}
+
 POLICY_ID_OPTION = {
     'option_positional': ['--policy-id'],
     'option_keywords': {
@@ -331,6 +373,17 @@ POLICY_ID_OPTION = {
         'type': str,
         'required': True,
         'help': 'The policy "id".  Required.'
+    }
+}
+
+POLICY_NAME_OPTION = {
+    'option_positional': ['--policy-name'],
+    'option_keywords': {
+        'dest': 'param_policy_name',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'The policy name.  Required.'
     }
 }
 
@@ -381,6 +434,17 @@ POOL_RAID_GROUPS_OPTION = {
     }
 }
 
+PREFIX_OPTION = {
+    'option_positional': ['--prefix'],
+    'option_keywords': {
+        'dest': 'param_prefix',
+        'metavar': '<xxx>',
+        'type': str,
+        'required': True,
+        'help': 'Prefix for the zsnap.  Required.'
+    }
+}
+
 QUANTITY_OPTION = {
     'option_positional': ['--quantity'],
     'option_keywords': {
@@ -401,6 +465,17 @@ RAID_GROUP_ID_OPTION = {
         'required': True,
         'help': 'The RAID group "name" value as returned by "raid-groups '
                 'list".  For example: "RaidGroup-1".  Required.'
+    }
+}
+
+REDUNDANCY_OPTION = {
+    'option_positional': ['--redundancy'],
+    'option_keywords': {
+        'dest': 'param_redundancy',
+        'metavar': '<n>',
+        'type': int,
+        'required': True,
+        'help': 'The number of mirrors.  Required.'
     }
 }
 
@@ -4033,6 +4108,18 @@ COMMANDS_DICT = [
         'help': 'Commands related to adding proxy vcs, drives to VPSAOS',
         'subcommands': [
             {
+                'subcommand_info': ('add-drives', vpsaos.add_drives),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION,
+                    VSA_ID_OPTION,
+                    DRIVE_TYPE_OPTION,
+                    DRIVE_QUANTITY_OPTION,
+                    POLICY_ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Add drives to the VPSAOS'
+            },
+            {
                 'subcommand_info': ('add-proxy-vcs', vpsaos.add_proxy_vcs),
                 'subcommand_options': [
                     CLOUD_NAME_OPTION,
@@ -4042,16 +4129,118 @@ COMMANDS_DICT = [
                 'subcommand_help': 'Add proxy vc to the VPSAOS '
             },
             {
-                'subcommand_info': ('add-drives', vpsaos.add_drives),
+                'subcommand_info': ('add-storage-policy', vpsaos.add_storage_policy),
                 'subcommand_options': [
                     CLOUD_NAME_OPTION,
                     VSA_ID_OPTION,
+                    POLICY_NAME_OPTION,
+                    POLICY_DESC_OPTION,
                     DRIVE_TYPE_OPTION,
-                    QUANTITY_OPTION,
-                    POLICY_ID_OPTION
+                    DRIVE_QUANTITY_OPTION,
+                    REDUNDANCY_OPTION
                 ],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Add drives to the VPSAOS'
+                'subcommand_help': 'Add storage policy to the VPSAOS'
+            },
+            {
+                'subcommand_info': ('assign-publicip', vpsaos.assign_publicip),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION,
+                    ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Assign public ip from VPSAOS '
+            },
+            {
+                'subcommand_info': ('create-zsnap', vpsaos.create_zsnap),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION,
+                    ID_OPTION,
+                    PREFIX_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Create a VPSAOS zsnap '
+            },
+            {
+                'subcommand_info': ('get-vpsaos', vpsaos.get_one_vpsaos),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION,
+                    ID_OPTION
+                ],
+                'subcommand_return_key': 'zios',
+                'subcommand_help': 'Return the details of a single VPSAOS '
+            },
+            {
+                'subcommand_info': ('get-vpsaoss', vpsaos.get_all_vpsaoss),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION
+                ],
+                'subcommand_return_key': 'zioses',
+                'subcommand_help': 'Return a list of all VPSAOSs '
+            },
+            {
+                'subcommand_info': ('get-vpsaos-accounts', vpsaos.get_vpsaos_accounts),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION,
+                    ID_OPTION
+                ],
+                'subcommand_return_key': 'accounts',
+                'subcommand_help': 'Return the list of VPSAOS accounts '
+            },
+            {
+                'subcommand_info': ('get-vpsaos-comments', vpsaos.get_vpsaos_comments),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION,
+                    ID_OPTION
+                ],
+                'subcommand_return_key': 'comments',
+                'subcommand_help': 'Return the list of VPSAOS comments '
+            },
+            {
+                'subcommand_info': ('get-vpsaos-drives', vpsaos.get_vpsaos_drives),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION,
+                    ID_OPTION
+                ],
+                'subcommand_return_key': 'drives',
+                'subcommand_help': 'Return the list of VPSAOS drives '
+            },
+            {
+                'subcommand_info': ('get-vpsaos-sps', vpsaos.get_vpsaos_sps),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION,
+                    ID_OPTION
+                ],
+                'subcommand_return_key': 'zios_storage_policies',
+                'subcommand_help': 'Return the list of VPSAOS storage policies '
+            },
+            {
+                'subcommand_info': ('get-vpsaos-vcs', vpsaos.get_vpsaos_vcs),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION,
+                    ID_OPTION
+                ],
+                'subcommand_return_key': 'virtual_controllers',
+                'subcommand_help': 'Return the list of VPSAOS virtual controllers '
+            },
+            {
+                'subcommand_info': ('unassign-publicip', vpsaos.unassign_publicip),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION,
+                    ID_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Unassign public ip from VPSAOS '
+            },
+            {
+                'subcommand_info': ('upgrade-vpsaos-image', vpsaos.upgrade_vpsaos_image),
+                'subcommand_options': [
+                    CLOUD_NAME_OPTION,
+                    ID_OPTION,
+                    IMAGE_OPTION
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Upgrade VPSAOS Software image '
             },
         ]
     },
