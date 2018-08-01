@@ -53,10 +53,10 @@ def add_drives(session, cloud_name, vsa_id, drive_type, drive_quantity, policy_i
         return_type parameter.
     """
     cloud_name = cloud_name.strip()
-
     if not is_valid_field(cloud_name):
         raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
 
+    vsa_id = vsa_id.strip()
     if not is_valid_field(vsa_id):
         raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
@@ -117,10 +117,10 @@ def add_proxy_vcs(session, cloud_name, vsa_id, return_type=None):
         return_type parameter.
     """
     cloud_name = cloud_name.strip()
-
     if not is_valid_field(cloud_name):
         raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
 
+    vsa_id = vsa_id.strip()
     if not is_valid_field(vsa_id):
         raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
@@ -130,7 +130,7 @@ def add_proxy_vcs(session, cloud_name, vsa_id, return_type=None):
     return session.call_api(method=method, path=path, return_type=return_type)
 
 def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
-                                drive_type, drive_quantity, redundancy,
+                                drive_type, drive_quantity, policy_type_id,
                                 return_type=None):
     """
     Create a new storage policy in VPSAOS.
@@ -158,8 +158,8 @@ def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
     :type drive_quantity: int
     :param drive_quantity: Number of drives to add.  Required.
 
-    :type redundancy: int
-    :param redundancy: Redundancy level of the new policy (mirrors).  Required.
+    :type policy_type_id: int
+    :param policy_type_id: Policy type id as returned by vpsa_zone_group_storage_policy_type.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -171,10 +171,10 @@ def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
         return_type parameter.
     """
     cloud_name = cloud_name.strip()
-
     if not is_valid_field(cloud_name):
         raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
 
+    vsa_id = vsa_id.strip()
     if not is_valid_field(vsa_id):
         raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
@@ -209,12 +209,12 @@ def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
 
         body_values['drive_quantity'] = qty
 
-    if redundancy is not None:
-        redundancy = int(redundancy)
-        if redundancy < 1:
-            raise ValueError('redundancy {0} cannot be less than 1.'.format(redundancy))
+    if policy_type_id is not None:
+        policy_type_id = int(policy_type_id)
+        if policy_type_id < 0:
+            raise ValueError('policy_type_id {0} cannot be negative.'.format(policy_type_id))
 
-        body_values['redundancy'] = redundancy
+        body_values['policy_type_id'] = policy_type_id
 
     method = 'POST'
     path = '/api/clouds/{0}/zioses/{1}/policy.json'.format(cloud_name, vsa_id)
@@ -224,7 +224,7 @@ def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
     return session.call_api(method=method, path=path, body=body,
                             return_type=return_type)
 
-def assign_publicip(session, cloud_name, id, return_type=None):
+def assign_publicip(session, cloud_name, vsa_id, return_type=None):
     """
     Assign public IP to VPSAOS.
 
@@ -235,9 +235,9 @@ def assign_publicip(session, cloud_name, id, return_type=None):
     :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
         example: 'zadaralab01'.  Required.
 
-    :type id: int
-    :param id: The 'id' value as returned by get_all_vpsaoss.  For
-        example: '147'.  Required.
+    :type vsa_id: str
+    :param vsa_id: The 'vsa_id' value as returned by get_all_vpsaoss.  For
+        example: 'vsa-000007de'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -250,23 +250,21 @@ def assign_publicip(session, cloud_name, id, return_type=None):
     """
 
     cloud_name = cloud_name.strip()
-
     if not is_valid_field(cloud_name):
         raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
 
-    if id is not None:
-        id = int(id)
-        if id < 0:
-            raise ValueError('Id {0} cannot be negative.'.format(id))
+    vsa_id = vsa_id.strip()
+    if not is_valid_field(vsa_id):
+        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'POST'
-    path = '/api/clouds/{0}/zioses/{1}/public_ip/assign.json'.format(cloud_name, id)
+    path = '/api/clouds/{0}/zioses/{1}/public_ip/assign.json'.format(cloud_name, vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
-def create_zsnap(session, cloud_name, id, prefix, return_type=None):
+def create_zsnap(session, cloud_name, vsa_id, prefix, return_type=None):
     """
-    Upgrade a VPSAOS to a specified image.
+    Create a zsnap.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -275,9 +273,9 @@ def create_zsnap(session, cloud_name, id, prefix, return_type=None):
     :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
         example: 'zadaralab01'.  Required.
 
-    :type id: int
-    :param id: The 'id' value as returned by get_all_vpsaoss.  For
-        example: '147'.  Required.
+    :type vsa_id: str
+    :param vsa_id: The 'vsa_id' value as returned by get_all_vpsaoss.  For
+        example: 'vsa-000007de'.  Required.
 
     :type prefix: str
     :param prefix: Required.
@@ -293,14 +291,12 @@ def create_zsnap(session, cloud_name, id, prefix, return_type=None):
     """
 
     cloud_name = cloud_name.strip()
-
     if not is_valid_field(cloud_name):
         raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
 
-    if id is not None:
-        id = int(id)
-        if id < 0:
-            raise ValueError('Id {0} cannot be negative.'.format(id))
+    vsa_id = vsa_id.strip()
+    if not is_valid_field(vsa_id):
+        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     prefix = prefix.strip()
 
@@ -314,7 +310,7 @@ def create_zsnap(session, cloud_name, id, prefix, return_type=None):
     body = json.dumps(body_values)
 
     method = 'POST'
-    path = '/api/clouds/{0}/zioses/{1}/zsnap.json'.format(cloud_name, id)
+    path = '/api/clouds/{0}/zioses/{1}/zsnap.json'.format(cloud_name, vsa_id)
 
     return session.call_api(method=method, path=path, body=body,
                             return_type=return_type)
@@ -364,7 +360,7 @@ def get_all_vpsaoss(session, cloud_name, page=None, per_page=None, return_type=N
     return session.call_api(method=method, path=path, return_type=return_type)
 
 
-def get_one_vpsaos(session, cloud_name, id, return_type=None):
+def get_one_vpsaos(session, cloud_name, vsa_id, return_type=None):
     """
     Retrieves details for a single VPSAOS.
 
@@ -375,9 +371,9 @@ def get_one_vpsaos(session, cloud_name, id, return_type=None):
     :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
         example: 'zadaralab01'.  Required.
 
-    :type id: int
-    :param id: The 'id' value as returned by get_all_vpsaoss.  For
-        example: '147'.  Required.
+    :type vsa_id: str
+    :param vsa_id: The 'vsa_id' value as returned by get_all_vpsaoss.  For
+        example: 'vsa-000007de'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -390,21 +386,19 @@ def get_one_vpsaos(session, cloud_name, id, return_type=None):
     """
 
     cloud_name = cloud_name.strip()
-
     if not is_valid_field(cloud_name):
         raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
 
-    if id is not None:
-        id = int(id)
-        if id < 0:
-            raise ValueError('Id {0} cannot be negative.'.format(id))
+    vsa_id = vsa_id.strip()
+    if not is_valid_field(vsa_id):
+        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'GET'
-    path = '/api/clouds/{0}/zioses/{1}.json'.format(cloud_name, id)
+    path = '/api/clouds/{0}/zioses/{1}.json'.format(cloud_name, vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
-def get_vpsaos_accounts(session, cloud_name, id, return_type=None):
+def get_vpsaos_accounts(session, cloud_name, vsa_id, return_type=None):
     """
     Retrieves the list of a VPSAOS accounts.
 
@@ -415,9 +409,9 @@ def get_vpsaos_accounts(session, cloud_name, id, return_type=None):
     :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
         example: 'zadaralab01'.  Required.
 
-    :type id: int
-    :param id: The 'id' value as returned by get_all_vpsaoss.  For
-        example: '147'.  Required.
+    :type vsa_id: str
+    :param vsa_id: The 'vsa_id' value as returned by get_all_vpsaoss.  For
+        example: 'vsa-000007de'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -430,21 +424,19 @@ def get_vpsaos_accounts(session, cloud_name, id, return_type=None):
     """
 
     cloud_name = cloud_name.strip()
-
     if not is_valid_field(cloud_name):
         raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
 
-    if id is not None:
-        id = int(id)
-        if id < 0:
-            raise ValueError('Id {0} cannot be negative.'.format(id))
+    vsa_id = vsa_id.strip()
+    if not is_valid_field(vsa_id):
+        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'GET'
-    path = '/api/clouds/{0}/zioses/{1}/accounts.json'.format(cloud_name, id)
+    path = '/api/clouds/{0}/zioses/{1}/accounts.json'.format(cloud_name, vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
-def get_vpsaos_comments(session, cloud_name, id, return_type=None):
+def get_vpsaos_comments(session, cloud_name, vsa_id, return_type=None):
     """
     Retrieves the list of a VPSAOS comments.
 
@@ -455,9 +447,9 @@ def get_vpsaos_comments(session, cloud_name, id, return_type=None):
     :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
         example: 'zadaralab01'.  Required.
 
-    :type id: int
-    :param id: The 'id' value as returned by get_all_vpsaoss.  For
-        example: '147'.  Required.
+    :type vsa_id: str
+    :param vsa_id: The 'vsa_id' value as returned by get_all_vpsaoss.  For
+        example: 'vsa-000007de'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -470,21 +462,19 @@ def get_vpsaos_comments(session, cloud_name, id, return_type=None):
     """
 
     cloud_name = cloud_name.strip()
-
     if not is_valid_field(cloud_name):
         raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
 
-    if id is not None:
-        id = int(id)
-        if id < 0:
-            raise ValueError('Id {0} cannot be negative.'.format(id))
+    vsa_id = vsa_id.strip()
+    if not is_valid_field(vsa_id):
+        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'GET'
-    path = '/api/clouds/{0}/zioses/{1}/comments.json'.format(cloud_name, id)
+    path = '/api/clouds/{0}/zioses/{1}/comments.json'.format(cloud_name, vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
-def get_vpsaos_drives(session, cloud_name, id, return_type=None):
+def get_vpsaos_drives(session, cloud_name, vsa_id, return_type=None):
     """
     Retrieves the list of a VPSAOS drives.
 
@@ -495,9 +485,9 @@ def get_vpsaos_drives(session, cloud_name, id, return_type=None):
     :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
         example: 'zadaralab01'.  Required.
 
-    :type id: int
-    :param id: The 'id' value as returned by get_all_vpsaoss.  For
-        example: '147'.  Required.
+    :type vsa_id: str
+    :param vsa_id: The 'vsa_id' value as returned by get_all_vpsaoss.  For
+        example: 'vsa-000007de'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -510,21 +500,19 @@ def get_vpsaos_drives(session, cloud_name, id, return_type=None):
     """
 
     cloud_name = cloud_name.strip()
-
     if not is_valid_field(cloud_name):
         raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
 
-    if id is not None:
-        id = int(id)
-        if id < 0:
-            raise ValueError('Id {0} cannot be negative.'.format(id))
+    vsa_id = vsa_id.strip()
+    if not is_valid_field(vsa_id):
+        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'GET'
-    path = '/api/clouds/{0}/zioses/{1}/drives.json'.format(cloud_name, id)
+    path = '/api/clouds/{0}/zioses/{1}/drives.json'.format(cloud_name, vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
-def get_vpsaos_sps(session, cloud_name, id, return_type=None):
+def get_vpsaos_sps(session, cloud_name, vsa_id, return_type=None):
     """
     Retrieves the list of a VPSAOS storage policies.
 
@@ -535,9 +523,9 @@ def get_vpsaos_sps(session, cloud_name, id, return_type=None):
     :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
         example: 'zadaralab01'.  Required.
 
-    :type id: int
-    :param id: The 'id' value as returned by get_all_vpsaoss.  For
-        example: '147'.  Required.
+    :type vsa_id: str
+    :param vsa_id: The 'vsa_id' value as returned by get_all_vpsaoss.  For
+        example: 'vsa-000007de'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -550,21 +538,19 @@ def get_vpsaos_sps(session, cloud_name, id, return_type=None):
     """
 
     cloud_name = cloud_name.strip()
-
     if not is_valid_field(cloud_name):
         raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
 
-    if id is not None:
-        id = int(id)
-        if id < 0:
-            raise ValueError('Id {0} cannot be negative.'.format(id))
+    vsa_id = vsa_id.strip()
+    if not is_valid_field(vsa_id):
+        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'GET'
-    path = '/api/clouds/{0}/zioses/{1}/storage_policies.json'.format(cloud_name, id)
+    path = '/api/clouds/{0}/zioses/{1}/storage_policies.json'.format(cloud_name, vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
-def get_vpsaos_vcs(session, cloud_name, id, return_type=None):
+def get_vpsaos_vcs(session, cloud_name, vsa_id, return_type=None):
     """
     Retrieves the list of a VPSAOS virtual controllers.
 
@@ -575,9 +561,9 @@ def get_vpsaos_vcs(session, cloud_name, id, return_type=None):
     :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
         example: 'zadaralab01'.  Required.
 
-    :type id: int
-    :param id: The 'id' value as returned by get_all_vpsaoss.  For
-        example: '147'.  Required.
+    :type vsa_id: str
+    :param vsa_id: The 'vsa_id' value as returned by get_all_vpsaoss.  For
+        example: 'vsa-000007de'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -590,21 +576,19 @@ def get_vpsaos_vcs(session, cloud_name, id, return_type=None):
     """
 
     cloud_name = cloud_name.strip()
-
     if not is_valid_field(cloud_name):
         raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
 
-    if id is not None:
-        id = int(id)
-        if id < 0:
-            raise ValueError('Id {0} cannot be negative.'.format(id))
+    vsa_id = vsa_id.strip()
+    if not is_valid_field(vsa_id):
+        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'GET'
-    path = '/api/clouds/{0}/zioses/{1}/virtual_controllers.json'.format(cloud_name, id)
+    path = '/api/clouds/{0}/zioses/{1}/virtual_controllers.json'.format(cloud_name, vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
-def unassign_publicip(session, cloud_name, id, return_type=None):
+def unassign_publicip(session, cloud_name, vsa_id, return_type=None):
     """
     Unassign public IP from VPSAOS.
 
@@ -615,9 +599,9 @@ def unassign_publicip(session, cloud_name, id, return_type=None):
     :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
         example: 'zadaralab01'.  Required.
 
-    :type id: int
-    :param id: The 'id' value as returned by get_all_vpsaoss.  For
-        example: '147'.  Required.
+    :type vsa_id: str
+    :param vsa_id: The 'vsa_id' value as returned by get_all_vpsaoss.  For
+        example: 'vsa-000007de'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -630,21 +614,19 @@ def unassign_publicip(session, cloud_name, id, return_type=None):
     """
 
     cloud_name = cloud_name.strip()
-
     if not is_valid_field(cloud_name):
         raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
 
-    if id is not None:
-        id = int(id)
-        if id < 0:
-            raise ValueError('Id {0} cannot be negative.'.format(id))
+    vsa_id = vsa_id.strip()
+    if not is_valid_field(vsa_id):
+        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'POST'
-    path = '/api/clouds/{0}/zioses/{1}/public_ip/unassign.json'.format(cloud_name, id)
+    path = '/api/clouds/{0}/zioses/{1}/public_ip/unassign.json'.format(cloud_name, vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
-def upgrade_vpsaos_image(session, cloud_name, id, image, return_type=None):
+def upgrade_vpsaos_image(session, cloud_name, vsa_id, image, return_type=None):
     """
     Upgrade a VPSAOS to a specified image.
 
@@ -655,9 +637,9 @@ def upgrade_vpsaos_image(session, cloud_name, id, image, return_type=None):
     :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
         example: 'zadaralab01'.  Required.
 
-    :type id: int
-    :param id: The 'id' value as returned by get_all_vpsaoss.  For
-        example: '147'.  Required.
+    :type vsa_id: str
+    :param vsa_id: The 'vsa_id' value as returned by get_all_vpsaoss.  For
+        example: 'vsa-000007de'.  Required.
 
     :type image: str
     :param image: The image 'name' value as returned by get_images.  For
@@ -674,14 +656,12 @@ def upgrade_vpsaos_image(session, cloud_name, id, image, return_type=None):
     """
 
     cloud_name = cloud_name.strip()
-
     if not is_valid_field(cloud_name):
         raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
 
-    if id is not None:
-        id = int(id)
-        if id < 0:
-            raise ValueError('Id {0} cannot be negative.'.format(id))
+    vsa_id = vsa_id.strip()
+    if not is_valid_field(vsa_id):
+        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     image = image.strip()
 
@@ -695,8 +675,7 @@ def upgrade_vpsaos_image(session, cloud_name, id, image, return_type=None):
     body = json.dumps(body_values)
 
     method = 'POST'
-    path = '/api/clouds/{0}/zioses/{1}/upgrade.json'.format(cloud_name, id)
-    print(path)
+    path = '/api/clouds/{0}/zioses/{1}/upgrade.json'.format(cloud_name, vsa_id)
     return session.call_api(method=method, path=path, body=body,
                             return_type=return_type)
 
