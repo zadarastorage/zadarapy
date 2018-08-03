@@ -185,7 +185,7 @@ def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
     if not is_valid_field(policy_name):
         raise ValueError('{0} is not a valid storage policy name.'.format(policy_name))
 
-    body_values['policy_name'] = policy_name
+    body_values['name'] = policy_name
 
     if policy_desc is not None:
         policy_desc = policy_desc.strip()

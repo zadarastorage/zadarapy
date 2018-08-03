@@ -13,6 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
 
 def get_all_clouds(session, return_type=None):
     """
@@ -34,3 +35,38 @@ def get_all_clouds(session, return_type=None):
     path = '/api/clouds.json'
 
     return session.call_api(method=method, path=path, return_type=return_type)
+
+def get_user_token(session, email, password, return_type=None):
+    """
+    Retrieves API token for the Command Center.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type email: str
+    :param email: The email of the user used for login
+        example: 'qa@zadarastorage.com'.  Required.
+
+    :type password: str
+    :param password: The password of the user.  Required
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    body_values = {}
+
+    method = 'POST'
+    path = '/api/users/token.json'
+
+    body_values['email'] = email
+    body_values['password'] = password
+
+    return session.call_api(method=method, path=path,
+              body=json.dumps(body_values), secure=False,
+              return_type=return_type)
