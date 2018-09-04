@@ -165,8 +165,18 @@ def create_zcs_image(session, display_name, path, volume_id=None,
 
     body = json.dumps(body_values)
 
-    return session.call_api(method=method, path=path, body=body,
+    try:
+        res = session.call_api(method=method, path=path, body=body,
                             return_type=return_type)
+    except RuntimeError as exc:
+        err = str(exc)
+        # The API server returned an error: "The request has been submitted".
+        if err.startswith('The API server returned an error: "The request has been submitted'):
+            res = {'response' : {"status":0}}
+        else:
+            raise
+
+    return res
 
 
 def delete_zcs_image(session, zcs_image_id, return_type=None):
@@ -384,7 +394,7 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
         will be attempted.  Every list item should be a dictionary that
         contains the following keys:
 
-        * "volume" - This key should contain the volume 'name' value as
+        * "name" - This key should contain the volume 'name' value as
           returned by get_all_volumes.  For example: 'volume-00000001'.
           Required.
         * "path" - This key should contain the full path inside of the
@@ -396,8 +406,8 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
 
         An example would be:
 
-        [{"volume":"volume-00000001","path":"/vol1","access":"rw"},
-         {"volume":"volume-00000002","path":"/vol2","access":"r"}]
+        [{"name":"volume-00000001","path":"/vol1","access":"rw"},
+         {"name":"volume-00000002","path":"/vol2","access":"r"}]
 
     :type args: list, str
     :param args: A Python list of Python dictionaries that contain arguments
@@ -494,13 +504,13 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
                 raise ValueError('Each item in the "volumes" list must be a '
                                  'Python dictionary.')
 
-            if 'volume' not in v:
+            if 'name' not in v:
                 raise ValueError('The required "volume" key was not found in '
-                                 'the volume dictionary.')
+                                 'the name dictionary.')
 
-            if not is_valid_volume_id(v['volume']):
+            if not is_valid_volume_id(v['name']):
                 raise ValueError('{0} is not a valid volume ID.'
-                                 .format(v['volume']))
+                                 .format(v['name']))
 
             if 'path' not in v:
                 raise ValueError('The required "path" key was not found in '
@@ -651,7 +661,17 @@ def stop_zcs_container(session, zcs_container_id, return_type=None):
     method = 'POST'
     path = '/api/containers/{0}/stop.json'.format(zcs_container_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    try:
+        res = session.call_api(method=method, path=path, return_type=return_type)
+    except RuntimeError as exc:
+        err = str(exc)
+        # The API server returned an error: "The request has been submitted".
+        if err.startswith('The API server returned an error: "The request has been submitted'):
+            res = {'response' : {"status":0}}
+        else:
+            raise
+
+    return res
 
 
 def delete_zcs_container(session, zcs_container_id, return_type=None):
@@ -682,4 +702,14 @@ def delete_zcs_container(session, zcs_container_id, return_type=None):
     method = 'DELETE'
     path = '/api/containers/{0}.json'.format(zcs_container_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    try:
+        res = session.call_api(method=method, path=path, return_type=return_type)
+    except RuntimeError as exc:
+        err = str(exc)
+        # The API server returned an error: "The request has been submitted".
+        if err.startswith('The API server returned an error: "The request has been submitted'):
+            res = {'response' : {"status":0}}
+        else:
+            raise
+
+    return res
