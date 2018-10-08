@@ -629,7 +629,7 @@ def is_valid_zadara_key(key):
         return False
 
     allowed = set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345'
-                  '6789')
+                  '6789_-')
 
     if not allowed.issuperset(key):
         return False
