@@ -649,14 +649,14 @@ def is_valid_zadara_key(key):
     if key is None:
         return False
 
-    #if len(key) != 20:
-    #    return False
+    if len(key) != 20:
+        return False
 
-    #allowed = set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345'
-    #              '6789')
+    allowed = set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345'
+                  '6789')
 
-    #if not allowed.issuperset(key):
-    #    return False
+    if not allowed.issuperset(key):
+        return False
 
     return True
 
