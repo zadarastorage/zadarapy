@@ -3613,9 +3613,7 @@ COMMANDS_DICT = [
                     },
                 ],
                 'subcommand_return_key': None,
-                'subcommand_help': 'Deletes a volume.  By default, deleted '
-                                   'volumes are moved to the pool\'s recycle '
-                                   'bin.'
+                'subcommand_help': 'Updates the comment field for a volume.'
             },
         ]
     },
