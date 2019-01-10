@@ -63,15 +63,15 @@ def get_all_accounts(session, start=None, limit=None, return_type=None):
                             return_type=return_type)
 
 
-def get_account(session, accountid, return_type=None):
+def get_account(session, account_id, return_type=None):
     """
     Get details of a single account.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type accountid: str
-    :param accountid: The VPSAOS account 'id' value as returned by
+    :type account_id: str
+    :param account_id: The VPSAOS account 'id' value as returned by
         get_all_accounts.  For example: '91ea5bd5cdc04adb9f5e3c00a346c463'.
         Required.
 
@@ -84,18 +84,18 @@ def get_account(session, accountid, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_vpsaos_account_id(accountid):
+    if not is_valid_vpsaos_account_id(account_id):
         raise ValueError('{0} is not a valid VPSAOS account id.'
-                         .format(accountid))
+                         .format(account_id))
 
     method = 'GET'
-    path = '/api/zios/accounts/{0}.json'.format(accountid)
+    path = '/api/zios/accounts/{0}.json'.format(account_id)
 
     return session.call_api(method=method, path=path, secure=True,
                             return_type=return_type)
 
 
-def create_account(session, accountname, return_type=None):
+def create_account(session, account_name, return_type=None):
     """
     Create a VPSAOS account.  An object storage account is a collection of
     containers. Typically an account is associated with a tenant.  Access
@@ -104,8 +104,9 @@ def create_account(session, accountname, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type accountname: str
-    :param accountname: The VPSAOS account name.  Required.
+    :type account_name: str
+    :param account_name: A text label assigned to the VPSAOS account name.
+        For example, 'accounting' or 'sales'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -118,11 +119,11 @@ def create_account(session, accountname, return_type=None):
     """
     body_values = {}
 
-    if not is_valid_field(accountname):
-        raise ValueError('{0} is not a valid VPSA Object store account name.'
-                         .format(accountname))
+    if not is_valid_field(account_name):
+        raise ValueError('{0} is not a valid VPSA Object Store account name.'
+                         .format(account_name))
 
-    body_values['name'] = accountname
+    body_values['name'] = account_name
 
     method = 'POST'
     path = '/api/zios/accounts.json'
@@ -133,15 +134,22 @@ def create_account(session, accountname, return_type=None):
                             return_type=return_type)
 
 
-def delete_account(session, accountid, return_type=None):
+def delete_account(session, account_id, force='NO', return_type=None):
     """
     Delete a VPSAOS account.
+
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type accountid: str
-    :param accountid: The VPSAOS unique account_id for the
-         account name to be deleted.  Required.
+    :type account_id: str
+    :param account_id: The VPSAOS account 'id' value as returned by
+        get_all_accounts.  For example: '91ea5bd5cdc04adb9f5e3c00a346c463'.
+        Required.
+
+    :type force: str
+    :param force: If set to 'YES', ignore non-critical warnings and force the
+        VPSAOS to accept the request.  If 'NO', return message on warning and
+        abort.  Set to 'NO' by default.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -152,17 +160,22 @@ def delete_account(session, accountid, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-
     body_values = {}
 
-    if not is_valid_field(accountid):
-        raise ValueError('{0} is not a valid account-id.'
-                         .format(accountid))
+    if not is_valid_vpsaos_account_id(account_id):
+        raise ValueError('{0} is not a valid VPSAOS account id.'
+                         .format(account_id))
 
-    body_values['force'] = "YES"
+    force = force.upper()
+
+    if force not in ['YES', 'NO']:
+        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
+                         'values are: "YES" or "NO"'.format(force))
+
+    body_values['force'] = force
 
     method = 'DELETE'
-    path = '/api/zios/accounts/%s.json' %accountid
+    path = '/api/zios/accounts/{0}.json'.format(account_id)
 
     body = json.dumps(body_values)
 
@@ -170,14 +183,18 @@ def delete_account(session, accountid, return_type=None):
                             return_type=return_type)
 
 
-def cleanup_account(session, accountid, return_type=None):
+def cleanup_account(session, account_id, return_type=None):
     """
-    Cleanup a VPSAOS account details (billing inforamtion).
+    Cleanup a VPSAOS account's details.  This will remove billing information
+    after an account was deleted.
+
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type accountid: str
-    :param accountid: The VPSAOS unique account-id.  Required.
+    :type account_id: str
+    :param account_id: The VPSAOS account 'id' value as returned by
+        get_all_accounts.  For example: '91ea5bd5cdc04adb9f5e3c00a346c463'.
+        Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -188,26 +205,28 @@ def cleanup_account(session, accountid, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-
-    if not is_valid_field(accountid):
-        raise ValueError('{0} is not a valid accountid.'
-                         .format(accountid))
+    if not is_valid_vpsaos_account_id(account_id):
+        raise ValueError('{0} is not a valid VPSAOS account id.'
+                         .format(account_id))
 
     method = 'DELETE'
-    path = '/api/zios/accounts/%s/cleanup.json'%accountid
+    path = '/api/zios/accounts/{0}/cleanup.json'.format(account_id)
 
     return session.call_api(method=method, path=path, secure=True,
                             return_type=return_type)
 
 
-def disable_account(session, accountid, return_type=None):
+def disable_account(session, account_id, return_type=None):
     """
     Disable a VPSAOS account.
+
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type accountid: str
-    :param accountid: The VPSAOS unique account-id.  Required.
+    :type account_id: str
+    :param account_id: The VPSAOS account 'id' value as returned by
+        get_all_accounts.  For example: '91ea5bd5cdc04adb9f5e3c00a346c463'.
+        Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -218,26 +237,28 @@ def disable_account(session, accountid, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-
-    if not is_valid_field(accountid):
-        raise ValueError('{0} is not a valid account-id.'
-                         .format(accountid))
+    if not is_valid_vpsaos_account_id(account_id):
+        raise ValueError('{0} is not a valid VPSAOS account id.'
+                         .format(account_id))
 
     method = 'POST'
-    path = '/api/zios/accounts/%s/disable.json' %accountid
+    path = '/api/zios/accounts/{0}/disable.json'.format(account_id)
 
     return session.call_api(method=method, path=path, secure=True,
                             return_type=return_type)
 
 
-def enable_account(session, accountid, return_type=None):
+def enable_account(session, account_id, return_type=None):
     """
     Enable a VPSAOS account.
+
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type accountid: str
-    :param accountid: The vpsaos unique account-id.  Required.
+    :type account_id: str
+    :param account_id: The VPSAOS account 'id' value as returned by
+        get_all_accounts.  For example: '91ea5bd5cdc04adb9f5e3c00a346c463'.
+        Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -248,26 +269,28 @@ def enable_account(session, accountid, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-
-    if not is_valid_field(accountid):
-        raise ValueError('{0} is not a valid account-id.'
-                         .format(accountid))
+    if not is_valid_vpsaos_account_id(account_id):
+        raise ValueError('{0} is not a valid VPSAOS account id.'
+                         .format(account_id))
 
     method = 'POST'
-    path = '/api/zios/accounts/%s/enable.json'%accountid
+    path = '/api/zios/accounts/{0}/enable.json'.format(account_id)
 
     return session.call_api(method=method, path=path, secure=True,
                             return_type=return_type)
 
 
-def get_all_users_in_account(session, accountid, return_type=None):
+def get_all_users_in_account(session, account_id, return_type=None):
     """
-    Get all users in the VPSAOS account
+    Get details for all users in a VPSAOS account.
+
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type accountid: str
-    :param accountid: The VPSAOS accounts's account-id.  Required.
+    :type account_id: str
+    :param account_id: The VPSAOS account 'id' value as returned by
+        get_all_accounts.  For example: '91ea5bd5cdc04adb9f5e3c00a346c463'.
+        Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -278,10 +301,12 @@ def get_all_users_in_account(session, accountid, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    if not is_valid_vpsaos_account_id(account_id):
+        raise ValueError('{0} is not a valid VPSAOS account id.'
+                         .format(account_id))
 
     method = 'GET'
-    path = '/api/zios/accounts/%s/users.json' %accountid
+    path = '/api/zios/accounts/{0}/users.json'.format(account_id)
 
     return session.call_api(method=method, path=path, secure=True,
                             return_type=return_type)
-

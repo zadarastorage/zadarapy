@@ -564,6 +564,7 @@ def is_valid_snapshot_id(snapshot_id):
 
     return True
 
+
 def is_valid_vc_index(vc_index):
     """
     Validates vc_index.  vc_index must be within 0-65535 range.
@@ -583,6 +584,7 @@ def is_valid_vc_index(vc_index):
         return False
 
     return True
+
 
 def is_valid_volume_id(volume_id):
     """
