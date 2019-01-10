@@ -3596,7 +3596,27 @@ COMMANDS_DICT = [
                 ],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Renames a volume'
-            }
+            },
+            {
+                'subcommand_info': ('update-comment',
+                                    volumes.update_volume_comment),
+                'subcommand_options': [
+                    VOLUME_ID_OPTION,
+                    {
+                        'option_positional': ['--comment'],
+                        'option_keywords': {
+                            'dest': 'param_comment',
+                            'metavar': '<xxx>',
+                            'type': str,
+                            'help': 'The new comment to set.  Required.'
+                        },
+                    },
+                ],
+                'subcommand_return_key': None,
+                'subcommand_help': 'Deletes a volume.  By default, deleted '
+                                   'volumes are moved to the pool\'s recycle '
+                                   'bin.'
+            },
         ]
     },
     {

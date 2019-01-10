@@ -792,6 +792,46 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
                             return_type=return_type)
 
 
+def update_volume_comment(session, volume_id, comment, return_type=None):
+    """
+    Set a new comment on the volume.  Comments can be set on either block or
+    file volumes.  There is one comment per volume, and it starts empty by
+    default when a new volume is created.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume 'name' value as returned by get_all_volumes.
+        For example: 'volume-00000001'.  Required.
+
+    :type comment: str
+    :param comment: The new comment to set.  For example: "test share".
+        Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    if not is_valid_volume_id(volume_id):
+        raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
+
+    body_values = {"new_comment": comment}
+
+    body = json.dumps(body_values)
+
+    method = 'POST'
+    path = '/api/volumes/{0}/update_comment.json'.format(volume_id)
+
+    return session.call_api(method=method, path=path, body=body,
+                            return_type=return_type)
+
+
 def delete_volume(session, volume_id, force='NO', return_type=None):
     """
     Deletes a volume.  If the recycle bin is enabled, volume will be moved to
