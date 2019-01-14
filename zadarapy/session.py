@@ -22,7 +22,6 @@ import json
 import os
 from urllib.parse import urlencode
 from zadarapy.validators import is_valid_port
-from zadarapy.validators import is_valid_zadara_key
 
 
 class Session(object):
@@ -208,10 +207,6 @@ class Session(object):
             if not is_valid_port(self.zadara_port):
                 raise ValueError('The supplied port "{0}" must be within '
                                  '1-65535 range.')
-
-        if not is_valid_zadara_key(self.zadara_key):
-            raise ValueError('{0} is not a valid API key'
-                             .format(self.zadara_key))
 
         # http.client can accept None port and use default, but we need to
         # define it here so debug info can be outputted later on error.

@@ -611,32 +611,6 @@ def is_valid_vpsa_display_name(vpsa_display_name):
     return True
 
 
-def is_valid_zadara_key(key):
-    """
-    Validates a Zadara API key.  An API key should be 20 characters in length,
-    and only consist of numbers and upper case letters.
-
-    :type key: str
-    :param key: The API key to be validated.
-
-    :rtype: bool
-    :return: True or False depending on whether key passes validation.
-    """
-    if key is None:
-        return False
-
-    if len(key) != 20:
-        return False
-
-    allowed = set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345'
-                  '6789_-')
-
-    if not allowed.issuperset(key):
-        return False
-
-    return True
-
-
 def is_valid_zcs_container_id(zcs_container_id):
     """
     Validates Zadara Container Services (ZCS) container IDs, also known as the
