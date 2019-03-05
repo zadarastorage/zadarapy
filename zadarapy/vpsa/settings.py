@@ -14,8 +14,7 @@
 # under the License.
 
 
-import json
-from zadarapy.validators import is_valid_pool_id
+from zadarapy.validators import *
 
 
 def get_vpsa_config(session, return_type=None):
@@ -34,10 +33,9 @@ def get_vpsa_config(session, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'GET'
     path = '/api/config.json'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def get_nfs_domain(session, return_type=None):
@@ -56,10 +54,9 @@ def get_nfs_domain(session, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'GET'
     path = '/api/settings/nfs_domain.json'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def set_nfs_domain(session, domain, return_type=None):
@@ -86,13 +83,9 @@ def set_nfs_domain(session, domain, return_type=None):
     """
     body_values = {'domain': domain}
 
-    method = 'POST'
     path = '/api/settings/nfs_domain.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def set_multizone_read_mode(session, read_mode, return_type=None):
@@ -117,20 +110,12 @@ def set_multizone_read_mode(session, read_mode, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if read_mode not in ['roundrobin', 'localcopy']:
-        raise ValueError('"{0}" is not a valid read_mode parameter.  Allowed '
-                         'values are: "roundrobin" or "localcopy"'
-                         .format(read_mode))
-
+    verify_read_mode(read_mode)
     body_values = {'readmode': read_mode}
 
-    method = 'POST'
     path = '/api/settings/raid_read_mode.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def set_smb_charset(session, charset, force='NO', return_type=None):
@@ -160,30 +145,14 @@ def set_smb_charset(session, charset, force='NO', return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    verify_charset(charset)
+    force = verify_boolean(force, "force")
 
-    if charset not in ['UTF-8', 'ISO-8859-1']:
-        raise ValueError('"{0}" is not a valid charset parameter.  Allowed '
-                         'values are: "UTF-8" or "ISO-8859-1"'
-                         .format(charset))
+    body_values = {'charset': charset, 'force': force}
 
-    body_values['charset'] = charset
-
-    force = force.upper()
-
-    if force not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(force))
-
-    body_values['force'] = force
-
-    method = 'POST'
     path = '/api/settings/smb_charset.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def set_smb_trusted_domains(session, allow_trusted_domains, force='NO',
@@ -215,32 +184,14 @@ def set_smb_trusted_domains(session, allow_trusted_domains, force='NO',
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    allow_trusted_domains = verify_boolean(allow_trusted_domains, "allow_trusted_domains")
+    force = verify_boolean(force, "force")
 
-    allow_trusted_domains = allow_trusted_domains.upper()
+    body_values = {'allow': allow_trusted_domains, 'force': force}
 
-    if allow_trusted_domains not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid allow_trusted_domains '
-                         'parameter.  Allowed values are: "YES" or "NO"'
-                         .format(allow_trusted_domains))
-
-    body_values['allow'] = allow_trusted_domains
-
-    force = force.upper()
-
-    if force not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(force))
-
-    body_values['force'] = force
-
-    method = 'POST'
     path = '/api/settings/smb_trusted_domains.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def set_recycle_bin(session, recycle_bin, return_type=None):
@@ -266,22 +217,13 @@ def set_recycle_bin(session, recycle_bin, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    recycle_bin = recycle_bin.upper()
-    
-    if recycle_bin not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid recycle_bin parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(recycle_bin))
+    recycle_bin = verify_boolean(recycle_bin, "recycle_bin")
 
     body_values = {'recyclebin': recycle_bin}
 
-    method = 'POST'
     path = '/api/settings/set_recycle_bin.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def get_public_ip(session, return_type=None):
@@ -300,13 +242,12 @@ def get_public_ip(session, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'GET'
     path = '/api/settings/public_ips.json'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
-def set_encryption_password(session, password, return_type=None):
+def set_encryption_password(session, password, old_password=None, return_type=None):
     """
     Sets the encryption password globally on the VPSA.  This password is used
     when enabling the encryption option for a volume.  CAUTION: THIS PASSWORD
@@ -321,6 +262,10 @@ def set_encryption_password(session, password, return_type=None):
     :param password: The encryption password to set for the VPSA (please read
         the warning above carefully).  Required.
 
+    :type old_password: str
+    :param old_password: The old encryption password to set for the VPSA (please read
+        the warning above carefully).  Required.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -330,18 +275,15 @@ def set_encryption_password(session, password, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if password is None:
-        raise ValueError('A password must be specified.')
+    verify_not_none(password, "password")
 
     body_values = {'encryption_pwd': password}
+    if old_password:
+        body_values['old_encryption_pwd'] = old_password
 
-    method = 'POST'
     path = '/api/settings/encryption.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def restore_encryption_password(session, password, return_type=None):
@@ -366,18 +308,13 @@ def restore_encryption_password(session, password, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if password is None:
-        raise ValueError('A password must be specified.')
+    verify_not_none(password, "password")
 
     body_values = {'encryption_pwd': password}
 
-    method = 'POST'
     path = '/api/settings/restore_encryption.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def get_zcs_settings(session, return_type=None):
@@ -397,10 +334,9 @@ def get_zcs_settings(session, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'GET'
     path = '/api/settings/container_service.json'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def update_zcs_settings(session, network, lowport, highport,
@@ -438,33 +374,13 @@ def update_zcs_settings(session, network, lowport, highport,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    verify_low_high_port(lowport, highport)
 
-    body_values['network'] = network
+    body_values = {'network': network, 'lowport': lowport, 'highport': highport}
 
-    if lowport > highport:
-        raise ValueError('The lowport parameter must be a lower number than '
-                         'the highport parameter.')
-
-    if lowport < 9216 or lowport > 10240:
-        raise ValueError('The lowport parameter must be between 9216 and '
-                         '10240 ("{0}" was passed).')
-
-    body_values['lowport'] = lowport
-
-    if highport < 9216 or highport > 10240:
-        raise ValueError('The highport parameter must be between 9216 and '
-                         '10240 ("{0}" was passed).')
-
-    body_values['highport'] = highport
-
-    method = 'POST'
     path = '/api/settings/container_service.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def create_zcs_image_repository(session, pool_id, return_type=None):
@@ -489,18 +405,13 @@ def create_zcs_image_repository(session, pool_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+    verify_pool_id(pool_id)
 
     body_values = {'pool': pool_id}
 
-    method = 'POST'
     path = '/api/settings/create_images_repository.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def migrate_zcs_image_repository(session, pool_id, return_type=None):
@@ -525,18 +436,13 @@ def migrate_zcs_image_repository(session, pool_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+    verify_pool_id(pool_id)
 
     body_values = {'pool': pool_id}
 
-    method = 'POST'
     path = '/api/settings/migrate_images_repository.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def delete_zcs_image_repository(session, confirm, return_type=None):
@@ -564,10 +470,9 @@ def delete_zcs_image_repository(session, confirm, return_type=None):
         raise ValueError('The confirm parameter is not set to True - '
                          'the ZCS image repository will not be deleted.')
 
-    method = 'DELETE'
     path = '/api/settings/images_repository.json'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type)
 
 
 def download_metering_database(session, return_type='raw'):
@@ -585,10 +490,9 @@ def download_metering_database(session, return_type='raw'):
     :rtype: str
     :returns: Raw zip file data.
     """
-    method = 'GET'
     path = '/api/settings/metering_db'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def enable_defrag(session, return_type='json'):
@@ -607,10 +511,9 @@ def enable_defrag(session, return_type='json'):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'POST'
     path = '/api/settings/defrag_enable'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def disable_defrag(session, return_type='json'):
@@ -629,7 +532,6 @@ def disable_defrag(session, return_type='json'):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'POST'
     path = '/api/settings/defrag_disable'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)

@@ -14,10 +14,7 @@
 # under the License.
 
 
-import json
-from zadarapy.validators import is_valid_field
-from zadarapy.validators import is_valid_policy_creation
-from zadarapy.validators import is_valid_policy_id
+from zadarapy.validators import *
 
 
 def get_all_snapshot_policies(session, start=None, limit=None,
@@ -45,26 +42,11 @@ def get_all_snapshot_policies(session, start=None, limit=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/snapshot_policies.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def get_snapshot_policy(session, policy_id, return_type=None):
@@ -87,14 +69,11 @@ def get_snapshot_policy(session, policy_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_policy_id(policy_id):
-        raise ValueError('{0} is not a valid snapshot policy ID.'
-                         .format(policy_id))
+    verify_policy_id(policy_id)
 
-    method = 'GET'
     path = '/api/snapshot_policies/{0}.json'.format(policy_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def create_snapshot_policy(session, display_name, create_policy,
@@ -149,21 +128,11 @@ def create_snapshot_policy(session, display_name, create_policy,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    display_name = verify_field(display_name, "display_name")
+    verify_policy_creation(create_policy)
+    allow_empty = verify_boolean(allow_empty, 'allow_empty')
 
-    display_name = display_name.strip()
-
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid snapshot policy name.'
-                         .format(display_name))
-
-    body_values['name'] = display_name
-
-    if not is_valid_policy_creation(create_policy):
-        raise ValueError('"{0}" is not a valid snapshot policy creation '
-                         'frequency.'.format(create_policy))
-
-    body_values['create_policy'] = create_policy
+    body_values = {'name': display_name, 'create_policy': create_policy, 'empty': allow_empty}
 
     if local_delete_policy is not None:
         if local_delete_policy < 0:
@@ -190,28 +159,15 @@ def create_snapshot_policy(session, display_name, create_policy,
         # Cannot pass None to API - must be empty string
         body_values['destination_policy'] = ''
 
-    allow_empty = allow_empty.upper()
-
-    if allow_empty not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid allow_empty parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(allow_empty))
-
-    body_values['empty'] = allow_empty
-
-    method = 'POST'
     path = '/api/snapshot_policies.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def update_snapshot_policy(session, policy_id, create_policy=None,
                            local_delete_policy=None,
-                           remote_delete_policy=None, allow_empty=None,
-                           return_type=None):
+                           remote_delete_policy=None, display_name=None,
+                           allow_empty=None, return_type=None):
     """
     Change various settings related to a snapshot policy.  These changes will
     be propagated to any local volume, remote mirror job, or remote object
@@ -237,6 +193,9 @@ def update_snapshot_policy(session, policy_id, create_policy=None,
     :param remote_delete_policy: See documentation for create_snapshot_policy.
         Optional.
 
+    :type display_name: str
+    :param display_name: A text label to assign to the new snapshot policy.
+
     :type allow_empty: str
     :param allow_empty: See documentation for create_snapshot_policy.
         Optional.
@@ -250,17 +209,12 @@ def update_snapshot_policy(session, policy_id, create_policy=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_policy_id(policy_id):
-        raise ValueError('{0} is not a valid snapshot policy ID.'
-                         .format(policy_id))
+    verify_policy_id(policy_id)
 
     body_values = {}
 
     if create_policy is not None:
-        if not is_valid_policy_creation(create_policy):
-            raise ValueError('"{0}" is not a valid snapshot policy creation '
-                             'frequency.'.format(create_policy))
-
+        verify_policy_creation(create_policy)
         body_values['create_policy'] = create_policy
 
     if local_delete_policy is not None:
@@ -280,27 +234,20 @@ def update_snapshot_policy(session, policy_id, create_policy=None,
         body_values['destination_policy'] = 'N' + str(remote_delete_policy)
 
     if allow_empty is not None:
-        allow_empty = allow_empty.upper()
+        body_values['empty'] = verify_boolean(allow_empty, 'allow_empty')
 
-        if allow_empty not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid allow_empty parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(allow_empty))
-
-        body_values['empty'] = allow_empty
+    if display_name is not None:
+        body_values['display_name'] = display_name
 
     if not body_values:
         raise ValueError('At least one of the following must be set: '
                          '"display_name", "create_policy", '
                          '"local_delete_policy", "remote_delete_policy", '
-                         '"allow_empty"')
-    method = 'PUT'
+                         '"display_name", "allow_empty"')
+
     path = '/api/snapshot_policies/{0}.json'.format(policy_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.put_api(path=path, body=body_values, return_type=return_type)
 
 
 def delete_snapshot_policy(session, policy_id, return_type=None):
@@ -325,14 +272,11 @@ def delete_snapshot_policy(session, policy_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_policy_id(policy_id):
-        raise ValueError('{0} is not a valid snapshot policy ID.'
-                         .format(policy_id))
+    verify_policy_id(policy_id)
 
-    method = 'DELETE'
     path = '/api/snapshot_policies/{0}.json'.format(policy_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type)
 
 
 def rename_snapshot_policy(session, policy_id, display_name,
@@ -361,24 +305,36 @@ def rename_snapshot_policy(session, policy_id, display_name,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_policy_id(policy_id):
-        raise ValueError('{0} is not a valid snapshot policy ID.'
-                         .format(policy_id))
+    verify_policy_id(policy_id)
+    display_name = verify_field(display_name, "display_name")
 
-    body_values = {}
+    body_values = {'new_name': display_name}
 
-    display_name = display_name.strip()
-
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid snapshot policy name.'
-                         .format(display_name))
-
-    body_values['new_name'] = display_name
-
-    method = 'POST'
     path = '/api/snapshot_policies/{0}/rename.json'.format(policy_id)
 
-    body = json.dumps(body_values)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+
+def pause_snapshot_policy(session, snaprule, return_type=None):
+    """
+    Pause a volume's snapshot policy.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type snaprule: str
+    :param snaprule: A snap rule ID. (found in /consistency_groups/{volume_cg_id}/snapshot_policies API).
+      For example: 'snaprule-00000001'.  Required.
+
+     :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/snapshot_policies/{snaprule}/pause.json".format(snaprule=snaprule)
+    body_values = {"id": snaprule}
+    return session.post_api(path=path, body=body_values, return_type=return_type)

@@ -68,3 +68,4 @@ def get_cloud(session, cloud_id, return_type=None):
     path = '/api/providers/{0}.json'.format(cloud_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
+

@@ -14,7 +14,6 @@
 # under the License.
 
 
-import json
 from zadarapy.validators import *
 
 
@@ -56,50 +55,17 @@ def get_all_volumes(session, start=None, limit=None, showonlyblock='NO',
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    showonlyblock = verify_boolean(showonlyblock, "showonlyblock")
+    showonlyfile = verify_boolean(showonlyfile, "showonlyfile")
+    display_name = verify_field(display_name, "display_name")
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    showonlyblock = showonlyblock.upper()
-
-    if showonlyblock not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid showonlyblock parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(showonlyblock))
-
-    showonlyfile = showonlyfile.upper()
-
-    if showonlyfile not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid showonlyfile parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(showonlyfile))
-
-    if display_name is not None:
-        display_name = display_name.strip()
-
-        if not is_valid_field(display_name):
-            raise ValueError('{0} is not a valid volume name.'
-                             .format(display_name))
-
-    method = 'GET'
+    parameters = verify_start_limit(start=start, limit=limit,
+                                    list_more_options=[('showonlyblock', showonlyblock),
+                                                       ('showonlyfile', showonlyfile),
+                                                       ('display_name', display_name)])
     path = '/api/volumes.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit),
-                                    ('showonlyblock', showonlyblock),
-                                    ('showonlyfile', showonlyfile),
-                                    ('display_name', display_name))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def get_free_volumes(session, start=None, limit=None, return_type=None):
@@ -125,26 +91,11 @@ def get_free_volumes(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/volumes/free.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def get_volume(session, volume_id, return_type=None):
@@ -167,13 +118,11 @@ def get_volume(session, volume_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(volume_id):
-        raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
+    verify_volume_id(volume_id)
 
-    method = 'GET'
     path = '/api/volumes/{0}.json'.format(volume_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def create_volume(session, pool_id, display_name, capacity, block,
@@ -383,69 +332,17 @@ def create_volume(session, pool_id, display_name, capacity, block,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    verify_pool_id(pool_id)
+    display_name = verify_field(display_name, "display_name")
+    capacity = verify_capacity(capacity, "Volume")
+    block = verify_boolean(block, "block")
+    attachpolicies = verify_boolean(attachpolicies, "attachpolicies")
+    crypt = verify_boolean(crypt, "crypt")
+    dedupe = verify_boolean(dedupe, "dedupe")
+    compress = verify_boolean(compress, "compress")
 
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
-
-    body_values['pool'] = pool_id
-
-    display_name = display_name.strip()
-
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid volume name.'
-                         .format(display_name))
-
-    body_values['name'] = display_name
-
-    capacity = int(capacity)
-
-    if capacity < 1:
-        raise ValueError('Volume must be >= 1 GB ("{0}" was given).'
-                         .format(capacity))
-
-    body_values['capacity'] = '{0}G'.format(capacity)
-
-    block = block.upper()
-
-    if block not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid block parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(block))
-
-    body_values['block'] = block
-
-    attachpolicies = attachpolicies.upper()
-
-    if attachpolicies not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid attachpolicies parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(attachpolicies))
-
-    body_values['attachpolicies'] = attachpolicies
-
-    crypt = crypt.upper()
-
-    if crypt not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid crypt parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(crypt))
-
-    body_values['crypt'] = crypt
-
-    dedupe = dedupe.upper()
-
-    if dedupe not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid dedupe parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(dedupe))
-
-    body_values['dedupe'] = dedupe
-
-    compress = compress.upper()
-
-    if compress not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid compress parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(compress))
-
-    body_values['compress'] = compress
+    body_values = {'pool': pool_id, 'name': display_name, 'capacity': '{0}G'.format(capacity), 'block': block,
+                   'attachpolicies': attachpolicies, 'crypt': crypt, 'dedupe': dedupe, 'compress': compress}
 
     # If block is set to 'YES', enable thin provisioning by default.  This
     # only needs to be set for block volumes, as NAS shares will always be
@@ -455,174 +352,31 @@ def create_volume(session, pool_id, display_name, capacity, block,
         body_values['thin'] = 'YES'
     else:
         if export_name is not None:
-            if not is_valid_field(export_name):
-                raise ValueError('{0} is not a valid export name.'
-                                 .format(export_name))
+            body_values['export_name'] = verify_field(export_name, "export_name")
 
-            body_values['export_name'] = export_name
+        body_values['atimeupdate'] = verify_boolean(atimeupdate, "atimeupdate")
+        body_values['nfsrootsquash'] = verify_boolean(nfsrootsquash, "nfsrootsquash")
+        body_values['readaheadkb'] = verify_readahead(readaheadkb)
+        body_values['smbonly'] = verify_boolean(smbonly, "smbonly")
+        body_values['smbguest'] = verify_boolean(smbguest, "smbguest")
+        body_values['smbwindowsacl'] = verify_boolean(smbwindowsacl, "smbwindowsacl")
+        body_values['smbfilecreatemask'] = verify_netmask(smbfilecreatemask, "smbfilecreatemask")
+        body_values['smbdircreatemask'] = verify_netmask(smbdircreatemask, "smbdircreatemask")
+        body_values['smbmaparchive'] = verify_boolean(smbmaparchive, "smbmaparchive")
+        body_values['smbbrowseable'] = verify_boolean(smbbrowseable, "smbbrowseable")
+        body_values['smbhideunreadable'] = verify_boolean(smbhideunreadable, "smbhideunreadable")
+        body_values['smbhideunwriteable'] = verify_boolean(smbhideunwriteable, "smbhideunwriteable")
+        body_values['smbhidedotfiles'] = verify_boolean(smbhidedotfiles, "smbhidedotfiles")
+        body_values['smbstoredosattributes'] = verify_boolean(smbstoredosattributes,
+                                                              "smbstoredosattributes")
+        body_values['smbenableoplocks'] = verify_boolean(smbenableoplocks, "smbenableoplocks")
 
-        atimeupdate = atimeupdate.upper()
+        smbaiosize = verify_boolean(smbaiosize, "smbaiosize")
+        body_values['smbaiosize'] = '16384' if smbaiosize == 'YES' else '1'
 
-        if atimeupdate not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid atimeupdate parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(atimeupdate))
-
-        body_values['atimeupdate'] = atimeupdate
-
-        nfsrootsquash = nfsrootsquash.upper()
-
-        if nfsrootsquash not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid nfsrootsquash parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(nfsrootsquash))
-
-        body_values['nfsrootsquash'] = nfsrootsquash
-
-        if readaheadkb not in ['16', '64', '128', '256', '512']:
-            raise ValueError('"{0}" is not a valid readaheadkb parameter.  '
-                             'Allowed values are: "16", "64", "128", "256", '
-                             'or "512"'
-                             .format(readaheadkb))
-
-        body_values['readaheadkb'] = readaheadkb
-
-        smbonly = smbonly.upper()
-
-        if smbonly not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbonly parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(smbonly))
-
-        body_values['smbonly'] = smbonly
-
-        smbguest = smbguest.upper()
-
-        if smbguest not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbguest parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(smbguest))
-
-        body_values['smbguest'] = smbguest
-
-        smbwindowsacl = smbwindowsacl.upper()
-
-        if smbwindowsacl not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbwindowsacl parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(smbwindowsacl))
-
-        body_values['smbwindowsacl'] = smbwindowsacl
-
-        if not is_valid_mask(smbfilecreatemask):
-            raise ValueError('smbfilecreatemask must be a valid octal UNIX '
-                             'style permission mask ("{0}" was given).'
-                             .format(smbfilecreatemask))
-
-        body_values['smbfilecreatemask'] = smbfilecreatemask
-
-        if not is_valid_mask(smbdircreatemask):
-            raise ValueError('smbdircreatemask must be a valid octal UNIX '
-                             'style permission mask ("{0}" was given).'
-                             .format(smbdircreatemask))
-
-        body_values['smbdircreatemask'] = smbdircreatemask
-
-        smbmaparchive = smbmaparchive.upper()
-
-        if smbmaparchive not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbmaparchive parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(smbmaparchive))
-
-        body_values['smbmaparchive'] = smbmaparchive
-
-        smbaiosize = smbaiosize.upper()
-
-        if smbaiosize not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbaiosize parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(smbaiosize))
-
-        # smbaiosize needs to convert 'YES' to '16384', and 'NO' to '1', per
-        # what the API backend expects.
-        if smbaiosize == 'YES':
-            smbaiosize = '16384'
-        else:
-            smbaiosize = '1'
-
-        body_values['smbaiosize'] = smbaiosize
-
-        smbbrowseable = smbbrowseable.upper()
-
-        if smbbrowseable not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbbrowseable parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(smbbrowseable))
-
-        body_values['smbbrowseable'] = smbbrowseable
-
-        if smbhiddenfiles is not None:
-            if not is_valid_smb_hidden_files(smbhiddenfiles):
-                raise ValueError(
-                    '"{0}" is not a valid smbhiddenfiles parameter.  String '
-                    'must start and end with a forward slash (/).'
-                    .format(smbhiddenfiles))
-
-            body_values['smbhiddenfiles'] = smbhiddenfiles
-
-        smbhideunreadable = smbhideunreadable.upper()
-
-        if smbhideunreadable not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbhideunreadable '
-                             'parameter.  Allowed values are: "YES" or "NO"'
-                             .format(smbbrowseable))
-
-        body_values['smbhideunreadable'] = smbhideunreadable
-
-        smbhideunwriteable = smbhideunwriteable.upper()
-
-        if smbhideunwriteable not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbhideunwriteable '
-                             'parameter.  Allowed values are: "YES" or "NO"'
-                             .format(smbhideunwriteable))
-
-        body_values['smbhideunwriteable'] = smbhideunwriteable
-
-        smbhidedotfiles = smbhidedotfiles.upper()
-
-        if smbhidedotfiles not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbhidedotfiles '
-                             'parameter.  Allowed values are: "YES" or "NO"'
-                             .format(smbhidedotfiles))
-
-        body_values['smbhidedotfiles'] = smbhidedotfiles
-
-        smbstoredosattributes = smbstoredosattributes.upper()
-
-        if smbstoredosattributes not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbstoredosattributes '
-                             'parameter.  Allowed values are: "YES" or "NO"'
-                             .format(smbstoredosattributes))
-
-        body_values['smbstoredosattributes'] = smbstoredosattributes
-
-        smbenableoplocks = smbenableoplocks.upper()
-
-        if smbenableoplocks not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbenableoplocks '
-                             'parameter.  Allowed values are: "YES" or "NO"'
-                             .format(smbenableoplocks))
-
-        body_values['smbenableoplocks'] = smbenableoplocks
-
-    method = 'POST'
     path = '/api/volumes.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def update_volume_nas_options(session, volume_id, atimeupdate=None,
@@ -678,103 +432,35 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(volume_id):
-        raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
-
+    verify_volume_id(volume_id)
     body_values = {}
 
+    if smbmaparchive is not None:
+        body_values['smbmaparchive'] = verify_boolean(smbmaparchive, "smbmaparchive")
+
     if atimeupdate is not None:
-        atimeupdate = atimeupdate.upper()
-
-        if atimeupdate not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid atimeupdate parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(atimeupdate))
-
-        body_values['atimeupdate'] = atimeupdate
+        body_values['atimeupdate'] = verify_boolean(atimeupdate, "atimeupdate")
 
     if smbonly is not None:
-        smbonly = smbonly.upper()
-
-        if smbonly not in ['YES', 'NO']:
-                raise ValueError('"{0}" is not a valid smbonly parameter.  '
-                                 'Allowed values are: "YES" or "NO"'
-                                 .format(smbonly))
-
-        body_values['smbonly'] = smbonly
+        body_values['smbonly'] = verify_boolean(smbonly, "smbonly")
 
     if smbguest is not None:
-        smbguest = smbguest.upper()
-
-        if smbguest not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbguest parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(smbguest))
-
-        body_values['smbguest'] = smbguest
+        body_values['smbguest'] = verify_boolean(smbguest, "smbguest")
 
     if smbwindowsacl is not None:
-        smbwindowsacl = smbwindowsacl.upper()
-
-        if smbwindowsacl not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbwindowsacl parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(smbwindowsacl))
-
-        body_values['smbwindowsacl'] = smbwindowsacl
+        body_values['smbwindowsacl'] = verify_boolean(smbwindowsacl, "smbwindowsacl")
 
     if smbfilecreatemask is not None:
-        if not is_valid_mask(smbfilecreatemask):
-            raise ValueError('smbfilecreatemask must be a valid octal UNIX '
-                             'style permission mask ("{0}" was given).'
-                             .format(smbfilecreatemask))
-
-        body_values['smbfilecreatemask'] = smbfilecreatemask
+        body_values['smbfilecreatemask'] = verify_netmask(smbfilecreatemask, "smbfilecreatemask")
 
     if smbdircreatemask is not None:
-        if not is_valid_mask(smbdircreatemask):
-            raise ValueError('smbdircreatemask must be a valid octal UNIX '
-                             'style permission mask ("{0}" was given).'
-                             .format(smbdircreatemask))
+        body_values['smbdircreatemask'] = verify_netmask(smbdircreatemask, "smbdircreatemask")
 
-        body_values['smbdircreatemask'] = smbdircreatemask
-
-    if smbmaparchive is not None:
-        smbmaparchive = smbmaparchive.upper()
-
-        if smbmaparchive not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbmaparchive parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(smbmaparchive))
-
-        body_values['smbmaparchive'] = smbmaparchive
-
-    if smbaiosize is not None:
-        smbaiosize = smbaiosize.upper()
-
-        if smbaiosize not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid smbaiosize parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(smbaiosize))
-
-        # smbaiosize needs to convert 'YES' to '16384', and 'NO' to '1', per
-        # what the API backend expects.
-        if smbaiosize == 'YES':
-            smbaiosize = '16384'
-        else:
-            smbaiosize = '1'
-
-        body_values['smbaiosize'] = smbaiosize
+    smbaiosize = verify_boolean(smbaiosize, "smbaiosize")
+    body_values['smbaiosize'] = '16384' if smbaiosize == 'YES' else '1'
 
     if nfsrootsquash is not None:
-        nfsrootsquash = nfsrootsquash.upper()
-
-        if nfsrootsquash not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid nfsrootsquash parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(nfsrootsquash))
-
-        body_values['nfsrootsquash'] = nfsrootsquash
+        body_values['nfsrootsquash'] = verify_boolean(nfsrootsquash, "nfsrootsquash")
 
     if not body_values:
         raise ValueError('At least one of the following must be set: '
@@ -783,13 +469,9 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
                          '"smbdircreatemask", "smbmaparchive", "smbaiosize", '
                          '"nfsrootsquash"')
 
-    method = 'PUT'
     path = '/api/volumes/{0}.json'.format(volume_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.put_api(path=path, body=body_values, return_type=return_type)
 
 
 def update_volume_comment(session, volume_id, comment, return_type=None):
@@ -818,18 +500,13 @@ def update_volume_comment(session, volume_id, comment, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(volume_id):
-        raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
+    verify_volume_id(volume_id)
 
     body_values = {"new_comment": comment}
 
-    body = json.dumps(body_values)
-
-    method = 'POST'
     path = '/api/volumes/{0}/update_comment.json'.format(volume_id)
 
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def delete_volume(session, volume_id, force='NO', return_type=None):
@@ -861,26 +538,14 @@ def delete_volume(session, volume_id, force='NO', return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(volume_id):
-        raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
+    verify_volume_id(volume_id)
+    force = verify_boolean(force, "force")
 
-    body_values = {}
+    body_values = {'force': force}
 
-    force = force.upper()
-
-    if force not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(force))
-
-    body_values['force'] = force
-
-    body = json.dumps(body_values)
-
-    method = 'DELETE'
     path = '/api/volumes/{0}.json'.format(volume_id)
 
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.delete_api(path=path, body=body_values, return_type=return_type)
 
 
 def rename_volume(session, volume_id, display_name, return_type=None):
@@ -907,26 +572,14 @@ def rename_volume(session, volume_id, display_name, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(volume_id):
-        raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
+    verify_volume_id(volume_id)
+    display_name = verify_field(display_name, "display_name")
 
-    body_values = {}
+    body_values = {'new_name': display_name}
 
-    display_name = display_name.strip()
-
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid volume name.'
-                         .format(display_name))
-
-    body_values['new_name'] = display_name
-
-    method = 'POST'
     path = '/api/volumes/{0}/rename.json'.format(volume_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def expand_volume(session, volume_id, capacity, return_type=None):
@@ -954,26 +607,14 @@ def expand_volume(session, volume_id, capacity, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(volume_id):
-        raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
+    verify_volume_id(volume_id)
+    capacity = verify_capacity(capacity, "Volume")
 
-    body_values = {}
+    body_values = {'capacity': '{0}G'.format(capacity)}
 
-    capacity = int(capacity)
-
-    if capacity < 1:
-        raise ValueError('Volume must be expanded by >= 1 GB ("{0}" was'
-                         'given).'.format(capacity))
-
-    body_values['capacity'] = '{0}G'.format(capacity)
-
-    method = 'POST'
     path = '/api/volumes/{0}/expand.json'.format(volume_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def get_servers_attached_to_volume(session, volume_id, start=None, limit=None,
@@ -1003,29 +644,12 @@ def get_servers_attached_to_volume(session, volume_id, start=None, limit=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(volume_id):
-        raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
+    verify_volume_id(volume_id)
+    parameters = verify_start_limit(start, limit)
 
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/volumes/{0}/servers.json'.format(volume_id)
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def detach_servers_from_volume(session, volume_id, servers, force='NO',
@@ -1061,33 +685,15 @@ def detach_servers_from_volume(session, volume_id, servers, force='NO',
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(volume_id):
-        raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
+    verify_volume_id(volume_id)
+    verify_server_id(servers)
+    force = verify_boolean(force, "force")
 
-    body_values = {}
+    body_values = {'servers': servers, 'force': force}
 
-    for server in servers.split(','):
-        if not is_valid_server_id(server):
-            raise ValueError('"{0}" in "{1}" is not a valid server ID.'
-                             .format(server, servers))
-
-    body_values['servers'] = servers
-
-    force = force.upper()
-
-    if force not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(force))
-
-    body_values['force'] = force
-
-    method = 'POST'
     path = '/api/volumes/{0}/detach.json'.format(volume_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def set_volume_export_name(session, volume_id, export_name, return_type=None):
@@ -1114,24 +720,14 @@ def set_volume_export_name(session, volume_id, export_name, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(volume_id):
-        raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
+    verify_volume_id(volume_id)
+    export_name = verify_field(export_name, "export_name")
 
-    body_values = {}
+    body_values = {'exportname': export_name}
 
-    if not is_valid_field(export_name):
-        raise ValueError('{0} is not a valid export name.'
-                         .format(export_name))
-
-    body_values['exportname'] = export_name
-
-    method = 'PUT'
     path = '/api/volumes/{0}/export_name.json'.format(volume_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.put_api(path=path, body=body_values, return_type=return_type)
 
 
 def get_volume_attached_snapshot_policies(session, cg_id, start=None,
@@ -1164,31 +760,13 @@ def get_volume_attached_snapshot_policies(session, cg_id, start=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
+    verify_cg_id(cg_id)
+    parameters = verify_start_limit(start, limit)
 
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    path = '/api/consistency_groups/{0}/snapshot_policies.json' \
+        .format(cg_id)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
-    path = '/api/consistency_groups/{0}/snapshot_policies.json'\
-           .format(cg_id)
-
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
@@ -1219,25 +797,14 @@ def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
         which identifies the snapshot rule that has been created by adding the
         snapshot policy to the volume.
     """
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
+    verify_cg_id(cg_id)
+    verify_policy_id(policy_id)
 
-    body_values = {}
+    body_values = {'policy': policy_id}
 
-    if not is_valid_policy_id(policy_id):
-        raise ValueError('{0} is not a valid snapshot policy ID.'
-                         .format(policy_id))
-
-    body_values['policy'] = policy_id
-
-    method = 'POST'
     path = '/api/consistency_groups/{0}/attach_policy.json'.format(cg_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def remove_volume_snapshot_policy(session, snapshot_rule_name,
@@ -1266,36 +833,26 @@ def remove_volume_snapshot_policy(session, snapshot_rule_name,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_snapshot_rule_name(snapshot_rule_name):
-        raise ValueError('{0} is not a valid snapshot rule name.'
-                         .format(snapshot_rule_name))
+    verify_snapshot_rule_name(snapshot_rule_name)
+    delete_snapshots = verify_boolean(delete_snapshots, "delete_snapshots")
 
-    body_values = {}
+    body_values = {'delete_snapshots': delete_snapshots}
 
-    delete_snapshots = delete_snapshots.upper()
-
-    if delete_snapshots not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid delete_snapshots parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(delete_snapshots))
-
-    body_values['delete_snapshots'] = delete_snapshots
-
-    method = 'POST'
-    path = '/api/consistency_groups/{0}/detach_policy.json'\
+    path = '/api/consistency_groups/{0}/detach_policy.json' \
         .format(snapshot_rule_name)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
-def get_all_snapshots(session, cg_id, ros_backup_job_id=None, start=None,
-                      limit=None, return_type=None):
+def get_all_snapshots(session, cg_id, ros_backup_job_id=None, policy_id=None,
+                      start=None, limit=None, return_type=None):
     """
     Retrieves details for all snapshots either for a local volume or remote
     object storage backup job.
+
+    :type policy_id: str
+    :param policy_id: The snapshot policy 'name' value as returned by
+        get_all_snapshot_policies.  For example: 'policy-00000001'.  Required.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -1329,41 +886,23 @@ def get_all_snapshots(session, cg_id, ros_backup_job_id=None, start=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
+    verify_cg_id(cg_id)
 
-    application = None
+    list_more_options = []
 
-    if ros_backup_job_id is not None:
-        if not is_valid_ros_backup_job_id(ros_backup_job_id):
-            raise ValueError('{0} is not a valid remote object storage '
-                             'backup job ID.'.format(ros_backup_job_id))
+    if policy_id is not None:
+        verify_policy_id(policy_id)
+        list_more_options = [('jobname', policy_id), ('application', 'user')]
 
-        application = 'obs_mirror'
+    elif ros_backup_job_id is not None:
+        verify_ros_backup_job_id(ros_backup_job_id)
+        list_more_options = [('jobname', ros_backup_job_id), ('application', 'obs_mirror')]
 
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit, list_more_options)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/consistency_groups/{0}/snapshots.json'.format(cg_id)
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit),
-                                    ('jobname', ros_backup_job_id),
-                                    ('application', application))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def create_volume_snapshot(session, cg_id, display_name, return_type=None):
@@ -1393,27 +932,13 @@ def create_volume_snapshot(session, cg_id, display_name, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
+    verify_cg_id(cg_id)
+    display_name = verify_field(display_name, "display_name")
+    body_values = {'display_name': display_name}
 
-    body_values = {}
-
-    display_name = display_name.strip()
-
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid snapshot name.'
-                         .format(display_name))
-
-    body_values['display_name'] = display_name
-
-    method = 'POST'
     path = '/api/consistency_groups/{0}/snapshots.json'.format(cg_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def delete_volume_snapshot(session, snapshot_id, return_type=None):
@@ -1437,14 +962,11 @@ def delete_volume_snapshot(session, snapshot_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_snapshot_id(snapshot_id):
-        raise ValueError('{0} is not a valid snapshot ID.'
-                         .format(snapshot_id))
+    verify_snapshot_id(snapshot_id)
 
-    method = 'DELETE'
     path = '/api/snapshots/{0}.json'.format(snapshot_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type)
 
 
 def get_volume_migration(session, cg_id, return_type=None):
@@ -1478,14 +1000,11 @@ def get_volume_migration(session, cg_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
+    verify_cg_id(cg_id)
 
-    method = 'GET'
     path = '/api/consistency_groups/{0}/show_migration.json'.format(cg_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def migrate_volume(session, cg_id, pool_id, migrate_snaps='YES',
@@ -1521,36 +1040,18 @@ def migrate_volume(session, cg_id, pool_id, migrate_snaps='YES',
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
+    verify_cg_id(cg_id)
+    verify_pool_id(pool_id)
+    migrate_snaps = verify_boolean(migrate_snaps, "migrate_snaps")
 
-    body_values = {}
+    body_values = {'poolname': pool_id, 'migratesnaps': migrate_snaps}
 
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
-
-    body_values['poolname'] = pool_id
-
-    migrate_snaps = migrate_snaps.upper()
-
-    if migrate_snaps not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid migrate_snaps parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(migrate_snaps))
-
-    body_values['migratesnaps'] = migrate_snaps
-
-    method = 'POST'
     path = '/api/consistency_groups/{0}/migrate.json'.format(cg_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
-def pause_volume_migration(session, mgrjob_id, return_type=None):
+def pause_volume_migration(session, migration_cg_id, return_type=None):
     """
     Pause a running volume migration job.  The job is paused using the
     consistency group ID (cg_name) for the volume, as returned by
@@ -1559,10 +1060,10 @@ def pause_volume_migration(session, mgrjob_id, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type mgrjob_id: str
-    :param mgrjob_id: The migration job 'migration_job_name' value as returned
-        by get_all_volumes for the desired volume.  For example:
-        'mgrjob-00000001'.  Required.
+    :type migration_cg_id: str
+    :param migration_cg_id: The consistency group 'cg_name' value as returned by
+        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
+        Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1573,17 +1074,14 @@ def pause_volume_migration(session, mgrjob_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_mgrjob_id(mgrjob_id):
-        raise ValueError('{0} is not a valid migration job ID.'
-                         .format(mgrjob_id))
+    verify_cg_id(migration_cg_id)
 
-    method = 'POST'
-    path = '/api/migration_jobs/{0}/pause.json'.format(mgrjob_id)
+    path = '/api/migration_jobs/{0}/pause.json'.format(migration_cg_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
-def resume_volume_migration(session, mgrjob_id, return_type=None):
+def resume_volume_migration(session, migration_cg_id, return_type=None):
     """
     Resume a paused volume migration job.  The job is resumed using the
     consistency group ID (cg_name) for the volume, as returned by
@@ -1592,10 +1090,10 @@ def resume_volume_migration(session, mgrjob_id, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type mgrjob_id: str
-    :param mgrjob_id: The migration job 'migration_job_name' value as returned
-        by get_all_volumes for the desired volume.  For example:
-        'mgrjob-00000001'.  Required.
+    :type migration_cg_id: str
+    :param migration_cg_id: The consistency group 'cg_name' value as returned by
+        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
+        Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1606,17 +1104,14 @@ def resume_volume_migration(session, mgrjob_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_mgrjob_id(mgrjob_id):
-        raise ValueError('{0} is not a valid migration job ID.'
-                         .format(mgrjob_id))
+    verify_cg_id(migration_cg_id)
 
-    method = 'POST'
-    path = '/api/migration_jobs/{0}/continue.json'.format(mgrjob_id)
+    path = '/api/migration_jobs/{0}/continue.json'.format(migration_cg_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
-def cancel_volume_migration(session, mgrjob_id, return_type=None):
+def cancel_volume_migration(session, migration_cg_id, return_type=None):
     """
     Cancel a volume migration job.  The job is canceled using the consistency
     group ID (cg_name) for the volume, as returned by get_all_volumes.
@@ -1624,10 +1119,10 @@ def cancel_volume_migration(session, mgrjob_id, return_type=None):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type mgrjob_id: str
-    :param mgrjob_id: The migration job 'migration_job_name' value as returned
-        by get_all_volumes for the desired volume.  For example:
-        'mgrjob-00000001'.  Required.
+    :type migration_cg_id: str
+    :param migration_cg_id: The consistency group 'cg_name' value as returned by
+        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
+        Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1638,14 +1133,11 @@ def cancel_volume_migration(session, mgrjob_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_mgrjob_id(mgrjob_id):
-        raise ValueError('{0} is not a valid migration job ID.'
-                         .format(mgrjob_id))
+    verify_cg_id(migration_cg_id)
 
-    method = 'POST'
-    path = '/api/migration_jobs/{0}/abort.json'.format(mgrjob_id)
+    path = '/api/migration_jobs/{0}/abort.json'.format(migration_cg_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def create_clone(session, cg_id, display_name, snapshot_id=None,
@@ -1684,32 +1176,15 @@ def create_clone(session, cg_id, display_name, snapshot_id=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    verify_cg_id(cg_id)
+    display_name = verify_field(display_name, "display_name")
+    verify_snapshot_id(snapshot_id)
 
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
+    body_values = {'name': display_name, 'snapshot': snapshot_id}
 
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid clone name.'
-                         .format(display_name))
-
-    body_values['name'] = display_name
-
-    if snapshot_id is not None:
-        if not is_valid_snapshot_id(snapshot_id):
-            raise ValueError('{0} is not a valid snapshot ID.'
-                             .format(snapshot_id))
-
-        body_values['snapshot'] = snapshot_id
-
-    method = 'POST'
     path = '/api/consistency_groups/{0}/clone.json'.format(cg_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
@@ -1770,53 +1245,19 @@ def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
+    verify_cg_id(cg_id)
+    display_name = verify_field(display_name, "display_name")
+    verify_pool_id(pool_id=remote_pool_id, remote_pool_allowed=True)
+    verify_policy_id(policies)
+    remote_volume_name = verify_field(remote_volume_name, "remote_volume_name")
+    wan_optimization = verify_boolean(wan_optimization, "wan_optimization")
 
-    body_values = {}
+    body_values = {'display_name': display_name, 'remote_pool': remote_pool_id, 'policy': policies,
+                   'new_cg_name': remote_volume_name, 'wan_optimization': wan_optimization}
 
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid remote mirror name.'
-                         .format(display_name))
-
-    body_values['display_name'] = display_name
-
-    if not is_valid_pool_id(remote_pool_id, remote_pool_allowed=True):
-        raise ValueError('{0} is not a valid remote pool ID.'
-                         .format(remote_pool_id))
-
-    body_values['remote_pool'] = remote_pool_id
-
-    for policy in policies.split(','):
-        if not is_valid_policy_id(policy):
-            raise ValueError('"{0}" in "{1}" is not a valid snapshot policy '
-                             'ID.'.format(policy, policies))
-
-    body_values['policy'] = policies
-
-    if not is_valid_field(remote_volume_name):
-        raise ValueError('{0} is not a valid remote volume name.'
-                         .format(remote_volume_name))
-
-    body_values['new_cg_name'] = remote_volume_name
-
-    wan_optimization = wan_optimization.upper()
-
-    if wan_optimization not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid wan_optimization parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(wan_optimization))
-
-    body_values['wan_optimization'] = wan_optimization
-
-    method = 'POST'
     path = '/api/consistency_groups/{0}/mirror.json'.format(cg_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def get_volume_performance(session, volume_id, interval=1, return_type=None):
@@ -1843,19 +1284,101 @@ def get_volume_performance(session, volume_id, interval=1, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(volume_id):
-        raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
+    verify_volume_id(volume_id)
+    interval = verify_interval(interval)
 
-    interval = int(interval)
-
-    if interval < 1:
-        raise ValueError('Interval must be at least 1 second ({0} was'
-                         'supplied).'.format(interval))
-
-    method = 'GET'
     path = '/api/volumes/{0}/performance.json'.format(volume_id)
 
     parameters = {'interval': interval}
 
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+
+
+def get_snapshot(session, snap_id, return_type=None):
+    """
+    Retrieves details for a single volume.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type snap_id: str
+    :param snap_id: The Snapshot 'name' value as returned by get_allsnapshots.
+        For example: 'snap-00000001'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_snapshot_id(snap_id)
+
+    path = "/api/snapshots/{0}.json".format(snap_id)
+
+    return session.get_api(path=path, return_type=return_type)
+
+
+def delete_volume_from_recycle_bin(session, volume_id, return_type=None):
+    """
+    Retrieves details for a single volume.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The Volume 'name' value as returned by get_all_volumes.
+        For example: 'volume-00000001'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+
+    path = "/api/volumes/{0}/delete_volume_from_recycle_bin.json".format(volume_id)
+
+    return session.delete_api(path=path, return_type=return_type)
+
+
+def detach_snapshot_policy(session, volume_id, snaprule, delete_snapshots="Yes", return_type=None):
+    """
+    Detach a Snapshot Policy from a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type snaprule: str
+    :param snaprule: A snap rule ID. (found in /consistency_groups/{volume_cg_id}/snapshot_policies API).
+      For example: 'snaprule-00000001'.  Required.
+
+    :type delete_snapshots: str
+    :param delete_snapshots: True iff delete snapshots after detach
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+    verify_snaprule_id(snaprule)
+    delete_snapshots = verify_boolean(delete_snapshots, "delete_snapshots")
+
+    path = '/api/volumes/{0}/detach_snapshot_policy.json'.format(volume_id)
+    body_values = {"id": volume_id, "snaprule": snaprule, "delete_snapshots": delete_snapshots}
+    return session.post_api(path=path, body=body_values, return_type=return_type)

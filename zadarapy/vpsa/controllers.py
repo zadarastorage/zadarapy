@@ -14,8 +14,7 @@
 # under the License.
 
 
-import json
-from zadarapy.validators import is_valid_controller_id
+from zadarapy.validators import *
 
 
 def get_all_controllers(session, start=None, limit=None, return_type=None):
@@ -40,26 +39,11 @@ def get_all_controllers(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/vcontrollers.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def failover_controller(session, confirm, force='NO', return_type=None):
@@ -89,30 +73,18 @@ def failover_controller(session, confirm, force='NO', return_type=None):
         return_type parameter.
     """
     if not confirm:
-        raise ValueError('The confirm parameter is not set to True - '
-                         'failover will not be performed.')
+        raise ValueError('The confirm parameter is not set to True - failover will not be performed.')
 
-    body_values = {}
+    force = verify_boolean(force, "force")
 
-    force = force.upper()
+    body_values = {'force': force}
 
-    if force not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(force))
-
-    body_values['force'] = force
-
-    method = 'POST'
     path = '/api/vcontrollers/failover.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
-def get_controller_performance(session, controller_id, interval=1,
-                               return_type=None):
+def get_controller_performance(session, controller_id, interval=1, return_type=None):
     """
     Retrieves metering statistics for the controller for the specified
     interval.  Default interval is one second.
@@ -136,23 +108,14 @@ def get_controller_performance(session, controller_id, interval=1,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_controller_id(controller_id):
-        raise ValueError('{0} is not a valid virtual controller ID.'
-                         .format(controller_id))
+    verify_controller_id(controller_id)
+    interval = verify_interval(interval)
 
-    interval = int(interval)
-
-    if interval < 1:
-        raise ValueError('Interval must be at least 1 second ({0} was'
-                         'supplied).'.format(interval))
-
-    method = 'GET'
     path = '/api/vcontrollers/{0}/performance.json'.format(controller_id)
 
     parameters = {'interval': interval}
 
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def get_cache_performance(session, interval=1, return_type=None):
@@ -175,19 +138,13 @@ def get_cache_performance(session, interval=1, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    interval = int(interval)
+    interval = verify_interval(interval)
 
-    if interval < 1:
-        raise ValueError('Interval must be at least 1 second ({0} was'
-                         'supplied).'.format(interval))
-
-    method = 'GET'
     path = '/api/vcontrollers/cache_performance.json'
 
     parameters = {'interval': interval}
 
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def get_cache_stats(session, interval=1, return_type=None):
@@ -210,16 +167,10 @@ def get_cache_stats(session, interval=1, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    interval = int(interval)
+    interval = verify_interval(interval)
 
-    if interval < 1:
-        raise ValueError('Interval must be at least 1 second ({0} was'
-                         'supplied).'.format(interval))
-
-    method = 'GET'
     path = '/api/vcontrollers/cache_stats.json'
 
     parameters = {'interval': interval}
 
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)

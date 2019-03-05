@@ -15,11 +15,15 @@
 
 
 from future.standard_library import install_aliases
+
 install_aliases()
 
-import json
-from urllib.parse import quote
-from zadarapy.validators import is_valid_field
+from zadarapy.validators import verify_start_limit, verify_name, verify_string, verify_group_name, \
+    verify_boolean, verify_field, verify_not_none
+
+__all__ = ["get_active_directory", "get_all_nas_groups", "get_all_nas_users", "get_nas_user", "get_nas_group",
+           "create_nas_group", "create_nas_user", "change_nas_user_smb_password", "delete_nas_group", "delete_nas_user",
+           "join_active_directory", "leave_active_directory", "update_active_directory_dns"]
 
 
 def get_all_nas_users(session, start=None, limit=None, return_type=None):
@@ -44,26 +48,11 @@ def get_all_nas_users(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/nas/users.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def get_nas_user(session, username, return_type=None):
@@ -85,12 +74,11 @@ def get_nas_user(session, username, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    username = quote(username.strip())
+    username = verify_name(username)
 
-    method = 'GET'
     path = '/api/nas/users/{0}.json'.format(username)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def create_nas_user(session, username, nfs_uid=None, smb_password=None,
@@ -131,13 +119,9 @@ def create_nas_user(session, username, nfs_uid=None, smb_password=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    username = verify_name(username)
 
-    if username in ['root', 'nobody']:
-        raise ValueError('The root and nobody users are assigned on every '
-                         'VPSA')
-
-    body_values['username'] = quote(username.strip())
+    body_values = {'username': username}
 
     if nfs_uid is None and smb_password is None:
         raise ValueError('Either the nfs_uid or smb_password (or both)'
@@ -155,13 +139,9 @@ def create_nas_user(session, username, nfs_uid=None, smb_password=None,
     if smb_groupname is not None:
         body_values['groupname'] = smb_groupname
 
-    method = 'POST'
     path = '/api/nas/users.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def change_nas_user_smb_password(session, username, smb_password,
@@ -188,22 +168,14 @@ def change_nas_user_smb_password(session, username, smb_password,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    username = verify_name(username)
+    verify_string(smb_password)
 
-    username = quote(username.strip())
+    body_values = {'password': smb_password}
 
-    if type(smb_password) is not str:
-        raise ValueError('A string must be passed for smb_password.')
-
-    body_values['password'] = smb_password
-
-    method = 'POST'
     path = '/api/nas/users/{0}/password.json'.format(username)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def delete_nas_user(session, username, return_type=None):
@@ -225,15 +197,11 @@ def delete_nas_user(session, username, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    username = quote(username.strip())
+    username = verify_name(username)
 
-    if username in ['root', 'nobody']:
-        raise ValueError('The root and nobody users cannot be deleted.')
-
-    method = 'DELETE'
     path = '/api/nas/users/{0}.json'.format(username)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type)
 
 
 def get_all_nas_groups(session, start=None, limit=None, return_type=None):
@@ -258,26 +226,11 @@ def get_all_nas_groups(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/nas/groups.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def get_nas_group(session, groupname, return_type=None):
@@ -299,12 +252,11 @@ def get_nas_group(session, groupname, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    groupname = quote(groupname.strip())
+    groupname = verify_name(groupname)
 
-    method = 'GET'
     path = '/api/nas/groups/{0}.json'.format(groupname)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def create_nas_group(session, groupname, nfs_gid=None, smb='NO',
@@ -339,39 +291,18 @@ def create_nas_group(session, groupname, nfs_gid=None, smb='NO',
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    groupname = verify_group_name(groupname)
+    smb = verify_boolean(smb, "smb")
+    _check_nfs_gid(nfs_gid, smb)
 
-    if groupname in ['root', 'nogroup']:
-        raise ValueError('The root and nogroup group are assigned on every '
-                         'VPSA')
-
-    body_values['groupname'] = quote(groupname.strip())
-
-    smb = smb.upper()
-
-    if nfs_gid is None and smb not in ['YES', 'NO']:
-        raise ValueError('Either the "nfs_gid" must be defined or "smb" must '
-                         'be set to "YES".')
+    body_values = {'groupname': groupname, 'smb': smb}
 
     if nfs_gid is not None:
-        if nfs_gid < 1 or nfs_gid > 65533:
-            raise ValueError('"{0}" is not a valid NFS GID.'.format(nfs_gid))
-
         body_values['nfs_gid'] = nfs_gid
 
-    if smb not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid smb parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(smb))
-
-    body_values['smb'] = smb
-
-    method = 'POST'
     path = '/api/nas/groups.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def delete_nas_group(session, groupname, return_type=None):
@@ -393,16 +324,11 @@ def delete_nas_group(session, groupname, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    groupname = quote(groupname.strip())
+    groupname = verify_group_name(groupname)
 
-    if groupname in ['root', 'nogroup']:
-        raise ValueError('The root and nogroup group are assigned on every '
-                         'VPSA')
-
-    method = 'DELETE'
     path = '/api/nas/groups/{0}.json'.format(groupname)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type)
 
 
 def get_active_directory(session, return_type=None):
@@ -421,10 +347,9 @@ def get_active_directory(session, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'GET'
     path = '/api/active_directory.json'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def join_active_directory(session, display_name, username, password,
@@ -474,48 +399,18 @@ def join_active_directory(session, display_name, username, password,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    display_name = verify_field(display_name, display_name)
+    verify_not_none(username, 'username')
+    verify_not_none(password, 'password')
+    verify_not_none(netbios_name, 'netbios_name')
+    _check_dns(dns)
 
-    display_name = display_name.strip()
+    body_values = {'adserver': display_name, 'username': username, 'password': password, 'realm': dns_domain,
+                   'workgroup': netbios_name, 'dns': dns}
 
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid Active Directory name.'
-                         .format(display_name))
-
-    body_values['adserver'] = display_name
-
-    if username is None:
-        raise ValueError('The username parameter must be passed.')
-
-    body_values['username'] = username
-
-    if password is None:
-        raise ValueError('The password parameter must be passed.')
-
-    body_values['password'] = password
-
-    body_values['realm'] = dns_domain
-
-    if netbios_name is None:
-        raise ValueError('The netbios_name parameter must be passed.')
-
-    body_values['workgroup'] = netbios_name
-
-    if type(dns) is str:
-        dns = [x.strip() for x in dns.split(',')]
-
-    if type(dns) is not list:
-        raise ValueError('The dns parameter must be a Python list.')
-
-    body_values['dns'] = dns
-
-    method = 'POST'
     path = '/api/active_directory.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def update_active_directory_dns(session, dns, return_type=None):
@@ -540,23 +435,12 @@ def update_active_directory_dns(session, dns, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    _check_dns(dns)
+    body_values = {'dns': dns}
 
-    if type(dns) is str:
-        dns = [x.strip() for x in dns.split(',')]
-
-    if type(dns) is not list:
-        raise ValueError('The dns parameter must be a Python list.')
-
-    body_values['dns'] = dns
-
-    method = 'POST'
     path = '/api/active_directory/dns.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def leave_active_directory(session, username, password, return_type=None):
@@ -583,22 +467,55 @@ def leave_active_directory(session, username, password, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    verify_not_none(username, "username")
+    verify_not_none(password, "password")
 
-    if username is None:
-        raise ValueError('The username parameter must be passed.')
+    body_values = {'username': username, 'password': password}
 
-    body_values['username'] = username
-
-    if password is None:
-        raise ValueError('The password parameter must be passed.')
-
-    body_values['password'] = password
-
-    method = 'POST'
     path = '/api/active_directory/reset.json'
 
-    body = json.dumps(body_values)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+
+"""
+Private functions
+"""
+
+
+def _check_nfs_gid(nfs_gid, smb):
+    """
+
+    :type nfs_gid: int
+    :param nfs_gid: NFS GID parameter
+
+    :type smb: str
+    :param smb: SMB parameter
+
+    :raises ValueError: invalid NFS GID or SMB
+    """
+    if nfs_gid is None and smb not in ['YES', 'NO']:
+        raise ValueError('Either the "nfs_gid" must be defined or "smb" must '
+                         'be set to "YES".')
+
+    if nfs_gid is not None:
+        if nfs_gid < 1 or nfs_gid > 65533:
+            raise ValueError('"{0}" is not a valid NFS GID.'.format(nfs_gid))
+
+
+def _check_dns(dns):
+    """
+    Check DNS
+
+    :type dns: str
+    :param dns: DNS address
+
+    :rtype: str
+    :return: Fixed DNS format
+
+    :raises: ValueError: Invalid DNS parameter
+    """
+    if type(dns) is str:
+        dns = [x.strip() for x in dns.split(',')]
+
+    if type(dns) is not list:
+        raise ValueError('The DNS parameter must be a Python list.')

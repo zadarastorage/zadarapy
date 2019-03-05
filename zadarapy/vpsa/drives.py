@@ -14,9 +14,8 @@
 # under the License.
 
 
-import json
-from zadarapy.validators import is_valid_field
-from zadarapy.validators import is_valid_volume_id
+from zadarapy.validators import verify_boolean, verify_interval
+from zadarapy.validators import verify_start_limit, verify_volume_id, verify_field
 
 
 def get_all_drives(session, start=None, limit=None, return_type=None):
@@ -41,32 +40,17 @@ def get_all_drives(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/drives.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def get_free_drives(session, start=None, limit=None, return_type=None):
     """
     Retrieves details for all drives that are available for use (not
-    particpating in a RAID group).
+    participating in a RAID group).
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -86,26 +70,11 @@ def get_free_drives(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/drives/free.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def get_drive(session, drive_id, return_type=None):
@@ -128,13 +97,11 @@ def get_drive(session, drive_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(drive_id):
-        raise ValueError('{0} is not a valid drive ID.'.format(drive_id))
+    verify_volume_id(drive_id)
 
-    method = 'GET'
     path = '/api/drives/{0}.json'.format(drive_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def rename_drive(session, drive_id, display_name, return_type=None):
@@ -161,26 +128,14 @@ def rename_drive(session, drive_id, display_name, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(drive_id):
-        raise ValueError('{0} is not a valid drive ID.'.format(drive_id))
+    verify_volume_id(drive_id)
+    display_name = verify_field(display_name, "display_name")
 
-    body_values = {}
+    body_values = {'newname': display_name}
 
-    display_name = display_name.strip()
-
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid drive display name.'
-                         .format(display_name))
-
-    body_values['newname'] = display_name
-
-    method = 'POST'
     path = '/api/drives/{0}/rename.json'.format(drive_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def remove_drive(session, drive_id, return_type=None):
@@ -204,17 +159,14 @@ def remove_drive(session, drive_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(drive_id):
-        raise ValueError('{0} is not a valid drive ID.'.format(drive_id))
+    verify_volume_id(drive_id)
 
-    method = 'POST'
     path = '/api/drives/{0}/remove.json'.format(drive_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
-def replace_drive(session, drive_id, to_drive_id, force='NO',
-                  return_type=None):
+def replace_drive(session, drive_id, to_drive_id, force='NO', return_type=None):
     """
     Replaces a drive, identified by drive_id parameter, with a new unallocated
     drive, identified by to_drive_id parameter, in a RAID group.  The
@@ -247,31 +199,15 @@ def replace_drive(session, drive_id, to_drive_id, force='NO',
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(drive_id):
-        raise ValueError('{0} is not a valid drive ID.'.format(drive_id))
+    verify_volume_id(drive_id)
+    verify_volume_id(to_drive_id)
+    force = verify_boolean(force, "force")
 
-    body_values = {}
+    body_values = {'toname': to_drive_id, 'force': force}
 
-    if not is_valid_volume_id(to_drive_id):
-        raise ValueError('{0} is not a valid drive ID.'.format(to_drive_id))
-
-    body_values['toname'] = to_drive_id
-
-    force = force.upper()
-
-    if force not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(force))
-
-    body_values['force'] = force
-
-    method = 'POST'
     path = '/api/drives/{0}/replace.json'.format(drive_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def shred_drive(session, drive_id, force='NO', return_type=None):
@@ -301,26 +237,14 @@ def shred_drive(session, drive_id, force='NO', return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(drive_id):
-        raise ValueError('{0} is not a valid drive ID.'.format(drive_id))
+    verify_volume_id(drive_id)
+    force = verify_boolean(force, "force")
 
-    body_values = {}
+    body_values = {'force': force}
 
-    force = force.upper()
-
-    if force not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(force))
-
-    body_values['force'] = force
-
-    method = 'POST'
     path = '/api/drives/{0}/shred.json'.format(drive_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def cancel_shred_drive(session, drive_id, return_type=None):
@@ -343,13 +267,11 @@ def cancel_shred_drive(session, drive_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(drive_id):
-        raise ValueError('{0} is not a valid drive ID.'.format(drive_id))
+    verify_volume_id(drive_id)
 
-    method = 'POST'
     path = '/api/drives/{0}/cancel_shred.json'.format(drive_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def get_drive_performance(session, drive_id, interval=1, return_type=None):
@@ -376,19 +298,11 @@ def get_drive_performance(session, drive_id, interval=1, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(drive_id):
-        raise ValueError('{0} is not a valid drive ID.'.format(drive_id))
+    verify_volume_id(drive_id)
+    interval = verify_interval(interval)
 
-    interval = int(interval)
-
-    if interval < 1:
-        raise ValueError('Interval must be at least 1 second ({0} was'
-                         'supplied).'.format(interval))
-
-    method = 'GET'
     path = '/api/drives/{0}/performance.json'.format(drive_id)
 
     parameters = {'interval': interval}
 
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)

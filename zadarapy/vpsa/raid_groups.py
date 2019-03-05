@@ -14,10 +14,8 @@
 # under the License.
 
 
-import json
-from zadarapy.validators import is_valid_field
-from zadarapy.validators import is_valid_raid_id
-from zadarapy.validators import is_valid_volume_id
+from zadarapy.validators import verify_start_limit, verify_raid_id, verify_field, verify_raid_type, \
+    verify_drives, verify_stripe_size, verify_boolean, verify_min_max, verify_interval
 
 
 def get_all_raid_groups(session, start=None, limit=None, return_type=None):
@@ -42,26 +40,11 @@ def get_all_raid_groups(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/raid_groups.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def get_free_raid_groups(session, start=None, limit=None, return_type=None):
@@ -87,26 +70,11 @@ def get_free_raid_groups(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/raid_groups/free.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def get_raid_group(session, raid_id, return_type=None):
@@ -129,13 +97,11 @@ def get_raid_group(session, raid_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_raid_id(raid_id):
-        raise ValueError('{0} is not a valid RAID group ID.'.format(raid_id))
+    verify_raid_id(raid_id)
 
-    method = 'GET'
     path = '/api/raid_groups/{0}.json'.format(raid_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def create_raid_group(session, display_name, protection, disk,
@@ -189,36 +155,15 @@ def create_raid_group(session, display_name, protection, disk,
     :return: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    display_name = verify_field(display_name, "display_name")
+    protection = verify_raid_type(protection)
+    verify_drives(disk)
+    verify_stripe_size(str(stripe_size))
+    hot_spare = verify_boolean(hot_spare, "hot_spare")
+    force = verify_boolean(force, "force")
 
-    display_name = display_name.strip()
-
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid RAID group ID.'
-                         .format(display_name))
-
-    body_values['display_name'] = display_name
-
-    if protection not in ['RAID1', 'RAID5', 'RAID6']:
-        raise ValueError('"{0}" is not a valid RAID type.  Allowed values '
-                         'are: "RAID1", "RAID5", and "RAID6"'
-                         .format(protection))
-
-    body_values['protection'] = protection
-
-    drives = disk.split(',')
-
-    for drive_id in drives:
-        if not is_valid_volume_id(drive_id):
-            raise ValueError('"{0}" in "{1}" is not a valid drive ID.'
-                             .format(drive_id, disk))
-
-    body_values['disk'] = disk
-
-    if stripe_size not in [4, 16, 32, 64, 128, 256]:
-        raise ValueError('{0} is not a valid stripe size.  Allowed values '
-                         'are: 4, 16, 32, 64, 128, or 256'
-                         .format(stripe_size))
+    body_values = {'display_name': display_name, 'protection': protection, 'disk': disk, 'hot_spare': hot_spare,
+                   'force': force}
 
     if protection == 'RAID1':
         stripe_size = None
@@ -226,17 +171,9 @@ def create_raid_group(session, display_name, protection, disk,
     if stripe_size is not None:
         body_values['stripe_size'] = stripe_size
 
-    hot_spare = hot_spare.upper()
-
-    if hot_spare not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid hot spare setting.  Allowed '
-                         'values are: "YES" or "NO"'.format(hot_spare))
-
-    body_values['hot_spare'] = hot_spare
-
     # Inflect the required protection_width parameter from the count of
     # elements in the 'disk' parameter instead of making the user pass it.
-    protection_width = len(drives)
+    protection_width = len(disk.split(','))
 
     if protection == 'RAID1':
         if protection_width < 2 or protection_width > 3:
@@ -255,21 +192,9 @@ def create_raid_group(session, display_name, protection, disk,
 
     body_values['protection_width'] = protection_width
 
-    force = force.upper()
-
-    if force not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(force))
-
-    body_values['force'] = force
-
-    method = 'POST'
     path = '/api/raid_groups.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def delete_raid_group(session, raid_id, return_type=None):
@@ -293,13 +218,11 @@ def delete_raid_group(session, raid_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_raid_id(raid_id):
-        raise ValueError('{0} is not a valid RAID group ID.'.format(raid_id))
+    verify_raid_id(raid_id)
 
-    method = 'DELETE'
     path = '/api/raid_groups/{0}.json'.format(raid_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type)
 
 
 def get_drives_in_raid_group(session, raid_id, start=None, limit=None,
@@ -329,17 +252,12 @@ def get_drives_in_raid_group(session, raid_id, start=None, limit=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_raid_id(raid_id):
-        raise ValueError('{0} is not a valid RAID group ID.'.format(raid_id))
+    verify_raid_id(raid_id)
+    parameters = verify_start_limit(start, limit)
 
-    method = 'GET'
     path = '/api/raid_groups/{0}/disks.json'.format(raid_id)
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
 
 def rename_raid_group(session, raid_id, display_name, return_type=None):
@@ -366,26 +284,14 @@ def rename_raid_group(session, raid_id, display_name, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_raid_id(raid_id):
-        raise ValueError('{0} is not a valid RAID group ID.'.format(raid_id))
+    verify_raid_id(raid_id)
+    display_name = verify_field(display_name, "display_name")
 
-    body_values = {}
+    body_values = {'newname': display_name}
 
-    display_name = display_name.strip()
-
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid RAID group name.'
-                         .format(display_name))
-
-    body_values['newname'] = display_name
-
-    method = 'POST'
     path = '/api/raid_groups/{0}/rename.json'.format(raid_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def repair_raid_group(session, raid_id, return_type=None):
@@ -410,13 +316,11 @@ def repair_raid_group(session, raid_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_raid_id(raid_id):
-        raise ValueError('{0} is not a valid RAID group ID.'.format(raid_id))
+    verify_raid_id(raid_id)
 
-    method = 'POST'
     path = '/api/raid_groups/{0}/repair.json'.format(raid_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def update_raid_group_resync_speed(session, raid_id, minimum, maximum,
@@ -449,33 +353,14 @@ def update_raid_group_resync_speed(session, raid_id, minimum, maximum,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_raid_id(raid_id):
-        raise ValueError('{0} is not a valid RAID group ID.'.format(raid_id))
+    verify_raid_id(raid_id)
+    minimum, maximum = verify_min_max(minimum, maximum)
 
-    body_values = {}
+    body_values = {'min': minimum, 'max': maximum}
 
-    minimum = int(minimum)
-    maximum = int(maximum)
-
-    if minimum < 0 or maximum < 0:
-        raise ValueError('Minimum speed ({0}) and maximum speed ({1}) must '
-                         'both be a positive integer.'
-                         .format(minimum, maximum))
-
-    if minimum > maximum:
-        raise ValueError('Minimum speed ({0}) must be less than maximum speed '
-                         '({1}).'.format(minimum, maximum))
-
-    body_values['min'] = minimum
-    body_values['max'] = maximum
-
-    method = 'POST'
     path = '/api/raid_groups/{0}/resync_speed.json'.format(raid_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def start_raid_group_media_scan(session, raid_id, return_type=None):
@@ -499,13 +384,11 @@ def start_raid_group_media_scan(session, raid_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_raid_id(raid_id):
-        raise ValueError('{0} is not a valid RAID group ID.'.format(raid_id))
+    verify_raid_id(raid_id)
 
-    method = 'POST'
     path = '/api/raid_groups/{0}/scrub.json'.format(raid_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def pause_raid_group_media_scan(session, raid_id, return_type=None):
@@ -528,13 +411,11 @@ def pause_raid_group_media_scan(session, raid_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_raid_id(raid_id):
-        raise ValueError('{0} is not a valid RAID group ID.'.format(raid_id))
+    verify_raid_id(raid_id)
 
-    method = 'POST'
     path = '/api/raid_groups/{0}/pause_scrub.json'.format(raid_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def add_hot_spare_to_raid_group(session, raid_id, drive_id, force='NO',
@@ -568,31 +449,15 @@ def add_hot_spare_to_raid_group(session, raid_id, drive_id, force='NO',
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_raid_id(raid_id):
-        raise ValueError('{0} is not a valid RAID group ID.'.format(raid_id))
+    verify_raid_id(raid_id)
+    verify_drives(drive_id)
+    force = verify_boolean(force, "force")
 
-    body_values = {}
+    body_values = {'disk': drive_id, 'force': force}
 
-    if not is_valid_volume_id(drive_id):
-        raise ValueError('{0} is not a valid drive ID.'.format(drive_id))
-
-    body_values['disk'] = drive_id
-
-    force = force.upper()
-
-    if force not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(force))
-
-    body_values['force'] = force
-
-    method = 'POST'
     path = '/api/raid_groups/{0}/hot_spares.json'.format(raid_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def remove_hot_spare_from_raid_group(session, raid_id, return_type=None):
@@ -615,13 +480,11 @@ def remove_hot_spare_from_raid_group(session, raid_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_raid_id(raid_id):
-        raise ValueError('{0} is not a valid RAID group ID.'.format(raid_id))
+    verify_raid_id(raid_id)
 
-    method = 'POST'
     path = '/api/raid_groups/{0}/hot_spares/remove.json'.format(raid_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def get_raid_group_performance(session, raid_id, interval=1,
@@ -649,19 +512,11 @@ def get_raid_group_performance(session, raid_id, interval=1,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_raid_id(raid_id):
-        raise ValueError('{0} is not a valid RAID group ID.'.format(raid_id))
+    verify_raid_id(raid_id)
+    interval = verify_interval(interval)
 
-    interval = int(interval)
-
-    if interval < 1:
-        raise ValueError('Interval must be at least 1 second ({0} was'
-                         'supplied).'.format(interval))
-
-    method = 'GET'
     path = '/api/raid_groups/{0}/performance.json'.format(raid_id)
 
     parameters = {'interval': interval}
 
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)
