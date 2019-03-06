@@ -20,6 +20,28 @@ from urllib.parse import quote
 import re
 
 
+def is_valid_vpsa_internal_name(vpsa_internal_id):
+    """
+    Validates a VPSA internal ID. A valid VPSA internal ID should look like: vsa-00000001
+    - It should always start with "vsa-" and end with 8 hexadecimal characters
+    in lower case.
+
+    :type vpsa_internal_id: str
+    :param vpsa_internal_id: The VPSA internal ID to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether vpsa_internal_id passes validation.
+    """
+    if vpsa_internal_id is None:
+        return False
+    match = re.match('^vsa-[0-9a-f]{8}$', vpsa_internal_id)
+
+    if not match:
+        return False
+
+    return True
+
+
 def is_valid_cg_id(cg_id):
     """
     Validates a consistency group ID, also known as the consistency group
@@ -810,11 +832,26 @@ def verify_vpsa_id(vpsa_id):
 
     :raises: ValueError: Invalid capacity
     """
-    if type(vpsa_id) is int:
-        vpsa_id = str(vpsa_id)
-
+    vpsa_id = str(vpsa_id)
     if not vpsa_id.isdigit():
         raise ValueError('The VPSA ID should be a positive integer.')
+    return vpsa_id
+
+
+def verify_vpsa_internal_id(vpsa_internal_id):
+    """
+    :type vpsa_internal_id: str|int
+    :param vpsa_internal_id: VPSA internal ID to check
+
+    :rtype: str
+    :return: Fixed VPSA internal ID
+
+    :raises: ValueError: Invalid capacity
+    """
+    vpsa_id = str(vpsa_internal_id)
+
+    if not is_valid_vpsa_internal_name(vpsa_internal_id):
+        raise ValueError('{0} is not a valid VPSA internal ID.'.format(vpsa_internal_id))
 
     return vpsa_id
 
@@ -1136,7 +1173,9 @@ def verify_boolean(flag, title):
 
     :raises: ValueError: invalid form
     """
-    flag = flag.upper()
+    if flag is None:
+        return None
+    flag = str(flag).upper()
     if flag not in ['YES', 'NO']:
         raise ValueError('"{}" is not a valid {} parameter. Allowed values are: "YES" or "NO"'.format(flag, title))
     return flag

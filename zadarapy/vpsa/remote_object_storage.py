@@ -79,9 +79,8 @@ def get_ros_destination(session, ros_destination_id, return_type=None):
     return session.get_api(path=path, return_type=return_type)
 
 
-def create_ros_destination(session, display_name, bucket, endpoint, username,
-                           password, public, use_proxy, proxy_host=None,
-                           proxy_port=None, proxy_username=None,
+def create_ros_destination(session, display_name, bucket, endpoint, username, password, public, use_proxy, ros_type,
+                           allow_lifecycle_policies=None, proxy_host=None, proxy_port=None, proxy_username=None,
                            proxy_password=None, return_type=None):
     """
     Creates a remote object storage destination.  The VPSA can either connect
@@ -123,6 +122,10 @@ def create_ros_destination(session, display_name, bucket, endpoint, username,
         destination in question via the VPSA's defined default gateway.
         Required.
 
+    :type allow_lifecycle_policies: str
+    :param allow_lifecycle_policies: If set to 'YES', the VPSA will allow bucket to have lifecycle policies.
+    (Valid Only for AWS)
+
     :type use_proxy: str
     :param use_proxy: If set to 'YES', the VPSA will connect via an HTTP/HTTPS
         proxy when addressing the object storage destination.  If 'NO', a
@@ -159,22 +162,21 @@ def create_ros_destination(session, display_name, bucket, endpoint, username,
     password = verify_field(password, "password")
     public = verify_boolean(public, "public")
     use_proxy = verify_boolean(use_proxy, "use_proxy")
+    allow_lifecycle_policies = verify_boolean(allow_lifecycle_policies, "allow_lifecycle_policies")
 
     body_values = {'name': display_name, 'bucket': bucket, 'endpoint': endpoint, 'username': username,
-                   'password': password, 'connectVia': 'public' if public == 'YES' else 'fe',
-                   'use_proxy': str(use_proxy == "YES").lower()}
+                   'type': ros_type, 'password': password, 'connectVia': 'public' if public == 'YES' else 'be',
+                   'allow_lifecycle_policies': allow_lifecycle_policies}
 
     if use_proxy == 'YES':
         body_values['proxyhost'] = proxy_host
         body_values['proxyport'] = verify_port(proxy_port)
 
         if proxy_username is not None:
-            proxy_username = verify_field(proxy_username, "proxy_username")
-            body_values['proxyuser'] = proxy_username
+            body_values['proxyuser'] = verify_field(proxy_username, "proxy_username")
 
         if proxy_password is not None:
-            proxy_password = verify_field(proxy_password, "proxy_password")
-            body_values['proxypassword'] = proxy_password
+            body_values['proxypassword'] = verify_field(proxy_password, "proxy_password")
 
     path = '/api/object_storage_destinations.json'
 
@@ -463,7 +465,7 @@ def get_ros_backup_job(session, ros_backup_job_id, return_type=None):
     return session.get_api(path=path, return_type=return_type)
 
 
-def create_ros_backup_job(session, display_name, ros_destination_id,
+def create_ros_backup_job(session, display_name, ros_destination_id, sse,
                           volume_id, policy_id, compression='YES',
                           return_type=None):
     """
@@ -477,6 +479,10 @@ def create_ros_backup_job(session, display_name, ros_destination_id,
     :param display_name: A text label to assign to the remote object storage
         backup job.  For example: 'Daily S3 Backup'.  May not contain a single
         quote (') character.  Required.
+
+    :type sse: str
+    :param sse: The remote object storage destination SSE:
+     'NO', 'AES256', 'KMS', 'KMSKEYID  Required.
 
     :type ros_destination_id: str
     :param ros_destination_id: The remote object storage destination 'name'
@@ -514,7 +520,7 @@ def create_ros_backup_job(session, display_name, ros_destination_id,
     verify_policy_id(policy_id)
 
     body_values = {'name': display_name, 'destination': ros_destination_id, 'volume': volume_id, 'policy': policy_id,
-                   'compression': verify_boolean(compression, "compression")}
+                   'sse': sse, 'compression': verify_boolean(compression, "compression")}
 
     path = '/api/object_storage_backup_jobs.json'
 
@@ -762,7 +768,8 @@ def get_ros_restore_job(session, ros_restore_job_id, return_type=None):
 
 def create_ros_restore_job(session, display_name, ros_destination_id, pool_id,
                            restore_mode, volume_name, local_snapshot_id,
-                           object_store_key, crypt, return_type=None):
+                           object_store_key, crypt, dedupe='NO', compress='NO',
+                           return_type=None):
     """
     Creates a new remote object storage backup job.  Backups are based on
     snapshots taken by the specified snapshot policy.
@@ -826,6 +833,14 @@ def create_ros_restore_job(session, display_name, ros_destination_id, pool_id,
         will be encrypted with the VPSA's encryption key.  If 'NO', the
         resulting volume will not be encrypted.  Required.
 
+    :type dedupe: str
+    :param dedupe: If set to 'YES', deduplication will be enabled on the
+        volume.  If 'NO', it won't.  Optional.
+
+    :type compress: str
+    :param compress: If set to 'YES', compression will be enabled on the
+        volume.  If 'NO', it won't.  Optional.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -853,6 +868,12 @@ def create_ros_restore_job(session, display_name, ros_destination_id, pool_id,
 
     if object_store_key is not None:
         body_values['key'] = verify_field(object_store_key, "object_store_key")
+
+    if dedupe is not None:
+        body_values["dedupe"] = verify_boolean(dedupe, 'dedupe')
+
+    if compress is not None:
+        body_values["compress"] = verify_boolean(compress, 'compress')
 
     path = '/api/object_storage_restore_jobs.json'
 
