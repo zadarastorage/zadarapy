@@ -489,6 +489,8 @@ class Session(object):
             url = path
 
         try:
+            body = body if body is not None else {}
+
             # URL encode for body
             if url_encode is True:
                 body = urlencode(body)
