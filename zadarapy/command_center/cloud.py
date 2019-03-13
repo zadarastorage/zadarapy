@@ -87,6 +87,32 @@ def get_vpsa_from_cloud(session, cloud_name, vpsa_id, return_type=None):
     return session.get_api(path=path, return_type=return_type)
 
 
+def get_zios_from_cloud(session, cloud_name, zios_id, return_type=None):
+    """
+    Returns ZIOS info from Command Center
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type zios_id: str
+    :param zios_id: ZIOS ID. i.e: 126
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{0}/zioses/{1}.json".format(cloud_name, zios_id)
+    return session.get_api(path=path, return_type=return_type)
+
+
 def get_all_drives(session, cloud_name, return_type=None):
     """
     Get all command Center Drives

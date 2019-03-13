@@ -1487,3 +1487,24 @@ def verify_snapshot_rule_name(snapshot_rule_name):
                          .format(snapshot_rule_name))
 
     return snapshot_rule_name
+
+
+"""
+ZIOS
+"""
+
+
+def verify_account_id(account_id):
+    """
+    Verify Account ID
+
+    :type account_id: str|int
+    :param account_id: Account ID
+
+    :return: Fixed account ID
+    :rtype: int
+    """
+    account_id = str(account_id)
+    if len(account_id) != 32:
+        raise ValueError('The Account ID should be of length 32. Given: {}.'.format(account_id))
+    return account_id

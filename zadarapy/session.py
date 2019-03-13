@@ -22,7 +22,7 @@ import http.client
 import json
 import os
 from urllib.parse import urlencode
-from zadarapy.validators import is_valid_port
+from zadarapy.validators import verify_port
 
 DEFAULT_TIMEOUT = 20
 
@@ -448,10 +448,7 @@ class Session(object):
             secure = self.zadara_secure
 
         if port is not None:
-            port = int(port)
-            if not is_valid_port(self.zadara_port):
-                raise ValueError('The supplied port "{0}" must be within '
-                                 '1-65535 range.')
+            verify_port(port)
 
         # http.client can accept None port and use default, but we need to
         # define it here so debug info can be outputted later on error.
@@ -489,18 +486,23 @@ class Session(object):
             url = path
 
         try:
-            body = body if body is not None else {}
-
             # URL encode for body
             if url_encode is True:
                 body = urlencode(body)
             else:
                 body = json.dumps(body)
 
+            body = None if body == 'null' else body
+
             # Log function
             if self._log_function:
-                msg = "(zadarapy): [{method}]: {url}".format(method=method, url=url)
-                msg += ", {body}".format(body=body) if body is not None else ''
+
+                body_str = """'-d {}'""".format(body) if body else ''
+                headers_str = "-H {}".format(" -H ".join('"{}: {}"'.format(k, v) for k, v in headers.items()))
+                port_str = ":{}".format(port) if port else ''
+                msg = """curl -X {method} {headers} {body_str} {host}{port}{url}""".format(
+                    method=method, headers=headers_str, body_str=body_str, host=host, port=port_str, url=url)
+
                 self._log_function(msg)
 
             conn.request(method, url, headers=headers, body=body)
@@ -540,9 +542,12 @@ class Session(object):
         if 'response' in api_return_dict:
             if 'status' in api_return_dict['response']:
                 if api_return_dict['response']['status'] != 0:
-                    raise RuntimeError(
-                        'The API server returned an error: "{0}".'
-                            .format(api_return_dict['response']['message'])
-                    )
+                    try:
+                        err = api_return_dict['response']['message']
+                    except KeyError:
+                        # ZIOS
+                        err = api_return_dict['response']['status_msg']
+
+                    raise RuntimeError('The API server returned an error: "{0}".'.format(err))
 
         return api_return_dict

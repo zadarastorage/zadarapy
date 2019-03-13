@@ -12,18 +12,17 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
-
-
-def get_account(session, account_id, return_type=None):
-    # TODO: verify_account_id???
-    # verify_account_id(account_id=account_id)
-    path = "/api/zios/accounts/{0}.json".format(account_id)
-    return session.get_api(path=path, return_type=return_type)
+from zadarapy.validators import verify_account_id
 
 
 def get_all_accounts(session, return_type=None):
     path = "/api/zios/accounts.json"
+    return session.get_api(path=path, return_type=return_type)
+
+
+def get_account(session, account_id, return_type=None):
+    verify_account_id(account_id=account_id)
+    path = "/api/zios/accounts/{0}.json".format(account_id)
     return session.get_api(path=path, return_type=return_type)
 
 
@@ -34,21 +33,25 @@ def add_new_account(session, name, return_type=None):
 
 
 def delete_account(session, account_id, force="NO", return_type=None):
+    verify_account_id(account_id=account_id)
     path = "/api/zios/accounts/{0}.json".format(account_id)
     body_values = {'force': force}
     return session.delete_api(path=path, body=body_values, return_type=return_type)
 
 
 def cleanup_account(session, account_id, return_type=None):
+    verify_account_id(account_id=account_id)
     path = "/api/zios/accounts/{0}/cleanup.json".format(account_id)
     return session.delete_api(path=path, return_type=return_type)
 
 
 def disable_account(session, account_id, return_type=None):
+    verify_account_id(account_id=account_id)
     path = "/api/zios/accounts/{0}/disable.json".format(account_id)
     return session.post_api(path=path, return_type=return_type)
 
 
 def enable_account(session, account_id, return_type=None):
+    verify_account_id(account_id=account_id)
     path = "/api/zios/accounts/{0}/enable.json".format(account_id)
     return session.post_api(path=path, return_type=return_type)
