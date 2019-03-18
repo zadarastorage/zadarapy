@@ -1,4 +1,4 @@
-# Copyright 2018 Zadara Storage, Inc.
+# Copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -686,3 +686,88 @@ def fix_pooltype(pooltype):
         pooltype = '{0} Storage'.format(pooltype)
 
     return pooltype
+
+
+def update_protection(session, pool_id, alertmode=None,
+                      effectivecapacityhistory=None, capacityhistory=None,
+                      protectedmode=None, effectiveprotectedmode=None,
+                      emergencymode=None, effectiveemergencymode=None,
+                      return_type=None):
+    """
+    Update free capacity alert notification settings for a Pool.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type pool_id: str
+    :param pool_id: The pool 'name' value as returned by get_all_pools.  For
+        example: 'pool-00000001'.  Required.
+
+    :type capacityhistory: str
+    :param capacityhistory: Window size in minutes which is used to calculate the rate of
+    which free Pool capacity  is consumed. This rate is used to calculate the estimated
+    time until a Pool is full.
+
+    :type effectivecapacityhistory: str
+    :param effectivecapacityhistory: Window size in minutes which is used to calculate the
+    rate of which free Pool effective capacity is consumed. This rate is used to calculate
+    the estimated time until a Pool is full.
+
+    :type effectiveprotectedmode: str
+    :param effectiveprotectedmode: Block Volume/Share/Pool creation when it's estimated
+    that the Pool effective capacity will be full in this many minutes.
+
+    :type effectiveemergencymode: str
+    :param effectiveemergencymode: Delete snapshots, starting with the oldest, when the
+    Pool effective capacity has less than this number of GB left.
+
+    :type alertmode: int
+    :param alertmode: Send an alert when it is estimated that the Pool will be at
+    full capacity in this many minutes.
+
+    :type emergencymode: int
+    :param emergencymode: Delete snapshots, starting with the oldest, when the Volume
+    has less than this number of GB left.
+
+    :type capacityhistory: int
+    :param capacityhistory: Window size in minutes which is used to calculate the rate of which free Volume
+    capacity is consumed. This rate is used to calculate the estimated time until a Volume is full
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_pool_id(pool_id)
+
+    body = {}
+
+    if alertmode is not None:
+        body["alertmode"] = alertmode
+    if emergencymode is not None:
+        body['emergencymode'] = emergencymode
+    if effectiveemergencymode is not None:
+        body['effectiveemergencymode'] = effectiveemergencymode
+    if protectedmode is not None:
+        body['protectedmode'] = protectedmode
+    if effectiveprotectedmode is not None:
+        body['effectiveprotectedmode'] = effectiveprotectedmode
+    if capacityhistory is not None:
+        body['capacityhistory'] = capacityhistory
+    if effectivecapacityhistory is not None:
+        body['effectivecapacityhistory'] = effectivecapacityhistory
+
+    if not body:
+        raise ValueError('At least one of the following must be set: '
+                         '"alertmode", "emergencymode", '
+                         '"effectiveemergencymode", '
+                         '"protectedmode", "effectiveprotectedmode", '
+                         '"capacityhistory", "effectivecapacityhistory"')
+
+    path = "/api/pools/{0}/update_protection.json".format(pool_id)
+
+    return session.post_api(path=path, body=body, return_type=return_type)

@@ -1,4 +1,4 @@
-# Copyright 2015 Zadara Storage, Inc.
+# Copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -134,7 +134,8 @@ def create_volume(session, pool_id, display_name, capacity, block,
                   smbaiosize='NO', smbbrowseable='YES', smbhiddenfiles=None,
                   smbhideunreadable='NO', smbhideunwriteable='NO',
                   smbhidedotfiles='YES', smbstoredosattributes='NO',
-                  smbenableoplocks='YES', return_type=None):
+                  smbenableoplocks='YES', auto_expand=None, max_expand=None,
+                  auto_expand_by=None, return_type=None):
     """
     Creates a new volume.  The 'block' parameter determines if it should be a
     block (iSCSI, iSER, or Fiber Channel) volume or NAS file share (NFS and/or
@@ -373,6 +374,13 @@ def create_volume(session, pool_id, display_name, capacity, block,
 
         smbaiosize = verify_boolean(smbaiosize, "smbaiosize")
         body_values['smbaiosize'] = '16384' if smbaiosize == 'YES' else '1'
+
+    if auto_expand is not None:
+        body_values['autoexpand'] = verify_boolean(auto_expand, "auto_expand")
+    if max_expand is not None:
+        body_values['maxexpand'] = max_expand
+    if auto_expand_by is not None:
+        body_values['autoexpandby'] = auto_expand_by
 
     path = '/api/volumes.json'
 
@@ -1382,3 +1390,81 @@ def detach_snapshot_policy(session, volume_id, snaprule, delete_snapshots="Yes",
     path = '/api/volumes/{0}/detach_snapshot_policy.json'.format(volume_id)
     body_values = {"id": volume_id, "snaprule": snaprule, "delete_snapshots": delete_snapshots}
     return session.post_api(path=path, body=body_values, return_type=return_type)
+
+
+def update_protection(session, volume_id, alertmode=None, emergencymode=None,
+                      capacityhistory=None, autoexpand=None,
+                      maxcapacityexpand=None, autoexpandby=None,
+                      capacitythreshold=None, return_type=None):
+    """
+    Sets volume capacity thresholds. A support ticket will be created when your Volume
+    reaches specified capacity thresholds.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type alertmode: int
+    :param alertmode: Alert me when it is estimated that the Volume will be at full
+    capacity in X minutes.
+
+    :type emergencymode: int
+    :param emergencymode: Delete snapshots, starting with the oldest, when the Volume
+    has less than this number of GB left.
+
+    :type capacityhistory: int
+    :param capacityhistory: Window size in minutes which is used to calculate the rate of which free Volume
+    capacity is consumed. This rate is used to calculate the estimated time until a Volume is full
+
+    :type autoexpand: bool
+    :param autoexpand: Enable capacity auto expand
+
+    :type maxcapacityexpand: int
+    :param maxcapacityexpand: Max Capacity to expand in GB.
+
+    :type autoexpandby: int
+    :param autoexpandby: Capacity to expand by in GB
+
+    :type capacitythreshold: str
+    :param capacitythreshold: Capacity threshold to trigger auto expand in GB
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+
+    body = {}
+
+    if alertmode is not None:
+        body["alertmode"] = alertmode
+    if emergencymode is not None:
+        body['emergencymode'] = emergencymode
+    if capacityhistory is not None:
+        body['capacityhistory'] = capacityhistory
+    if autoexpand is not None:
+        body['autoexpand'] = verify_boolean(autoexpand, 'is_auto_expand')
+    if maxcapacityexpand is not None:
+        body['maxcapacityexpand'] = "{0}GB".format(maxcapacityexpand)
+    if autoexpandby is not None:
+        body['autoexpandby'] = "{0}GB".format(autoexpandby)
+    if capacitythreshold is not None:
+        body['capacitythreshold'] = "{0}GB".format(capacitythreshold)
+
+    if not body:
+        raise ValueError('At least one of the following must be set: '
+                         '"alertmode", "emergencymode", "capacityhistory", '
+                         '"autoexpand", "maxcapacityexpand", '
+                         '"autoexpandby", "capacitythreshold"')
+
+    path = "/api/volumes/{0}/update_protection.json".format(volume_id)
+
+    return session.post_api(path=path, body=body, return_type=return_type)
