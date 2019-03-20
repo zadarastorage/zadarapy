@@ -773,12 +773,16 @@ def update_protection(session, pool_id, alertmode=None,
     return session.post_api(path=path, body=body, return_type=return_type)
 
 
-def pool_shrink(session, raid_group_id, return_type=None):
+def pool_shrink(session, pool_id, raid_group_id, return_type=None):
     """
     Shrink a pool
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type pool_id: str
+    :param pool_id: The pool 'name' value as returned by get_all_pools.  For
+        example: 'pool-00000001'.  Required.
 
     :type raid_group_id: str
     :param raid_group_id: RAID Group ID
@@ -792,18 +796,23 @@ def pool_shrink(session, raid_group_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    verify_pool_id(pool_id=pool_id)
     verify_raid_groups(raid_groups=raid_group_id)
     path = "/api/pools/{0}/shrink.json".format(raid_group_id)
     body_values = {'raid_group': raid_group_id}
     return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
-def cancel_pool_shrink(session, raid_group_id, return_type=None):
+def cancel_pool_shrink(session, pool_id, raid_group_id, return_type=None):
     """
     Shrink a pool
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type pool_id: str
+    :param pool_id: The pool 'name' value as returned by get_all_pools.  For
+        example: 'pool-00000001'.  Required.
 
     :type raid_group_id: str
     :param raid_group_id: RAID Group ID
@@ -817,6 +826,7 @@ def cancel_pool_shrink(session, raid_group_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    verify_pool_id(pool_id=pool_id)
     verify_raid_groups(raid_groups=raid_group_id)
     path = "/api/pools/{0}/cancel_shrink.json".format(raid_group_id)
     return session.post_api(path=path, return_type=return_type)
