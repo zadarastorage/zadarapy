@@ -20,7 +20,7 @@ from zadarapy.validators import verify_start_limit, verify_field, verify_capacit
 __all__ = ["get_all_pools", "get_pool", "create_pool", "create_raid10_pool", "delete_pool", "rename_pool",
            "get_raid_groups_in_pool", "get_volumes_in_pool", "add_raid_groups_to_pool", "update_pool_capacity_alerts",
            "get_pool_mirror_destination_volumes", "set_pool_cache", "set_pool_cowcache",
-           "get_volumes_in_pool_recycle_bin", "get_pool_performance"]
+           "get_volumes_in_pool_recycle_bin", "get_pool_performance", "pool_shrink", "cancel_pool_shrink"]
 
 
 def get_all_pools(session, start=None, limit=None, return_type=None):
@@ -771,3 +771,52 @@ def update_protection(session, pool_id, alertmode=None,
     path = "/api/pools/{0}/update_protection.json".format(pool_id)
 
     return session.post_api(path=path, body=body, return_type=return_type)
+
+
+def pool_shrink(session, raid_group_id, return_type=None):
+    """
+    Shrink a pool
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type raid_group_id: str
+    :param raid_group_id: RAID Group ID
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_raid_groups(raid_groups=raid_group_id)
+    path = "/api/pools/{0}/shrink.json".format(raid_group_id)
+    body_values = {'raid_group': raid_group_id}
+    return session.post_api(path=path, body=body_values, return_type=return_type)
+
+
+def cancel_pool_shrink(session, raid_group_id, return_type=None):
+    """
+    Shrink a pool
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type raid_group_id: str
+    :param raid_group_id: RAID Group ID
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_raid_groups(raid_groups=raid_group_id)
+    path = "/api/pools/{0}/cancel_shrink.json".format(raid_group_id)
+    return session.post_api(path=path, return_type=return_type)
