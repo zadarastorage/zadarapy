@@ -900,7 +900,7 @@ def verify_pool_type(pooltype):
                          .format(pooltype))
 
 
-def verify_start_limit_sort_limit(start, limit, sort, severity):
+def verify_start_limit_sort_severity(start, limit, sort, severity):
     """
     :type start: int
     :param start: The offset to start displaying snapshot policies from.
@@ -932,7 +932,7 @@ def verify_start_limit_sort_limit(start, limit, sort, severity):
     if sort not in ['DESC', 'ASC']:
         raise ValueError('"{0}" is not a valid sort parameter. Allowed values are: "DESC" or "ASC"'.format(sort))
 
-    sort = '[{"property":"msg-time","direction":"{sort}"}]'.format(sort=sort)
+    sort = '[{{"property":"msg-time","direction":"{sort}"}}]'.format(sort=sort)
     parameters = verify_start_limit(start, limit, [('sort', sort), ('severity', severity)])
 
     return parameters

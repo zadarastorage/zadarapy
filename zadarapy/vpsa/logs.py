@@ -12,7 +12,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from zadarapy.validators import verify_start_limit_sort_limit
+from zadarapy.validators import verify_start_limit_sort_severity
 
 
 def get_logs(session, sort='DESC', severity=None, start=None, limit=None, return_type=None):
@@ -48,7 +48,7 @@ def get_logs(session, sort='DESC', severity=None, start=None, limit=None, return
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    parameters = verify_start_limit_sort_limit(start, limit, sort, severity)
+    parameters = verify_start_limit_sort_severity(start, limit, sort, severity)
 
     path = '/api/messages.json'
 
