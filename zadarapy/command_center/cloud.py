@@ -515,3 +515,38 @@ def deallocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO", return
     body_values = {"vlan_id": vlan_id, "force": force}
 
     return session.post_api(path=path, body=body_values, return_type=return_type)
+
+
+def get_vpsa_settings(session, cloud_name, vpsa_id, section=None, return_type=None):
+    """
+    Returns VPSA info from Command Center
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type vpsa_id: str
+    :param vpsa_id: VPSA ID. i.e: 126
+
+    :type section: str
+    :param section: VPSA Settings section.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_vpsa_id(vpsa_id)
+
+    path = "/api/clouds/{0}/vpsas/{1}/settings".format(cloud_name, vpsa_id)
+    parameters = {}
+    if section is not None:
+        parameters = {"section": section}
+
+    return session.get_api(path=path, parameters=parameters, return_type=return_type)

@@ -833,8 +833,10 @@ def verify_vpsa_id(vpsa_id):
     :raises: ValueError: Invalid capacity
     """
     vpsa_id = str(vpsa_id)
-    if not vpsa_id.isdigit():
-        raise ValueError('The VPSA ID should be a positive integer.')
+    if not vpsa_id.isdigit() and not vpsa_id.startswith("vsa-"):
+        raise ValueError("The VPSA ID int '(i.e '154') or should be of format: 'vsa-0000001'. Given: {}"
+                         .format(vpsa_id))
+
     return vpsa_id
 
 

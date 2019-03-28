@@ -19,7 +19,7 @@ from zadarapy.validators import verify_start_limit, verify_field, verify_capacit
 
 __all__ = ["get_all_pools", "get_pool", "create_pool", "create_raid10_pool", "delete_pool", "rename_pool",
            "get_raid_groups_in_pool", "get_volumes_in_pool", "add_raid_groups_to_pool", "update_pool_capacity_alerts",
-           "get_pool_mirror_destination_volumes", "set_pool_cache", "set_pool_cowcache",
+           "get_pool_mirror_destination_volumes", "set_pool_cache", "set_pool_cowcache", "expand_pool",
            "get_volumes_in_pool_recycle_bin", "get_pool_performance", "pool_shrink", "cancel_pool_shrink"]
 
 
@@ -830,3 +830,37 @@ def cancel_pool_shrink(session, pool_id, raid_group_id, return_type=None):
     verify_raid_groups(raid_groups=raid_group_id)
     path = "/api/pools/{0}/cancel_shrink.json".format(raid_group_id)
     return session.post_api(path=path, return_type=return_type)
+
+
+def expand_pool(session, pool_id, raid_groups_ids, capacity, return_type=None):
+    """
+    Add additional RAID Groups to a Pool.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type pool_id: str
+    :param pool_id: The pool 'name' value as returned by get_all_pools.  For
+        example: 'pool-00000001'.  Required.
+
+    :type raid_groups_ids: str
+    :param raid_groups_ids: RAID Group IDs separated by comma ,
+
+    :type capacity: int
+    :param capacity: Capacity in GB.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_pool_id(pool_id=pool_id)
+    verify_raid_groups(raid_groups=raid_groups_ids)
+
+    path = "/api/pools/{0}/expand.json".format(pool_id)
+    body_values = {"capacity": "{}G".format(capacity), "raid_groups": raid_groups_ids}
+    return session.post_api(path=path, body=body_values, return_type=return_type)
