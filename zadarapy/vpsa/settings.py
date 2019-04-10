@@ -511,7 +511,7 @@ def enable_defrag(session, return_type='json'):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = '/api/settings/defrag_enable'
+    path = '/api/settings/defrag_enable.json'
 
     return session.post_api(path=path, return_type=return_type)
 
@@ -532,6 +532,50 @@ def disable_defrag(session, return_type='json'):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = '/api/settings/defrag_disable'
+    path = '/api/settings/defrag_disable.json'
 
     return session.post_api(path=path, return_type=return_type)
+
+
+def start_defrag(session, return_type=None):
+    """
+    Starts NAS share (XFS) defragging on the VPSA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/settings/defrag_start.json'
+
+    return session.post_api(path=path, return_type=return_type)
+
+
+def stop_defrag(session, return_type=None):
+    """
+    Stops NAS share (XFS) defragging on the VPSA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/settings/defrag_stop.json'
+
+    return session.post_api(path=path, return_type=return_type)
+
+

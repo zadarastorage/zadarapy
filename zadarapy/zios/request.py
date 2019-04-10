@@ -15,7 +15,7 @@
 
 
 def get_account_requests(session, state=None, limit=None, page=None, return_type=None):
-    path = " /api/requests.json"
+    path = "/api/requests.json"
 
     body_values = {'state': state}
     if limit:

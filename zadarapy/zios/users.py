@@ -21,8 +21,8 @@ def get_user(session, user_id, return_type=None):
     return session.get_api(path=path, return_type=return_type)
 
 
-def get_all_users(session, start=None, limit=None, return_type=None):
-    path = "/api/zios/users.json"
+def get_all_users(session, account_id, start=None, limit=None, return_type=None):
+    path = "/api/zios/accounts/{0}/users.json".format(account_id)
     parameters = verify_start_limit(start, limit)
     return session.get_api(path=path, parameters=parameters, return_type=return_type)
 
