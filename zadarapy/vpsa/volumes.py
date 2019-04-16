@@ -1394,7 +1394,7 @@ def detach_snapshot_policy(session, volume_id, snaprule, delete_snapshots="Yes",
 
 def update_protection(session, volume_id, alertmode=None, emergencymode=None,
                       capacityhistory=None, autoexpand=None,
-                      maxcapacityexpand=None, autoexpandby=None,
+                      maxcapacity=None, autoexpandby=None,
                       capacitythreshold=None, return_type=None):
     """
     Sets volume capacity thresholds. A support ticket will be created when your Volume
@@ -1422,8 +1422,8 @@ def update_protection(session, volume_id, alertmode=None, emergencymode=None,
     :type autoexpand: bool
     :param autoexpand: Enable capacity auto expand
 
-    :type maxcapacityexpand: int
-    :param maxcapacityexpand: Max Capacity to expand in GB.
+    :type maxcapacity: int
+    :param maxcapacity: Max Capacity to expand in GB.
 
     :type autoexpandby: int
     :param autoexpandby: Capacity to expand by in GB
@@ -1451,11 +1451,11 @@ def update_protection(session, volume_id, alertmode=None, emergencymode=None,
     if capacityhistory is not None:
         body['capacityhistory'] = capacityhistory
     if autoexpand is not None:
-        body['autoexpand'] = verify_boolean(autoexpand, 'is_auto_expand')
-    if maxcapacityexpand is not None:
-        body['maxcapacityexpand'] = "{0}GB".format(maxcapacityexpand)
+        body['autoexpand'] = verify_boolean(autoexpand, 'autoexpand')
+    if maxcapacity is not None:
+        body['maxcapacity'] = maxcapacity
     if autoexpandby is not None:
-        body['autoexpandby'] = "{0}GB".format(autoexpandby)
+        body['autoexpandby'] = autoexpandby
     if capacitythreshold is not None:
         body['capacitythreshold'] = "{0}GB".format(capacitythreshold)
 

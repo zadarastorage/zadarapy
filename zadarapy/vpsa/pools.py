@@ -798,7 +798,7 @@ def pool_shrink(session, pool_id, raid_group_id, return_type=None):
     """
     verify_pool_id(pool_id=pool_id)
     verify_raid_groups(raid_groups=raid_group_id)
-    path = "/api/pools/{0}/shrink.json".format(raid_group_id)
+    path = "/api/pools/{0}/shrink.json".format(pool_id)
     body_values = {'raid_group': raid_group_id}
     return session.post_api(path=path, body=body_values, return_type=return_type)
 
