@@ -255,6 +255,29 @@ def is_valid_mirror_id(mirror_id):
     return True
 
 
+def is_valid_remote_clone_id(remote_clone_job_id):
+    """
+    Validates a remote clone job ID, also known as the remote clone job "job_name".
+    A valid remote clone job name should look like: dstrclone-00000001 - It should
+    end with 8 hexadecimal characters in lower case.
+
+    :type remote_clone_job_id: str
+    :param remote_clone_job_id: The remote clone job name to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether remote_clone_id passes validation.
+    """
+    if remote_clone_job_id is None:
+        return False
+
+    match = re.match('^(src|dst)rclone-[0-9a-f]{8}$', remote_clone_job_id)
+
+    if not match:
+        return False
+
+    return True
+
+
 def is_valid_policy_creation(policy_creation):
     """
     Performs a loose validation the snapshot creation frequency for a snapshot
@@ -1053,6 +1076,17 @@ def verify_mirror_id(mirror_id):
     """
     list_err = ['{0} is not a valid Mirror ID.'.format(_id)
                 for _id in mirror_id.split(',') if not is_valid_mirror_id(_id)]
+    if list_err:
+        raise ValueError("\n".join(list_err))
+
+
+def verify_remote_clone_id(remote_clone_job_id):
+    """
+    :param remote_clone_job_id: Remote Clone Job ID
+    :raises: ValueError: invalid ID
+    """
+    list_err = ['{0} is not a valid Remote Clone ID.'.format(_id)
+                for _id in remote_clone_job_id.split(',') if not is_valid_remote_clone_id(_id)]
     if list_err:
         raise ValueError("\n".join(list_err))
 
