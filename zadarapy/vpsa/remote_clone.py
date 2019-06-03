@@ -12,7 +12,70 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from zadarapy.validators import verify_start_limit, is_valid_remote_clone_id, verify_remote_clone_id
+from zadarapy.validators import verify_start_limit, is_valid_remote_clone_id, verify_remote_clone_id, verify_pool_id, \
+    verify_snapshot_id
+
+
+def create_remote_clone(session, display_name, vol_name, pool_id, mode, vpsa_name, snapshot_id, is_dedupe,
+                        is_compress, is_crypt, return_type=None):
+    """
+    Create a new remote clone job
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type display_name: str
+    :param display_name: Required. The new remote clone name
+
+    :type vol_name: str
+    :param vol_name: Required. Destination volume name
+
+    :type pool_id: str
+    :param pool_id:  Pool to create remote clone
+
+    :type mode: str
+    :param mode: clone|retrieve	Required. Remote Clone mode
+
+    :type vpsa_name: str
+    :param vpsa_name: The source vpsa name
+
+    :type snapshot_id: str
+    :param snapshot_id: The source snapshot name
+
+    :type is_crypt: bool
+    :param is_crypt: True iff enable encryption for this Remote Clone
+
+    :type is_dedupe: bool
+    :param is_dedupe: True iff enable Dedupe For Remote Clone. [Gen3 only]
+
+    :type is_compress: bool
+    :param is_compress: True iff enable compress For Remote Clone. [Gen3 only]
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_pool_id(pool_id=pool_id)
+    verify_snapshot_id(snapshot_id=snapshot_id)
+
+    body_values = {'display_name': display_name, 'volname': vol_name, "snapname": snapshot_id, 'poolname': pool_id,
+                   'remote_clone_mode': mode, 'vpsaname': vpsa_name}
+
+    if is_dedupe:
+        body_values['dedupe'] = is_dedupe
+    if is_compress:
+        body_values['compress'] = is_compress
+    if is_crypt:
+        body_values['crypt'] = is_crypt
+
+    path = '/api/volumes/remote_clone.json'
+
+    return session.post_api(path=path, body=body_values, return_type=return_type)
 
 
 def get_all_remote_clones(session, start=None, limit=None, return_type=None):
@@ -158,7 +221,7 @@ def break_remote_clone_job(session, remote_clone_job_id, return_type=None):
     return session.post_api(path=path, return_type=return_type)
 
 
-def switch_remote_clone_mode(session, remote_clone_job_id, is_clone, return_type=None):
+def switch_remote_clone_mode(session, remote_clone_job_id, is_retrieve, return_type=None):
     """
     Breaks a remote clone job.  This action is irreversible.
 
@@ -170,8 +233,8 @@ def switch_remote_clone_mode(session, remote_clone_job_id, is_clone, return_type
         value as returned by get_all_remote_clones.  For example:
         'dstrclone-00000001'.  Required.
 
-    :type is_clone: bool
-    :param is_clone: True if switch mode to 'clone' else switch to 'retrieve'.
+    :type is_retrieve: bool
+    :param is_retrieve: True if switch mode to 'is_retrieve' else switch to 'clone'.
     Required.
 
     :type return_type: str
@@ -185,7 +248,7 @@ def switch_remote_clone_mode(session, remote_clone_job_id, is_clone, return_type
     """
     verify_remote_clone_id(remote_clone_job_id)
 
-    body_values = {'mode': 'clone' if is_clone else 'retrieve'}
+    body_values = {'mode': 'retrieve' if is_retrieve else 'clone'}
     path = '/api/remote_clones/{0}/switch_mode.json'\
         .format(remote_clone_job_id)
 
