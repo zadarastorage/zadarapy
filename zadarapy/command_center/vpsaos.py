@@ -14,7 +14,7 @@
 # under the License.
 
 
-from zadarapy.validators import is_valid_field, verify_vpsa_id, \
+from zadarapy.validators import verify_vpsa_id, \
     verify_cloud_name, verify_field, verify_capacity, verify_positive_argument
 
 
@@ -344,7 +344,7 @@ def get_vpsaos_accounts(session, cloud_name, vsa_id, return_type=None):
     cloud_name = verify_cloud_name(cloud_name)
     vsa_id = verify_vpsa_id(vsa_id)
 
-    path = '/api/clouds/{0}/zioses/{1}/accounts.json'\
+    path = '/api/clouds/{0}/zioses/{1}/accounts.json' \
         .format(cloud_name, vsa_id)
 
     return session.get_api(path=path, return_type=return_type)
@@ -376,7 +376,7 @@ def get_vpsaos_comments(session, cloud_name, vsa_id, return_type=None):
     """
     cloud_name = verify_cloud_name(cloud_name)
     vsa_id = verify_vpsa_id(vsa_id)
-    path = '/api/clouds/{0}/zioses/{1}/comments.json'\
+    path = '/api/clouds/{0}/zioses/{1}/comments.json' \
         .format(cloud_name, vsa_id)
 
     return session.get_api(path=path, return_type=return_type)
@@ -441,7 +441,7 @@ def get_vpsaos_sps(session, cloud_name, vsa_id, return_type=None):
     cloud_name = verify_cloud_name(cloud_name)
     vsa_id = verify_vpsa_id(vsa_id)
 
-    path = '/api/clouds/{0}/zioses/{1}/storage_policies.json'\
+    path = '/api/clouds/{0}/zioses/{1}/storage_policies.json' \
         .format(cloud_name, vsa_id)
 
     return session.get_api(path=path, return_type=return_type)
