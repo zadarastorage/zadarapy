@@ -12,6 +12,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from zadarapy.validators import verify_start_limit
 
 
 def get_all_policies(session, start=None, limit=None, return_type=None):
@@ -36,26 +37,10 @@ def get_all_policies(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
+    parameters = verify_start_limit(start, limit)
     path = '/api/zios/policies.json'
-
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            secure=True, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           secure=True, return_type=return_type)
 
 
 def get_policy(session, policy_name, return_type=None):
@@ -78,11 +63,9 @@ def get_policy(session, policy_name, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'GET'
     path = '/api/zios/policies/{0}.json'.format(policy_name)
 
-    return session.call_api(method=method, path=path, secure=True,
-                            return_type=return_type)
+    return session.get_api(path=path, secure=True, return_type=return_type)
 
 
 def set_default_policy(session, policy_name, return_type=None):
@@ -105,9 +88,5 @@ def set_default_policy(session, policy_name, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-
-    method = 'POST'
     path = '/api/zios/policies/{0}/set_default.json'.format(policy_name)
-
-    return session.call_api(method=method, path=path, secure=True,
-                            return_type=return_type)
+    return session.post_api(path=path, secure=True, return_type=return_type)

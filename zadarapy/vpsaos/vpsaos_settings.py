@@ -33,13 +33,12 @@ def set_encryption(session, encryption_pwd, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'POST'
     path = '/api/zios/settings/encryption.json'
 
     parameters = {k: v for k, v in (('encryption_pwd', encryption_pwd),)
                   if v is not None}
 
-    return session.call_api(method=method, path=path, parameters=parameters,
+    return session.post_api(path=path, parameters=parameters,
                             return_type=return_type)
 
 
@@ -65,13 +64,12 @@ def set_encryption_state(session, state, return_type=None):
     if state not in ('enable', 'disable'):
         raise ValueError('{0} is not a valid state.'.format(state))
 
-    method = 'POST'
     path = '/api/zios/settings/change_encryption.json'
 
     parameters = {k: v for k, v in (('state', state),)
                   if v is not None}
 
-    return session.call_api(method=method, path=path, parameters=parameters,
+    return session.post_api(path=path, parameters=parameters,
                             return_type=return_type)
 
 
@@ -94,11 +92,10 @@ def restore_encryption(session, encryption_pwd, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'POST'
     path = '/api/zios/settings/restore_encryption.json'
 
     parameters = {k: v for k, v in (('encryption_pwd', encryption_pwd),)
                   if v is not None}
 
-    return session.call_api(method=method, path=path, parameters=parameters,
+    return session.post_api(path=path, parameters=parameters,
                             return_type=return_type)

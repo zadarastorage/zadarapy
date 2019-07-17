@@ -18,8 +18,7 @@ from future.standard_library import install_aliases
 
 install_aliases()
 
-import json
-from zadarapy.validators import is_valid_field
+from zadarapy.validators import verify_account_id, verify_field
 
 
 def create_user(session, accountid, username, email, role="member",
@@ -47,25 +46,13 @@ def create_user(session, accountid, username, email, role="member",
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    verify_account_id(accountid)
+    body_values = {'account_id': accountid, 'username': username,
+                   'email': email, 'notify_on_events': "YES", 'role': role}
 
-    body_values = {}
-
-    if not is_valid_field(accountid):
-        raise ValueError('{0} is not a valid account-id.'
-                         .format(accountid))
-
-    body_values['account_id'] = accountid
-    body_values['username'] = username
-    body_values['email'] = email
-    body_values['notify_on_events'] = "YES"
-    body_values['role'] = role
-
-    method = 'POST'
     path = '/api/zios/users.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body, secure=True,
+    return session.post_api(path=path, body=body_values, secure=True,
                             return_type=return_type)
 
 
@@ -87,16 +74,11 @@ def delete_user(session, userid, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    userid = verify_field(userid, "userid")
+    path = '/api/zios/users/{}.json'.format(userid)
 
-    if not is_valid_field(userid):
-        raise ValueError('{0} is not a valid user-id.'
-                         .format(userid))
-
-    method = 'DELETE'
-    path = '/api/zios/users/%s.json' % userid
-
-    return session.call_api(method=method, path=path, secure=True,
-                            return_type=return_type)
+    return session.delete_api(path=path, secure=True,
+                              return_type=return_type)
 
 
 def enable_user(session, userid, return_type=None):
@@ -117,16 +99,9 @@ def enable_user(session, userid, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-
-    if not is_valid_field(userid):
-        raise ValueError('{0} is not a valid userid.'
-                         .format(userid))
-
-    method = 'POST'
-    path = '/api/zios/users/%s/enable.json' % userid
-
-    return session.call_api(method=method, path=path, secure=True,
-                            return_type=return_type)
+    userid = verify_field(userid, "userid")
+    path = '/api/zios/users/{}/enable.json'.format(userid)
+    return session.post_api(path=path, secure=True, return_type=return_type)
 
 
 def disable_user(session, userid, return_type=None):
@@ -136,7 +111,7 @@ def disable_user(session, userid, return_type=None):
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type userid: str
-    :param user_id: The VPSAOS unique user-id.  Required.
+    :param userid: The VPSAOS unique user-id.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -147,16 +122,10 @@ def disable_user(session, userid, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    userid = verify_field(userid, "userid")
+    path = '/api/zios/users/{}/disable.json'.format(userid)
 
-    if not is_valid_field(userid):
-        raise ValueError('{0} is not a valid user-id.'
-                         .format(userid))
-
-    method = 'POST'
-    path = '/api/zios/users/%s/disable.json' % userid
-
-    return session.call_api(method=method, path=path, secure=True,
-                            return_type=return_type)
+    return session.post_api(path=path, secure=True, return_type=return_type)
 
 
 def change_user_role(session, userid, role="member", return_type=None):
@@ -177,21 +146,11 @@ def change_user_role(session, userid, role="member", return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-
-    body_values = {}
-
-    if not is_valid_field(userid):
-        raise ValueError('{0} is not a valid userid.'
-                         .format(userid))
-
-    body_values['role'] = role
-
-    method = 'POST'
+    userid = verify_field(userid, "userid")
+    body_values = {'role': role}
     path = '/api/zios/users/%s/change_role.json' % userid
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body, secure=True,
+    return session.post_api(path=path, body=body_values, secure=True,
                             return_type=return_type)
 
 
@@ -223,28 +182,17 @@ def change_user_password(session, accountname, username, password, newpassword,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    accountname = verify_field(accountname, "accountname")
+    username = verify_field(username, "username")
+    password = verify_field(password, "password")
+    newpassword = verify_field(newpassword, "newpassword")
 
-    body_values = {}
+    body_values = {'account': accountname, 'username': username,
+                   'password': password, 'new_password': newpassword}
 
-    if not is_valid_field(accountname):
-        raise ValueError('{0} is not a valid account name.'
-                         .format(accountname))
-
-    if not is_valid_field(username):
-        raise ValueError('{0} is not a valid user name.'
-                         .format(username))
-
-    body_values['account'] = accountname
-    body_values['username'] = username
-    body_values['password'] = password
-    body_values['new_password'] = newpassword
-
-    method = 'POST'
     path = '/api/users/password.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body, secure=True,
+    return session.post_api(path=path, body=body_values, secure=True,
                             return_type=return_type)
 
 
@@ -266,12 +214,11 @@ def get_user(session, userid, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    userid = verify_field(userid, "userid")
 
-    method = 'GET'
-    path = '/api/zios/users/%s.json' % userid
+    path = '/api/zios/users/{}.json'.format(userid)
 
-    return session.call_api(method=method, path=path, secure=True,
-                            return_type=return_type)
+    return session.get_api(path=path, secure=True, return_type=return_type)
 
 
 def get_all_users(session, return_type=None):
@@ -289,12 +236,8 @@ def get_all_users(session, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-
-    method = 'GET'
     path = '/api/zios/users.json'
-
-    return session.call_api(method=method, path=path, secure=True,
-                            return_type=return_type)
+    return session.get_api(path=path, secure=True, return_type=return_type)
 
 
 def get_auth_token(session, accountname, username, password, return_type=None):
@@ -322,24 +265,14 @@ def get_auth_token(session, accountname, username, password, return_type=None):
         return_type parameter.
     """
 
-    body_values = {}
+    accountname = verify_field(accountname, "accountname")
+    username = verify_field(username, "username")
+    password = verify_field(password, "password")
 
-    if not is_valid_field(accountname):
-        raise ValueError('{0} is not a valid account name.'
-                         .format(accountname))
+    body_values = {'account': accountname, 'user': username,
+                   'password': password}
 
-    if not is_valid_field(username):
-        raise ValueError('{0} is not a valid user name.'
-                         .format(username))
-
-    body_values['account'] = accountname
-    body_values['user'] = username
-    body_values['password'] = password
-
-    method = 'POST'
     path = '/api/users/authenticate.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body, secure=True,
+    return session.post_api(path=path, body=body_values, secure=True,
                             return_type=return_type)

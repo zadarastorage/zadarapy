@@ -19,7 +19,7 @@ from future.standard_library import install_aliases
 install_aliases()
 
 from urllib.parse import urlencode
-from zadarapy.validators import is_valid_field
+from zadarapy.validators import is_valid_field, verify_positive_argument
 
 
 def get_all_vpsas(session, return_type=None):
@@ -38,10 +38,9 @@ def get_all_vpsas(session, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'GET'
     path = '/api/vpsas.json'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def get_vpsa(session, vpsa_id, return_type=None):
@@ -70,10 +69,9 @@ def get_vpsa(session, vpsa_id, return_type=None):
     if not vpsa_id.isdigit():
         raise ValueError('The VPSA ID should be a positive integer.')
 
-    method = 'GET'
     path = '/api/vpsas/{0}.json'.format(vpsa_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
@@ -213,13 +211,11 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
     # Enterprise suite should always be enabled.
     body_values['enterprise_suite'] = 'YES'
 
-    method = 'POST'
     path = '/api/vpsas.json'
 
     body = urlencode(body_values)
 
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body, return_type=return_type)
 
 
 def delete_vpsa(session, vpsa_id, return_type=None):
@@ -244,13 +240,9 @@ def delete_vpsa(session, vpsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if vpsa_id < 1:
-        raise ValueError('The VPSA ID should be a positive integer.')
-
-    method = 'DELETE'
+    verify_positive_argument(vpsa_id, 'vpsa_id')
     path = '/api/vpsas/{0}.json'.format(vpsa_id)
-
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type)
 
 
 def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None):
@@ -293,9 +285,7 @@ def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if vpsa_id < 1:
-        raise ValueError('The VPSA ID should be a positive integer.')
-
+    verify_positive_argument(vpsa_id, "vpsa_id")
     body_values = {}
 
     if type(drives) is not list:
@@ -317,13 +307,11 @@ def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None):
 
         body_values[v['drive_type'] + '_drives'] = v['quantity']
 
-    method = 'POST'
     path = '/api/vpsas/{0}/drives.json'.format(vpsa_id)
 
     body = urlencode(body_values)
 
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body, return_type=return_type)
 
 
 def change_vpsa_engines(session, vpsa_id, io_engine_id, zcs_engine_id,
@@ -361,9 +349,7 @@ def change_vpsa_engines(session, vpsa_id, io_engine_id, zcs_engine_id,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if vpsa_id < 1:
-        raise ValueError('The VPSA ID should be a positive integer.')
-
+    verify_positive_argument(vpsa_id, 'vpsa_id')
     body_values = {}
 
     if 'vsa.' not in io_engine_id:
@@ -379,13 +365,11 @@ def change_vpsa_engines(session, vpsa_id, io_engine_id, zcs_engine_id,
 
     body_values['app_engine'] = zcs_engine_id
 
-    method = 'POST'
     path = '/api/vpsas/{0}/engine.json'.format(vpsa_id)
 
     body = urlencode(body_values)
 
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body, return_type=return_type)
 
 
 def change_vpsa_cache(session, vpsa_id, quantity, return_type=None):
@@ -420,16 +404,11 @@ def change_vpsa_cache(session, vpsa_id, quantity, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if vpsa_id < 1:
-        raise ValueError('The VPSA ID should be a positive integer.')
-
-    method = 'POST'
+    verify_positive_argument(vpsa_id, 'vpsa_id')
     path = '/api/vpsas/{0}/cache.json'.format(vpsa_id)
+    body = {'cache': '{}'.format(quantity)}
 
-    body = 'cache={0}'.format(quantity)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.post_api(path=path, body=body, return_type=return_type)
 
 
 def assign_vpsa_public_ip(session, vpsa_id, return_type=None):
@@ -456,13 +435,10 @@ def assign_vpsa_public_ip(session, vpsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if vpsa_id < 1:
-        raise ValueError('The VPSA ID should be a positive integer.')
-
-    method = 'POST'
+    verify_positive_argument(vpsa_id, 'vpsa_id')
     path = '/api/vpsas/{0}/public_ip.json'.format(vpsa_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def remove_vpsa_public_ip(session, vpsa_id, return_type=None):
@@ -487,13 +463,10 @@ def remove_vpsa_public_ip(session, vpsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if vpsa_id < 1:
-        raise ValueError('The VPSA ID should be a positive integer.')
-
-    method = 'DELETE'
+    verify_positive_argument(vpsa_id, 'vpsa_id')
     path = '/api/vpsas/{0}/public_ip.json'.format(vpsa_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type)
 
 
 def hibernate_vpsa(session, vpsa_id, return_type=None):
@@ -519,13 +492,10 @@ def hibernate_vpsa(session, vpsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if vpsa_id < 1:
-        raise ValueError('The VPSA ID should be a positive integer.')
-
-    method = 'POST'
+    verify_positive_argument(vpsa_id, 'vpsa_id')
     path = '/api/vpsas/{0}/hibernate.json'.format(vpsa_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def resume_vpsa(session, vpsa_id, return_type=None):
@@ -549,10 +519,7 @@ def resume_vpsa(session, vpsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if vpsa_id < 1:
-        raise ValueError('The VPSA ID should be a positive integer.')
-
-    method = 'POST'
+    verify_positive_argument(vpsa_id, 'vpsa_id')
     path = '/api/vpsas/{0}/restore.json'.format(vpsa_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)

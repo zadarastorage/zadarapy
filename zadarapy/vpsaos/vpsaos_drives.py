@@ -14,7 +14,7 @@
 # under the License.
 
 
-from zadarapy.validators import is_valid_volume_id
+from zadarapy.validators import verify_start_limit, verify_volume_id
 
 
 def get_all_drives(session, start=None, limit=None, return_type=None):
@@ -39,26 +39,10 @@ def get_all_drives(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
+    parameters = verify_start_limit(start, limit)
     path = '/api/zios/drives.json'
-
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_one_drive(session, name, return_type=None):
@@ -81,10 +65,7 @@ def get_one_drive(session, name, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_volume_id(name):
-        raise ValueError('{0} is not a valid drive name.'
-                         .format(name))
-    method = 'GET'
+    verify_volume_id(name)
     path = '/api/zios/drives/{0}.json'.format(name)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)

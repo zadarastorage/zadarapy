@@ -14,7 +14,8 @@
 # under the License.
 
 
-from zadarapy.validators import is_valid_vc_index
+from zadarapy.validators import verify_start_limit, verify_vc_index, \
+    verify_capacity
 
 
 def get_all_controllers(session, start=None, limit=None, return_type=None):
@@ -39,26 +40,10 @@ def get_all_controllers(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
+    parameters = verify_start_limit(start, limit)
     path = '/api/zios/virtual_controllers.json'
-
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_virtual_controller(session, vc_index, return_type=None):
@@ -81,13 +66,9 @@ def get_virtual_controller(session, vc_index, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_vc_index(vc_index):
-        raise ValueError('{0} is not a valid vc index.'
-                         .format(vc_index))
-    method = 'GET'
+    verify_vc_index(vc_index)
     path = '/api/zios/virtual_controllers/{0}.json'.format(vc_index)
-
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def get_virtual_controller_drives(session, vc_index, return_type=None):
@@ -110,13 +91,9 @@ def get_virtual_controller_drives(session, vc_index, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_vc_index(vc_index):
-        raise ValueError('{0} is not a valid vc index.'
-                         .format(vc_index))
-    method = 'GET'
+    verify_vc_index(vc_index)
     path = '/api/zios/virtual_controllers/{0}/drives.json'.format(vc_index)
-
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def remove_proxy_vcs(session, quantity, return_type=None):
@@ -138,19 +115,11 @@ def remove_proxy_vcs(session, quantity, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if quantity is None:
-        raise ValueError('quantity param is missing.')
-
-    qty = int(quantity)
-    if qty < 1:
-        raise ValueError('Supplied quantity ("{0}") cannot be less than 1.'
-                         .format(quantity))
-
-    method = 'DELETE'
+    quantity = verify_capacity(quantity, 'quantity')
     path = '/api/zios/virtual_controllers/remove_proxy_vcs.json'
 
-    parameters = {k: v for k, v in (('quantity', qty),)
+    parameters = {k: v for k, v in (('quantity', quantity),)
                   if v is not None}
 
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.delete_api(path=path, parameters=parameters,
+                              return_type=return_type)

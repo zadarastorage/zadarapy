@@ -36,10 +36,9 @@ def get_all_clouds(session, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'GET'
     path = '/api/providers.json'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def get_cloud(session, cloud_id, return_type=None):
@@ -64,7 +63,6 @@ def get_cloud(session, cloud_id, return_type=None):
     """
     cloud_id = quote(cloud_id.strip())
 
-    method = 'GET'
     path = '/api/providers/{0}.json'.format(cloud_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)

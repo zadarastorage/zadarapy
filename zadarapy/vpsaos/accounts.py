@@ -14,10 +14,8 @@
 # under the License.
 
 
-import json
-
-from zadarapy.validators import is_valid_field
-from zadarapy.validators import is_valid_vpsaos_account_id
+from zadarapy.validators import verify_start_limit, \
+    verify_account_id, verify_field, verify_boolean
 
 
 def get_all_accounts(session, start=None, limit=None, return_type=None):
@@ -42,26 +40,10 @@ def get_all_accounts(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
+    parameters = verify_start_limit(start, limit)
     path = '/api/zios/accounts.json'
-
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_account(session, account_id, return_type=None):
@@ -85,15 +67,10 @@ def get_account(session, account_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_vpsaos_account_id(account_id):
-        raise ValueError('{0} is not a valid VPSAOS account id.'
-                         .format(account_id))
-
-    method = 'GET'
+    verify_account_id(account_id)
     path = '/api/zios/accounts/{0}.json'.format(account_id)
 
-    return session.call_api(method=method, path=path, secure=True,
-                            return_type=return_type)
+    return session.get_api(path=path, secure=True, return_type=return_type)
 
 
 def create_account(session, account_name, return_type=None):
@@ -118,20 +95,11 @@ def create_account(session, account_name, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
-
-    if not is_valid_field(account_name):
-        raise ValueError('{0} is not a valid VPSA Object Store account name.'
-                         .format(account_name))
-
-    body_values['name'] = account_name
-
-    method = 'POST'
+    verify_field(account_name, 'account_name')
+    body_values = {'name': account_name}
     path = '/api/zios/accounts.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body, secure=True,
+    return session.post_api(path=path, body=body_values, secure=True,
                             return_type=return_type)
 
 
@@ -161,27 +129,12 @@ def delete_account(session, account_id, force='NO', return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
-
-    if not is_valid_vpsaos_account_id(account_id):
-        raise ValueError('{0} is not a valid VPSAOS account id.'
-                         .format(account_id))
-
-    force = force.upper()
-
-    if force not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid force parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(force))
-
-    body_values['force'] = force
-
-    method = 'DELETE'
+    verify_account_id(account_id)
+    force = verify_boolean(force, 'force')
+    body_values = {'force': force}
     path = '/api/zios/accounts/{0}.json'.format(account_id)
-
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body, secure=True,
-                            return_type=return_type)
+    return session.delete_api(path=path, body=body_values, secure=True,
+                              return_type=return_type)
 
 
 def cleanup_account(session, account_id, return_type=None):
@@ -206,15 +159,9 @@ def cleanup_account(session, account_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_vpsaos_account_id(account_id):
-        raise ValueError('{0} is not a valid VPSAOS account id.'
-                         .format(account_id))
-
-    method = 'DELETE'
+    verify_account_id(account_id)
     path = '/api/zios/accounts/{0}/cleanup.json'.format(account_id)
-
-    return session.call_api(method=method, path=path, secure=True,
-                            return_type=return_type)
+    return session.delete_api(path=path, secure=True, return_type=return_type)
 
 
 def disable_account(session, account_id, return_type=None):
@@ -236,17 +183,12 @@ def disable_account(session, account_id, return_type=None):
 
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
-        return_type parameter.
+        return_type para
+        meter.
     """
-    if not is_valid_vpsaos_account_id(account_id):
-        raise ValueError('{0} is not a valid VPSAOS account id.'
-                         .format(account_id))
-
-    method = 'POST'
+    verify_account_id(account_id)
     path = '/api/zios/accounts/{0}/disable.json'.format(account_id)
-
-    return session.call_api(method=method, path=path, secure=True,
-                            return_type=return_type)
+    return session.post_api(path=path, secure=True, return_type=return_type)
 
 
 def enable_account(session, account_id, return_type=None):
@@ -270,15 +212,9 @@ def enable_account(session, account_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_vpsaos_account_id(account_id):
-        raise ValueError('{0} is not a valid VPSAOS account id.'
-                         .format(account_id))
-
-    method = 'POST'
+    verify_account_id(account_id)
     path = '/api/zios/accounts/{0}/enable.json'.format(account_id)
-
-    return session.call_api(method=method, path=path, secure=True,
-                            return_type=return_type)
+    return session.post_api(path=path, secure=True, return_type=return_type)
 
 
 def get_all_users_in_account(session, account_id, return_type=None):
@@ -302,12 +238,7 @@ def get_all_users_in_account(session, account_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_vpsaos_account_id(account_id):
-        raise ValueError('{0} is not a valid VPSAOS account id.'
-                         .format(account_id))
-
-    method = 'GET'
+    verify_account_id(account_id)
     path = '/api/zios/accounts/{0}/users.json'.format(account_id)
 
-    return session.call_api(method=method, path=path, secure=True,
-                            return_type=return_type)
+    return session.get_api(path=path, secure=True, return_type=return_type)

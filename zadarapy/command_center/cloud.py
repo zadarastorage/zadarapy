@@ -84,16 +84,11 @@ def get_user_token(session, email, password, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
-
-    method = 'POST'
     path = '/api/users/token.json'
+    body_values = {'email': email, 'password': password}
 
-    body_values['email'] = email
-    body_values['password'] = password
-
-    return session.call_api(method=method, path=path,
-                            body=json.dumps(body_values), secure=False,
+    return session.post_api(path=path, body=json.dumps(body_values),
+                            secure=False,
                             return_type=return_type)
 
 

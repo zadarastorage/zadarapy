@@ -14,9 +14,8 @@
 # under the License.
 
 
-import json
-
-from zadarapy.validators import is_valid_field
+from zadarapy.validators import is_valid_field, verify_vpsa_id, \
+    verify_cloud_name, verify_field, verify_capacity, verify_positive_argument
 
 
 def add_drives(session, cloud_name, vsa_id, drive_type, drive_quantity,
@@ -54,43 +53,20 @@ def add_drives(session, cloud_name, vsa_id, drive_type, drive_quantity,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    cloud_name = cloud_name.strip()
-    if not is_valid_field(cloud_name):
-        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
+    cloud_name = verify_cloud_name(cloud_name)
+    vsa_id = verify_vpsa_id(vsa_id)
+    policy_id = verify_field(policy_id, 'policy_id')
+    drive_type = verify_field(drive_type, 'drive_type')
 
-    vsa_id = vsa_id.strip()
-    if not is_valid_field(vsa_id):
-        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
-
-    body_values = {}
-
-    drive_type = drive_type.strip()
-
-    if not is_valid_field(drive_type):
-        raise ValueError('{0} is not a valid drive type.'.format(drive_type))
-
-    body_values['drive_type'] = drive_type
+    body_values = {'drive_type': drive_type, 'policy_id': policy_id}
 
     if drive_quantity is not None:
-        qty = int(drive_quantity)
-        if qty < 1:
-            raise ValueError('Quantity {0} cannot be less than 1.'.format(qty))
+        drive_quantity = verify_capacity(drive_quantity, 'drive_quantity')
+        body_values['quantity'] = drive_quantity
 
-        body_values['quantity'] = qty
-
-    policy_id = policy_id.strip()
-
-    if not is_valid_field(policy_id):
-        raise ValueError('{0} is not a valid policy id.'.format(policy_id))
-
-    body_values['policy_id'] = policy_id
-
-    method = 'POST'
     path = '/api/clouds/{0}/zioses/{1}/drives.json'.format(cloud_name, vsa_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -118,19 +94,13 @@ def add_proxy_vcs(session, cloud_name, vsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    cloud_name = cloud_name.strip()
-    if not is_valid_field(cloud_name):
-        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
+    cloud_name = verify_cloud_name(cloud_name)
+    vsa_id = verify_vpsa_id(vsa_id)
 
-    vsa_id = vsa_id.strip()
-    if not is_valid_field(vsa_id):
-        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
+    path = '/api/clouds/{0}/zioses/{1}/proxy_vcs.json' \
+        .format(cloud_name, vsa_id)
 
-    method = 'POST'
-    path = '/api/clouds/{0}/zioses/{1}/proxy_vcs.json'.format(cloud_name,
-                                                              vsa_id)
-
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
@@ -175,47 +145,20 @@ def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    cloud_name = cloud_name.strip()
-    if not is_valid_field(cloud_name):
-        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
+    cloud_name = verify_cloud_name(cloud_name)
+    vsa_id = verify_vpsa_id(vsa_id)
+    policy_name = verify_field(policy_name, 'policy_name')
+    drive_type = verify_field(drive_type, 'drive_type')
 
-    vsa_id = vsa_id.strip()
-    if not is_valid_field(vsa_id):
-        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
-
-    body_values = {}
-
-    policy_name = policy_name.strip()
-
-    if not is_valid_field(policy_name):
-        raise ValueError(
-            '{0} is not a valid storage policy name.'.format(policy_name))
-
-    body_values['name'] = policy_name
+    body_values = {'name': policy_name, 'drive_type': drive_type}
 
     if policy_desc is not None:
-        policy_desc = policy_desc.strip()
-
-    if not is_valid_field(policy_desc):
-        raise ValueError(
-            '{0} is not a valid storage policy description.'.format(
-                policy_desc))
-
-    body_values['policy_desc'] = policy_desc
-
-    drive_type = drive_type.strip()
-
-    if not is_valid_field(drive_type):
-        raise ValueError('{0} is not a valid drive type.'.format(drive_type))
-
-    body_values['drive_type'] = drive_type
+        policy_desc = verify_field(policy_desc, 'policy_desc')
+        body_values['policy_desc'] = policy_desc
 
     if drive_quantity is not None:
-        qty = int(drive_quantity)
-        if qty < 1:
-            raise ValueError('Quantity {0} cannot be less than 1.'.format(qty))
-
-        body_values['drive_quantity'] = qty
+        drive_quantity = verify_capacity(drive_quantity, 'drive_quantity')
+        body_values['drive_quantity'] = drive_quantity
 
     if policy_type_id is not None:
         policy_type_id = int(policy_type_id)
@@ -225,12 +168,9 @@ def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
 
         body_values['policy_type_id'] = policy_type_id
 
-    method = 'POST'
     path = '/api/clouds/{0}/zioses/{1}/policy.json'.format(cloud_name, vsa_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -258,20 +198,13 @@ def assign_publicip(session, cloud_name, vsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    cloud_name = verify_cloud_name(cloud_name)
+    vsa_id = verify_vpsa_id(vsa_id)
 
-    cloud_name = cloud_name.strip()
-    if not is_valid_field(cloud_name):
-        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
+    path = '/api/clouds/{0}/zioses/{1}/public_ip/assign.json' \
+        .format(cloud_name, vsa_id)
 
-    vsa_id = vsa_id.strip()
-    if not is_valid_field(vsa_id):
-        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
-
-    method = 'POST'
-    path = '/api/clouds/{0}/zioses/{1}/public_ip/assign.json'.format(
-        cloud_name, vsa_id)
-
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def create_zsnap(session, cloud_name, vsa_id, prefix, return_type=None):
@@ -301,30 +234,15 @@ def create_zsnap(session, cloud_name, vsa_id, prefix, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    cloud_name = verify_cloud_name(cloud_name)
+    vsa_id = verify_vpsa_id(vsa_id)
+    prefix = verify_field(prefix, 'prefix')
 
-    cloud_name = cloud_name.strip()
-    if not is_valid_field(cloud_name):
-        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
+    body_values = {'prefix': prefix}
 
-    vsa_id = vsa_id.strip()
-    if not is_valid_field(vsa_id):
-        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
-
-    prefix = prefix.strip()
-
-    if not is_valid_field(prefix):
-        raise ValueError('{0} is not a valid prefix.'.format(prefix))
-
-    body_values = {}
-
-    body_values['prefix'] = prefix
-
-    body = json.dumps(body_values)
-
-    method = 'POST'
     path = '/api/clouds/{0}/zioses/{1}/zsnap.json'.format(cloud_name, vsa_id)
 
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -355,23 +273,16 @@ def get_all_vpsaoss(session, cloud_name, page=None, per_page=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    cloud_name = verify_cloud_name(cloud_name)
 
-    if page is not None:
-        page = int(page)
-        if page < 0:
-            raise ValueError('Supplied page ("{0}") cannot be negative.'
-                             .format(page))
+    page = verify_positive_argument(page, 'page')
+    per_page = verify_positive_argument(per_page, 'per_page')
+    parameters = {'page': page, 'per_page': per_page}
 
-    if per_page is not None:
-        per_page = int(per_page)
-        if per_page < 0:
-            raise ValueError('Supplied per_page ("{0}") cannot be negative.'
-                             .format(per_page))
-
-    method = 'GET'
     path = '/api/clouds/{0}/zioses.json'.format(cloud_name)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_one_vpsaos(session, cloud_name, vsa_id, return_type=None):
@@ -398,19 +309,12 @@ def get_one_vpsaos(session, cloud_name, vsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    cloud_name = verify_cloud_name(cloud_name)
+    vsa_id = verify_vpsa_id(vsa_id)
 
-    cloud_name = cloud_name.strip()
-    if not is_valid_field(cloud_name):
-        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
-
-    vsa_id = vsa_id.strip()
-    if not is_valid_field(vsa_id):
-        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
-
-    method = 'GET'
     path = '/api/clouds/{0}/zioses/{1}.json'.format(cloud_name, vsa_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def get_vpsaos_accounts(session, cloud_name, vsa_id, return_type=None):
@@ -437,20 +341,13 @@ def get_vpsaos_accounts(session, cloud_name, vsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    cloud_name = verify_cloud_name(cloud_name)
+    vsa_id = verify_vpsa_id(vsa_id)
 
-    cloud_name = cloud_name.strip()
-    if not is_valid_field(cloud_name):
-        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
+    path = '/api/clouds/{0}/zioses/{1}/accounts.json'\
+        .format(cloud_name, vsa_id)
 
-    vsa_id = vsa_id.strip()
-    if not is_valid_field(vsa_id):
-        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
-
-    method = 'GET'
-    path = '/api/clouds/{0}/zioses/{1}/accounts.json'.format(cloud_name,
-                                                             vsa_id)
-
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def get_vpsaos_comments(session, cloud_name, vsa_id, return_type=None):
@@ -477,20 +374,12 @@ def get_vpsaos_comments(session, cloud_name, vsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    cloud_name = verify_cloud_name(cloud_name)
+    vsa_id = verify_vpsa_id(vsa_id)
+    path = '/api/clouds/{0}/zioses/{1}/comments.json'\
+        .format(cloud_name, vsa_id)
 
-    cloud_name = cloud_name.strip()
-    if not is_valid_field(cloud_name):
-        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
-
-    vsa_id = vsa_id.strip()
-    if not is_valid_field(vsa_id):
-        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
-
-    method = 'GET'
-    path = '/api/clouds/{0}/zioses/{1}/comments.json'.format(cloud_name,
-                                                             vsa_id)
-
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def get_vpsaos_drives(session, cloud_name, vsa_id, return_type=None):
@@ -517,19 +406,12 @@ def get_vpsaos_drives(session, cloud_name, vsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    cloud_name = verify_cloud_name(cloud_name)
+    vsa_id = verify_vpsa_id(vsa_id)
 
-    cloud_name = cloud_name.strip()
-    if not is_valid_field(cloud_name):
-        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
-
-    vsa_id = vsa_id.strip()
-    if not is_valid_field(vsa_id):
-        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
-
-    method = 'GET'
     path = '/api/clouds/{0}/zioses/{1}/drives.json'.format(cloud_name, vsa_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def get_vpsaos_sps(session, cloud_name, vsa_id, return_type=None):
@@ -556,20 +438,13 @@ def get_vpsaos_sps(session, cloud_name, vsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    cloud_name = verify_cloud_name(cloud_name)
+    vsa_id = verify_vpsa_id(vsa_id)
 
-    cloud_name = cloud_name.strip()
-    if not is_valid_field(cloud_name):
-        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
+    path = '/api/clouds/{0}/zioses/{1}/storage_policies.json'\
+        .format(cloud_name, vsa_id)
 
-    vsa_id = vsa_id.strip()
-    if not is_valid_field(vsa_id):
-        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
-
-    method = 'GET'
-    path = '/api/clouds/{0}/zioses/{1}/storage_policies.json'.format(
-        cloud_name, vsa_id)
-
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def get_vpsaos_vcs(session, cloud_name, vsa_id, return_type=None):
@@ -596,20 +471,13 @@ def get_vpsaos_vcs(session, cloud_name, vsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    verify_cloud_name(cloud_name)
+    verify_vpsa_id(vsa_id)
 
-    cloud_name = cloud_name.strip()
-    if not is_valid_field(cloud_name):
-        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
-
-    vsa_id = vsa_id.strip()
-    if not is_valid_field(vsa_id):
-        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
-
-    method = 'GET'
     path = '/api/clouds/{0}/zioses/{1}/virtual_controllers.json'.format(
         cloud_name, vsa_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def unassign_publicip(session, cloud_name, vsa_id, return_type=None):
@@ -636,20 +504,13 @@ def unassign_publicip(session, cloud_name, vsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    verify_cloud_name(cloud_name)
+    verify_vpsa_id(vsa_id)
 
-    cloud_name = cloud_name.strip()
-    if not is_valid_field(cloud_name):
-        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
-
-    vsa_id = vsa_id.strip()
-    if not is_valid_field(vsa_id):
-        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
-
-    method = 'POST'
     path = '/api/clouds/{0}/zioses/{1}/public_ip/unassign.json' \
         .format(cloud_name, vsa_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def upgrade_vpsaos_image(session, cloud_name, vsa_id, image, return_type=None):
@@ -680,27 +541,12 @@ def upgrade_vpsaos_image(session, cloud_name, vsa_id, image, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    verify_cloud_name(cloud_name)
+    verify_vpsa_id(vsa_id)
+    verify_field(image, "image")
 
-    cloud_name = cloud_name.strip()
-    if not is_valid_field(cloud_name):
-        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
+    body_values = {'image': image}
 
-    vsa_id = vsa_id.strip()
-    if not is_valid_field(vsa_id):
-        raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
-
-    image = image.strip()
-
-    if not is_valid_field(image):
-        raise ValueError('{0} is not a valid image name.'.format(image))
-
-    body_values = {}
-
-    body_values['image'] = image
-
-    body = json.dumps(body_values)
-
-    method = 'POST'
     path = '/api/clouds/{0}/zioses/{1}/upgrade.json'.format(cloud_name, vsa_id)
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)

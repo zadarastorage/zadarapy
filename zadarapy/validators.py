@@ -885,6 +885,23 @@ def verify_field(field_name, title, allow_quote=False):
     return field_name
 
 
+def verify_cloud_name(cloud_name):
+    """
+    :type cloud_name: str
+    :param cloud_name: Cloud name
+
+    :rtype: str
+    :return: Fixed Cloud ID
+
+    :raises: ValueError: Invalid capacity
+    """
+    cloud_name = cloud_name.strip()
+    if not is_valid_field(cloud_name):
+        raise ValueError('{0} is not a valid cloud name.'.format(cloud_name))
+
+    return cloud_name
+
+
 def verify_vpsa_id(vpsa_id):
     """
     :type vpsa_id: str|int
@@ -1488,6 +1505,16 @@ def verify_restore_mode(restore_mode):
         raise ValueError('{0} is not a valid restore_mode parameter.  '
                          'Allowed values are: "restore", "clone", or '
                          '"import_seed"'.format(restore_mode))
+
+
+def verify_vc_index(vc_index):
+    """
+    :param vc_index: VC index to check
+    :raises: ValueError
+    """
+    if not is_valid_vc_index(vc_index=vc_index):
+        raise ValueError('{0} is not a valid vc index.'
+                         .format(vc_index))
 
 
 def verify_access_type(access_type):
