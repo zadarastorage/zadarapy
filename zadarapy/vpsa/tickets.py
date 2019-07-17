@@ -12,9 +12,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
-
-import json
+from zadarapy.validators import verify_ticket_id, verify_start_limit
 
 
 def get_all_tickets(session, start=None, limit=None, return_type=None):
@@ -39,26 +37,11 @@ def get_all_tickets(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
+    parameters = verify_start_limit(start, limit)
     path = '/api/tickets.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def create_ticket(session, subject, description, return_type=None):
@@ -92,12 +75,9 @@ def create_ticket(session, subject, description, return_type=None):
 
     body_values = {'subject': subject, 'description': description}
 
-    method = 'POST'
     path = '/api/tickets.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -125,10 +105,9 @@ def close_ticket(session, ticket_id, return_type=None):
         raise ValueError('The ticket ID should be a positive integer ("{0}") '
                          'was passed.'.format(ticket_id))
 
-    method = 'POST'
     path = '/api/tickets/{0}/close.json'.format(ticket_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def get_ticket_comments(session, ticket_id, return_type=None):
@@ -156,10 +135,9 @@ def get_ticket_comments(session, ticket_id, return_type=None):
         raise ValueError('The ticket ID should be a positive integer ("{0}" '
                          'was passed).'.format(ticket_id))
 
-    method = 'GET'
     path = '/api/tickets/{0}/comments.json'.format(ticket_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def create_ticket_comment(session, ticket_id, comment, return_type=None):
@@ -186,21 +164,16 @@ def create_ticket_comment(session, ticket_id, comment, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if ticket_id < 1:
-        raise ValueError('The ticket ID should be a positive integer ("{0}" '
-                         'was passed).'.format(ticket_id))
+    verify_ticket_id(ticket_id)
 
     if comment is None:
         raise ValueError('A support ticket comment must be provided.')
 
     body_values = {'comment': comment}
 
-    method = 'POST'
     path = '/api/tickets/{0}/comments.json'.format(ticket_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -227,11 +200,8 @@ def create_ticket_zsnap(session, ticket_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if ticket_id < 1:
-        raise ValueError('The ticket ID should be a positive integer ("{0}" '
-                         'was passed).'.format(ticket_id))
+    verify_ticket_id(ticket_id)
 
-    method = 'POST'
     path = '/api/tickets/{0}/zsnap.json'.format(ticket_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)

@@ -14,6 +14,7 @@
 # under the License.
 
 from future.standard_library import install_aliases
+
 install_aliases()
 
 import configparser
@@ -21,8 +22,13 @@ import http.client
 import json
 import os
 from urllib.parse import urlencode
-from zadarapy.validators import is_valid_port
-from zadarapy.validators import is_valid_zadara_key
+from zadarapy.validators import verify_port
+
+DEFAULT_TIMEOUT = 20
+
+FAILURE_RESPONSE = 'API server did not return an HTTP 200, 210 or 302 ' \
+                   'response. Status "{0} {1}" was returned instead.  ' \
+                   'Please investigate.'
 
 
 class Session(object):
@@ -37,7 +43,7 @@ class Session(object):
     zadara_secure = None
 
     def __init__(self, host=None, port=None, key=None, configfile=None,
-                 secure=True):
+                 secure=True, default_timeout=None, log_function=None):
         """
         Configuration details for working with the API will be gathered from
         the following, in order or preference:
@@ -69,7 +75,17 @@ class Session(object):
         :type secure: bool
         :param secure: If False, the API call will be made over HTTP,
             otherwise HTTPS will be used.
+
+        :type default_timeout: int
+        :param default_timeout: Default timeout to each HTTP request.
+
+        :type log_function: function
+        :param log_function: Function variable to a log function to print the
+                API command Session sends. Default=None, means no print
         """
+        self._log_function = log_function
+        self._default_timeout = default_timeout or DEFAULT_TIMEOUT
+
         self._config = None
 
         # If a config file exists, parse it
@@ -135,8 +151,246 @@ class Session(object):
         if self.zadara_secure is None:
             self.zadara_secure = True
 
-    def call_api(self, method, path, host=None, port=None, key=None,
+    def get_api(self, path, host=None, port=None, key=None, url_encode=False,
+                secure=None, body=None, parameters=None, return_type=None):
+        """
+        Makes the actual GET REST call to the Zadara API endpoint.
+        If host, key, and/or secure are set as None, the instance variables
+        will be used as default values.
+
+        Zadara supports both JSON and XML for its API, but please note that
+        this module uses and expects JSON.
+
+        :type path: str
+        :param path: The path of the API endpoint, for example:
+            '/api/vpsas.json'.  Required.
+
+        :type host: str
+        :param host: The hostname or IP address of the Zadara API.  This
+            should be passed directly instead of part of a URL.  e.g.
+            'vsa-00000578-aws.zadaravpsa.com', not
+            'https://vsa-00000578-aws.zadaravpsa.com/'.  Required.
+
+        :type port: int
+        :param port: The port for the API endpoint.  If set to None, the
+            default port for the HTTP mode will be used (80 for HTTP, 443 for
+            HTTPS).  Optional.
+
+        :type key: str
+        :param key: The API key for the connecting user.  Required.
+
+        :type url_encode: bool
+        :param url_encode: True iff encode using urlencode
+
+        :type secure: bool
+        :param secure: If True, the API call will be made over HTTPS,
+            otherwise HTTP will be used.  Required.
+
+        :type body: Dict
+        :param body: For POST calls, a body should be supplied that *only*
+            contains a valid JSON data set.  No "key" should be supplied for
+            this value.  Optional.
+
+        :type parameters: dict
+        :param parameters: A Python dictionary of key value pairs that will be
+            passed as URL parameters.  Optional.
+
+        :type return_type: str
+        :param return_type: If this is set to the string 'json', this function
+            will return a JSON string.  Otherwise, it will return a Python
+            dictionary.  Optional (will return a Python dictionary by
+            default).
+
+        :rtype: dict, str
+        :returns: A dictionary or JSON data set as a string depending on
+            return_type parameter.
+        """
+        return self.call_api(method="GET", path=path, host=host, port=port,
+                             key=key, secure=secure, body=body,
+                             parameters=parameters, url_encode=url_encode,
+                             return_type=return_type)
+
+    def post_api(self, path, host=None, port=None, key=None, url_encode=False,
                  secure=None, body=None, parameters=None, return_type=None):
+        """
+        Makes the actual POST REST call to the Zadara API endpoint.
+        If host, key, and/or secure are set as None, the instance variables
+        will be used as default values.
+
+        Zadara supports both JSON and XML for its API, but please note that
+        this module uses and expects JSON.
+
+        :type path: str
+        :param path: The path of the API endpoint, for example:
+            '/api/vpsas.json'.  Required.
+
+        :type host: str
+        :param host: The hostname or IP address of the Zadara API.  This
+            should be passed directly instead of part of a URL.  e.g.
+            'vsa-00000578-aws.zadaravpsa.com', not
+            'https://vsa-00000578-aws.zadaravpsa.com/'.  Required.
+
+        :type port: int
+        :param port: The port for the API endpoint.  If set to None, the
+            default port for the HTTP mode will be used (80 for HTTP, 443 for
+            HTTPS).  Optional.
+
+        :type key: str
+        :param key: The API key for the connecting user.  Required.
+
+        :type url_encode: bool
+        :param url_encode: True iff encode using urlencode
+
+        :type secure: bool
+        :param secure: If True, the API call will be made over HTTPS,
+            otherwise HTTP will be used.  Required.
+
+        :type body: Dict
+        :param body: For POST calls, a body should be supplied that *only*
+            contains a valid JSON data set.  No "key" should be supplied for
+            this value.  Optional.
+
+        :type parameters: dict
+        :param parameters: A Python dictionary of key value pairs that will be
+            passed as URL parameters.  Optional.
+
+        :type return_type: str
+        :param return_type: If this is set to the string 'json', this function
+            will return a JSON string.  Otherwise, it will return a Python
+            dictionary.  Optional (will return a Python dictionary by
+            default).
+
+        :rtype: dict, str
+        :returns: A dictionary or JSON data set as a string depending on
+            return_type parameter.
+        """
+        return self.call_api(method="POST", path=path, host=host, port=port,
+                             key=key, secure=secure, body=body,
+                             parameters=parameters, url_encode=url_encode,
+                             return_type=return_type)
+
+    def delete_api(self, path, host=None, port=None, key=None,
+                   url_encode=False, secure=None, body=None,
+                   parameters=None, return_type=None):
+        """
+        Makes the actual DELETE REST call to the Zadara API endpoint.
+        If host, key, and/or secure are set as None, the instance variables
+        will be used as default values.
+
+        Zadara supports both JSON and XML for its API, but please note that
+        this module uses and expects JSON.
+
+        :type path: str
+        :param path: The path of the API endpoint, for example:
+            '/api/vpsas.json'.  Required.
+
+        :type host: str
+        :param host: The hostname or IP address of the Zadara API.  This
+            should be passed directly instead of part of a URL.  e.g.
+            'vsa-00000578-aws.zadaravpsa.com', not
+            'https://vsa-00000578-aws.zadaravpsa.com/'.  Required.
+
+        :type port: int
+        :param port: The port for the API endpoint.  If set to None, the
+            default port for the HTTP mode will be used (80 for HTTP, 443 for
+            HTTPS).  Optional.
+
+        :type key: str
+        :param key: The API key for the connecting user.  Required.
+
+        :type url_encode: bool
+        :param url_encode: True iff encode using urlencode
+
+        :type secure: bool
+        :param secure: If True, the API call will be made over HTTPS,
+            otherwise HTTP will be used.  Required.
+
+        :type body: Dict
+        :param body: For POST calls, a body should be supplied that *only*
+            contains a valid JSON data set.  No "key" should be supplied for
+            this value.  Optional.
+
+        :type parameters: dict
+        :param parameters: A Python dictionary of key value pairs that will be
+            passed as URL parameters.  Optional.
+
+        :type return_type: str
+        :param return_type: If this is set to the string 'json', this function
+            will return a JSON string.  Otherwise, it will return a Python
+            dictionary.  Optional (will return a Python dictionary by
+            default).
+
+        :rtype: dict, str
+        :returns: A dictionary or JSON data set as a string depending on
+            return_type parameter.
+        """
+        return self.call_api(method="DELETE", path=path, host=host, port=port,
+                             key=key, secure=secure, body=body,
+                             parameters=parameters, url_encode=url_encode,
+                             return_type=return_type)
+
+    def put_api(self, path, host=None, port=None, key=None, url_encode=False,
+                secure=None, body=None, parameters=None, return_type=None):
+        """
+        Makes the actual PUT call to the Zadara API endpoint.  If host, key,
+        and/or secure are set as None, the instance variables will be used as
+        default values.
+
+        Zadara supports both JSON and XML for its API, but please note that
+        this module uses and expects JSON.
+
+        :type path: str
+        :param path: The path of the API endpoint, for example:
+            '/api/vpsas.json'.  Required.
+
+        :type host: str
+        :param host: The hostname or IP address of the Zadara API.  This
+            should be passed directly instead of part of a URL.  e.g.
+            'vsa-00000578-aws.zadaravpsa.com', not
+            'https://vsa-00000578-aws.zadaravpsa.com/'.  Required.
+
+        :type port: int
+        :param port: The port for the API endpoint.  If set to None, the
+            default port for the HTTP mode will be used (80 for HTTP, 443 for
+            HTTPS).  Optional.
+
+        :type key: str
+        :param key: The API key for the connecting user.  Required.
+
+        :type url_encode: bool
+        :param url_encode: True iff encode using urlencode
+
+        :type secure: bool
+        :param secure: If True, the API call will be made over HTTPS,
+            otherwise HTTP will be used.  Required.
+
+        :type body: Dict
+        :param body: For POST calls, a body should be supplied that *only*
+            contains a valid JSON data set.  No "key" should be supplied for
+            this value.  Optional.
+
+        :type parameters: dict
+        :param parameters: A Python dictionary of key value pairs that will be
+            passed as URL parameters.  Optional.
+
+        :type return_type: str
+        :param return_type: If this is set to the string 'json', this function
+            will return a JSON string.  Otherwise, it will return a Python
+            dictionary.  Optional (will return a Python dictionary by
+            default).
+
+        :rtype: dict, str
+        :returns: A dictionary or JSON data set as a string depending on
+            return_type parameter.
+        """
+        return self.call_api(method="PUT", path=path, host=host, port=port,
+                             key=key, secure=secure, body=body,
+                             url_encode=url_encode, parameters=parameters,
+                             return_type=return_type)
+
+    def call_api(self, method, path, host=None, port=None, key=None,
+                 url_encode=False, secure=None, body=None, parameters=None,
+                 return_type=None):
         """
         Makes the actual REST call to the Zadara API endpoint.  If host, key,
         and/or secure are set as None, the instance variables will be used as
@@ -167,11 +421,14 @@ class Session(object):
         :type key: str
         :param key: The API key for the connecting user.  Required.
 
+        :type url_encode: bool
+        :param url_encode: True iff encode using urlencode
+
         :type secure: bool
         :param secure: If True, the API call will be made over HTTPS,
             otherwise HTTP will be used.  Required.
 
-        :type body: str
+        :type body: Dict
         :param body: For POST calls, a body should be supplied that *only*
             contains a valid JSON data set.  No "key" should be supplied for
             this value.  Optional.
@@ -204,14 +461,7 @@ class Session(object):
             secure = self.zadara_secure
 
         if port is not None:
-            port = int(port)
-            if not is_valid_port(self.zadara_port):
-                raise ValueError('The supplied port "{0}" must be within '
-                                 '1-65535 range.')
-
-        if not is_valid_zadara_key(self.zadara_key):
-            raise ValueError('{0} is not a valid API key'
-                             .format(self.zadara_key))
+            verify_port(port)
 
         # http.client can accept None port and use default, but we need to
         # define it here so debug info can be outputted later on error.
@@ -221,14 +471,18 @@ class Session(object):
 
             protocol = 'HTTPS'
 
-            conn = http.client.HTTPSConnection(host, port)
+            # Set timeout for each command
+            conn = http.client.HTTPSConnection(host, port,
+                                               timeout=self._default_timeout)
         else:
             if port is None:
                 port = 80
 
             protocol = 'HTTP'
 
-            conn = http.client.HTTPConnection(host, port)
+            # Set timeout for each command
+            conn = http.client.HTTPConnection(host, port,
+                                              timeout=self._default_timeout)
 
         headers = {}
 
@@ -239,6 +493,7 @@ class Session(object):
         # "X-Access-Key".  Just set both.
         headers['X-Access-Key'] = key
         headers['X-Token'] = key
+        headers['x-auth-token'] = key
 
         # Ignore parameters if set to None or an empty dictionary is passed.
         if parameters:
@@ -247,18 +502,38 @@ class Session(object):
             url = path
 
         try:
+            # URL encode for body
+            if url_encode is True:
+                body = urlencode(body)
+            else:
+                body = json.dumps(body)
+
+            body = None if body == 'null' else body
+
+            # Log function
+            if self._log_function:
+                body_str = """'-d {}'""".format(body) if body else ''
+                headers_str = "-H {}".format(" -H ".join(
+                    '"{}: {}"'.format(k, v) for k, v in headers.items()))
+                port_str = ":{}".format(port) if port else ''
+
+                msg = 'curl -X {m} {hd} {b} {hs}{p}{u}'\
+                    .format(m=method, hd=headers_str, b=body_str, hs=host,
+                            p=port_str, u=url)
+
+                self._log_function(msg)
+
             conn.request(method, url, headers=headers, body=body)
             response = conn.getresponse()
         except BaseException as exc:
             raise OSError('Could not connect to {0} on port {1} via {2}: {3}'.
                           format(host, port, protocol, str(exc)))
 
-        if response.status not in [200, 201, 302]:
+        # Support 201 - Created HTTP RC
+        if response.status not in [200, 302, 201]:
             conn.close()
-            raise RuntimeError('API server did not return an HTTP 200, 201 or 302 '
-                               'response.  Status "{0} {1}" was returned '
-                               'instead.  Please investigate.'
-                               .format(response.status, response.reason))
+            raise RuntimeError(FAILURE_RESPONSE.format(response.status,
+                                                       response.reason))
 
         data = response.read()
 
@@ -283,9 +558,13 @@ class Session(object):
         if 'response' in api_return_dict:
             if 'status' in api_return_dict['response']:
                 if api_return_dict['response']['status'] != 0:
+                    try:
+                        err = api_return_dict['response']['message']
+                    except KeyError:
+                        # ZIOS
+                        err = api_return_dict['response']['status_msg']
+
                     raise RuntimeError(
-                        'The API server returned an error: "{0}".'
-                        .format(api_return_dict['response']['message'])
-                    )
+                        'The API server returned an error: "{0}".'.format(err))
 
         return api_return_dict

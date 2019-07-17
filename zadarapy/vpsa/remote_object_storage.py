@@ -13,9 +13,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-import json
-from zadarapy.validators import *
+from zadarapy.validators import verify_snapshot_id, verify_boolean, \
+    verify_field, verify_start_limit, verify_policy_id, \
+    verify_ros_backup_job_id, verify_volume_id, verify_pool_id, \
+    verify_interval, verify_port, verify_ros_destination_id, \
+    verify_ros_restore_job_id, verify_restore_mode
 
 
 def get_all_ros_destinations(session, start=None, limit=None,
@@ -44,26 +46,12 @@ def get_all_ros_destinations(session, start=None, limit=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/object_storage_destinations.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_ros_destination(session, ros_destination_id, return_type=None):
@@ -87,19 +75,17 @@ def get_ros_destination(session, ros_destination_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_destination_id(ros_destination_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'destination ID.'.format(ros_destination_id))
+    verify_ros_destination_id(ros_destination_id)
 
-    method = 'GET'
-    path = '/api/object_storage_destinations/{0}.json'\
-           .format(ros_destination_id)
+    path = '/api/object_storage_destinations/{0}.json' \
+        .format(ros_destination_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def create_ros_destination(session, display_name, bucket, endpoint, username,
-                           password, public, use_proxy, proxy_host=None,
+                           password, public, use_proxy, ros_type,
+                           allow_lifecycle_policies=None, proxy_host=None,
                            proxy_port=None, proxy_username=None,
                            proxy_password=None, return_type=None):
     """
@@ -142,6 +128,10 @@ def create_ros_destination(session, display_name, bucket, endpoint, username,
         destination in question via the VPSA's defined default gateway.
         Required.
 
+    :type allow_lifecycle_policies: str
+    :param allow_lifecycle_policies: If set to 'YES', the VPSA will allow
+    bucket to have lifecycle policies. (Valid Only for AWS)
+
     :type use_proxy: str
     :param use_proxy: If set to 'YES', the VPSA will connect via an HTTP/HTTPS
         proxy when addressing the object storage destination.  If 'NO', a
@@ -172,91 +162,36 @@ def create_ros_destination(session, display_name, bucket, endpoint, username,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    display_name = verify_field(display_name, "display_name")
+    bucket = verify_field(bucket, "bucket")
+    username = verify_field(username, "username")
+    password = verify_field(password, "password")
+    public = verify_boolean(public, "public")
+    use_proxy = verify_boolean(use_proxy, "use_proxy")
+    allow_lifecycle_policies = verify_boolean(allow_lifecycle_policies,
+                                              "allow_lifecycle_policies")
 
-    display_name = display_name.strip()
-
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid remote object store destination '
-                         'name.'.format(display_name))
-
-    body_values['name'] = display_name
-
-    bucket = bucket.strip()
-
-    if not is_valid_field(bucket):
-        raise ValueError('{0} is not a valid remote object store bucket name.'
-                         .format(bucket))
-
-    body_values['bucket'] = bucket
-
-    body_values['endpoint'] = endpoint
-
-    if not is_valid_field(username):
-        raise ValueError('{0} is not a valid object storage username.'
-                         .format(username))
-
-    body_values['username'] = username
-
-    if not is_valid_field(password):
-        raise ValueError('{0} is not a valid object storage password.'
-                         .format(password))
-
-    body_values['password'] = password
-
-    public = public.upper()
-
-    if public in ['YES', 'NO']:
-        if public == 'YES':
-            body_values['connectVia'] = 'public'
-        else:
-            body_values['connectVia'] = 'fe'
-    else:
-        raise ValueError('{0} is not a valid public parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(public))
-
-    use_proxy = use_proxy.upper()
-
-    if use_proxy in ['YES', 'NO']:
-        if use_proxy == 'YES':
-            body_values['use_proxy'] = 'true'
-        else:
-            body_values['use_proxy'] = 'false'
-    else:
-        raise ValueError('{0} is not a valid use_proxy parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(use_proxy))
+    body_values = {'name': display_name, 'bucket': bucket,
+                   'endpoint': endpoint, 'username': username,
+                   'type': ros_type, 'password': password,
+                   'connectVia': 'public' if public == 'YES' else 'be',
+                   'allow_lifecycle_policies': allow_lifecycle_policies}
 
     if use_proxy == 'YES':
         body_values['proxyhost'] = proxy_host
-
-        proxy_port = int(proxy_port)
-
-        if proxy_port not in range(1, 65535):
-            raise ValueError('{0} is not a valid proxy port number.'
-                             .format(proxy_port))
-
-        body_values['proxyport'] = proxy_port
+        body_values['proxyport'] = verify_port(proxy_port)
 
         if proxy_username is not None:
-            if not is_valid_field(proxy_username):
-                raise ValueError('{0} is not a valid proxy username.'
-                                 .format(proxy_username))
-
-            body_values['proxyuser'] = proxy_username
+            body_values['proxyuser'] = verify_field(proxy_username,
+                                                    "proxy_username")
 
         if proxy_password is not None:
-            if not is_valid_field(proxy_password):
-                raise ValueError('{0} is not a valid proxy password.'
-                                 .format(proxy_password))
+            body_values['proxypassword'] = verify_field(proxy_password,
+                                                        "proxy_password")
 
-            body_values['proxypassword'] = proxy_password
-
-    method = 'POST'
     path = '/api/object_storage_destinations.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -320,90 +255,43 @@ def update_ros_destination(session, ros_destination_id, bucket=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_destination_id(ros_destination_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'destination ID.'.format(ros_destination_id))
+    verify_ros_destination_id(ros_destination_id)
 
     body_values = {}
 
     if bucket is not None:
-        bucket = bucket.strip()
-
-        if not is_valid_field(bucket):
-            raise ValueError('{0} is not a valid remote object store bucket '
-                             'name.'.format(bucket))
-
-        body_values['bucket'] = bucket
+        body_values['bucket'] = verify_field(bucket, "bucket")
 
     if endpoint is not None:
         body_values['endpoint'] = endpoint
 
     if username is not None:
-        if not is_valid_field(username):
-            raise ValueError('{0} is not a valid object storage username.'
-                             .format(username))
-
-        body_values['username'] = username
+        body_values['username'] = verify_field(username, "username")
 
     if password is not None:
-        if not is_valid_field(password):
-            raise ValueError('{0} is not a valid object storage password.'
-                             .format(password))
-
-        body_values['password'] = password
+        body_values['password'] = verify_field(password, "password")
 
     if public is not None:
-        public = public.upper()
-
-        if public in ['YES', 'NO']:
-            if public == 'YES':
-                body_values['connectVia'] = 'public'
-            else:
-                body_values['connectVia'] = 'fe'
-        else:
-            raise ValueError('{0} is not a valid public parameter.  Allowed '
-                             'values are: "YES" or "NO"'.format(public))
+        public = verify_boolean(public, "public")
+        body_values['connectVia'] = 'public' if public == 'YES' else 'fe'
 
     if use_proxy is not None:
-        use_proxy = use_proxy.upper()
-
-        if use_proxy in ['YES', 'NO']:
-            if use_proxy == 'YES':
-                body_values['use_proxy'] = 'true'
-            else:
-                body_values['use_proxy'] = 'false'
-        else:
-            raise ValueError('{0} is not a valid use_proxy parameter.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(use_proxy))
+        use_proxy = verify_boolean(use_proxy, "use_proxy")
+        body_values['use_proxy'] = str(use_proxy == 'YES').lower()
 
     if proxy_host is not None or use_proxy == 'YES':
         body_values['proxyhost'] = proxy_host
 
     if proxy_port is not None or use_proxy == 'YES':
-        proxy_port = int(proxy_port)
-
-        if proxy_port not in range(1, 65535):
-            raise ValueError('{0} is not a valid proxy port number.'
-                             .format(proxy_port))
-
-        body_values['proxyport'] = proxy_port
+        body_values['proxyport'] = verify_port(proxy_port)
 
     if proxy_username is not None:
-        if proxy_username is not None:
-            if not is_valid_field(proxy_username):
-                raise ValueError('{0} is not a valid proxy username.'
-                                 .format(proxy_username))
-
-            body_values['proxyuser'] = proxy_username
+        body_values['proxyuser'] = verify_field(proxy_username,
+                                                "proxy_username")
 
     if proxy_password is not None:
-        if proxy_password is not None:
-            if not is_valid_field(proxy_password):
-                raise ValueError('{0} is not a valid proxy password.'
-                                 .format(proxy_password))
-
-            body_values['proxypassword'] = proxy_password
+        body_values['proxypassword'] = verify_field(proxy_password,
+                                                    "proxy_password")
 
     if not body_values:
         raise ValueError('At least one of the following must be set: '
@@ -411,14 +299,11 @@ def update_ros_destination(session, ros_destination_id, bucket=None,
                          '"public", "use_proxy", "proxy_host", "proxy_port", '
                          '"proxy_username", "proxy_password"')
 
-    method = 'PUT'
-    path = '/api/object_storage_destinations/{0}.json'\
-           .format(ros_destination_id)
+    path = '/api/object_storage_destinations/{0}.json' \
+        .format(ros_destination_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return session.put_api(path=path, body=body_values,
+                           return_type=return_type)
 
 
 def remove_ros_destination(session, ros_destination_id, return_type=None):
@@ -443,15 +328,12 @@ def remove_ros_destination(session, ros_destination_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_destination_id(ros_destination_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'destination ID.'.format(ros_destination_id))
+    verify_ros_destination_id(ros_destination_id)
 
-    method = 'DELETE'
-    path = '/api/object_storage_destinations/{0}.json'\
-           .format(ros_destination_id)
+    path = '/api/object_storage_destinations/{0}.json' \
+        .format(ros_destination_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type)
 
 
 def get_all_ros_destination_backup_jobs(session, ros_destination_id,
@@ -486,19 +368,15 @@ def get_all_ros_destination_backup_jobs(session, ros_destination_id,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_destination_id(ros_destination_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'destination ID.'.format(ros_destination_id))
+    verify_ros_destination_id(ros_destination_id)
 
-    method = 'GET'
-    path = '/api/object_storage_destinations/{0}/backup_jobs.json'\
-           .format(ros_destination_id)
+    path = '/api/object_storage_destinations/{0}/backup_jobs.json' \
+        .format(ros_destination_id)
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
+    parameters = verify_start_limit(start, limit)
 
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_all_ros_destination_restore_jobs(session, ros_destination_id,
@@ -533,15 +411,13 @@ def get_all_ros_destination_restore_jobs(session, ros_destination_id,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'GET'
-    path = '/api/object_storage_destinations/{0}/restore_jobs.json'\
-           .format(ros_destination_id)
+    path = '/api/object_storage_destinations/{0}/restore_jobs.json' \
+        .format(ros_destination_id)
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
+    parameters = verify_start_limit(start, limit)
 
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_all_ros_backup_jobs(session, start=None, limit=None,
@@ -570,14 +446,12 @@ def get_all_ros_backup_jobs(session, start=None, limit=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'GET'
     path = '/api/object_storage_backup_jobs.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
+    parameters = verify_start_limit(start, limit)
 
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_ros_backup_job(session, ros_backup_job_id, return_type=None):
@@ -601,18 +475,15 @@ def get_ros_backup_job(session, ros_backup_job_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_backup_job_id(ros_backup_job_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'backup job ID.'.format(ros_backup_job_id))
+    verify_ros_backup_job_id(ros_backup_job_id)
 
-    method = 'GET'
-    path = '/api/object_storage_backup_jobs/{0}.json'\
-           .format(ros_backup_job_id)
+    path = '/api/object_storage_backup_jobs/{0}.json' \
+        .format(ros_backup_job_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
-def create_ros_backup_job(session, display_name, ros_destination_id,
+def create_ros_backup_job(session, display_name, ros_destination_id, sse,
                           volume_id, policy_id, compression='YES',
                           return_type=None):
     """
@@ -626,6 +497,10 @@ def create_ros_backup_job(session, display_name, ros_destination_id,
     :param display_name: A text label to assign to the remote object storage
         backup job.  For example: 'Daily S3 Backup'.  May not contain a single
         quote (') character.  Required.
+
+    :type sse: str
+    :param sse: The remote object storage destination SSE:
+     'NO', 'AES256', 'KMS', 'KMSKEYID  Required.
 
     :type ros_destination_id: str
     :param ros_destination_id: The remote object storage destination 'name'
@@ -657,48 +532,19 @@ def create_ros_backup_job(session, display_name, ros_destination_id,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    display_name = verify_field(display_name, "display_name")
+    verify_ros_destination_id(ros_destination_id)
+    verify_volume_id(volume_id)
+    verify_policy_id(policy_id)
 
-    display_name = display_name.strip()
+    body_values = {'name': display_name, 'destination': ros_destination_id,
+                   'volume': volume_id, 'policy': policy_id,
+                   'sse': sse,
+                   'compression': verify_boolean(compression, "compression")}
 
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid remote object storage backup '
-                         'job name.'.format(display_name))
-
-    body_values['name'] = display_name
-
-    if not is_valid_ros_destination_id(ros_destination_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'destination ID.'.format(ros_destination_id))
-
-    body_values['destination'] = ros_destination_id
-
-    if not is_valid_volume_id(volume_id):
-        raise ValueError('{0} is not a valid volume ID.'.format(volume_id))
-
-    body_values['volume'] = volume_id
-
-    if not is_valid_policy_id(policy_id):
-        raise ValueError('{0} is not a valid snapshot policy ID.'
-                         .format(policy_id))
-
-    body_values['policy'] = policy_id
-
-    compression = compression.upper()
-
-    if compression not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid compression parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(compression))
-
-    body_values['compression'] = compression
-
-    method = 'POST'
     path = '/api/object_storage_backup_jobs.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -723,15 +569,12 @@ def pause_ros_backup_job(session, ros_backup_job_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_backup_job_id(ros_backup_job_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'backup job ID.'.format(ros_backup_job_id))
+    verify_ros_destination_id(ros_backup_job_id)
 
-    method = 'POST'
-    path = '/api/object_storage_backup_jobs/{0}/pause.json'\
-           .format(ros_backup_job_id)
+    path = '/api/object_storage_backup_jobs/{0}/pause.json' \
+        .format(ros_backup_job_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def resume_ros_backup_job(session, ros_backup_job_id, return_type=None):
@@ -755,15 +598,12 @@ def resume_ros_backup_job(session, ros_backup_job_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_backup_job_id(ros_backup_job_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'backup job ID.'.format(ros_backup_job_id))
+    verify_ros_backup_job_id(ros_backup_job_id)
 
-    method = 'POST'
-    path = '/api/object_storage_backup_jobs/{0}/continue.json'\
-           .format(ros_backup_job_id)
+    path = '/api/object_storage_backup_jobs/{0}/continue.json' \
+        .format(ros_backup_job_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def break_ros_backup_job(session, ros_backup_job_id, purge_data,
@@ -797,37 +637,16 @@ def break_ros_backup_job(session, ros_backup_job_id, purge_data,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_backup_job_id(ros_backup_job_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'backup job ID.'.format(ros_backup_job_id))
+    verify_ros_backup_job_id(ros_backup_job_id)
 
-    body_values = {}
+    body_values = {'purge_data': verify_boolean(purge_data, "purge_data"),
+                   "delete_snapshots": verify_boolean(delete_snapshots,
+                                                      "delete_snapshots")}
 
-    purge_data = purge_data.upper()
+    path = '/api/object_storage_backup_jobs/{0}/break.json' \
+        .format(ros_backup_job_id)
 
-    if purge_data not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid purge_data parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(purge_data))
-
-    body_values['purge_data'] = purge_data
-
-    delete_snapshots = delete_snapshots.upper()
-
-    if delete_snapshots not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid delete_snapshots parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(delete_snapshots))
-
-    body_values['delete_snapshots'] = delete_snapshots
-
-    method = 'POST'
-    path = '/api/object_storage_backup_jobs/{0}/break.json'\
-           .format(ros_backup_job_id)
-
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -858,28 +677,14 @@ def update_ros_backup_job_compression(session, ros_backup_job_id, compression,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_backup_job_id(ros_backup_job_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'backup job ID.'.format(ros_backup_job_id))
+    verify_ros_backup_job_id(ros_backup_job_id)
 
-    body_values = {}
+    body_values = {'compression': verify_boolean(compression, 'compression')}
 
-    compression = compression.upper()
+    path = '/api/object_storage_backup_jobs/{0}/compression.json' \
+        .format(ros_backup_job_id)
 
-    if compression not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid compression parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(compression))
-
-    body_values['compression'] = compression
-
-    method = 'POST'
-    path = '/api/object_storage_backup_jobs/{0}/compression.json'\
-           .format(ros_backup_job_id)
-
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -912,25 +717,15 @@ def replace_ros_backup_job_snapshot_policy(session, ros_backup_job_id,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_backup_job_id(ros_backup_job_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'backup job ID.'.format(ros_backup_job_id))
+    verify_ros_backup_job_id(ros_backup_job_id)
+    verify_policy_id(policy_id)
 
-    body_values = {}
+    body_values = {'policyname': policy_id}
 
-    if not is_valid_policy_id(policy_id):
-        raise ValueError('{0} is not a valid snapshot policy ID.'
-                         .format(policy_id))
+    path = '/api/object_storage_backup_jobs/{0}/replace_snapshot_policy.json' \
+        .format(ros_backup_job_id)
 
-    body_values['policyname'] = policy_id
-
-    method = 'POST'
-    path = '/api/object_storage_backup_jobs/{0}/replace_snapshot_policy.json'\
-           .format(ros_backup_job_id)
-
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -960,14 +755,12 @@ def get_all_ros_restore_jobs(session, start=None, limit=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    method = 'GET'
+    parameters = verify_start_limit(start, limit)
+
     path = '/api/object_storage_restore_jobs.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_ros_restore_job(session, ros_restore_job_id, return_type=None):
@@ -991,20 +784,18 @@ def get_ros_restore_job(session, ros_restore_job_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_restore_job_id(ros_restore_job_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'restore job ID.'.format(ros_restore_job_id))
+    verify_ros_restore_job_id(ros_restore_job_id)
 
-    method = 'GET'
-    path = '/api/object_storage_restore_jobs/{0}.json'\
-           .format(ros_restore_job_id)
+    path = '/api/object_storage_restore_jobs/{0}.json' \
+        .format(ros_restore_job_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def create_ros_restore_job(session, display_name, ros_destination_id, pool_id,
                            restore_mode, volume_name, local_snapshot_id,
-                           object_store_key, crypt, return_type=None):
+                           object_store_key, crypt, dedupe='NO', compress='NO',
+                           return_type=None):
     """
     Creates a new remote object storage backup job.  Backups are based on
     snapshots taken by the specified snapshot policy.
@@ -1068,6 +859,14 @@ def create_ros_restore_job(session, display_name, ros_destination_id, pool_id,
         will be encrypted with the VPSA's encryption key.  If 'NO', the
         resulting volume will not be encrypted.  Required.
 
+    :type dedupe: str
+    :param dedupe: If set to 'YES', deduplication will be enabled on the
+        volume.  If 'NO', it won't.  Optional.
+
+    :type compress: str
+    :param compress: If set to 'YES', compression will be enabled on the
+        volume.  If 'NO', it won't.  Optional.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -1077,74 +876,36 @@ def create_ros_restore_job(session, display_name, ros_destination_id, pool_id,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    verify_ros_destination_id(ros_destination_id)
+    verify_pool_id(pool_id)
+    verify_restore_mode(restore_mode)
 
-    display_name = display_name.strip()
-
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid remote object storage backup '
-                         'job name.'.format(display_name))
-
-    body_values['name'] = display_name
-
-    if not is_valid_ros_destination_id(ros_destination_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'destination ID.'.format(ros_destination_id))
-
-    body_values['remote_object_store'] = ros_destination_id
-
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
-
-    body_values['poolname'] = pool_id
-
-    if restore_mode not in ['restore', 'clone', 'import_seed']:
-        raise ValueError('{0} is not a valid restore_mode parameter.  '
-                         'Allowed values are: "restore", "clone", or '
-                         '"import_seed"'.format(restore_mode))
-
-    body_values['mode'] = restore_mode
-
-    volume_name = volume_name.strip()
-
-    if not is_valid_field(volume_name):
-        raise ValueError('{0} is not a valid volume name.'
-                         .format(volume_name))
-
-    body_values['volname'] = volume_name
+    body_values = {'name': verify_field(display_name, "display_name"),
+                   'remote_object_store': ros_destination_id,
+                   'poolname': pool_id, 'mode': restore_mode,
+                   'volname': verify_field(volume_name, "volume"),
+                   'crypt': verify_boolean(crypt, "crypt")}
 
     if local_snapshot_id is None and object_store_key is None:
         raise ValueError('Either "local_snapshot_id" or "object_store_key" '
                          'needs to be passed as a parameter.')
 
     if local_snapshot_id is not None:
-        if not is_valid_snapshot_id(local_snapshot_id):
-            raise ValueError('{0} is not a valid local snapshot ID.'
-                             .format(local_snapshot_id))
-
+        verify_snapshot_id(local_snapshot_id)
         body_values['local_snapname'] = local_snapshot_id
 
     if object_store_key is not None:
-        if not is_valid_field(object_store_key):
-            raise ValueError('{0} is not a valid object storage key.'
-                             .format(object_store_key))
+        body_values['key'] = verify_field(object_store_key, "object_store_key")
 
-        body_values['key'] = object_store_key
+    if dedupe is not None:
+        body_values["dedupe"] = verify_boolean(dedupe, 'dedupe')
 
-    crypt = crypt.upper()
+    if compress is not None:
+        body_values["compress"] = verify_boolean(compress, 'compress')
 
-    if crypt not in ['YES', 'NO']:
-        raise ValueError('{0} is not a valid crypt parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(crypt))
-
-    body_values['crypt'] = crypt
-
-    method = 'POST'
     path = '/api/object_storage_restore_jobs.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -1169,15 +930,12 @@ def pause_ros_restore_job(session, ros_restore_job_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_restore_job_id(ros_restore_job_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'restore job ID.'.format(ros_restore_job_id))
+    verify_ros_restore_job_id(ros_restore_job_id)
 
-    method = 'POST'
-    path = '/api/object_storage_restore_jobs/{0}/pause.json'\
-           .format(ros_restore_job_id)
+    path = '/api/object_storage_restore_jobs/{0}/pause.json' \
+        .format(ros_restore_job_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def resume_ros_restore_job(session, ros_restore_job_id, return_type=None):
@@ -1201,15 +959,12 @@ def resume_ros_restore_job(session, ros_restore_job_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_restore_job_id(ros_restore_job_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'restore job ID.'.format(ros_restore_job_id))
+    verify_ros_restore_job_id(ros_restore_job_id)
 
-    method = 'POST'
-    path = '/api/object_storage_restore_jobs/{0}/continue.json'\
-           .format(ros_restore_job_id)
+    path = '/api/object_storage_restore_jobs/{0}/continue.json' \
+        .format(ros_restore_job_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def break_ros_restore_job(session, ros_restore_job_id, return_type=None):
@@ -1233,15 +988,12 @@ def break_ros_restore_job(session, ros_restore_job_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_restore_job_id(ros_restore_job_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'restore job ID.'.format(ros_restore_job_id))
+    verify_ros_restore_job_id(ros_restore_job_id)
 
-    method = 'POST'
-    path = '/api/object_storage_restore_jobs/{0}/break.json'\
-           .format(ros_restore_job_id)
+    path = '/api/object_storage_restore_jobs/{0}/break.json' \
+        .format(ros_restore_job_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def change_ros_restore_job_mode(session, ros_restore_job_id, restore_mode,
@@ -1271,26 +1023,17 @@ def change_ros_restore_job_mode(session, ros_restore_job_id, restore_mode,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_restore_job_id(ros_restore_job_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'restore job ID.'.format(ros_restore_job_id))
+    verify_ros_restore_job_id(ros_restore_job_id)
+    # TODO: zadarapy checks: not in ['restore', 'clone']:
+    # TODO: what about 'import_seed':
 
-    body_values = {}
+    verify_restore_mode(restore_mode)
+    body_values = {'mode': restore_mode}
 
-    if restore_mode not in ['restore', 'clone']:
-        raise ValueError('{0} is not a valid restore_mode parameter.  '
-                         'Allowed values are: "restore" or "clone"'
-                         .format(restore_mode))
+    path = '/api/object_storage_restore_jobs/{0}/switch_mode.json' \
+        .format(ros_restore_job_id)
 
-    body_values['mode'] = restore_mode
-
-    method = 'POST'
-    path = '/api/object_storage_restore_jobs/{0}/switch_mode.json'\
-           .format(ros_restore_job_id)
-
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -1320,24 +1063,16 @@ def get_ros_backup_job_performance(session, ros_backup_job_id, interval=1,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_backup_job_id(ros_backup_job_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'backup job ID.'.format(ros_backup_job_id))
+    verify_ros_backup_job_id(ros_backup_job_id)
+    interval = verify_interval(interval)
 
-    interval = int(interval)
-
-    if interval < 1:
-        raise ValueError('Interval must be at least 1 second ({0} was'
-                         'supplied).'.format(interval))
-
-    method = 'GET'
-    path = '/api/object_storage_backup_jobs/{0}/performance.json'\
-           .format(ros_backup_job_id)
+    path = '/api/object_storage_backup_jobs/{0}/performance.json' \
+        .format(ros_backup_job_id)
 
     parameters = {'interval': interval}
 
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_ros_restore_job_performance(session, ros_restore_job_id, interval=1,
@@ -1366,21 +1101,84 @@ def get_ros_restore_job_performance(session, ros_restore_job_id, interval=1,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_ros_restore_job_id(ros_restore_job_id):
-        raise ValueError('{0} is not a valid remote object storage '
-                         'restore job ID.'.format(ros_restore_job_id))
+    verify_ros_restore_job_id(ros_restore_job_id)
+    interval = verify_interval(interval)
 
-    interval = int(interval)
-
-    if interval < 1:
-        raise ValueError('Interval must be at least 1 second ({0} was'
-                         'supplied).'.format(interval))
-
-    method = 'GET'
-    path = '/api/object_storage_restore_jobs/{0}/performance.json'\
-           .format(ros_restore_job_id)
+    path = '/api/object_storage_restore_jobs/{0}/performance.json' \
+        .format(ros_restore_job_id)
 
     parameters = {'interval': interval}
 
-    return session.call_api(method=method, path=path, parameters=parameters,
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
+
+
+def backup_jobs_rate_limit(session, ros_backup_job_id, limit,
+                           return_type=None):
+    """
+    Retrieves metering statistics for the remote object storage restore job
+    for the specified interval.  Default interval is one second.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type ros_backup_job_id: str
+    :param ros_backup_job_id: The remote object storage backup job 'name'
+        value as returned by get_all_ros_backup_jobs.  For example:
+        'bckjobs-00000001'.  Required.
+
+    :type limit: int
+    :param limit: Limit rate
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/object_storage_backup_jobs/{0}/rate_limit.json".format(
+        ros_backup_job_id)
+
+    body_values = {"limit": limit}
+
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
+
+
+def backup_jobs_update_compression(session, ros_backup_job_id, compression,
+                                   return_type=None):
+    """
+    Retrieves metering statistics for the remote object storage restore job
+    for the specified interval.  Default interval is one second.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type ros_backup_job_id: str
+    :param ros_backup_job_id: The remote object storage backup job 'name'
+        value as returned by get_all_ros_backup_jobs.  For example:
+        'bkpjobs-00000001'.  Required.
+
+    :type compression: str
+    :param compression: If set to 'YES', backup data will be compressed in
+        flight.  If 'NO', backup data will not be compressed.  Set to 'YES' by
+        default.  Optional.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    # POST /api/object_storage_backup_jobs/{id}/compression.json
+    path = "/api/object_storage_backup_jobs/{0}/compression.json".format(
+        ros_backup_job_id)
+    body_values = {"compression": compression}
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)

@@ -15,7 +15,7 @@
 
 
 from zadarapy.validators import is_valid_raid_id
-from zadarapy.vpsa.raid_groups import *
+from zadarapy.vpsa.raid_groups import create_raid_group, get_all_raid_groups
 import pytest
 import uuid
 

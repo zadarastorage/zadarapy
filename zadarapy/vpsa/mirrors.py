@@ -14,8 +14,10 @@
 # under the License.
 
 
-import json
-from zadarapy.validators import *
+from zadarapy.validators import verify_snapshot_id, verify_boolean, \
+    verify_field, verify_start_limit, verify_cg_id, verify_policy_id, \
+    verify_volume_id, verify_snaprule_id, verify_remote_vpsa_id, \
+    verify_mirror_id
 
 
 def get_all_mirrors(session, start=None, limit=None, return_type=None):
@@ -40,26 +42,12 @@ def get_all_mirrors(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/mirror_jobs.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_mirror(session, mirror_id, return_type=None):
@@ -82,14 +70,11 @@ def get_mirror(session, mirror_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_mirror_id(mirror_id):
-        raise ValueError('{0} is not a valid mirror job ID.'
-                         .format(mirror_id))
+    verify_mirror_id(mirror_id)
 
-    method = 'GET'
     path = '/api/mirror_jobs/{0}.json'.format(mirror_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def pause_mirror(session, mirror_id, return_type=None):
@@ -113,14 +98,11 @@ def pause_mirror(session, mirror_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_mirror_id(mirror_id):
-        raise ValueError('{0} is not a valid mirror job ID.'
-                         .format(mirror_id))
+    verify_mirror_id(mirror_id)
 
-    method = 'POST'
     path = '/api/mirror_jobs/{0}/pause.json'.format(mirror_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def resume_paused_mirror(session, mirror_id, return_type=None):
@@ -144,14 +126,11 @@ def resume_paused_mirror(session, mirror_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_mirror_id(mirror_id):
-        raise ValueError('{0} is not a valid mirror job ID.'
-                         .format(mirror_id))
+    verify_mirror_id(mirror_id)
 
-    method = 'POST'
     path = '/api/mirror_jobs/{0}/continue.json'.format(mirror_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def break_mirror(session, mirror_id, return_type=None):
@@ -179,14 +158,11 @@ def break_mirror(session, mirror_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_mirror_id(mirror_id):
-        raise ValueError('{0} is not a valid mirror job ID.'
-                         .format(mirror_id))
+    verify_mirror_id(mirror_id)
 
-    method = 'POST'
     path = '/api/mirror_jobs/{0}/break.json'.format(mirror_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def get_all_remote_vpsas(session, start=None, limit=None, return_type=None):
@@ -212,26 +188,12 @@ def get_all_remote_vpsas(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/remote_vpsas.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_remote_vpsa(session, rvpsa_id, return_type=None):
@@ -254,14 +216,11 @@ def get_remote_vpsa(session, rvpsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_rvpsa_id(rvpsa_id):
-        raise ValueError('{0} is not a valid remote VPSA ID.'
-                         .format(rvpsa_id))
+    verify_remote_vpsa_id(rvpsa_id)
 
-    method = 'GET'
     path = '/api/remote_vpsas/{0}.json'.format(rvpsa_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def discover_remote_vpsa(session, ip_address, username, password, public,
@@ -303,34 +262,16 @@ def discover_remote_vpsa(session, ip_address, username, password, public,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    username = verify_field(username, "VPSA username")
+    password = verify_field(password, "VPSA password")
+    public = verify_boolean(public, "public")
 
-    if not is_valid_field(username):
-        raise ValueError('{0} is not a valid VPSA username.'.format(username))
+    body_values = {'user': username, 'password': password, 'ip': ip_address,
+                   'isPublic': public}
 
-    body_values['user'] = username
-
-    if not is_valid_field(password):
-        raise ValueError('{0} is not a valid VPSA password.'.format(password))
-
-    body_values['password'] = password
-
-    body_values['ip'] = ip_address
-
-    public = public.upper()
-
-    if public not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid public parameter.  '
-                         'Allowed values are: "YES" or "NO"'.format(public))
-
-    body_values['public'] = public
-
-    method = 'POST'
     path = '/api/remote_vpsas/discover.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -355,14 +296,11 @@ def refresh_remote_vpsa(session, rvpsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_rvpsa_id(rvpsa_id):
-        raise ValueError('{0} is not a valid remote VPSA ID.'
-                         .format(rvpsa_id))
+    verify_remote_vpsa_id(rvpsa_id)
 
-    method = 'POST'
     path = '/api/remote_vpsas/{0}/refresh.json'.format(rvpsa_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def remove_remote_vpsa(session, rvpsa_id, return_type=None):
@@ -386,14 +324,11 @@ def remove_remote_vpsa(session, rvpsa_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_rvpsa_id(rvpsa_id):
-        raise ValueError('{0} is not a valid remote VPSA ID.'
-                         .format(rvpsa_id))
+    verify_remote_vpsa_id(rvpsa_id)
 
-    method = 'DELETE'
     path = '/api/remote_vpsas/{0}.json'.format(rvpsa_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type)
 
 
 def get_remote_vpsa_pools(session, rvpsa_id, start=None, limit=None,
@@ -423,30 +358,13 @@ def get_remote_vpsa_pools(session, rvpsa_id, start=None, limit=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_rvpsa_id(rvpsa_id):
-        raise ValueError('{0} is not a valid remote VPSA ID.'
-                         .format(rvpsa_id))
+    verify_remote_vpsa_id(rvpsa_id)
+    parameters = verify_start_limit(start, limit)
 
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/remote_vpsas/{0}/pools.json'.format(rvpsa_id)
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_suggested_mirrors(session, rvpsa_id, cg_id, start=None, limit=None,
@@ -486,39 +404,21 @@ def get_suggested_mirrors(session, rvpsa_id, cg_id, start=None, limit=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_rvpsa_id(rvpsa_id):
-        raise ValueError('{0} is not a valid remote VPSA ID.'
-                         .format(rvpsa_id))
+    verify_remote_vpsa_id(rvpsa_id)
+    verify_cg_id(cg_id)
 
-    if not is_valid_cg_id(cg_id):
-        raise ValueError('{0} is not a valid consistency group ID.'
-                         .format(cg_id))
-
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
+    parameters = verify_start_limit(start, limit,
+                                    list_more_options=[('cgname', cg_id)])
     path = '/api/remote_vpsas/{0}/suggested_jobs.json'.format(rvpsa_id)
 
-    parameters = {k: v for k, v in (('cgname', cg_id), ('start', start),
-                                    ('limit', limit)) if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def resume_broken_mirror(session, rvpsa_id, display_name, policy_id,
                          local_snapshot_id, remote_snapshot_id,
-                         wan_optimization='YES', return_type=None):
+                         wan_optimization='YES', compress=None, dedupe=None,
+                         force='NO', return_type=None):
     """
     Resumes a previously broken mirror job between VPSAs.  Use in conjunction
     with get_suggested_mirrors to find candidates for resume.
@@ -556,6 +456,17 @@ def resume_broken_mirror(session, rvpsa_id, display_name, policy_id,
         more data will be sent by the mirror with less load on the source
         VPSA.  Set to 'YES' by default.  Required.
 
+    :type compress: str
+    :param compress: "YES" for compress. "NO" for not
+
+
+    :type dedupe: str
+    :param dedupe: "YES" for dedupe. "NO" for not
+
+
+    :type force: str
+    :param force: "YES" for force command. "NO" for not
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -565,51 +476,28 @@ def resume_broken_mirror(session, rvpsa_id, display_name, policy_id,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_rvpsa_id(rvpsa_id):
-        raise ValueError('{0} is not a valid remote VPSA ID.'
-                         .format(rvpsa_id))
+    verify_remote_vpsa_id(rvpsa_id)
+    display_name = verify_field(display_name, "display_name")
+    verify_policy_id(policy_id)
+    verify_snapshot_id(local_snapshot_id)
+    verify_snapshot_id(remote_snapshot_id)
+    wan_optimization = verify_boolean(wan_optimization, "wan_optimization")
 
-    body_values = {}
+    body_values = {"displayname": display_name, "policy": policy_id,
+                   "snapname": local_snapshot_id,
+                   "remote_snapname": remote_snapshot_id,
+                   "wanoptimization": wan_optimization, "force": force}
 
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid remote mirror name.'
-                         .format(display_name))
+    if compress is not None:
+        compress = verify_boolean(compress, "compress")
+        body_values["compress"] = compress
+    if dedupe is not None:
+        dedupe = verify_boolean(dedupe, "dedupe")
+        body_values["dedupe"] = dedupe
 
-    body_values['displayname'] = display_name
-
-    if not is_valid_policy_id(policy_id):
-        raise ValueError('"{0}" is not a valid snapshot policy ID.'
-                         .format(policy_id))
-
-    body_values['policy'] = policy_id
-
-    if not is_valid_snapshot_id(local_snapshot_id):
-        raise ValueError('"{0}" is not a valid local snapshot ID.'
-                         .format(local_snapshot_id))
-
-    body_values['snapname'] = local_snapshot_id
-
-    if not is_valid_snapshot_id(remote_snapshot_id):
-        raise ValueError('"{0}" is not a valid remote snapshot ID.'
-                         .format(remote_snapshot_id))
-
-    body_values['remote_snapname'] = remote_snapshot_id
-
-    wan_optimization = wan_optimization.upper()
-
-    if wan_optimization not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid wan_optimization parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(wan_optimization))
-
-    body_values['wan_optimization'] = wan_optimization
-
-    method = 'POST'
     path = '/api/remote_vpsas/{0}/resume_mirror_job.json'.format(rvpsa_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -640,25 +528,14 @@ def add_mirror_snapshot_policy(session, mirror_id, policy_id,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_mirror_id(mirror_id):
-        raise ValueError('{0} is not a valid mirror job ID.'
-                         .format(mirror_id))
+    verify_mirror_id(mirror_id)
+    verify_policy_id(policy_id)
 
-    body_values = {}
+    body_values = {'policyname': policy_id}
 
-    if not is_valid_policy_id(policy_id):
-        raise ValueError('"{0}" is not a valid snapshot policy ID.'
-                         .format(policy_id))
+    path = '/api/mirror_jobs/{0}/attach_snapshot_policy.json'.format(mirror_id)
 
-    body_values['policyname'] = policy_id
-
-    method = 'POST'
-    path = '/api/mirror_jobs/{0}/attach_snapshot_policy.json'\
-           .format(mirror_id)
-
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -694,34 +571,16 @@ def remove_mirror_snapshot_policy(session, mirror_id, policy_id,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_mirror_id(mirror_id):
-        raise ValueError('{0} is not a valid mirror job ID.'
-                         .format(mirror_id))
+    verify_mirror_id(mirror_id)
+    verify_policy_id(policy_id)
+    delete_snapshots = verify_boolean(delete_snapshots, "delete_snapshots")
 
-    body_values = {}
+    body_values = {'policyname': policy_id,
+                   'delete_snapshots': delete_snapshots}
 
-    if not is_valid_policy_id(policy_id):
-        raise ValueError('"{0}" is not a valid snapshot policy ID.'
-                         .format(policy_id))
+    path = '/api/mirror_jobs/{0}/detach_snapshot_policy.json'.format(mirror_id)
 
-    body_values['policyname'] = policy_id
-
-    delete_snapshots = delete_snapshots.upper()
-
-    if delete_snapshots not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid delete_snapshots parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(delete_snapshots))
-
-    body_values['delete_snapshots'] = delete_snapshots
-
-    method = 'POST'
-    path = '/api/mirror_jobs/{0}/detach_snapshot_policy.json'\
-           .format(mirror_id)
-
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -755,25 +614,210 @@ def update_mirror_wan_optimization(session, mirror_id, wan_optimization,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_mirror_id(mirror_id):
-        raise ValueError('{0} is not a valid mirror job ID.'
-                         .format(mirror_id))
+    verify_mirror_id(mirror_id)
+    wan_optimization = verify_boolean(wan_optimization, "wan_optimization")
 
-    body_values = {}
-
-    wan_optimization = wan_optimization.upper()
-
-    if wan_optimization not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid wan_optimization parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(wan_optimization))
-
-    body_values['wan_optimization'] = wan_optimization
-
-    method = 'POST'
     path = '/api/mirror_jobs/{0}/set_wan_optimization.json'.format(mirror_id)
 
-    body = json.dumps(body_values)
+    body_values = {'wan_optimization': wan_optimization}
 
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
+
+
+def get_snapshots(session, mirror_id, return_type=None):
+    """
+    Get all snapshots from mirror job
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type mirror_id: str
+    :param mirror_id: The mirror job 'job_name' value as returned by
+        get_all_mirrors.  For example: 'srcjvpsa-00000001'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_mirror_id(mirror_id)
+
+    path = '/api/mirror_jobs/{0}/snapshots.json'.format(mirror_id)
+
+    return session.post_api(path=path, return_type=return_type)
+
+
+def clone_mirror_job(session, mirror_id, snapshot_id, clone_name,
+                     return_type=None):
+    """
+    Clone a mirror job's snapshot into a volume.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type mirror_id: str
+    :param mirror_id: The mirror job 'job_name' value as returned by
+        get_all_mirrors.  For example: 'srcjvpsa-00000001'.  Required.
+
+    :type snapshot_id: str
+    :param snapshot_id: A snapshot's id.  Required.
+
+    :type clone_name: str
+    :param clone_name: The new cloned volume name.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_mirror_id(mirror_id)
+    verify_snapshot_id(snapshot_id)
+
+    body_values = {"snapshot": snapshot_id, 'clone_name': clone_name}
+
+    path = '/api/mirror_jobs/{0}/clone_snapshot.json'.format(mirror_id)
+
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
+
+
+def detach_snapshot_policy(session, policy_id, mirror_id, snap_rule_id,
+                           delete_snapshots="YES", return_type=None):
+    """
+    Detach a Snapshot Policy from a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type policy_id: str
+    :param policy_id: The snapshot policy 'name' value as returned by
+        get_all_snapshot_policies.  For example: 'policy-00000001'.  Required.
+
+    :type mirror_id: str
+    :param mirror_id: The mirror job 'job_name' value as returned by
+        get_all_mirrors.  For example: 'srcjvpsa-00000001'.  Required.
+
+    :type snap_rule_id: str
+    :param snap_rule_id: A snap rule ID.
+    (found in /consistency_groups/{volume_cg_id}/snapshot_policies API).
+    For example: 'snaprule-00000001'.  Required.
+
+    :type delete_snapshots: str
+    :param delete_snapshots: "YES" iff delete snapshots after detach.
+    "NO" otherwise
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_policy_id(policy_id)
+    verify_volume_id(mirror_id)
+    verify_snaprule_id(snap_rule_id)
+
+    path = "/api/mirror_jobs/{0}/detach_snapshot_policy.json".format(mirror_id)
+    body_values = {"id": mirror_id, "snaprule": snap_rule_id,
+                   "delete_snapshots": delete_snapshots}
+
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
+
+
+def update_remote_vpsa_rate_limit(session, remote_vpsa_id, limit,
+                                  return_type=None):
+    """
+    Detach a Snapshot Policy from a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type remote_vpsa_id: str
+    :param remote_vpsa_id: Remote VPSA ID
+
+    :type limit: int
+    :param limit: New rate limit to set in kb/s
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/remote_vpsas/{0}/rate_limit.json".format(remote_vpsa_id)
+    body_values = {"limit": limit}
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
+
+
+def update_mirror_rate_limit(session, remote_vpsa_id, limit, return_type=None):
+    """
+    Update Mirror rate limit
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type remote_vpsa_id: str
+    :param remote_vpsa_id: Remote VPSA ID
+
+    :type limit: int
+    :param limit: New rate limit to set in kb/s
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/mirror_jobs/{0}/rate_limit.json".format(remote_vpsa_id)
+    body_values = {"limit": limit}
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
+
+
+def get_suggested_mirror_jobs(session, remote_vpsa_id, cg_id,
+                              return_type=None):
+    """
+    Get suggested mirror jobs
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type remote_vpsa_id: str
+    :param remote_vpsa_id: Remote VPSA ID.  Required.
+
+    :type cg_id: int
+    :param cg_id: Volume CG ID.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/remote_vpsas/{0}/suggested_jobs.json".format(remote_vpsa_id)
+    body_values = {"cgname": cg_id}
+
+    return session.get_api(path=path, body=body_values,
+                           return_type=return_type)

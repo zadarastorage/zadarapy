@@ -1,4 +1,4 @@
-# Copyright 2018 Zadara Storage, Inc.
+# Copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -14,11 +14,19 @@
 # under the License.
 
 
-import json
-from zadarapy.validators import is_valid_field
-from zadarapy.validators import is_valid_pool_id
-from zadarapy.validators import is_valid_raid_id
-from zadarapy.validators import is_valid_volume_id
+from zadarapy.validators import verify_start_limit, verify_field, \
+    verify_capacity, verify_raid_groups, \
+    verify_pool_type, verify_boolean, verify_pool_id, verify_mode, \
+    verify_drives, verify_positive_argument
+
+__all__ = ["get_all_pools", "get_pool", "create_pool", "create_raid10_pool",
+           "delete_pool", "rename_pool",
+           "get_raid_groups_in_pool", "get_volumes_in_pool",
+           "add_raid_groups_to_pool", "update_pool_capacity_alerts",
+           "get_pool_mirror_destination_volumes", "set_pool_cache",
+           "set_pool_cowcache", "expand_pool",
+           "get_volumes_in_pool_recycle_bin", "get_pool_performance",
+           "pool_shrink", "cancel_pool_shrink"]
 
 
 def get_all_pools(session, start=None, limit=None, return_type=None):
@@ -43,26 +51,12 @@ def get_all_pools(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/pools.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_pool(session, pool_id, return_type=None):
@@ -85,13 +79,11 @@ def get_pool(session, pool_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+    verify_pool_id(pool_id)
 
-    method = 'GET'
     path = '/api/pools/{0}.json'.format(pool_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def create_pool(session, display_name, raid_groups, capacity, pooltype,
@@ -161,36 +153,22 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    display_name = verify_field(display_name, "display_name")
+    capacity = verify_capacity(capacity, "Storage Pool")
+    verify_raid_groups(raid_groups)
+    verify_pool_type(pooltype)
+    cache = verify_boolean(cache, "cache")
+    mode = verify_mode(mode)
 
-    display_name = display_name.strip()
+    # If only one RAID group will be participating in this pool, force the
+    # mode to simple.
+    if len(raid_groups.split(',')) == 1:
+        mode = 'simple'
 
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid pool name.'.format(display_name))
-
-    body_values['display_name'] = display_name
-
-    capacity = int(capacity)
-
-    if capacity < 1:
-        raise ValueError('Storage pool must be >= 1 GB ("{0}" was given)'
-                         .format(capacity))
-
-    body_values['capacity'] = '{0}G'.format(capacity)
-
-    rg = raid_groups.split(',')
-
-    for raid_group in rg:
-        if not is_valid_raid_id(raid_group):
-            raise ValueError('"{0}" in "{1}" is not a valid RAID group ID.'
-                             .format(raid_group, raid_groups))
-
-    body_values['raid_groups'] = raid_groups
-
-    if pooltype not in ['Transactional', 'Repository', 'Archival']:
-        raise ValueError('"{0}" is not a valid pool type.  Allowed values '
-                         'are: "Transactional", "Repository", or "Archival"'
-                         .format(pooltype))
+    body_values = {'display_name': display_name,
+                   'capacity': '{0}G'.format(capacity),
+                   'raid_groups': raid_groups,
+                   'cache': cache, 'mode': mode}
 
     if pooltype == 'Transactional':
         pooltype = 'Transactional Workloads'
@@ -199,46 +177,15 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
 
     body_values['pooltype'] = pooltype
 
-    cache = cache.upper()
-
-    if cache not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid cache setting.  Allowed '
-                         'values are: "YES" or "NO"'.format(cache))
-
-    body_values['cache'] = cache
-
     # CoW cache can only be enabled or disabled for pools where primary cache
     # is enabled.
     if cache == 'YES':
-        cowcache = cowcache.upper()
+        cowcache = verify_boolean(cowcache, "cowcache")
+        body_values['cowcache'] = str(cowcache == 'YES').lower()
 
-        if cowcache not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid cowcache setting.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(cowcache))
-
-        if cowcache == 'YES':
-            body_values['cowcache'] = 'true'
-        else:
-            body_values['cowcache'] = 'false'
-
-    if mode not in ['stripe', 'simple']:
-        raise ValueError('"{0}" is not a valid pool mode.  Allowed values '
-                         'are: "stripe" or "simple"'.format(mode))
-
-    # If only one RAID group will be participating in this pool, force the
-    # mode to simple.
-    if len(rg) == 1:
-        mode = 'simple'
-
-    body_values['mode'] = mode
-
-    method = 'POST'
     path = '/api/pools.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -280,65 +227,24 @@ def create_raid10_pool(session, display_name, drives, pooltype,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    display_name = verify_field(display_name, "display_name")
+    verify_drives(drives)
+    verify_pool_type(pooltype)
+    pooltype = fix_pooltype(pooltype)
+    cache = verify_boolean(cache, "cache")
 
-    display_name = display_name.strip()
-
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid pool name.'.format(display_name))
-
-    body_values['display_name'] = display_name
-
-    dr = drives.split(',')
-
-    for drive in dr:
-        if not is_valid_volume_id(drive):
-            raise ValueError('"{0}" in "{1}" is not a valid drive ID.'
-                             .format(drive, drives))
-
-    body_values['disks'] = drives
-
-    if pooltype not in ['Transactional', 'Repository', 'Archival']:
-        raise ValueError('"{0}" is not a valid pool type.  Allowed values '
-                         'are: "Transactional", "Repository", or "Archival"'
-                         .format(pooltype))
-
-    if pooltype == 'Transactional':
-        pooltype = 'Transactional Workloads'
-    else:
-        pooltype = '{0} Storage'.format(pooltype)
-
-    body_values['pooltype'] = pooltype
-
-    cache = cache.upper()
-
-    if cache not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid cache setting.  Allowed '
-                         'values are: "YES" or "NO"'.format(cache))
-
-    body_values['cache'] = cache
+    body_values = {'display_name': display_name, 'disks': drives,
+                   'pooltype': pooltype, 'cache': cache}
 
     # CoW cache can only be enabled or disabled for pools where primary cache
     # is enabled.
     if cache == 'YES':
-        cowcache = cowcache.upper()
+        cowcache = verify_boolean(cowcache, "cowcache")
+        body_values['cowcache'] = str(cowcache == 'YES').lower()
 
-        if cowcache not in ['YES', 'NO']:
-            raise ValueError('"{0}" is not a valid cowcache setting.  '
-                             'Allowed values are: "YES" or "NO"'
-                             .format(cowcache))
-
-        if cowcache == 'YES':
-            body_values['cowcache'] = 'true'
-        else:
-            body_values['cowcache'] = 'false'
-
-    method = 'POST'
     path = '/api/pools.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -363,13 +269,11 @@ def delete_pool(session, pool_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+    verify_pool_id(pool_id)
 
-    method = 'DELETE'
     path = '/api/pools/{0}.json'.format(pool_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type)
 
 
 def rename_pool(session, pool_id, display_name, return_type=None):
@@ -396,25 +300,14 @@ def rename_pool(session, pool_id, display_name, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+    verify_pool_id(pool_id)
+    display_name = verify_field(display_name, "display_name")
 
-    body_values = {}
+    body_values = {'new_name': display_name}
 
-    display_name = display_name.strip()
-
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid pool name.'
-                         .format(display_name))
-
-    body_values['new_name'] = display_name
-
-    method = 'POST'
     path = '/api/pools/{0}/rename.json'.format(pool_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -445,29 +338,13 @@ def get_raid_groups_in_pool(session, pool_id, start=None, limit=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+    verify_pool_id(pool_id)
+    parameters = verify_start_limit(start, limit)
 
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/pools/{0}/raid_groups.json'.format(pool_id)
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_volumes_in_pool(session, pool_id, start=None, limit=None,
@@ -497,29 +374,13 @@ def get_volumes_in_pool(session, pool_id, start=None, limit=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+    verify_pool_id(pool_id)
+    parameters = verify_start_limit(start, limit)
 
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/pools/{0}/volumes.json'.format(pool_id)
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def add_raid_groups_to_pool(session, pool_id, raid_groups, capacity,
@@ -555,32 +416,16 @@ def add_raid_groups_to_pool(session, pool_id, raid_groups, capacity,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+    verify_pool_id(pool_id)
+    verify_raid_groups(raid_groups)
+    capacity = verify_capacity(capacity, "Storage pool")
 
-    body_values = {}
+    body_values = {'raid_groups': raid_groups,
+                   'capacity': '{0}G'.format(capacity)}
 
-    for raid_group in raid_groups.split(','):
-        if not is_valid_raid_id(raid_group):
-            raise ValueError('"{0}" in "{1}" is not a valid RAID group ID.'
-                             .format(raid_group, raid_groups))
-
-    body_values['raid_groups'] = raid_groups
-
-    capacity = int(capacity)
-
-    if capacity < 1:
-        raise ValueError('Storage pool must be expanded by >= 1 GB ("{0}" '
-                         'was given)'.format(capacity))
-
-    body_values['capacity'] = '{0}G'.format(capacity)
-
-    method = 'POST'
     path = '/api/pools/{0}/expand.json'.format(pool_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -634,43 +479,24 @@ def update_pool_capacity_alerts(session, pool_id, capacityhistory=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
-
+    verify_pool_id(pool_id)
+    capacityhistory = verify_positive_argument(capacityhistory,
+                                               "capacityhistory")
+    alertmode = verify_positive_argument(alertmode, "alertmode")
+    protectedmode = verify_positive_argument(protectedmode, "protectedmode")
+    emergencymode = verify_positive_argument(emergencymode, "emergencymode")
     body_values = {}
 
     if capacityhistory is not None:
-        capacityhistory = int(capacityhistory)
-        if capacityhistory < 1:
-            raise ValueError('Supplied capacityhistory interval ("{0}") must '
-                             'be at least one minute.'
-                             .format(capacityhistory))
-
         body_values['capacityhistory'] = capacityhistory
 
     if alertmode is not None:
-        alertmode = int(alertmode)
-        if alertmode < 1:
-            raise ValueError('Supplied alertmode interval ("{0}") must be at '
-                             'least one minute.'.format(alertmode))
-
         body_values['alertmode'] = alertmode
 
     if protectedmode is not None:
-        protectedmode = int(protectedmode)
-        if protectedmode < 1:
-            raise ValueError('Supplied protectedmode interval ("{0}") must '
-                             'be at least one minute.'
-                             .format(protectedmode))
-
         body_values['protectedmode'] = protectedmode
 
     if emergencymode is not None:
-        emergencymode = int(emergencymode)
-        if emergencymode < 1:
-            raise ValueError('Supplied emergencymode value ("{0}") must be '
-                             'at least one gigabyte.'.format(emergencymode))
-
         body_values['emergencymode'] = emergencymode
 
     if not body_values:
@@ -678,12 +504,9 @@ def update_pool_capacity_alerts(session, pool_id, capacityhistory=None,
                          '"capacityhistory", "alertmode", "protectedmode", '
                          '"emergencymode"')
 
-    method = 'POST'
     path = '/api/pools/{0}/update_protection.json'.format(pool_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -714,29 +537,13 @@ def get_pool_mirror_destination_volumes(session, pool_id, start=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+    verify_pool_id(pool_id)
+    parameters = verify_start_limit(start, limit)
 
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/pools/{0}/destination_volumes.json'.format(pool_id)
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def set_pool_cache(session, pool_id, cache, return_type=None):
@@ -763,28 +570,14 @@ def set_pool_cache(session, pool_id, cache, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+    verify_pool_id(pool_id)
+    cache = verify_boolean(cache, "cache")
 
-    body_values = {}
+    body_values = {'command': 'Enable' if cache == 'YES' else 'Disable'}
 
-    cache = cache.upper()
-
-    if cache not in ['YES', 'NO']:
-        raise ValueError('cache parameter must be set to either "YES" or '
-                         '"NO" ("{0}" was given).')
-
-    if cache == 'YES':
-        body_values['command'] = 'Enable'
-    else:
-        body_values['command'] = 'Disable'
-
-    method = 'POST'
     path = '/api/pools/{0}/toggle_cache.json'.format(pool_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -815,28 +608,14 @@ def set_pool_cowcache(session, pool_id, cowcache, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+    verify_pool_id(pool_id)
+    cowcache = verify_boolean(cowcache, "cowcache")
 
-    body_values = {}
+    body_values = {'cowcache': str(cowcache == 'YES').lower()}
 
-    cowcache = cowcache.upper()
-
-    if cowcache not in ['YES', 'NO']:
-        raise ValueError('cowcache parameter must be set to either "YES" or '
-                         '"NO" ("{0}" was given).')
-
-    if cowcache == 'YES':
-        body_values['cowcache'] = 'true'
-    else:
-        body_values['cowcache'] = 'false'
-
-    method = 'POST'
     path = '/api/pools/{0}/cow_cache.json'.format(pool_id)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -867,29 +646,13 @@ def get_volumes_in_pool_recycle_bin(session, pool_id, start=None, limit=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+    verify_pool_id(pool_id)
+    parameters = verify_start_limit(start, limit)
 
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/pools/{0}/volumes_in_recycle_bin.json'.format(pool_id)
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_pool_performance(session, pool_id, interval=1, return_type=None):
@@ -916,19 +679,217 @@ def get_pool_performance(session, pool_id, interval=1, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_pool_id(pool_id):
-        raise ValueError('{0} is not a valid pool ID.'.format(pool_id))
+    verify_pool_id(pool_id)
+    interval = verify_positive_argument(interval, "interval")
 
-    interval = int(interval)
-
-    if interval < 1:
-        raise ValueError('Interval must be at least 1 second ({0} was'
-                         'supplied).'.format(interval))
-
-    method = 'GET'
     path = '/api/pools/{0}/performance.json'.format(pool_id)
 
     parameters = {'interval': interval}
 
-    return session.call_api(method=method, path=path, parameters=parameters,
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
+
+
+"""
+Private functions
+"""
+
+
+def fix_pooltype(pooltype):
+    """
+    :type: str
+    :param pooltype: Pool type to fix
+
+    :rtype: str
+    :return: Fixed pool type
+    """
+
+    if pooltype == 'Transactional':
+        pooltype = 'Transactional Workloads'
+    else:
+        pooltype = '{0} Storage'.format(pooltype)
+
+    return pooltype
+
+
+def update_protection(session, pool_id, alertmode=None,
+                      effectivecapacityhistory=None, capacityhistory=None,
+                      protectedmode=None, effectiveprotectedmode=None,
+                      emergencymode=None, effectiveemergencymode=None,
+                      return_type=None):
+    """
+    Update free capacity alert notification settings for a Pool.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type pool_id: str
+    :param pool_id: The pool 'name' value as returned by get_all_pools.  For
+        example: 'pool-00000001'.  Required.
+
+    :type capacityhistory: str
+    :param capacityhistory: Window size in minutes which is used to calculate
+    the rate of which free Pool capacity  is consumed. This rate is used to
+    calculate the estimated time until a Pool is full.
+
+    :type effectivecapacityhistory: str
+    :param effectivecapacityhistory: Window size in minutes which is used to
+     calculate the rate of which free Pool effective capacity is consumed.
+     This rate is used to calculate the estimated time until a Pool is full.
+
+    :type effectiveprotectedmode: str
+    :param effectiveprotectedmode: Block Volume/Share/Pool creation when it's
+    estimated that the Pool effective capacity will be full in this many
+    minutes.
+
+    :type effectiveemergencymode: str
+    :param effectiveemergencymode: Delete snapshots, starting with the oldest,
+    when the Pool effective capacity has less than this number of GB left.
+
+    :type alertmode: int
+    :param alertmode: Send an alert when it is estimated that the Pool will be
+     at full capacity in this many minutes.
+
+    :type emergencymode: int
+    :param emergencymode: Delete snapshots, starting with the oldest, when the
+     Volume has less than this number of GB left.
+
+    :type capacityhistory: int
+    :param capacityhistory: Window size in minutes which is used to calculate
+    the rate of which free Volume capacity is consumed. This rate is used to
+     calculate the estimated time until a Volume is full
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_pool_id(pool_id)
+
+    body = {}
+
+    if alertmode is not None:
+        body["alertmode"] = alertmode
+    if emergencymode is not None:
+        body['emergencymode'] = emergencymode
+    if effectiveemergencymode is not None:
+        body['effectiveemergencymode'] = effectiveemergencymode
+    if protectedmode is not None:
+        body['protectedmode'] = protectedmode
+    if effectiveprotectedmode is not None:
+        body['effectiveprotectedmode'] = effectiveprotectedmode
+    if capacityhistory is not None:
+        body['capacityhistory'] = capacityhistory
+    if effectivecapacityhistory is not None:
+        body['effectivecapacityhistory'] = effectivecapacityhistory
+
+    if not body:
+        raise ValueError('At least one of the following must be set: '
+                         '"alertmode", "emergencymode", '
+                         '"effectiveemergencymode", '
+                         '"protectedmode", "effectiveprotectedmode", '
+                         '"capacityhistory", "effectivecapacityhistory"')
+
+    path = "/api/pools/{0}/update_protection.json".format(pool_id)
+
+    return session.post_api(path=path, body=body, return_type=return_type)
+
+
+def pool_shrink(session, pool_id, raid_group_id, return_type=None):
+    """
+    Shrink a pool
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type pool_id: str
+    :param pool_id: The pool 'name' value as returned by get_all_pools.  For
+        example: 'pool-00000001'.  Required.
+
+    :type raid_group_id: str
+    :param raid_group_id: RAID Group ID
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_pool_id(pool_id=pool_id)
+    verify_raid_groups(raid_groups=raid_group_id)
+    path = "/api/pools/{0}/shrink.json".format(pool_id)
+    body_values = {'raid_group': raid_group_id}
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
+
+
+def cancel_pool_shrink(session, pool_id, raid_group_id, return_type=None):
+    """
+    Shrink a pool
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type pool_id: str
+    :param pool_id: The pool 'name' value as returned by get_all_pools.  For
+        example: 'pool-00000001'.  Required.
+
+    :type raid_group_id: str
+    :param raid_group_id: RAID Group ID
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_pool_id(pool_id=pool_id)
+    verify_raid_groups(raid_groups=raid_group_id)
+    path = "/api/pools/{0}/cancel_shrink.json".format(raid_group_id)
+    return session.post_api(path=path, return_type=return_type)
+
+
+def expand_pool(session, pool_id, raid_groups_ids, capacity, return_type=None):
+    """
+    Add additional RAID Groups to a Pool.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type pool_id: str
+    :param pool_id: The pool 'name' value as returned by get_all_pools.  For
+        example: 'pool-00000001'.  Required.
+
+    :type raid_groups_ids: str
+    :param raid_groups_ids: RAID Group IDs separated by comma ,
+
+    :type capacity: int
+    :param capacity: Capacity in GB.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_pool_id(pool_id=pool_id)
+    verify_raid_groups(raid_groups=raid_groups_ids)
+
+    path = "/api/pools/{0}/expand.json".format(pool_id)
+    body_values = {"capacity": "{}G".format(capacity),
+                   "raid_groups": raid_groups_ids}
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)

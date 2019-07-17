@@ -12,15 +12,14 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from urllib.parse import quote
 
 from future.standard_library import install_aliases
+
 install_aliases()
 
-import json
-from urllib.parse import quote
-from zadarapy.validators import is_valid_email
-from zadarapy.validators import is_valid_field
+from zadarapy.validators import verify_field, verify_start_limit, \
+    verify_email
 
 
 def get_all_vpsa_users(session, start=None, limit=None, return_type=None):
@@ -47,26 +46,12 @@ def get_all_vpsa_users(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/users.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def create_vpsa_user(session, username, email, return_type=None):
@@ -93,26 +78,14 @@ def create_vpsa_user(session, username, email, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    username = verify_field(username, "username")
+    email = verify_email(email)
 
-    if not is_valid_field(username):
-        raise ValueError('{0} is not a valid VPSA username.'
-                         .format(username))
+    body_values = {'username': username, 'email': email}
 
-    body_values['username'] = username
-
-    if not is_valid_email(email):
-        raise ValueError('{0} is not a valid email address.'
-                         .format(email))
-
-    body_values['email'] = email
-
-    method = 'POST'
     path = '/api/users.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -135,16 +108,13 @@ def delete_vpsa_user(session, username, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_field(username):
-        raise ValueError('{0} is not a valid VPSA username.'
-                         .format(username))
+    username = verify_field(username, "username")
 
     username = quote(username)
 
-    method = 'DELETE'
     path = '/api/users/{0}.json'.format(username)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type)
 
 
 def get_vpsa_user_api_key(session, username, password, return_type=None):
@@ -169,25 +139,14 @@ def get_vpsa_user_api_key(session, username, password, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    username = verify_field(username, "username")
+    password = verify_field(password, "password", allow_quote=True)
 
-    if not is_valid_field(username):
-        raise ValueError('{0} is not a valid VPSA username.'
-                         .format(username))
+    body_values = {'user': username, 'password': password}
 
-    body_values['user'] = username
-
-    if not is_valid_field(password, allow_quote=True):
-        raise ValueError('A valid VPSA password was not given.')
-
-    body_values['password'] = password
-
-    method = 'POST'
     path = '/api/users/login.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -211,16 +170,12 @@ def reset_vpsa_user_api_key(session, username, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_field(username):
-        raise ValueError('{0} is not a valid VPSA username.'
-                         .format(username))
-
+    username = verify_field(username, "username")
     username = quote(username)
 
-    method = 'POST'
     path = '/api/users/{0}/access_key.json'.format(username)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def change_vpsa_user_password_by_password(session, username,
@@ -252,30 +207,17 @@ def change_vpsa_user_password_by_password(session, username,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    username = verify_field(username, "username")
+    existing_password = verify_field(existing_password, "existing_password",
+                                     allow_quote=True)
+    new_password = verify_field(new_password, "new_password", allow_quote=True)
 
-    if not is_valid_field(username):
-        raise ValueError('{0} is not a valid VPSA username.'
-                         .format(username))
+    body_values = {'user': username, 'password': existing_password,
+                   'new_password': new_password}
 
-    body_values['user'] = username
-
-    if not is_valid_field(existing_password, allow_quote=True):
-        raise ValueError('A valid VPSA password was not given.')
-
-    body_values['password'] = existing_password
-
-    if not is_valid_field(new_password, allow_quote=True):
-        raise ValueError('A valid VPSA password was not given.')
-
-    body_values['new_password'] = new_password
-
-    method = 'POST'
     path = '/api/users/password.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -308,27 +250,15 @@ def change_vpsa_user_password_by_code(session, username, code, new_password,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
-
-    if not is_valid_field(username):
-        raise ValueError('{0} is not a valid VPSA username.'
-                         .format(username))
-
+    username = verify_field(username, "username")
     username = quote(username)
+    new_password = verify_field(new_password, "new_password", allow_quote=True)
 
-    body_values['code'] = code
+    body_values = {'code': code, 'new_password': new_password}
 
-    if not is_valid_field(new_password, allow_quote=True):
-        raise ValueError('A valid VPSA password was not given.')
-
-    body_values['new_password'] = new_password
-
-    method = 'POST'
     path = '/api/users/{0}/password_code.json'.format(username)
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -353,20 +283,13 @@ def generate_vpsa_user_password_reset_code(session, username,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    username = verify_field(username, "username")
 
-    if not is_valid_field(username):
-        raise ValueError('{0} is not a valid VPSA username.'
-                         .format(username))
+    body_values = {'username': username}
 
-    body_values['username'] = username
-
-    method = 'POST'
     path = '/api/users/reset_password.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -396,10 +319,9 @@ def enable_cloud_admin_access(session, confirm, return_type=None):
         raise ValueError('The confirm parameter is not set to True - '
                          'cloud admin access will not be enabled.')
 
-    method = 'POST'
     path = '/api/users/admin_access/enable.json'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def disable_cloud_admin_access(session, confirm, return_type=None):
@@ -428,7 +350,6 @@ def disable_cloud_admin_access(session, confirm, return_type=None):
         raise ValueError('The confirm parameter is not set to True - '
                          'cloud admin access will not be disabled.')
 
-    method = 'POST'
     path = '/api/users/admin_access/disable.json'
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)

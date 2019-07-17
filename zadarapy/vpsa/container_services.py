@@ -12,13 +12,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
-
 import json
-from zadarapy.validators import is_valid_field
-from zadarapy.validators import is_valid_volume_id
-from zadarapy.validators import is_valid_zcs_container_id
-from zadarapy.validators import is_valid_zcs_image_id
+
+from zadarapy.validators import verify_boolean, \
+    verify_field, verify_start_limit, verify_volume_id, verify_zcs_image_id, \
+    is_valid_field, verify_zcs_container_id, \
+    verify_memory_pool, is_valid_volume_id
+from zadarapy.vpsa import ERROR_MSG
 
 
 def get_all_zcs_images(session, start=None, limit=None, return_type=None):
@@ -44,26 +44,11 @@ def get_all_zcs_images(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
+    parameters = verify_start_limit(start, limit)
     path = '/api/images.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_zcs_image(session, zcs_image_id, return_type=None):
@@ -86,14 +71,11 @@ def get_zcs_image(session, zcs_image_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_zcs_image_id(zcs_image_id):
-        raise ValueError('{0} is not a valid ZCS image ID.'
-                         .format(zcs_image_id))
+    verify_zcs_image_id(zcs_image_id)
 
-    method = 'GET'
     path = '/api/images/{0}.json'.format(zcs_image_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def create_zcs_image(session, display_name, path, volume_id=None,
@@ -131,42 +113,34 @@ def create_zcs_image(session, display_name, path, volume_id=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    display_name = verify_field(display_name, "display_name")
+    path = verify_field(path, "ZCS image path")
 
-    display_name = display_name.strip()
+    body_values = {'name': display_name, 'path': path}
 
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid ZCS image name.'
-                         .format(display_name))
-
-    body_values['name'] = display_name
-
-    path = path.strip()
-
-    if not is_valid_field(path):
-        raise ValueError('{0} is not a valid ZCS image path.'
-                         .format(display_name))
-
-    body_values['path'] = path
-
-    # We'll inflect the required "mode" parameter by detecting if volume_id is
-    # defined.
+    # We'll inflect the required "mode" parameter by detecting if volume_id
+    # is defined.
     if volume_id is not None:
+        verify_volume_id(volume_id)
         body_values['mode'] = 'volume'
 
-        if not is_valid_volume_id(volume_id):
-            raise ValueError('{0} is not a valid volume ID.'
-                             .format(volume_id))
     else:
         body_values['mode'] = 'docker'
 
-    method = 'POST'
     path = '/api/images.json'
 
-    body = json.dumps(body_values)
+    try:
+        res = session.post_api(path=path, body=body_values,
+                               return_type=return_type)
+    except RuntimeError as exc:
+        err = str(exc)
+        # The API server returned an error: "The request has been submitted".
+        if err.startswith(ERROR_MSG):
+            res = {'response': {"status": 0}}
+        else:
+            raise
 
-    return session.call_api(method=method, path=path, body=body,
-                            return_type=return_type)
+    return res
 
 
 def delete_zcs_image(session, zcs_image_id, return_type=None):
@@ -190,14 +164,11 @@ def delete_zcs_image(session, zcs_image_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_zcs_image_id(zcs_image_id):
-        raise ValueError('{0} is not a valid ZCS image ID.'
-                         .format(zcs_image_id))
+    verify_zcs_image_id(zcs_image_id)
 
-    method = 'DELETE'
     path = '/api/images/{0}.json'.format(zcs_image_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type)
 
 
 def get_all_zcs_containers_by_image(session, zcs_image_id, start=None,
@@ -229,30 +200,13 @@ def get_all_zcs_containers_by_image(session, zcs_image_id, start=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_zcs_image_id(zcs_image_id):
-        raise ValueError('{0} is not a valid ZCS image ID.'
-                         .format(zcs_image_id))
+    verify_zcs_image_id(zcs_image_id)
+    parameters = verify_start_limit(start, limit)
 
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
-
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/images/{0}/containers.json'.format(zcs_image_id)
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_all_zcs_containers(session, start=None, limit=None, return_type=None):
@@ -279,26 +233,12 @@ def get_all_zcs_containers(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'
-                             .format(start))
+    parameters = verify_start_limit(start, limit)
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'
-                             .format(limit))
-
-    method = 'GET'
     path = '/api/containers.json'
 
-    parameters = {k: v for k, v in (('start', start), ('limit', limit))
-                  if v is not None}
-
-    return session.call_api(method=method, path=path, parameters=parameters,
-                            return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_zcs_container(session, zcs_container_id, return_type=None):
@@ -321,19 +261,17 @@ def get_zcs_container(session, zcs_container_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_zcs_container_id(zcs_container_id):
-        raise ValueError('{0} is not a valid ZCS container ID.'
-                         .format(zcs_container_id))
+    verify_zcs_container_id(zcs_container_id)
 
-    method = 'GET'
     path = '/api/containers/{0}.json'.format(zcs_container_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type)
 
 
 def create_zcs_container(session, display_name, zcs_image_id, start,
                          use_public_ip='NO', entrypoint=None, volumes=None,
-                         args=None, envvars=None, return_type=None):
+                         args=None, envvars=None, memorypoolname=None,
+                         return_type=None):
     """
     Creates a Zadara Container Services (ZCS) container.  Requires a valid ZCS
     image to instantiate from.
@@ -384,7 +322,7 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
         will be attempted.  Every list item should be a dictionary that
         contains the following keys:
 
-        * "volume" - This key should contain the volume 'name' value as
+        * "name" - This key should contain the volume 'name' value as
           returned by get_all_volumes.  For example: 'volume-00000001'.
           Required.
         * "path" - This key should contain the full path inside of the
@@ -396,8 +334,8 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
 
         An example would be:
 
-        [{"volume":"volume-00000001","path":"/vol1","access":"rw"},
-         {"volume":"volume-00000002","path":"/vol2","access":"r"}]
+        [{"name":"volume-00000001","path":"/vol1","access":"rw"},
+         {"name":"volume-00000002","path":"/vol2","access":"r"}]
 
     :type args: list, str
     :param args: A Python list of Python dictionaries that contain arguments
@@ -431,6 +369,9 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
          {"variable":"USERNAME","value":"zcs_container_01"},
          {"variable":"PASSWORD","value":"very_strong_password"}]
 
+    :type memorypoolname: str
+    :param memorypoolname: Memory Pool ID
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -440,46 +381,13 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
-
-    display_name = display_name.strip()
-
-    if not is_valid_field(display_name):
-        raise ValueError('{0} is not a valid ZCS image name.'
-                         .format(display_name))
-
-    body_values['name'] = display_name
-
-    if not is_valid_zcs_image_id(zcs_image_id):
-        raise ValueError('{0} is not a valid ZCS image ID.'
-                         .format(zcs_image_id))
-
-    body_values['imagename'] = zcs_image_id
-
-    start = start.upper()
-
-    if start not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid start parameter.  Allowed '
-                         'values are: "YES" or "NO"'.format(start))
-
-    body_values['start'] = start
-
-    use_public_ip = use_public_ip.upper()
-
-    if use_public_ip not in ['YES', 'NO']:
-        raise ValueError('"{0}" is not a valid use_public_ip parameter.  '
-                         'Allowed values are: "YES" or "NO"'
-                         .format(use_public_ip))
-
-    body_values['use_public_ip'] = use_public_ip
-
-    entrypoint = entrypoint.strip()
-
-    if not is_valid_field(entrypoint):
-        raise ValueError('{0} is not a valid ZCS container entry point.'
-                         .format(entrypoint))
-
-    body_values['entrypoint'] = entrypoint
+    display_name = verify_field(display_name, 'display_name')
+    verify_zcs_image_id(zcs_image_id)
+    start = verify_boolean(start, "start")
+    use_public_ip = verify_boolean(use_public_ip, "use_public_ip")
+    body_values = {'name': display_name, 'imagename': zcs_image_id,
+                   'start': start, 'use_public_ip': use_public_ip,
+                   'entrypoint': entrypoint}
 
     if volumes is not None:
         if type(volumes) is str:
@@ -494,13 +402,13 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
                 raise ValueError('Each item in the "volumes" list must be a '
                                  'Python dictionary.')
 
-            if 'volume' not in v:
+            if 'name' not in v:
                 raise ValueError('The required "volume" key was not found in '
-                                 'the volume dictionary.')
+                                 'the name dictionary.')
 
-            if not is_valid_volume_id(v['volume']):
+            if not is_valid_volume_id(v['name']):
                 raise ValueError('{0} is not a valid volume ID.'
-                                 .format(v['volume']))
+                                 .format(v['name']))
 
             if 'path' not in v:
                 raise ValueError('The required "path" key was not found in '
@@ -585,12 +493,12 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
 
         body_values['envvars'] = envvars
 
-    method = 'POST'
+    if memorypoolname:
+        body_values['memorypoolname'] = memorypoolname
+
     path = '/api/containers.json'
 
-    body = json.dumps(body_values)
-
-    return session.call_api(method=method, path=path, body=body,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
 
 
@@ -614,14 +522,11 @@ def start_zcs_container(session, zcs_container_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_zcs_container_id(zcs_container_id):
-        raise ValueError('{0} is not a valid ZCS container ID.'
-                         .format(zcs_container_id))
+    verify_zcs_container_id(zcs_container_id)
 
-    method = 'POST'
     path = '/api/containers/{0}/start.json'.format(zcs_container_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type)
 
 
 def stop_zcs_container(session, zcs_container_id, return_type=None):
@@ -644,14 +549,21 @@ def stop_zcs_container(session, zcs_container_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_zcs_container_id(zcs_container_id):
-        raise ValueError('{0} is not a valid ZCS container ID.'
-                         .format(zcs_container_id))
+    verify_zcs_container_id(zcs_container_id)
 
-    method = 'POST'
     path = '/api/containers/{0}/stop.json'.format(zcs_container_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    try:
+        res = session.post_api(path=path, return_type=return_type)
+    except RuntimeError as exc:
+        err = str(exc)
+        # The API server returned an error: "The request has been submitted".
+        if err.startswith(ERROR_MSG):
+            res = {'response': {"status": 0}}
+        else:
+            raise
+
+    return res
 
 
 def delete_zcs_container(session, zcs_container_id, return_type=None):
@@ -675,11 +587,149 @@ def delete_zcs_container(session, zcs_container_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    if not is_valid_zcs_container_id(zcs_container_id):
-        raise ValueError('{0} is not a valid ZCS container ID.'
-                         .format(zcs_container_id))
+    verify_zcs_container_id(zcs_container_id)
 
-    method = 'DELETE'
     path = '/api/containers/{0}.json'.format(zcs_container_id)
 
-    return session.call_api(method=method, path=path, return_type=return_type)
+    try:
+        res = session.delete_api(path=path, return_type=return_type)
+    except RuntimeError as exc:
+        err = str(exc)
+        # The API server returned an error: "The request has been submitted".
+        if err.startswith(ERROR_MSG):
+            res = {'response': {"status": 0}}
+        else:
+            raise
+
+    return res
+
+
+def get_container_performance(session, zcs_container_id, return_type=None):
+    """
+    Get Container performance
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type zcs_container_id: str
+    :param zcs_container_id: The ZCS container 'name' value as returned by
+        get_all_zcs_containers.  For example: 'container-00000001'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_zcs_container_id(zcs_container_id)
+
+    path = "/api/containers/{0}/performance.json".format(zcs_container_id)
+
+    return session.get_api(path=path, return_type=return_type)()
+
+
+def get_memory_pool(session, mempool_id, return_type=None):
+    """
+    Retrieves details for a single Memory Pool.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type mempool_id: str
+    :param mempool_id: The memory pool 'name' value as returned by
+    get_all_memory_pools. For example: 'dgroup-00000001'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_memory_pool(mempool_id)
+
+    path = 'api/container_memory_pools/{0}.json'.format(mempool_id)
+
+    return session.get_api(path=path, return_type=return_type)
+
+
+def get_all_memory_pools(session, return_type=None):
+    """
+    Retrieves details for all Memory Pools in VPSA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/container_memory_pools.json"
+    return session.get_api(path=path, return_type=return_type)
+
+
+def delete_memory_pool(session, mempool_id, return_type=None):
+    """
+    Retrieves details for a single Memory Pool.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type mempool_id: str
+    :param mempool_id: The memory pool 'name' value as returned by
+    get_all_memory_pools. For example: 'dgroup-00000001'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+            will return a JSON string.  Otherwise, it will return a Python
+            dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+    return_type parameter.
+    """
+    verify_memory_pool(mempool_id)
+
+    path = 'api/container_memory_pools/{0}.json'.format(mempool_id)
+
+    return session.delete_api(path=path, return_type=return_type)
+
+
+def create_mem_pool(session, display_name, mb, return_type=None):
+    """
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type display_name: str
+    :param display_name:Display name
+
+    :type mb: str
+    :param mb:  memory limit in MB
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+            will return a JSON string.  Otherwise, it will return a Python
+            dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+    return_type parameter.
+    """
+    display_name = verify_field(display_name, "display_name")
+
+    path = "/api/container_memory_pools.json"
+
+    body_values = {'name': display_name, 'mb': mb}
+
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
