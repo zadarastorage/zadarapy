@@ -12,6 +12,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import json
+
 from zadarapy.validators import verify_vpsa_id, verify_boolean
 
 
@@ -38,7 +40,6 @@ def get_cloud(session, cloud_name, return_type=None):
     path = '/api/clouds/{0}.json'.format(cloud_name)
     return session.get_api(path=path, return_type=return_type)
 
-import json
 
 def get_all_clouds(session, return_type=None):
     """
@@ -58,6 +59,7 @@ def get_all_clouds(session, return_type=None):
     """
     path = '/api/clouds.json'
     return session.get_api(path=path, return_type=return_type)
+
 
 def get_user_token(session, email, password, return_type=None):
     """
@@ -89,10 +91,11 @@ def get_user_token(session, email, password, return_type=None):
 
     body_values['email'] = email
     body_values['password'] = password
-    
+
     return session.call_api(method=method, path=path,
-              body=json.dumps(body_values), secure=False,
-              return_type=return_type)
+                            body=json.dumps(body_values), secure=False,
+                            return_type=return_type)
+
 
 def get_vpsa_from_cloud(session, cloud_name, vpsa_id, return_type=None):
     """
@@ -266,7 +269,7 @@ def get_tenant(session, cloud_name, cloud_user, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/clouds/{0}/cloud_users/{1}.json"\
+    path = "/api/clouds/{0}/cloud_users/{1}.json" \
         .format(cloud_name, cloud_user)
     return session.get_api(path=path, return_type=return_type)
 
@@ -476,7 +479,7 @@ def delete_tenant(session, cloud_name, cloud_user, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/clouds/{0}/cloud_users/{1}/deallocate_vlan_id.json"\
+    path = "/api/clouds/{0}/cloud_users/{1}/deallocate_vlan_id.json" \
         .format(cloud_name, cloud_user)
     return session.delete_api(path=path, return_type=return_type)
 
@@ -552,7 +555,7 @@ def deallocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO",
     """
     force = verify_boolean(force, "force")
 
-    path = "/api/clouds/{0}/cloud_users/{1}/deallocate_vlan_id.json"\
+    path = "/api/clouds/{0}/cloud_users/{1}/deallocate_vlan_id.json" \
         .format(cloud_name, cloud_user)
 
     body_values = {"vlan_id": vlan_id, "force": force}
@@ -652,6 +655,6 @@ def get_image(session, cloud_name, image_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/clouds/{cloud_name}/images/{id}"\
+    path = "/api/clouds/{cloud_name}/images/{id}" \
         .format(cloud_name=cloud_name, id=image_id)
     return session.get_api(path=path, return_type=return_type)

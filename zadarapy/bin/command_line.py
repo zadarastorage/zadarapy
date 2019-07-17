@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright 2018 Zadara Storage, Inc.
+# Copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -24,9 +24,9 @@ from terminaltables import SingleTable
 
 from zadarapy import __version__
 from zadarapy import session
+from zadarapy.command_center import vpsaos
 from zadarapy.provisioning_portal import cloud
 from zadarapy.provisioning_portal import vpsa
-from zadarapy.command_center import vpsaos
 from zadarapy.vpsa import container_services
 from zadarapy.vpsa import controllers
 from zadarapy.vpsa import drives
@@ -3998,9 +3998,7 @@ COMMANDS_DICT = [
                 'subcommand_info': ('generate-password-reset-code',
                                     vpsa_users.
                                     generate_vpsa_user_password_reset_code),
-                'subcommand_options': [
-                    VPSA_USERNAME_OPTION
-                ],
+                'subcommand_options': [VPSA_USERNAME_OPTION],
                 'subcommand_return_key': None,
                 'subcommand_help': 'E-mails a password reset code to the '
                                    'supplied username\'s e-mail address.  '
@@ -4023,10 +4021,7 @@ COMMANDS_DICT = [
             },
             {
                 'subcommand_info': ('list', vpsa_users.get_all_vpsa_users),
-                'subcommand_options': [
-                    LIMIT_OPTION,
-                    START_OPTION
-                ],
+                'subcommand_options': [LIMIT_OPTION, START_OPTION],
                 'subcommand_return_key': 'users',
                 'subcommand_help': 'Displays details for all GUI and API '
                                    'users on the VPSA'
@@ -4034,9 +4029,7 @@ COMMANDS_DICT = [
             {
                 'subcommand_info': ('reset-api-key',
                                     vpsa_users.reset_vpsa_user_api_key),
-                'subcommand_options': [
-                    VPSA_USERNAME_OPTION
-                ],
+                'subcommand_options': [VPSA_USERNAME_OPTION],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Resets a user\'s API access key for the '
                                    'given username - may only be done by an '
@@ -4049,37 +4042,33 @@ COMMANDS_DICT = [
         'help': 'Commands related to VPSAOS virtual controllers',
         'subcommands': [
             {
-                'subcommand_info': ('get', vpsaos_controllers.get_virtual_controller),
-                'subcommand_options': [
-                    VC_INDEX_OPTION
-                ],
+                'subcommand_info': ('get',
+                                    vpsaos_controllers.get_virtual_controller),
+                'subcommand_options': [VC_INDEX_OPTION],
                 'subcommand_return_key': 'vc',
                 'subcommand_help': 'Displays details for a single virtual '
                                    'controller on the VPSAOS'
             },
             {
-                'subcommand_info': ('get-drives', vpsaos_controllers.get_virtual_controller_drives),
-                'subcommand_options': [
-                    VC_INDEX_OPTION
-                ],
+                'subcommand_info':
+                    ('get-drives',
+                     vpsaos_controllers.get_virtual_controller_drives),
+                'subcommand_options': [VC_INDEX_OPTION],
                 'subcommand_return_key': 'disks',
                 'subcommand_help': 'Displays drives for a virtual controller'
             },
             {
-                'subcommand_info': ('list', vpsaos_controllers.get_all_controllers),
-                'subcommand_options': [
-                    LIMIT_OPTION,
-                    START_OPTION
-                ],
+                'subcommand_info': ('list',
+                                    vpsaos_controllers.get_all_controllers),
+                'subcommand_options': [LIMIT_OPTION, START_OPTION],
                 'subcommand_return_key': 'vcs',
                 'subcommand_help': 'Displays details for all virtual '
                                    'controllers on the VPSAOS'
             },
             {
-                'subcommand_info': ('remove-proxy-vcs', vpsaos_controllers.remove_proxy_vcs),
-                'subcommand_options': [
-                    QUANTITY_OPTION,
-                ],
+                'subcommand_info': ('remove-proxy-vcs',
+                                    vpsaos_controllers.remove_proxy_vcs),
+                'subcommand_options': [QUANTITY_OPTION],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Removes proxy VCs '
             }
@@ -4100,10 +4089,7 @@ COMMANDS_DICT = [
             },
             {
                 'subcommand_info': ('list', vpsaos_drives.get_all_drives),
-                'subcommand_options': [
-                    LIMIT_OPTION,
-                    START_OPTION
-                ],
+                'subcommand_options': [LIMIT_OPTION, START_OPTION],
                 'subcommand_return_key': 'disks',
                 'subcommand_help': 'Displays details for all drives '
                                    'on the VPSAOS'
@@ -4128,15 +4114,13 @@ COMMANDS_DICT = [
             },
             {
                 'subcommand_info': ('add-proxy-vcs', vpsaos.add_proxy_vcs),
-                'subcommand_options': [
-                    CLOUD_NAME_OPTION,
-                    VSA_ID_OPTION
-                ],
+                'subcommand_options': [CLOUD_NAME_OPTION, VSA_ID_OPTION],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Add proxy vc to the VPSAOS '
             },
             {
-                'subcommand_info': ('add-storage-policy', vpsaos.add_storage_policy),
+                'subcommand_info': ('add-storage-policy',
+                                    vpsaos.add_storage_policy),
                 'subcommand_options': [
                     CLOUD_NAME_OPTION,
                     VSA_ID_OPTION,
@@ -4151,10 +4135,7 @@ COMMANDS_DICT = [
             },
             {
                 'subcommand_info': ('assign-publicip', vpsaos.assign_publicip),
-                'subcommand_options': [
-                    CLOUD_NAME_OPTION,
-                    VSA_ID_OPTION
-                ],
+                'subcommand_options': [CLOUD_NAME_OPTION, VSA_ID_OPTION],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Assign public ip from VPSAOS '
             },
@@ -4170,45 +4151,34 @@ COMMANDS_DICT = [
             },
             {
                 'subcommand_info': ('get-vpsaos', vpsaos.get_one_vpsaos),
-                'subcommand_options': [
-                    CLOUD_NAME_OPTION,
-                    VSA_ID_OPTION
-                ],
+                'subcommand_options': [CLOUD_NAME_OPTION, VSA_ID_OPTION],
                 'subcommand_return_key': 'zios',
                 'subcommand_help': 'Return the details of a single VPSAOS '
             },
             {
                 'subcommand_info': ('get-vpsaoss', vpsaos.get_all_vpsaoss),
-                'subcommand_options': [
-                    CLOUD_NAME_OPTION
-                ],
+                'subcommand_options': [CLOUD_NAME_OPTION],
                 'subcommand_return_key': 'zioses',
                 'subcommand_help': 'Return a list of all VPSAOSs '
             },
             {
-                'subcommand_info': ('get-vpsaos-accounts', vpsaos.get_vpsaos_accounts),
-                'subcommand_options': [
-                    CLOUD_NAME_OPTION,
-                    VSA_ID_OPTION
-                ],
+                'subcommand_info': ('get-vpsaos-accounts',
+                                    vpsaos.get_vpsaos_accounts),
+                'subcommand_options': [CLOUD_NAME_OPTION, VSA_ID_OPTION],
                 'subcommand_return_key': 'accounts',
                 'subcommand_help': 'Return the list of VPSAOS accounts '
             },
             {
-                'subcommand_info': ('get-vpsaos-comments', vpsaos.get_vpsaos_comments),
-                'subcommand_options': [
-                    CLOUD_NAME_OPTION,
-                    VSA_ID_OPTION
-                ],
+                'subcommand_info': ('get-vpsaos-comments',
+                                    vpsaos.get_vpsaos_comments),
+                'subcommand_options': [CLOUD_NAME_OPTION, VSA_ID_OPTION],
                 'subcommand_return_key': 'comments',
                 'subcommand_help': 'Return the list of VPSAOS comments '
             },
             {
-                'subcommand_info': ('get-vpsaos-drives', vpsaos.get_vpsaos_drives),
-                'subcommand_options': [
-                    CLOUD_NAME_OPTION,
-                    VSA_ID_OPTION
-                ],
+                'subcommand_info': ('get-vpsaos-drives',
+                                    vpsaos.get_vpsaos_drives),
+                'subcommand_options': [CLOUD_NAME_OPTION, VSA_ID_OPTION],
                 'subcommand_return_key': 'drives',
                 'subcommand_help': 'Return the list of VPSAOS drives '
             },
@@ -4219,28 +4189,25 @@ COMMANDS_DICT = [
                     VSA_ID_OPTION
                 ],
                 'subcommand_return_key': 'zios_storage_policies',
-                'subcommand_help': 'Return the list of VPSAOS storage policies '
+                'subcommand_help': 'Return the list of VPSAOS storage policies'
             },
             {
                 'subcommand_info': ('get-vpsaos-vcs', vpsaos.get_vpsaos_vcs),
-                'subcommand_options': [
-                    CLOUD_NAME_OPTION,
-                    VSA_ID_OPTION
-                ],
+                'subcommand_options': [CLOUD_NAME_OPTION, VSA_ID_OPTION],
                 'subcommand_return_key': 'virtual_controllers',
-                'subcommand_help': 'Return the list of VPSAOS virtual controllers '
+                'subcommand_help':
+                    'Return the list of VPSAOS virtual controllers '
             },
             {
-                'subcommand_info': ('unassign-publicip', vpsaos.unassign_publicip),
-                'subcommand_options': [
-                    CLOUD_NAME_OPTION,
-                    VSA_ID_OPTION
-                ],
+                'subcommand_info': ('unassign-publicip',
+                                    vpsaos.unassign_publicip),
+                'subcommand_options': [CLOUD_NAME_OPTION, VSA_ID_OPTION],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Unassign public ip from VPSAOS '
             },
             {
-                'subcommand_info': ('upgrade-vpsaos-image', vpsaos.upgrade_vpsaos_image),
+                'subcommand_info': ('upgrade-vpsaos-image',
+                                    vpsaos.upgrade_vpsaos_image),
                 'subcommand_options': [
                     CLOUD_NAME_OPTION,
                     VSA_ID_OPTION,
@@ -4256,26 +4223,23 @@ COMMANDS_DICT = [
         'help': 'Commands related to VPSAOS settings like encryption',
         'subcommands': [
             {
-                'subcommand_info': ('set-encryption', vpsaos_settings.set_encryption),
-                'subcommand_options': [
-                    ENCRYPTION_PWD_OPTION
-                ],
+                'subcommand_info': ('set-encryption',
+                                    vpsaos_settings.set_encryption),
+                'subcommand_options': [ENCRYPTION_PWD_OPTION],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Set encryption. '
             },
             {
-                'subcommand_info': ('set-encryption-state', vpsaos_settings.set_encryption_state),
-                'subcommand_options': [
-                    STATE_OPTION
-                ],
+                'subcommand_info': ('set-encryption-state',
+                                    vpsaos_settings.set_encryption_state),
+                'subcommand_options': [STATE_OPTION],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Set encryption state. '
             },
             {
-                'subcommand_info': ('restore-encryption', vpsaos_settings.restore_encryption),
-                'subcommand_options': [
-                    ENCRYPTION_PWD_OPTION
-                ],
+                'subcommand_info': ('restore-encryption',
+                                    vpsaos_settings.restore_encryption),
+                'subcommand_options': [ENCRYPTION_PWD_OPTION],
                 'subcommand_return_key': None,
                 'subcommand_help': 'Restore encryption. '
             },

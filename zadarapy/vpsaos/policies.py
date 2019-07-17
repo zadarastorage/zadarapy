@@ -55,7 +55,8 @@ def get_all_policies(session, start=None, limit=None, return_type=None):
                   if v is not None}
 
     return session.call_api(method=method, path=path, parameters=parameters,
-                             secure=True, return_type=return_type)
+                            secure=True, return_type=return_type)
+
 
 def get_policy(session, policy_name, return_type=None):
     """
@@ -81,7 +82,8 @@ def get_policy(session, policy_name, return_type=None):
     path = '/api/zios/policies/{0}.json'.format(policy_name)
 
     return session.call_api(method=method, path=path, secure=True,
-                  return_type=return_type)
+                            return_type=return_type)
+
 
 def set_default_policy(session, policy_name, return_type=None):
     """
@@ -108,4 +110,4 @@ def set_default_policy(session, policy_name, return_type=None):
     path = '/api/zios/policies/{0}/set_default.json'.format(policy_name)
 
     return session.call_api(method=method, path=path, secure=True,
-                           return_type=return_type)
+                            return_type=return_type)

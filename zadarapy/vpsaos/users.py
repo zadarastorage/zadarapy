@@ -15,15 +15,15 @@
 
 
 from future.standard_library import install_aliases
+
 install_aliases()
 
 import json
-from urllib.parse import quote
-from zadarapy.validators import is_valid_email
 from zadarapy.validators import is_valid_field
 
 
-def create_user(session, accountid, username, email, role="member", return_type=None):
+def create_user(session, accountid, username, email, role="member",
+                return_type=None):
     """
     Create a VPSAOS user in the given account.
     :type session: zadarapy.session.Session
@@ -93,7 +93,7 @@ def delete_user(session, userid, return_type=None):
                          .format(userid))
 
     method = 'DELETE'
-    path = '/api/zios/users/%s.json'%userid
+    path = '/api/zios/users/%s.json' % userid
 
     return session.call_api(method=method, path=path, secure=True,
                             return_type=return_type)
@@ -123,7 +123,7 @@ def enable_user(session, userid, return_type=None):
                          .format(userid))
 
     method = 'POST'
-    path = '/api/zios/users/%s/enable.json' %userid
+    path = '/api/zios/users/%s/enable.json' % userid
 
     return session.call_api(method=method, path=path, secure=True,
                             return_type=return_type)
@@ -153,7 +153,7 @@ def disable_user(session, userid, return_type=None):
                          .format(userid))
 
     method = 'POST'
-    path = '/api/zios/users/%s/disable.json' %userid
+    path = '/api/zios/users/%s/disable.json' % userid
 
     return session.call_api(method=method, path=path, secure=True,
                             return_type=return_type)
@@ -187,7 +187,7 @@ def change_user_role(session, userid, role="member", return_type=None):
     body_values['role'] = role
 
     method = 'POST'
-    path = '/api/zios/users/%s/change_role.json' %userid
+    path = '/api/zios/users/%s/change_role.json' % userid
 
     body = json.dumps(body_values)
 
@@ -195,7 +195,8 @@ def change_user_role(session, userid, role="member", return_type=None):
                             return_type=return_type)
 
 
-def change_user_password(session, accountname, username, password, newpassword, return_type=None):
+def change_user_password(session, accountname, username, password, newpassword,
+                         return_type=None):
     """
     Channge the user default password
     :type session: zadarapy.session.Session
@@ -267,7 +268,7 @@ def get_user(session, userid, return_type=None):
     """
 
     method = 'GET'
-    path = '/api/zios/users/%s.json' %userid
+    path = '/api/zios/users/%s.json' % userid
 
     return session.call_api(method=method, path=path, secure=True,
                             return_type=return_type)
@@ -342,4 +343,3 @@ def get_auth_token(session, accountname, username, password, return_type=None):
 
     return session.call_api(method=method, path=path, body=body, secure=True,
                             return_type=return_type)
-

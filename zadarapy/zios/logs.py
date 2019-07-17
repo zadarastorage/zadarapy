@@ -67,7 +67,7 @@ def get_logs(session, severity, attr_key, attr_value, start=None, limit=None,
 def get_access_logs(session, sort='DESC', severity=None, start=None,
                     limit=None, return_type=None):
     """
-    Retrieves accesss logs from the ZIOS.
+    Retrieves access logs from the ZIOS.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.

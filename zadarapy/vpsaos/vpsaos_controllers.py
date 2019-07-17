@@ -14,7 +14,6 @@
 # under the License.
 
 
-import json
 from zadarapy.validators import is_valid_vc_index
 
 
@@ -61,6 +60,7 @@ def get_all_controllers(session, start=None, limit=None, return_type=None):
     return session.call_api(method=method, path=path, parameters=parameters,
                             return_type=return_type)
 
+
 def get_virtual_controller(session, vc_index, return_type=None):
     """
     Retrieves details for a single virtual controller for the VPSAOS.
@@ -88,6 +88,7 @@ def get_virtual_controller(session, vc_index, return_type=None):
     path = '/api/zios/virtual_controllers/{0}.json'.format(vc_index)
 
     return session.call_api(method=method, path=path, return_type=return_type)
+
 
 def get_virtual_controller_drives(session, vc_index, return_type=None):
     """
@@ -117,6 +118,7 @@ def get_virtual_controller_drives(session, vc_index, return_type=None):
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
+
 def remove_proxy_vcs(session, quantity, return_type=None):
     """
     Removes proxy vcs.
@@ -137,7 +139,7 @@ def remove_proxy_vcs(session, quantity, return_type=None):
         return_type parameter.
     """
     if quantity is None:
-            raise ValueError('quantity param is missing.')
+        raise ValueError('quantity param is missing.')
 
     qty = int(quantity)
     if qty < 1:

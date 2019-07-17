@@ -15,11 +15,13 @@
 
 
 import json
-from zadarapy.validators import *
+
+from zadarapy.validators import is_valid_field
 
 
-def add_drives(session, cloud_name, vsa_id, drive_type, drive_quantity, policy_id,
-                         return_type=None):
+def add_drives(session, cloud_name, vsa_id, drive_type, drive_quantity,
+               policy_id,
+               return_type=None):
     """
     Add drives to a VPSAOS.
 
@@ -83,7 +85,6 @@ def add_drives(session, cloud_name, vsa_id, drive_type, drive_quantity, policy_i
 
     body_values['policy_id'] = policy_id
 
-
     method = 'POST'
     path = '/api/clouds/{0}/zioses/{1}/drives.json'.format(cloud_name, vsa_id)
 
@@ -91,6 +92,7 @@ def add_drives(session, cloud_name, vsa_id, drive_type, drive_quantity, policy_i
 
     return session.call_api(method=method, path=path, body=body,
                             return_type=return_type)
+
 
 def add_proxy_vcs(session, cloud_name, vsa_id, return_type=None):
     """
@@ -125,13 +127,15 @@ def add_proxy_vcs(session, cloud_name, vsa_id, return_type=None):
         raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'POST'
-    path = '/api/clouds/{0}/zioses/{1}/proxy_vcs.json'.format(cloud_name, vsa_id)
+    path = '/api/clouds/{0}/zioses/{1}/proxy_vcs.json'.format(cloud_name,
+                                                              vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
+
 def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
-                                drive_type, drive_quantity, policy_type_id,
-                                return_type=None):
+                       drive_type, drive_quantity, policy_type_id,
+                       return_type=None):
     """
     Create a new storage policy in VPSAOS.
 
@@ -159,7 +163,8 @@ def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
     :param drive_quantity: Number of drives to add.  Required.
 
     :type policy_type_id: int
-    :param policy_type_id: Policy type id as returned by vpsa_zone_group_storage_policy_type.  Required.
+    :param policy_type_id: Policy type id as returned by
+     vpsa_zone_group_storage_policy_type.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -183,7 +188,8 @@ def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
     policy_name = policy_name.strip()
 
     if not is_valid_field(policy_name):
-        raise ValueError('{0} is not a valid storage policy name.'.format(policy_name))
+        raise ValueError(
+            '{0} is not a valid storage policy name.'.format(policy_name))
 
     body_values['name'] = policy_name
 
@@ -191,7 +197,9 @@ def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
         policy_desc = policy_desc.strip()
 
     if not is_valid_field(policy_desc):
-        raise ValueError('{0} is not a valid storage policy description.'.format(policy_desc))
+        raise ValueError(
+            '{0} is not a valid storage policy description.'.format(
+                policy_desc))
 
     body_values['policy_desc'] = policy_desc
 
@@ -212,7 +220,8 @@ def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
     if policy_type_id is not None:
         policy_type_id = int(policy_type_id)
         if policy_type_id < 0:
-            raise ValueError('policy_type_id {0} cannot be negative.'.format(policy_type_id))
+            raise ValueError('policy_type_id {0} cannot be negative.'.format(
+                policy_type_id))
 
         body_values['policy_type_id'] = policy_type_id
 
@@ -223,6 +232,7 @@ def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
 
     return session.call_api(method=method, path=path, body=body,
                             return_type=return_type)
+
 
 def assign_publicip(session, cloud_name, vsa_id, return_type=None):
     """
@@ -258,9 +268,11 @@ def assign_publicip(session, cloud_name, vsa_id, return_type=None):
         raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'POST'
-    path = '/api/clouds/{0}/zioses/{1}/public_ip/assign.json'.format(cloud_name, vsa_id)
+    path = '/api/clouds/{0}/zioses/{1}/public_ip/assign.json'.format(
+        cloud_name, vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
+
 
 def create_zsnap(session, cloud_name, vsa_id, prefix, return_type=None):
     """
@@ -315,7 +327,9 @@ def create_zsnap(session, cloud_name, vsa_id, prefix, return_type=None):
     return session.call_api(method=method, path=path, body=body,
                             return_type=return_type)
 
-def get_all_vpsaoss(session, cloud_name, page=None, per_page=None, return_type=None):
+
+def get_all_vpsaoss(session, cloud_name, page=None, per_page=None,
+                    return_type=None):
     """
     Retrieves details for all VPSAOSs in the cloud.
 
@@ -398,6 +412,7 @@ def get_one_vpsaos(session, cloud_name, vsa_id, return_type=None):
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
+
 def get_vpsaos_accounts(session, cloud_name, vsa_id, return_type=None):
     """
     Retrieves the list of a VPSAOS accounts.
@@ -432,9 +447,11 @@ def get_vpsaos_accounts(session, cloud_name, vsa_id, return_type=None):
         raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'GET'
-    path = '/api/clouds/{0}/zioses/{1}/accounts.json'.format(cloud_name, vsa_id)
+    path = '/api/clouds/{0}/zioses/{1}/accounts.json'.format(cloud_name,
+                                                             vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
+
 
 def get_vpsaos_comments(session, cloud_name, vsa_id, return_type=None):
     """
@@ -470,9 +487,11 @@ def get_vpsaos_comments(session, cloud_name, vsa_id, return_type=None):
         raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'GET'
-    path = '/api/clouds/{0}/zioses/{1}/comments.json'.format(cloud_name, vsa_id)
+    path = '/api/clouds/{0}/zioses/{1}/comments.json'.format(cloud_name,
+                                                             vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
+
 
 def get_vpsaos_drives(session, cloud_name, vsa_id, return_type=None):
     """
@@ -512,6 +531,7 @@ def get_vpsaos_drives(session, cloud_name, vsa_id, return_type=None):
 
     return session.call_api(method=method, path=path, return_type=return_type)
 
+
 def get_vpsaos_sps(session, cloud_name, vsa_id, return_type=None):
     """
     Retrieves the list of a VPSAOS storage policies.
@@ -546,9 +566,11 @@ def get_vpsaos_sps(session, cloud_name, vsa_id, return_type=None):
         raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'GET'
-    path = '/api/clouds/{0}/zioses/{1}/storage_policies.json'.format(cloud_name, vsa_id)
+    path = '/api/clouds/{0}/zioses/{1}/storage_policies.json'.format(
+        cloud_name, vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
+
 
 def get_vpsaos_vcs(session, cloud_name, vsa_id, return_type=None):
     """
@@ -584,9 +606,11 @@ def get_vpsaos_vcs(session, cloud_name, vsa_id, return_type=None):
         raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'GET'
-    path = '/api/clouds/{0}/zioses/{1}/virtual_controllers.json'.format(cloud_name, vsa_id)
+    path = '/api/clouds/{0}/zioses/{1}/virtual_controllers.json'.format(
+        cloud_name, vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
+
 
 def unassign_publicip(session, cloud_name, vsa_id, return_type=None):
     """
@@ -622,9 +646,11 @@ def unassign_publicip(session, cloud_name, vsa_id, return_type=None):
         raise ValueError('{0} is not a valid vsa_id.'.format(vsa_id))
 
     method = 'POST'
-    path = '/api/clouds/{0}/zioses/{1}/public_ip/unassign.json'.format(cloud_name, vsa_id)
+    path = '/api/clouds/{0}/zioses/{1}/public_ip/unassign.json' \
+        .format(cloud_name, vsa_id)
 
     return session.call_api(method=method, path=path, return_type=return_type)
+
 
 def upgrade_vpsaos_image(session, cloud_name, vsa_id, image, return_type=None):
     """
@@ -678,4 +704,3 @@ def upgrade_vpsaos_image(session, cloud_name, vsa_id, image, return_type=None):
     path = '/api/clouds/{0}/zioses/{1}/upgrade.json'.format(cloud_name, vsa_id)
     return session.call_api(method=method, path=path, body=body,
                             return_type=return_type)
-

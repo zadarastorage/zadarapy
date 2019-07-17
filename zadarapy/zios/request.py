@@ -16,6 +16,30 @@
 
 def get_account_requests(session, state=None, limit=None, page=None,
                          return_type=None):
+    """
+    Get account requests.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type state: str
+    :param state: Requests state to get
+
+    :type: limit: int
+    :param limit: The maximum number of accounts to return.  Optional.
+
+    :type page: int
+    :param page: The page number to page from.  Optional.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
     path = "/api/requests.json"
 
     body_values = {'state': state}
@@ -29,10 +53,46 @@ def get_account_requests(session, state=None, limit=None, page=None,
 
 
 def approve_request(session, request_id, return_type=None):
+    """
+    Approve VPSAOS account requests.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type request_id: str
+    :param request_id: Request ID. Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
     path = "/api/requests/{0}/approve.json".format(request_id)
     return session.post_api(path=path, return_type=return_type)
 
 
 def deny_request(session, request_id, return_type=None):
+    """
+    Deny VPSAOS account requests.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type request_id: str
+    :param request_id: Request ID. Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
     path = "/api/requests/{0}/deny.json".format(request_id)
     return session.post_api(path=path, return_type=return_type)

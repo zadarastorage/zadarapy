@@ -12,23 +12,50 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from zadarapy.validators import verify_boolean
 
 
 def get_settings_config(session, return_type=None):
+    """
+    Get VPSAOS setting configuration
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
     path = "/api/settings_config.json"
     return session.get_api(path=path, return_type=return_type)
 
 
 def ssl_termination(session, is_terminate, return_type=None):
     """
+    VPSAOS SSL termination
 
-    :param session:
-    :param is_terminate: True iff terminate SSL
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
     :type is_terminate: bool
-    :param return_type:
-    :return:
+    :param is_terminate: True iff terminate SSL. Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
     """
+    is_terminate = verify_boolean(is_terminate, is_terminate)
     path = "/api/zios/settings/ssl_termination.json"
     body_values = {"ssltermination": "on" if is_terminate else "off"}
-    return session.port_api(path=path, bool=body_values,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)

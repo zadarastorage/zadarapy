@@ -14,8 +14,6 @@
 # under the License.
 
 
-import json
-
 def set_encryption(session, encryption_pwd, return_type=None):
     """
     Set encryption.
@@ -43,6 +41,7 @@ def set_encryption(session, encryption_pwd, return_type=None):
 
     return session.call_api(method=method, path=path, parameters=parameters,
                             return_type=return_type)
+
 
 def set_encryption_state(session, state, return_type=None):
     """
@@ -74,6 +73,7 @@ def set_encryption_state(session, state, return_type=None):
 
     return session.call_api(method=method, path=path, parameters=parameters,
                             return_type=return_type)
+
 
 def restore_encryption(session, encryption_pwd, return_type=None):
     """

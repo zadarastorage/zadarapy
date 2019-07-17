@@ -14,7 +14,6 @@
 # under the License.
 
 
-import json
 from zadarapy.validators import is_valid_volume_id
 
 
@@ -60,6 +59,7 @@ def get_all_drives(session, start=None, limit=None, return_type=None):
 
     return session.call_api(method=method, path=path, parameters=parameters,
                             return_type=return_type)
+
 
 def get_one_drive(session, name, return_type=None):
     """
