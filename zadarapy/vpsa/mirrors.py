@@ -14,7 +14,10 @@
 # under the License.
 
 
-from zadarapy.validators import *
+from zadarapy.validators import verify_snapshot_id, verify_boolean, \
+    verify_field, verify_start_limit, verify_cg_id, verify_policy_id, \
+    verify_volume_id, verify_snaprule_id, verify_remote_vpsa_id, \
+    verify_mirror_id
 
 
 def get_all_mirrors(session, start=None, limit=None, return_type=None):
@@ -43,7 +46,8 @@ def get_all_mirrors(session, start=None, limit=None, return_type=None):
 
     path = '/api/mirror_jobs.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_mirror(session, mirror_id, return_type=None):
@@ -188,7 +192,8 @@ def get_all_remote_vpsas(session, start=None, limit=None, return_type=None):
 
     path = '/api/remote_vpsas.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_remote_vpsa(session, rvpsa_id, return_type=None):
@@ -261,11 +266,13 @@ def discover_remote_vpsa(session, ip_address, username, password, public,
     password = verify_field(password, "VPSA password")
     public = verify_boolean(public, "public")
 
-    body_values = {'user': username, 'password': password, 'ip': ip_address, 'isPublic': public}
+    body_values = {'user': username, 'password': password, 'ip': ip_address,
+                   'isPublic': public}
 
     path = '/api/remote_vpsas/discover.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def refresh_remote_vpsa(session, rvpsa_id, return_type=None):
@@ -356,7 +363,8 @@ def get_remote_vpsa_pools(session, rvpsa_id, start=None, limit=None,
 
     path = '/api/remote_vpsas/{0}/pools.json'.format(rvpsa_id)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_suggested_mirrors(session, rvpsa_id, cg_id, start=None, limit=None,
@@ -399,15 +407,18 @@ def get_suggested_mirrors(session, rvpsa_id, cg_id, start=None, limit=None,
     verify_remote_vpsa_id(rvpsa_id)
     verify_cg_id(cg_id)
 
-    parameters = verify_start_limit(start, limit, list_more_options=[('cgname', cg_id)])
+    parameters = verify_start_limit(start, limit,
+                                    list_more_options=[('cgname', cg_id)])
     path = '/api/remote_vpsas/{0}/suggested_jobs.json'.format(rvpsa_id)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def resume_broken_mirror(session, rvpsa_id, display_name, policy_id,
                          local_snapshot_id, remote_snapshot_id,
-                         wan_optimization='YES', compress=None, dedupe=None, force='NO', return_type=None):
+                         wan_optimization='YES', compress=None, dedupe=None,
+                         force='NO', return_type=None):
     """
     Resumes a previously broken mirror job between VPSAs.  Use in conjunction
     with get_suggested_mirrors to find candidates for resume.
@@ -472,8 +483,10 @@ def resume_broken_mirror(session, rvpsa_id, display_name, policy_id,
     verify_snapshot_id(remote_snapshot_id)
     wan_optimization = verify_boolean(wan_optimization, "wan_optimization")
 
-    body_values = {"displayname": display_name, "policy": policy_id, "snapname": local_snapshot_id,
-                   "remote_snapname": remote_snapshot_id, "wanoptimization": wan_optimization, "force": force}
+    body_values = {"displayname": display_name, "policy": policy_id,
+                   "snapname": local_snapshot_id,
+                   "remote_snapname": remote_snapshot_id,
+                   "wanoptimization": wan_optimization, "force": force}
 
     if compress is not None:
         compress = verify_boolean(compress, "compress")
@@ -484,7 +497,8 @@ def resume_broken_mirror(session, rvpsa_id, display_name, policy_id,
 
     path = '/api/remote_vpsas/{0}/resume_mirror_job.json'.format(rvpsa_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def add_mirror_snapshot_policy(session, mirror_id, policy_id,
@@ -521,7 +535,8 @@ def add_mirror_snapshot_policy(session, mirror_id, policy_id,
 
     path = '/api/mirror_jobs/{0}/attach_snapshot_policy.json'.format(mirror_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def remove_mirror_snapshot_policy(session, mirror_id, policy_id,
@@ -560,11 +575,13 @@ def remove_mirror_snapshot_policy(session, mirror_id, policy_id,
     verify_policy_id(policy_id)
     delete_snapshots = verify_boolean(delete_snapshots, "delete_snapshots")
 
-    body_values = {'policyname': policy_id, 'delete_snapshots': delete_snapshots}
+    body_values = {'policyname': policy_id,
+                   'delete_snapshots': delete_snapshots}
 
     path = '/api/mirror_jobs/{0}/detach_snapshot_policy.json'.format(mirror_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def update_mirror_wan_optimization(session, mirror_id, wan_optimization,
@@ -604,7 +621,8 @@ def update_mirror_wan_optimization(session, mirror_id, wan_optimization,
 
     body_values = {'wan_optimization': wan_optimization}
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def get_snapshots(session, mirror_id, return_type=None):
@@ -634,7 +652,8 @@ def get_snapshots(session, mirror_id, return_type=None):
     return session.post_api(path=path, return_type=return_type)
 
 
-def clone_mirror_job(session, mirror_id, snapshot_id, clone_name, return_type=None):
+def clone_mirror_job(session, mirror_id, snapshot_id, clone_name,
+                     return_type=None):
     """
     Clone a mirror job's snapshot into a volume.
 
@@ -667,10 +686,12 @@ def clone_mirror_job(session, mirror_id, snapshot_id, clone_name, return_type=No
 
     path = '/api/mirror_jobs/{0}/clone_snapshot.json'.format(mirror_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
-def detach_snapshot_policy(session, policy_id, mirror_id, snap_rule_id, delete_snapshots="YES", return_type=None):
+def detach_snapshot_policy(session, policy_id, mirror_id, snap_rule_id,
+                           delete_snapshots="YES", return_type=None):
     """
     Detach a Snapshot Policy from a Volume
 
@@ -686,11 +707,13 @@ def detach_snapshot_policy(session, policy_id, mirror_id, snap_rule_id, delete_s
         get_all_mirrors.  For example: 'srcjvpsa-00000001'.  Required.
 
     :type snap_rule_id: str
-    :param snap_rule_id: A snap rule ID. (found in /consistency_groups/{volume_cg_id}/snapshot_policies API).
-      For example: 'snaprule-00000001'.  Required.
+    :param snap_rule_id: A snap rule ID.
+    (found in /consistency_groups/{volume_cg_id}/snapshot_policies API).
+    For example: 'snaprule-00000001'.  Required.
 
     :type delete_snapshots: str
-    :param delete_snapshots: "YES" iff delete snapshots after detach. "NO" otherwise
+    :param delete_snapshots: "YES" iff delete snapshots after detach.
+    "NO" otherwise
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -706,12 +729,15 @@ def detach_snapshot_policy(session, policy_id, mirror_id, snap_rule_id, delete_s
     verify_snaprule_id(snap_rule_id)
 
     path = "/api/mirror_jobs/{0}/detach_snapshot_policy.json".format(mirror_id)
-    body_values = {"id": mirror_id, "snaprule": snap_rule_id, "delete_snapshots": delete_snapshots}
+    body_values = {"id": mirror_id, "snaprule": snap_rule_id,
+                   "delete_snapshots": delete_snapshots}
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
-def update_remote_vpsa_rate_limit(session, remote_vpsa_id, limit, return_type=None):
+def update_remote_vpsa_rate_limit(session, remote_vpsa_id, limit,
+                                  return_type=None):
     """
     Detach a Snapshot Policy from a Volume
 
@@ -735,7 +761,8 @@ def update_remote_vpsa_rate_limit(session, remote_vpsa_id, limit, return_type=No
     """
     path = "/api/remote_vpsas/{0}/rate_limit.json".format(remote_vpsa_id)
     body_values = {"limit": limit}
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def update_mirror_rate_limit(session, remote_vpsa_id, limit, return_type=None):
@@ -762,10 +789,12 @@ def update_mirror_rate_limit(session, remote_vpsa_id, limit, return_type=None):
     """
     path = "/api/mirror_jobs/{0}/rate_limit.json".format(remote_vpsa_id)
     body_values = {"limit": limit}
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
-def get_suggested_mirror_jobs(session, remote_vpsa_id, cg_id, return_type=None):
+def get_suggested_mirror_jobs(session, remote_vpsa_id, cg_id,
+                              return_type=None):
     """
     Get suggested mirror jobs
 
@@ -790,4 +819,5 @@ def get_suggested_mirror_jobs(session, remote_vpsa_id, cg_id, return_type=None):
     path = "/api/remote_vpsas/{0}/suggested_jobs.json".format(remote_vpsa_id)
     body_values = {"cgname": cg_id}
 
-    return session.get_api(path=path, body=body_values, return_type=return_type)
+    return session.get_api(path=path, body=body_values,
+                           return_type=return_type)

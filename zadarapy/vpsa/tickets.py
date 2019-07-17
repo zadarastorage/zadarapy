@@ -40,7 +40,8 @@ def get_all_tickets(session, start=None, limit=None, return_type=None):
     parameters = verify_start_limit(start, limit)
     path = '/api/tickets.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def create_ticket(session, subject, description, return_type=None):
@@ -76,7 +77,8 @@ def create_ticket(session, subject, description, return_type=None):
 
     path = '/api/tickets.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def close_ticket(session, ticket_id, return_type=None):
@@ -171,7 +173,8 @@ def create_ticket_comment(session, ticket_id, comment, return_type=None):
 
     path = '/api/tickets/{0}/comments.json'.format(ticket_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def create_ticket_zsnap(session, ticket_id, return_type=None):

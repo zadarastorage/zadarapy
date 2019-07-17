@@ -14,7 +14,9 @@
 # under the License.
 
 
-from zadarapy.validators import *
+from zadarapy.validators import verify_boolean, \
+    verify_field, verify_start_limit, verify_volume_id, verify_server_id, \
+    verify_interval, is_valid_iqn, verify_access_type
 
 
 def get_all_servers(session, start=None, limit=None, return_type=None):
@@ -43,7 +45,8 @@ def get_all_servers(session, start=None, limit=None, return_type=None):
 
     path = '/api/servers.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_server(session, server_id, return_type=None):
@@ -173,20 +176,25 @@ def create_server(session, display_name, ip_address=None, iqn=None,
         body_values['iqn'] = iqn
 
     if vpsa_chap_user is not None:
-        body_values['vpsachapuser'] = verify_field(vpsa_chap_user, "vpsa_chap_user")
+        body_values['vpsachapuser'] = verify_field(vpsa_chap_user,
+                                                   "vpsa_chap_user")
 
     if vpsa_chap_secret is not None:
-        body_values['vpsachapsecret'] = verify_field(vpsa_chap_secret, "vpsa_chap_secret")
+        body_values['vpsachapsecret'] = verify_field(vpsa_chap_secret,
+                                                     "vpsa_chap_secret")
 
     if host_chap_user is not None:
-        body_values['hostchapuser'] = verify_field(host_chap_user, "host_chap_user")
+        body_values['hostchapuser'] = verify_field(host_chap_user,
+                                                   "host_chap_user")
 
     if host_chap_secret is not None:
-        body_values['hostchapsecret'] = verify_field(host_chap_secret, "host_chap_secret")
+        body_values['hostchapsecret'] = verify_field(host_chap_secret,
+                                                     "host_chap_secret")
 
     path = '/api/servers.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def update_server(session, server_id, ip_address=None, iqn=None,
@@ -258,16 +266,20 @@ def update_server(session, server_id, ip_address=None, iqn=None,
         body_values['iqn'] = iqn
 
     if vpsa_chap_user is not None:
-        body_values['vpsachapuser'] = verify_field(vpsa_chap_user, "vpsa_chap_user")
+        body_values['vpsachapuser'] = verify_field(vpsa_chap_user,
+                                                   "vpsa_chap_user")
 
     if vpsa_chap_secret is not None:
-        body_values['vpsachapsecret'] = verify_field(vpsa_chap_secret, "vpsa_chap_secret")
+        body_values['vpsachapsecret'] = verify_field(vpsa_chap_secret,
+                                                     "vpsa_chap_secret")
 
     if host_chap_user is not None:
-        body_values['hostchapuser'] = verify_field(host_chap_user, "host_chap_user")
+        body_values['hostchapuser'] = verify_field(host_chap_user,
+                                                   "host_chap_user")
 
     if host_chap_secret is not None:
-        body_values['hostchapsecret'] = verify_field(host_chap_secret, "host_chap_secret")
+        body_values['hostchapsecret'] = verify_field(host_chap_secret,
+                                                     "host_chap_secret")
 
     if ipsec_iscsi is not None:
         body_values['ipsec_iscsi'] = verify_boolean(ipsec_iscsi, "ipsec_iscsi")
@@ -285,7 +297,8 @@ def update_server(session, server_id, ip_address=None, iqn=None,
 
     path = '/api/servers/{0}/config.json'.format(server_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def delete_server(session, server_id, return_type=None):
@@ -346,7 +359,8 @@ def rename_server(session, server_id, display_name, return_type=None):
 
     path = '/api/servers/{0}/rename.json'.format(server_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def get_volumes_attached_to_server(session, server_id, start=None, limit=None,
@@ -381,7 +395,8 @@ def get_volumes_attached_to_server(session, server_id, start=None, limit=None,
 
     path = '/api/servers/{0}/volumes.json'.format(server_id)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def attach_servers_to_volume(session, servers, volume_id, access_type=None,
@@ -450,7 +465,8 @@ def attach_servers_to_volume(session, servers, volume_id, access_type=None,
 
     path = '/api/servers/{0}/volumes.json'.format(servers)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def get_server_performance(session, server_id, interval=1, return_type=None):
@@ -484,4 +500,5 @@ def get_server_performance(session, server_id, interval=1, return_type=None):
 
     parameters = {'interval': interval}
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)

@@ -19,22 +19,33 @@ install_aliases()
 from urllib.parse import quote
 import re
 
+BAD_VPSA_ID = "The VPSA ID int '(i.e '154') or should be of format: " \
+              "'vsa-0000001'. Given: {}"
+
+LIST_APPROVED_STRIPES_SIZES = ['4', '16', '32', '64', '128', '256']
+
+BAD_STRIPE_TYPE = '"{}" is not a valid pool mode. Allowed values are: ' \
+                  '"stripe" or "simple"'
+
+BAD_STRIPE_SIZES = '{0} is not a valid stripe size. Allowed values are: {1}'
+
 
 def is_valid_vpsa_internal_name(vpsa_internal_id):
     """
-    Validates a VPSA internal ID. A valid VPSA internal ID should look like: vsa-00000001
-    - It should always start with "vsa-" and end with 8 hexadecimal characters
-    in lower case.
+    Validates a VPSA internal ID. A valid VPSA internal ID should look
+    like: vsa-00000001 - It should always start with "vsa-" and end with 8
+    hexadecimal characters in lower case.
 
     :type vpsa_internal_id: str
     :param vpsa_internal_id: The VPSA internal ID to be validated.
 
     :rtype: bool
-    :return: True or False depending on whether vpsa_internal_id passes validation.
+    :return: True or False depending on whether vpsa_internal_id passes
+     validation.
     """
     if vpsa_internal_id is None:
         return False
-    match = re.match('^vsa-[0-9a-f]{8}$', vpsa_internal_id)
+    match = re.match(r'^vsa-[0-9a-f]{8}$', vpsa_internal_id)
 
     if not match:
         return False
@@ -58,7 +69,7 @@ def is_valid_cg_id(cg_id):
     if cg_id is None:
         return False
 
-    match = re.match('^cg-[0-9a-f]{8}$', cg_id)
+    match = re.match(r'^cg-[0-9a-f]{8}$', cg_id)
 
     if not match:
         return False
@@ -84,7 +95,7 @@ def is_valid_controller_id(controller_id):
     if controller_id is None:
         return False
 
-    match = re.match('^vsa-[0-9a-f]{8}-vc-[0-9]$', controller_id)
+    match = re.match(r'^vsa-[0-9a-f]{8}-vc-[0-9]$', controller_id)
 
     if not match:
         return False
@@ -105,7 +116,7 @@ def is_valid_email(email):
     if email is None:
         return False
 
-    if not re.match('^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$',
+    if not re.match(r'^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$',
                     email):
         return False
 
@@ -167,8 +178,8 @@ def is_valid_iqn(iqn):
     if iqn is None:
         return False
 
-    match = re.match('^(?:iqn\.[0-9]{4}-[0-9]{2}(?:\.[A-Za-z](?:[A-Za-z0-9\-]'
-                     '*[A-Za-z0-9])?)+(?::.*)?|eui\.[0-9A-Fa-f]{16})', iqn)
+    match = re.match(r'^(?:iqn\.[0-9]{4}-[0-9]{2}(?:\.[A-Za-z](?:[A-Za-z0-9\-]'
+                     r'*[A-Za-z0-9])?)+(?::.*)?|eui\.[0-9A-Fa-f]{16})', iqn)
 
     if not match:
         return False
@@ -223,7 +234,7 @@ def is_valid_mgrjob_id(mgrjob_id):
     if mgrjob_id is None:
         return False
 
-    match = re.match('^mgrjob-[0-9a-f]{8}$', mgrjob_id)
+    match = re.match(r'^mgrjob-[0-9a-f]{8}$', mgrjob_id)
 
     if not match:
         return False
@@ -247,7 +258,7 @@ def is_valid_mirror_id(mirror_id):
     if mirror_id is None:
         return False
 
-    match = re.match('^(src|dst)jvpsa-[0-9a-f]{8}$', mirror_id)
+    match = re.match(r'^(src|dst)jvpsa-[0-9a-f]{8}$', mirror_id)
 
     if not match:
         return False
@@ -257,20 +268,22 @@ def is_valid_mirror_id(mirror_id):
 
 def is_valid_remote_clone_id(remote_clone_job_id):
     """
-    Validates a remote clone job ID, also known as the remote clone job "job_name".
-    A valid remote clone job name should look like: dstrclone-00000001 - It should
-    end with 8 hexadecimal characters in lower case.
+    Validates a remote clone job ID, also known as the remote clone job
+    "job_name". A valid remote clone job name should look like:
+    dstrclone-00000001 - It should end with 8 hexadecimal characters in
+    lower case.
 
     :type remote_clone_job_id: str
     :param remote_clone_job_id: The remote clone job name to be validated.
 
     :rtype: bool
-    :return: True or False depending on whether remote_clone_id passes validation.
+    :return: True or False depending on whether remote_clone_id passes
+    validation.
     """
     if remote_clone_job_id is None:
         return False
 
-    match = re.match('^(src|dst)rclone-[0-9a-f]{8}$', remote_clone_job_id)
+    match = re.match(r'^(src|dst)rclone-[0-9a-f]{8}$', remote_clone_job_id)
 
     if not match:
         return False
@@ -303,8 +316,8 @@ def is_valid_policy_creation(policy_creation):
     if len(creation_split) != 5:
         return False
 
-    pattern = re.compile('^(?:[1-9]?\d|\*)(?:(?:[/-][1-9]?\d)|'
-                         '(?:,[1-9]?\d)+)?$')
+    pattern = re.compile(r'^(?:[1-9]?\d|\*)(?:(?:[/-][1-9]?\d)|'
+                         r'(?:,[1-9]?\d)+)?$')
 
     for v in creation_split:
         match = pattern.match(v)
@@ -331,7 +344,7 @@ def is_valid_policy_id(policy_id):
     if policy_id is None:
         return False
 
-    match = re.match('^policy-[0-9a-f]{8}$', policy_id)
+    match = re.match(r'^policy-[0-9a-f]{8}$', policy_id)
 
     if not match:
         return False
@@ -379,7 +392,7 @@ def is_valid_snapshot_rule_name(snap_rule_name):
     if snap_rule_name is None:
         return False
 
-    match = re.match('^rule-[0-9a-f]{8}$', snap_rule_name)
+    match = re.match(r'^rule-[0-9a-f]{8}$', snap_rule_name)
 
     if not match:
         return False
@@ -401,7 +414,7 @@ def is_valid_memory_pool(mempool_name):
     if mempool_name is None:
         return False
 
-    match = re.match('^dgroup-[0-9a-f]{8}$', mempool_name)
+    match = re.match(r'^dgroup-[0-9a-f]{8}$', mempool_name)
 
     return match is not None
 
@@ -424,7 +437,7 @@ def is_valid_snaprule_name(snap_rule_name):
     if snap_rule_name is None:
         return False
 
-    match = re.match('^rule-[0-9a-f]{8}$', snap_rule_name)
+    match = re.match(r'^rule-[0-9a-f]{8}$', snap_rule_name)
 
     if not match:
         return False
@@ -454,9 +467,9 @@ def is_valid_pool_id(pool_id, remote_pool_allowed=False):
         return False
 
     if remote_pool_allowed:
-        match = re.match('^r?pool-[0-9a-f]{8}$', pool_id)
+        match = re.match(r'^r?pool-[0-9a-f]{8}$', pool_id)
     else:
-        match = re.match('^pool-[0-9a-f]{8}$', pool_id)
+        match = re.match(r'^pool-[0-9a-f]{8}$', pool_id)
 
     if not match:
         return False
@@ -500,7 +513,7 @@ def is_valid_raid_id(raid_id):
     if raid_id is None:
         return False
 
-    match = re.match('^RaidGroup-[0-9]+$', raid_id)
+    match = re.match(r'^RaidGroup-[0-9]+$', raid_id)
 
     if not match:
         return False
@@ -526,7 +539,7 @@ def is_valid_ros_backup_job_id(ros_backup_job_id):
     if ros_backup_job_id is None:
         return False
 
-    match = re.match('^bkpjobs-[0-9a-f]{8}$', ros_backup_job_id)
+    match = re.match(r'^bkpjobs-[0-9a-f]{8}$', ros_backup_job_id)
 
     if not match:
         return False
@@ -552,7 +565,7 @@ def is_valid_ros_destination_id(ros_destination_id):
     if ros_destination_id is None:
         return False
 
-    match = re.match('^obsdst-[0-9a-f]{8}$', ros_destination_id)
+    match = re.match(r'^obsdst-[0-9a-f]{8}$', ros_destination_id)
 
     if not match:
         return False
@@ -578,7 +591,7 @@ def is_valid_ros_restore_job_id(ros_restore_job_id):
     if ros_restore_job_id is None:
         return False
 
-    match = re.match('^rstjobs-[0-9a-f]{8}$', ros_restore_job_id)
+    match = re.match(r'^rstjobs-[0-9a-f]{8}$', ros_restore_job_id)
 
     if not match:
         return False
@@ -601,7 +614,7 @@ def is_valid_rvpsa_id(rvpsa_id):
     if rvpsa_id is None:
         return False
 
-    match = re.match('^rvpsa-[0-9a-f]{8}$', rvpsa_id)
+    match = re.match(r'^rvpsa-[0-9a-f]{8}$', rvpsa_id)
 
     if not match:
         return False
@@ -624,7 +637,7 @@ def is_valid_server_id(server_id):
     if server_id is None:
         return False
 
-    match = re.match('^srv-[0-9a-f]{8}$', server_id)
+    match = re.match(r'^srv-[0-9a-f]{8}$', server_id)
 
     if not match:
         return False
@@ -648,7 +661,7 @@ def is_valid_snapshot_id(snapshot_id):
     if snapshot_id is None:
         return False
 
-    match = re.match('^snap-[0-9a-f]{8}$', snapshot_id)
+    match = re.match(r'^snap-[0-9a-f]{8}$', snapshot_id)
 
     if not match:
         return False
@@ -671,7 +684,7 @@ def is_valid_volume_id(volume_id):
     if volume_id is None:
         return False
 
-    match = re.match('^volume-[0-9a-f]{8}$', volume_id)
+    match = re.match(r'^volume-[0-9a-f]{8}$', volume_id)
 
     if not match:
         return False
@@ -694,7 +707,7 @@ def is_valid_vpsa_display_name(vpsa_display_name):
     if vpsa_display_name is None:
         return False
 
-    match = re.match('^[A-Za-z-0-9_]+$', vpsa_display_name)
+    match = re.match(r'^[A-Za-z-0-9_]+$', vpsa_display_name)
 
     if not match:
         return False
@@ -719,7 +732,7 @@ def is_valid_zcs_container_id(zcs_container_id):
     if zcs_container_id is None:
         return False
 
-    match = re.match('^container-[0-9a-f]{8}$', zcs_container_id)
+    match = re.match(r'^container-[0-9a-f]{8}$', zcs_container_id)
 
     if not match:
         return False
@@ -744,7 +757,7 @@ def is_valid_zcs_image_id(zcs_image_id):
     if zcs_image_id is None:
         return False
 
-    match = re.match('^img-[0-9a-f]{8}$', zcs_image_id)
+    match = re.match(r'^img-[0-9a-f]{8}$', zcs_image_id)
 
     if not match:
         return False
@@ -840,7 +853,8 @@ def verify_field(field_name, title, allow_quote=False):
     if field_name is not None:
         field_name = field_name.strip()
         if not is_valid_field(field_name, allow_quote=allow_quote):
-            raise ValueError('{} is not a valid {} name.'.format(field_name, title))
+            raise ValueError(
+                '{} is not a valid {} name.'.format(field_name, title))
 
     return field_name
 
@@ -857,8 +871,7 @@ def verify_vpsa_id(vpsa_id):
     """
     vpsa_id = str(vpsa_id)
     if not vpsa_id.isdigit() and not vpsa_id.startswith("vsa-"):
-        raise ValueError("The VPSA ID int '(i.e '154') or should be of format: 'vsa-0000001'. Given: {}"
-                         .format(vpsa_id))
+        raise ValueError(BAD_VPSA_ID.format(vpsa_id))
 
     return vpsa_id
 
@@ -876,7 +889,8 @@ def verify_vpsa_internal_id(vpsa_internal_id):
     vpsa_id = str(vpsa_internal_id)
 
     if not is_valid_vpsa_internal_name(vpsa_internal_id):
-        raise ValueError('{0} is not a valid VPSA internal ID.'.format(vpsa_internal_id))
+        raise ValueError(
+            '{0} is not a valid VPSA internal ID.'.format(vpsa_internal_id))
 
     return vpsa_id
 
@@ -896,7 +910,9 @@ def verify_capacity(capacity, obj_name):
     """
     capacity = int(capacity)
     if capacity < 1:
-        raise ValueError('{0} capacity must be >= 1 GB ("{1}" was given)'.format(obj_name, capacity))
+        raise ValueError(
+            '{0} capacity must be >= 1 GB ("{1}" was given)'.format(obj_name,
+                                                                    capacity))
     return capacity
 
 
@@ -909,7 +925,9 @@ def verify_raid_groups(raid_groups):
     """
     for raid_group in raid_groups.split(','):
         if not is_valid_raid_id(raid_group):
-            raise ValueError('"{0}" in "{1}" is not a valid RAID group ID.'.format(raid_group, raid_groups))
+            raise ValueError(
+                '"{0}" in "{1}" is not a valid RAID group ID.'.format(
+                    raid_group, raid_groups))
 
 
 def verify_pool_type(pooltype):
@@ -955,10 +973,12 @@ def verify_start_limit_sort_severity(start, limit, sort, severity):
     sort = sort.upper()
 
     if sort not in ['DESC', 'ASC']:
-        raise ValueError('"{0}" is not a valid sort parameter. Allowed values are: "DESC" or "ASC"'.format(sort))
+        raise ValueError('"{0}" is not a valid sort parameter. '
+                         'Allowed values are: "DESC" or "ASC"'.format(sort))
 
     sort = '[{{"property":"msg-time","direction":"{sort}"}}]'.format(sort=sort)
-    parameters = verify_start_limit(start, limit, [('sort', sort), ('severity', severity)])
+    parameters = verify_start_limit(start, limit,
+                                    [('sort', sort), ('severity', severity)])
 
     return parameters
 
@@ -986,14 +1006,17 @@ def verify_start_limit(start, limit, list_more_options=None):
     if start is not None:
         start = int(start)
         if start < 0:
-            raise ValueError('Supplied start ("{0}") cannot be negative.'.format(start))
+            raise ValueError(
+                'Supplied start ("{0}") cannot be negative.'.format(start))
 
     if limit is not None:
         limit = int(limit)
         if limit < 0:
-            raise ValueError('Supplied limit ("{0}") cannot be negative.'.format(limit))
+            raise ValueError(
+                'Supplied limit ("{0}") cannot be negative.'.format(limit))
 
-    tuple_all_options = tuple([('start', start), ('limit', limit)] + list_more_options)
+    tuple_all_options = tuple(
+        [('start', start), ('limit', limit)] + list_more_options)
 
     parameters = {k: v for k, v in tuple_all_options if v is not None}
     return parameters
@@ -1005,7 +1028,9 @@ def verify_policy_creation(create_policy):
     :raises: ValueError: invalid policy
     """
     if not is_valid_policy_creation(create_policy):
-        raise ValueError('"{0}" is not a valid snapshot policy creation frequency.'.format(create_policy))
+        raise ValueError(
+            '"{0}" is not a valid snapshot policy creation frequency.'.format(
+                create_policy))
 
 
 def verify_snaprule_id(snap_rule_id):
@@ -1014,7 +1039,8 @@ def verify_snaprule_id(snap_rule_id):
     :raises: ValueError: invalid ID
     """
     list_err = ['{0} is not a valid Snapshot rule ID.'.format(_id)
-                for _id in snap_rule_id.split(',') if not is_valid_snaprule_name(_id)]
+                for _id in snap_rule_id.split(',') if
+                not is_valid_snaprule_name(_id)]
     if list_err:
         raise ValueError("\n".join(list_err))
 
@@ -1025,7 +1051,8 @@ def verify_memory_pool(mempool_id):
     :raises: ValueError: invalid ID
     """
     list_err = ['{0} is not a valid Memory Pool ID.'.format(_id)
-                for _id in mempool_id.split(',') if not is_valid_memory_pool(_id)]
+                for _id in mempool_id.split(',') if
+                not is_valid_memory_pool(_id)]
     if list_err:
         raise ValueError("\n".join(list_err))
 
@@ -1042,7 +1069,8 @@ def verify_pool_id(pool_id, remote_pool_allowed=False):
     :raises: ValueError: invalid ID
     """
     list_err = ['{0} is not a valid Pool ID.'.format(_id)
-                for _id in pool_id.split(',') if not is_valid_pool_id(_id, remote_pool_allowed)]
+                for _id in pool_id.split(',') if
+                not is_valid_pool_id(_id, remote_pool_allowed)]
     if list_err:
         raise ValueError("\n".join(list_err))
 
@@ -1086,7 +1114,8 @@ def verify_remote_clone_id(remote_clone_job_id):
     :raises: ValueError: invalid ID
     """
     list_err = ['{0} is not a valid Remote Clone ID.'.format(_id)
-                for _id in remote_clone_job_id.split(',') if not is_valid_remote_clone_id(_id)]
+                for _id in remote_clone_job_id.split(',') if
+                not is_valid_remote_clone_id(_id)]
     if list_err:
         raise ValueError("\n".join(list_err))
 
@@ -1097,7 +1126,8 @@ def verify_controller_id(controller_id):
     :raises: ValueError: invalid ID
     """
     list_err = ['{0} is not a valid virtual controller ID.'.format(_id)
-                for _id in controller_id.split(',') if not is_valid_controller_id(_id)]
+                for _id in controller_id.split(',') if
+                not is_valid_controller_id(_id)]
     if list_err:
         raise ValueError("\n".join(list_err))
 
@@ -1108,7 +1138,8 @@ def verify_zcs_container_id(zcs_container_id):
     :raises: ValueError: invalid ID
     """
     list_err = ['{0} is not a valid ZCS container ID.'.format(_id)
-                for _id in zcs_container_id.split(',') if not is_valid_zcs_container_id(_id)]
+                for _id in zcs_container_id.split(',') if
+                not is_valid_zcs_container_id(_id)]
     if list_err:
         raise ValueError("\n".join(list_err))
 
@@ -1119,7 +1150,8 @@ def verify_zcs_image_id(zcs_image_id):
     :raises: ValueError: invalid ID
     """
     list_err = ['{0} is not a valid ZCS image ID.'.format(_id)
-                for _id in zcs_image_id.split(',') if not is_valid_zcs_image_id(_id)]
+                for _id in zcs_image_id.split(',') if
+                not is_valid_zcs_image_id(_id)]
     if list_err:
         raise ValueError("\n".join(list_err))
 
@@ -1144,8 +1176,10 @@ def verify_ros_destination_id(ros_destination_id):
     :param ros_destination_id: ROS destination ID to check
     :raises: ValueError: invalid ID
     """
-    list_err = ['{0} is not a valid remote object storage destination ID.'.format(_id)
-                for _id in ros_destination_id.split(',') if not is_valid_ros_destination_id(_id)]
+    list_err = [
+        '{0} is not a valid remote object storage destination ID.'.format(_id)
+        for _id in ros_destination_id.split(',') if
+        not is_valid_ros_destination_id(_id)]
     if list_err:
         raise ValueError("\n".join(list_err))
 
@@ -1155,8 +1189,10 @@ def verify_ros_backup_job_id(ros_backup_job_id):
     :param ros_backup_job_id: ROS backup job ID to check
     :raises: ValueError: invalid ID
     """
-    list_err = ['{0} is not a valid remote object storage backup job ID.'.format(_id)
-                for _id in ros_backup_job_id.split(',') if not is_valid_ros_backup_job_id(_id)]
+    list_err = [
+        '{0} is not a valid remote object storage backup job ID.'.format(_id)
+        for _id in ros_backup_job_id.split(',') if
+        not is_valid_ros_backup_job_id(_id)]
     if list_err:
         raise ValueError("\n".join(list_err))
 
@@ -1166,7 +1202,8 @@ def verify_ros_restore_job_id(ros_restore_job_id):
     :param ros_restore_job_id: ROS restore job ID to check
     :raises: ValueError: invalid ID
     """
-    list_err = ['{0} is not a valid remote object storage ID.'.format(_id) for _id in ros_restore_job_id.split(',')
+    list_err = ['{0} is not a valid remote object storage ID.'.format(_id) for
+                _id in ros_restore_job_id.split(',')
                 if not is_valid_ros_restore_job_id(_id)]
     if list_err:
         raise ValueError("\n".join(list_err))
@@ -1179,7 +1216,8 @@ def verify_server_id(server_id):
 
     :raises: ValueError: invalid ID
     """
-    list_err = ['{0} is not a valid server ID.'.format(_id) for _id in server_id.split(',')
+    list_err = ['{0} is not a valid server ID.'.format(_id) for _id in
+                server_id.split(',')
                 if not is_valid_server_id(_id)]
     if list_err:
         raise ValueError("\n".join(list_err))
@@ -1193,7 +1231,9 @@ def verify_ticket_id(ticket_id):
      :raises: ValueError: invalid ID
      """
     if not is_valid_ticket_id(ticket_id):
-        raise ValueError('{0} is not a valid Ticket ID. [Should be positive]'.format(ticket_id))
+        raise ValueError(
+            '{0} is not a valid Ticket ID. [Should be positive]'.format(
+                ticket_id))
 
 
 def verify_boolean(flag, title):
@@ -1213,7 +1253,9 @@ def verify_boolean(flag, title):
         return None
     flag = str(flag).upper()
     if flag not in ['YES', 'NO']:
-        raise ValueError('"{}" is not a valid {} parameter. Allowed values are: "YES" or "NO"'.format(flag, title))
+        raise ValueError('"{}" is not a valid {} parameter. '
+                         'Allowed values are: "YES" or "NO"'
+                         .format(flag, title))
     return flag
 
 
@@ -1229,7 +1271,9 @@ def verify_interval(interval):
     """
     interval = int(interval)
     if interval < 1:
-        raise ValueError('Interval must be at least 1 second ({0} was supplied).'.format(interval))
+        raise ValueError(
+            'Interval must be at least 1 second ({0} was supplied).'.format(
+                interval))
 
     return interval
 
@@ -1245,7 +1289,8 @@ def verify_group_name(group_name):
     :raises: ValueError: Invalid username
     """
     if group_name in ['root', 'nogroup']:
-        raise ValueError('The root and nogroup users are assigned on every VPSA')
+        raise ValueError(
+            'The root and nogroup users are assigned on every VPSA')
 
     return quote(group_name.strip())
 
@@ -1262,7 +1307,8 @@ def verify_name(username):
     """
 
     if username in ['root', 'nobody']:
-        raise ValueError('The root and nobody users are assigned on every VPSA')
+        raise ValueError(
+            'The root and nobody users are assigned on every VPSA')
 
     return quote(username.strip())
 
@@ -1301,7 +1347,7 @@ def verify_mode(mode):
     :raises: ValueError: Invalid input
     """
     if mode not in ['stripe', 'simple']:
-        raise ValueError('"{0}" is not a valid pool mode.  Allowed values are: "stripe" or "simple"'.format(mode))
+        raise ValueError(BAD_STRIPE_TYPE.format(mode))
 
 
 def verify_drives(drives):
@@ -1311,7 +1357,8 @@ def verify_drives(drives):
 
     :raises: ValueError: Invalid input
     """
-    list_err = ['"{0}" in "{1}" is not a valid drive ID.'.format(drive, drives) for drive in drives.split(',')
+    list_err = ['"{0}" in "{1}" is not a valid drive ID.'.format(drive, drives)
+                for drive in drives.split(',')
                 if not is_valid_volume_id(drive)]
     if list_err:
         raise ValueError("\n".join(list_err))
@@ -1332,7 +1379,9 @@ def verify_positive_argument(param, title):
     if param is not None:
         param = int(param)
         if param < 1:
-            raise ValueError('Supplied {0} interval ("{1}") must be at least one'.format(title, param))
+            raise ValueError(
+                'Supplied {0} interval ("{1}") must be at least one'.format(
+                    title, param))
     return param
 
 
@@ -1343,7 +1392,8 @@ def verify_raid_type(protection):
     """
     if protection not in ['RAID1', 'RAID5', 'RAID6']:
         raise ValueError('"{0}" is not a valid RAID type.  Allowed values '
-                         'are: "RAID1", "RAID5", and "RAID6"'.format(protection))
+                         'are: "RAID1", "RAID5", and "RAID6"'
+                         .format(protection))
 
 
 def verify_stripe_size(stripe_size):
@@ -1354,11 +1404,11 @@ def verify_stripe_size(stripe_size):
     :param stripe_size: Stripe size to check
     :raises: ValueError: Invalid input
     """
-    list_approved_stripes = ['4', '16', '32', '64', '128', '256']
+
     stripe_size = str(stripe_size)
-    if stripe_size not in list_approved_stripes:
-        raise ValueError('{0} is not a valid stripe size.  Allowed values are: {1}'
-                         .format(stripe_size, ", ".join(list_approved_stripes)))
+    if stripe_size not in LIST_APPROVED_STRIPES_SIZES:
+        raise ValueError(BAD_STRIPE_SIZES.format(
+            stripe_size, ", ".join(LIST_APPROVED_STRIPES_SIZES)))
 
 
 def verify_min_max(minimum, maximum):
@@ -1397,7 +1447,8 @@ def verify_port(proxy_port):
     proxy_port = int(proxy_port)
 
     if proxy_port not in range(1, 65535):
-        raise ValueError('{0} is not a valid proxy port number.'.format(proxy_port))
+        raise ValueError(
+            '{0} is not a valid proxy port number.'.format(proxy_port))
 
 
 def verify_restore_mode(restore_mode):
@@ -1421,7 +1472,8 @@ def verify_access_type(access_type):
 
     if access_type not in [None, 'NFS', 'SMB', 'BOTH']:
         raise ValueError('"{0}" is not a valid access_type parameter.  '
-                         'Allowed values are: "NFS", "SMB", or "BOTH"'.format(access_type))
+                         'Allowed values are: "NFS", "SMB", or "BOTH"'
+                         .format(access_type))
 
 
 def verify_read_mode(read_mode):
@@ -1542,5 +1594,7 @@ def verify_account_id(account_id):
     """
     account_id = str(account_id)
     if len(account_id) != 32:
-        raise ValueError('The Account ID should be of length 32. Given: {}.'.format(account_id))
+        raise ValueError(
+            'The Account ID should be of length 32. Given: {}.'.format(
+                account_id))
     return account_id

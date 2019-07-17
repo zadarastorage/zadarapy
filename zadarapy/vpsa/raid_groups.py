@@ -14,8 +14,9 @@
 # under the License.
 
 
-from zadarapy.validators import verify_start_limit, verify_raid_id, verify_field, verify_raid_type, \
-    verify_drives, verify_stripe_size, verify_boolean, verify_min_max, verify_interval
+from zadarapy.validators import verify_start_limit, verify_raid_id, \
+    verify_field, verify_raid_type, verify_drives, verify_stripe_size, \
+    verify_boolean, verify_min_max, verify_interval
 
 
 def get_all_raid_groups(session, start=None, limit=None, return_type=None):
@@ -44,7 +45,8 @@ def get_all_raid_groups(session, start=None, limit=None, return_type=None):
 
     path = '/api/raid_groups.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_free_raid_groups(session, start=None, limit=None, return_type=None):
@@ -74,7 +76,8 @@ def get_free_raid_groups(session, start=None, limit=None, return_type=None):
 
     path = '/api/raid_groups/free.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_raid_group(session, raid_id, return_type=None):
@@ -162,7 +165,8 @@ def create_raid_group(session, display_name, protection, disk,
     hot_spare = verify_boolean(hot_spare, "hot_spare")
     force = verify_boolean(force, "force")
 
-    body_values = {'display_name': display_name, 'protection': protection, 'disk': disk, 'hot_spare': hot_spare,
+    body_values = {'display_name': display_name, 'protection': protection,
+                   'disk': disk, 'hot_spare': hot_spare,
                    'force': force}
 
     if protection == 'RAID1':
@@ -194,7 +198,8 @@ def create_raid_group(session, display_name, protection, disk,
 
     path = '/api/raid_groups.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def delete_raid_group(session, raid_id, return_type=None):
@@ -257,7 +262,8 @@ def get_drives_in_raid_group(session, raid_id, start=None, limit=None,
 
     path = '/api/raid_groups/{0}/disks.json'.format(raid_id)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def rename_raid_group(session, raid_id, display_name, return_type=None):
@@ -291,7 +297,8 @@ def rename_raid_group(session, raid_id, display_name, return_type=None):
 
     path = '/api/raid_groups/{0}/rename.json'.format(raid_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def repair_raid_group(session, raid_id, return_type=None):
@@ -360,7 +367,8 @@ def update_raid_group_resync_speed(session, raid_id, minimum, maximum,
 
     path = '/api/raid_groups/{0}/resync_speed.json'.format(raid_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def start_raid_group_media_scan(session, raid_id, return_type=None):
@@ -457,7 +465,8 @@ def add_hot_spare_to_raid_group(session, raid_id, drive_id, force='NO',
 
     path = '/api/raid_groups/{0}/hot_spares.json'.format(raid_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def remove_hot_spare_from_raid_group(session, raid_id, return_type=None):
@@ -519,4 +528,5 @@ def get_raid_group_performance(session, raid_id, interval=1,
 
     parameters = {'interval': interval}
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)

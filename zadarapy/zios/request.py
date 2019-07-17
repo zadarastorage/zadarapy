@@ -14,7 +14,8 @@
 # under the License.
 
 
-def get_account_requests(session, state=None, limit=None, page=None, return_type=None):
+def get_account_requests(session, state=None, limit=None, page=None,
+                         return_type=None):
     path = "/api/requests.json"
 
     body_values = {'state': state}
@@ -23,7 +24,8 @@ def get_account_requests(session, state=None, limit=None, page=None, return_type
     if page:
         body_values['page'] = page
 
-    return session.get_api(path=path, body=body_values, return_type=return_type)
+    return session.get_api(path=path, body=body_values,
+                           return_type=return_type)
 
 
 def approve_request(session, request_id, return_type=None):

@@ -14,7 +14,8 @@
 # under the License.
 
 
-from zadarapy.validators import *
+from zadarapy.validators import verify_boolean, \
+    verify_field, verify_start_limit, verify_policy_id, verify_policy_creation
 
 
 def get_all_snapshot_policies(session, start=None, limit=None,
@@ -46,7 +47,8 @@ def get_all_snapshot_policies(session, start=None, limit=None,
 
     path = '/api/snapshot_policies.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_snapshot_policy(session, policy_id, return_type=None):
@@ -132,7 +134,8 @@ def create_snapshot_policy(session, display_name, create_policy,
     verify_policy_creation(create_policy)
     allow_empty = verify_boolean(allow_empty, 'allow_empty')
 
-    body_values = {'name': display_name, 'create_policy': create_policy, 'empty': allow_empty}
+    body_values = {'name': display_name, 'create_policy': create_policy,
+                   'empty': allow_empty}
 
     if local_delete_policy is not None:
         if local_delete_policy < 0:
@@ -161,7 +164,8 @@ def create_snapshot_policy(session, display_name, create_policy,
 
     path = '/api/snapshot_policies.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def update_snapshot_policy(session, policy_id, create_policy=None,
@@ -247,7 +251,8 @@ def update_snapshot_policy(session, policy_id, create_policy=None,
 
     path = '/api/snapshot_policies/{0}.json'.format(policy_id)
 
-    return session.put_api(path=path, body=body_values, return_type=return_type)
+    return session.put_api(path=path, body=body_values,
+                           return_type=return_type)
 
 
 def delete_snapshot_policy(session, policy_id, return_type=None):
@@ -312,7 +317,8 @@ def rename_snapshot_policy(session, policy_id, display_name,
 
     path = '/api/snapshot_policies/{0}/rename.json'.format(policy_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def pause_snapshot_policy(session, snaprule, return_type=None):
@@ -323,8 +329,9 @@ def pause_snapshot_policy(session, snaprule, return_type=None):
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type snaprule: str
-    :param snaprule: A snap rule ID. (found in /consistency_groups/{volume_cg_id}/snapshot_policies API).
-      For example: 'snaprule-00000001'.  Required.
+    :param snaprule: A snap rule ID.
+    (found in /consistency_groups/{volume_cg_id}/snapshot_policies API).
+    For example: 'snaprule-00000001'.  Required.
 
      :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -335,6 +342,8 @@ def pause_snapshot_policy(session, snaprule, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/snapshot_policies/{snaprule}/pause.json".format(snaprule=snaprule)
+    path = "/api/snapshot_policies/{snaprule}/pause.json".format(
+        snaprule=snaprule)
     body_values = {"id": snaprule}
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)

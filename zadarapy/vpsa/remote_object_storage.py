@@ -13,8 +13,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-from zadarapy.validators import *
+from zadarapy.validators import verify_snapshot_id, verify_boolean, \
+    verify_field, verify_start_limit, verify_policy_id, \
+    verify_ros_backup_job_id, verify_volume_id, verify_pool_id, \
+    verify_interval, verify_port, verify_ros_destination_id, \
+    verify_ros_restore_job_id, verify_restore_mode
 
 
 def get_all_ros_destinations(session, start=None, limit=None,
@@ -47,7 +50,8 @@ def get_all_ros_destinations(session, start=None, limit=None,
 
     path = '/api/object_storage_destinations.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_ros_destination(session, ros_destination_id, return_type=None):
@@ -79,8 +83,10 @@ def get_ros_destination(session, ros_destination_id, return_type=None):
     return session.get_api(path=path, return_type=return_type)
 
 
-def create_ros_destination(session, display_name, bucket, endpoint, username, password, public, use_proxy, ros_type,
-                           allow_lifecycle_policies=None, proxy_host=None, proxy_port=None, proxy_username=None,
+def create_ros_destination(session, display_name, bucket, endpoint, username,
+                           password, public, use_proxy, ros_type,
+                           allow_lifecycle_policies=None, proxy_host=None,
+                           proxy_port=None, proxy_username=None,
                            proxy_password=None, return_type=None):
     """
     Creates a remote object storage destination.  The VPSA can either connect
@@ -123,8 +129,8 @@ def create_ros_destination(session, display_name, bucket, endpoint, username, pa
         Required.
 
     :type allow_lifecycle_policies: str
-    :param allow_lifecycle_policies: If set to 'YES', the VPSA will allow bucket to have lifecycle policies.
-    (Valid Only for AWS)
+    :param allow_lifecycle_policies: If set to 'YES', the VPSA will allow
+    bucket to have lifecycle policies. (Valid Only for AWS)
 
     :type use_proxy: str
     :param use_proxy: If set to 'YES', the VPSA will connect via an HTTP/HTTPS
@@ -162,10 +168,13 @@ def create_ros_destination(session, display_name, bucket, endpoint, username, pa
     password = verify_field(password, "password")
     public = verify_boolean(public, "public")
     use_proxy = verify_boolean(use_proxy, "use_proxy")
-    allow_lifecycle_policies = verify_boolean(allow_lifecycle_policies, "allow_lifecycle_policies")
+    allow_lifecycle_policies = verify_boolean(allow_lifecycle_policies,
+                                              "allow_lifecycle_policies")
 
-    body_values = {'name': display_name, 'bucket': bucket, 'endpoint': endpoint, 'username': username,
-                   'type': ros_type, 'password': password, 'connectVia': 'public' if public == 'YES' else 'be',
+    body_values = {'name': display_name, 'bucket': bucket,
+                   'endpoint': endpoint, 'username': username,
+                   'type': ros_type, 'password': password,
+                   'connectVia': 'public' if public == 'YES' else 'be',
                    'allow_lifecycle_policies': allow_lifecycle_policies}
 
     if use_proxy == 'YES':
@@ -173,14 +182,17 @@ def create_ros_destination(session, display_name, bucket, endpoint, username, pa
         body_values['proxyport'] = verify_port(proxy_port)
 
         if proxy_username is not None:
-            body_values['proxyuser'] = verify_field(proxy_username, "proxy_username")
+            body_values['proxyuser'] = verify_field(proxy_username,
+                                                    "proxy_username")
 
         if proxy_password is not None:
-            body_values['proxypassword'] = verify_field(proxy_password, "proxy_password")
+            body_values['proxypassword'] = verify_field(proxy_password,
+                                                        "proxy_password")
 
     path = '/api/object_storage_destinations.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def update_ros_destination(session, ros_destination_id, bucket=None,
@@ -274,10 +286,12 @@ def update_ros_destination(session, ros_destination_id, bucket=None,
         body_values['proxyport'] = verify_port(proxy_port)
 
     if proxy_username is not None:
-        body_values['proxyuser'] = verify_field(proxy_username, "proxy_username")
+        body_values['proxyuser'] = verify_field(proxy_username,
+                                                "proxy_username")
 
     if proxy_password is not None:
-        body_values['proxypassword'] = verify_field(proxy_password, "proxy_password")
+        body_values['proxypassword'] = verify_field(proxy_password,
+                                                    "proxy_password")
 
     if not body_values:
         raise ValueError('At least one of the following must be set: '
@@ -288,7 +302,8 @@ def update_ros_destination(session, ros_destination_id, bucket=None,
     path = '/api/object_storage_destinations/{0}.json' \
         .format(ros_destination_id)
 
-    return session.put_api(path=path, body=body_values, return_type=return_type)
+    return session.put_api(path=path, body=body_values,
+                           return_type=return_type)
 
 
 def remove_ros_destination(session, ros_destination_id, return_type=None):
@@ -360,7 +375,8 @@ def get_all_ros_destination_backup_jobs(session, ros_destination_id,
 
     parameters = verify_start_limit(start, limit)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_all_ros_destination_restore_jobs(session, ros_destination_id,
@@ -400,7 +416,8 @@ def get_all_ros_destination_restore_jobs(session, ros_destination_id,
 
     parameters = verify_start_limit(start, limit)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_all_ros_backup_jobs(session, start=None, limit=None,
@@ -433,7 +450,8 @@ def get_all_ros_backup_jobs(session, start=None, limit=None,
 
     parameters = verify_start_limit(start, limit)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_ros_backup_job(session, ros_backup_job_id, return_type=None):
@@ -519,12 +537,15 @@ def create_ros_backup_job(session, display_name, ros_destination_id, sse,
     verify_volume_id(volume_id)
     verify_policy_id(policy_id)
 
-    body_values = {'name': display_name, 'destination': ros_destination_id, 'volume': volume_id, 'policy': policy_id,
-                   'sse': sse, 'compression': verify_boolean(compression, "compression")}
+    body_values = {'name': display_name, 'destination': ros_destination_id,
+                   'volume': volume_id, 'policy': policy_id,
+                   'sse': sse,
+                   'compression': verify_boolean(compression, "compression")}
 
     path = '/api/object_storage_backup_jobs.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def pause_ros_backup_job(session, ros_backup_job_id, return_type=None):
@@ -619,12 +640,14 @@ def break_ros_backup_job(session, ros_backup_job_id, purge_data,
     verify_ros_backup_job_id(ros_backup_job_id)
 
     body_values = {'purge_data': verify_boolean(purge_data, "purge_data"),
-                   "delete_snapshots": verify_boolean(delete_snapshots, "delete_snapshots")}
+                   "delete_snapshots": verify_boolean(delete_snapshots,
+                                                      "delete_snapshots")}
 
     path = '/api/object_storage_backup_jobs/{0}/break.json' \
         .format(ros_backup_job_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def update_ros_backup_job_compression(session, ros_backup_job_id, compression,
@@ -661,7 +684,8 @@ def update_ros_backup_job_compression(session, ros_backup_job_id, compression,
     path = '/api/object_storage_backup_jobs/{0}/compression.json' \
         .format(ros_backup_job_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def replace_ros_backup_job_snapshot_policy(session, ros_backup_job_id,
@@ -701,7 +725,8 @@ def replace_ros_backup_job_snapshot_policy(session, ros_backup_job_id,
     path = '/api/object_storage_backup_jobs/{0}/replace_snapshot_policy.json' \
         .format(ros_backup_job_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def get_all_ros_restore_jobs(session, start=None, limit=None,
@@ -734,7 +759,8 @@ def get_all_ros_restore_jobs(session, start=None, limit=None,
 
     path = '/api/object_storage_restore_jobs.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_ros_restore_job(session, ros_restore_job_id, return_type=None):
@@ -854,8 +880,10 @@ def create_ros_restore_job(session, display_name, ros_destination_id, pool_id,
     verify_pool_id(pool_id)
     verify_restore_mode(restore_mode)
 
-    body_values = {'name': verify_field(display_name, "display_name"), 'remote_object_store': ros_destination_id,
-                   'poolname': pool_id, 'mode': restore_mode, 'volname': verify_field(volume_name, "volume"),
+    body_values = {'name': verify_field(display_name, "display_name"),
+                   'remote_object_store': ros_destination_id,
+                   'poolname': pool_id, 'mode': restore_mode,
+                   'volname': verify_field(volume_name, "volume"),
                    'crypt': verify_boolean(crypt, "crypt")}
 
     if local_snapshot_id is None and object_store_key is None:
@@ -877,7 +905,8 @@ def create_ros_restore_job(session, display_name, ros_destination_id, pool_id,
 
     path = '/api/object_storage_restore_jobs.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def pause_ros_restore_job(session, ros_restore_job_id, return_type=None):
@@ -1004,7 +1033,8 @@ def change_ros_restore_job_mode(session, ros_restore_job_id, restore_mode,
     path = '/api/object_storage_restore_jobs/{0}/switch_mode.json' \
         .format(ros_restore_job_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def get_ros_backup_job_performance(session, ros_backup_job_id, interval=1,
@@ -1041,7 +1071,8 @@ def get_ros_backup_job_performance(session, ros_backup_job_id, interval=1,
 
     parameters = {'interval': interval}
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_ros_restore_job_performance(session, ros_restore_job_id, interval=1,
@@ -1078,10 +1109,12 @@ def get_ros_restore_job_performance(session, ros_restore_job_id, interval=1,
 
     parameters = {'interval': interval}
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
-def backup_jobs_rate_limit(session, ros_backup_job_id, limit, return_type=None):
+def backup_jobs_rate_limit(session, ros_backup_job_id, limit,
+                           return_type=None):
     """
     Retrieves metering statistics for the remote object storage restore job
     for the specified interval.  Default interval is one second.
@@ -1106,14 +1139,17 @@ def backup_jobs_rate_limit(session, ros_backup_job_id, limit, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/object_storage_backup_jobs/{0}/rate_limit.json".format(ros_backup_job_id)
+    path = "/api/object_storage_backup_jobs/{0}/rate_limit.json".format(
+        ros_backup_job_id)
 
     body_values = {"limit": limit}
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
-def backup_jobs_update_compression(session, ros_backup_job_id, compression, return_type=None):
+def backup_jobs_update_compression(session, ros_backup_job_id, compression,
+                                   return_type=None):
     """
     Retrieves metering statistics for the remote object storage restore job
     for the specified interval.  Default interval is one second.
@@ -1141,6 +1177,8 @@ def backup_jobs_update_compression(session, ros_backup_job_id, compression, retu
         return_type parameter.
     """
     # POST /api/object_storage_backup_jobs/{id}/compression.json
-    path = "/api/object_storage_backup_jobs/{0}/compression.json".format(ros_backup_job_id)
+    path = "/api/object_storage_backup_jobs/{0}/compression.json".format(
+        ros_backup_job_id)
     body_values = {"compression": compression}
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)

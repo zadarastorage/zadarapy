@@ -14,7 +14,11 @@
 # under the License.
 
 
-from zadarapy.validators import *
+from zadarapy.validators import verify_snapshot_id, verify_boolean, \
+    verify_field, verify_start_limit, verify_cg_id, verify_policy_id, \
+    verify_ros_backup_job_id, verify_readahead, verify_netmask, \
+    verify_volume_id, verify_pool_id, verify_capacity, verify_server_id, \
+    verify_snapshot_rule_name, verify_interval, verify_snaprule_id
 
 
 def get_all_volumes(session, start=None, limit=None, showonlyblock='NO',
@@ -60,12 +64,14 @@ def get_all_volumes(session, start=None, limit=None, showonlyblock='NO',
     display_name = verify_field(display_name, "display_name")
 
     parameters = verify_start_limit(start=start, limit=limit,
-                                    list_more_options=[('showonlyblock', showonlyblock),
-                                                       ('showonlyfile', showonlyfile),
-                                                       ('display_name', display_name)])
+                                    list_more_options=[
+                                        ('showonlyblock', showonlyblock),
+                                        ('showonlyfile', showonlyfile),
+                                        ('display_name', display_name)])
     path = '/api/volumes.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_free_volumes(session, start=None, limit=None, return_type=None):
@@ -95,7 +101,8 @@ def get_free_volumes(session, start=None, limit=None, return_type=None):
 
     path = '/api/volumes/free.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_volume(session, volume_id, return_type=None):
@@ -342,8 +349,10 @@ def create_volume(session, pool_id, display_name, capacity, block,
     dedupe = verify_boolean(dedupe, "dedupe")
     compress = verify_boolean(compress, "compress")
 
-    body_values = {'pool': pool_id, 'name': display_name, 'capacity': '{0}G'.format(capacity), 'block': block,
-                   'attachpolicies': attachpolicies, 'crypt': crypt, 'dedupe': dedupe, 'compress': compress}
+    body_values = {'pool': pool_id, 'name': display_name,
+                   'capacity': '{0}G'.format(capacity), 'block': block,
+                   'attachpolicies': attachpolicies, 'crypt': crypt,
+                   'dedupe': dedupe, 'compress': compress}
 
     # If block is set to 'YES', enable thin provisioning by default.  This
     # only needs to be set for block volumes, as NAS shares will always be
@@ -353,24 +362,36 @@ def create_volume(session, pool_id, display_name, capacity, block,
         body_values['thin'] = 'YES'
     else:
         if export_name is not None:
-            body_values['export_name'] = verify_field(export_name, "export_name")
+            body_values['export_name'] = verify_field(export_name,
+                                                      "export_name")
 
         body_values['atimeupdate'] = verify_boolean(atimeupdate, "atimeupdate")
-        body_values['nfsrootsquash'] = verify_boolean(nfsrootsquash, "nfsrootsquash")
+        body_values['nfsrootsquash'] = verify_boolean(nfsrootsquash,
+                                                      "nfsrootsquash")
         body_values['readaheadkb'] = verify_readahead(readaheadkb)
         body_values['smbonly'] = verify_boolean(smbonly, "smbonly")
         body_values['smbguest'] = verify_boolean(smbguest, "smbguest")
-        body_values['smbwindowsacl'] = verify_boolean(smbwindowsacl, "smbwindowsacl")
-        body_values['smbfilecreatemask'] = verify_netmask(smbfilecreatemask, "smbfilecreatemask")
-        body_values['smbdircreatemask'] = verify_netmask(smbdircreatemask, "smbdircreatemask")
-        body_values['smbmaparchive'] = verify_boolean(smbmaparchive, "smbmaparchive")
-        body_values['smbbrowseable'] = verify_boolean(smbbrowseable, "smbbrowseable")
-        body_values['smbhideunreadable'] = verify_boolean(smbhideunreadable, "smbhideunreadable")
-        body_values['smbhideunwriteable'] = verify_boolean(smbhideunwriteable, "smbhideunwriteable")
-        body_values['smbhidedotfiles'] = verify_boolean(smbhidedotfiles, "smbhidedotfiles")
-        body_values['smbstoredosattributes'] = verify_boolean(smbstoredosattributes,
-                                                              "smbstoredosattributes")
-        body_values['smbenableoplocks'] = verify_boolean(smbenableoplocks, "smbenableoplocks")
+        body_values['smbwindowsacl'] = verify_boolean(smbwindowsacl,
+                                                      "smbwindowsacl")
+        body_values['smbfilecreatemask'] = verify_netmask(smbfilecreatemask,
+                                                          "smbfilecreatemask")
+        body_values['smbdircreatemask'] = verify_netmask(smbdircreatemask,
+                                                         "smbdircreatemask")
+        body_values['smbmaparchive'] = verify_boolean(smbmaparchive,
+                                                      "smbmaparchive")
+        body_values['smbbrowseable'] = verify_boolean(smbbrowseable,
+                                                      "smbbrowseable")
+        body_values['smbhideunreadable'] = \
+            verify_boolean(smbhideunreadable, "smbhideunreadable")
+        body_values['smbhideunwriteable'] = \
+            verify_boolean(smbhideunwriteable, "smbhideunwriteable")
+        body_values['smbhidedotfiles'] = verify_boolean(smbhidedotfiles,
+                                                        "smbhidedotfiles")
+        body_values['smbstoredosattributes'] = verify_boolean(
+            smbstoredosattributes,
+            "smbstoredosattributes")
+        body_values['smbenableoplocks'] = verify_boolean(smbenableoplocks,
+                                                         "smbenableoplocks")
 
         smbaiosize = verify_boolean(smbaiosize, "smbaiosize")
         body_values['smbaiosize'] = '16384' if smbaiosize == 'YES' else '1'
@@ -384,7 +405,8 @@ def create_volume(session, pool_id, display_name, capacity, block,
 
     path = '/api/volumes.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def update_volume_nas_options(session, volume_id, atimeupdate=None,
@@ -444,7 +466,8 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
     body_values = {}
 
     if smbmaparchive is not None:
-        body_values['smbmaparchive'] = verify_boolean(smbmaparchive, "smbmaparchive")
+        body_values['smbmaparchive'] = verify_boolean(smbmaparchive,
+                                                      "smbmaparchive")
 
     if atimeupdate is not None:
         body_values['atimeupdate'] = verify_boolean(atimeupdate, "atimeupdate")
@@ -456,19 +479,23 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
         body_values['smbguest'] = verify_boolean(smbguest, "smbguest")
 
     if smbwindowsacl is not None:
-        body_values['smbwindowsacl'] = verify_boolean(smbwindowsacl, "smbwindowsacl")
+        body_values['smbwindowsacl'] = verify_boolean(smbwindowsacl,
+                                                      "smbwindowsacl")
 
     if smbfilecreatemask is not None:
-        body_values['smbfilecreatemask'] = verify_netmask(smbfilecreatemask, "smbfilecreatemask")
+        body_values['smbfilecreatemask'] = verify_netmask(smbfilecreatemask,
+                                                          "smbfilecreatemask")
 
     if smbdircreatemask is not None:
-        body_values['smbdircreatemask'] = verify_netmask(smbdircreatemask, "smbdircreatemask")
+        body_values['smbdircreatemask'] = verify_netmask(smbdircreatemask,
+                                                         "smbdircreatemask")
 
     smbaiosize = verify_boolean(smbaiosize, "smbaiosize")
     body_values['smbaiosize'] = '16384' if smbaiosize == 'YES' else '1'
 
     if nfsrootsquash is not None:
-        body_values['nfsrootsquash'] = verify_boolean(nfsrootsquash, "nfsrootsquash")
+        body_values['nfsrootsquash'] = verify_boolean(nfsrootsquash,
+                                                      "nfsrootsquash")
 
     if not body_values:
         raise ValueError('At least one of the following must be set: '
@@ -479,7 +506,8 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
 
     path = '/api/volumes/{0}.json'.format(volume_id)
 
-    return session.put_api(path=path, body=body_values, return_type=return_type)
+    return session.put_api(path=path, body=body_values,
+                           return_type=return_type)
 
 
 def update_volume_comment(session, volume_id, comment, return_type=None):
@@ -514,7 +542,8 @@ def update_volume_comment(session, volume_id, comment, return_type=None):
 
     path = '/api/volumes/{0}/update_comment.json'.format(volume_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def delete_volume(session, volume_id, force='NO', return_type=None):
@@ -553,7 +582,8 @@ def delete_volume(session, volume_id, force='NO', return_type=None):
 
     path = '/api/volumes/{0}.json'.format(volume_id)
 
-    return session.delete_api(path=path, body=body_values, return_type=return_type)
+    return session.delete_api(path=path, body=body_values,
+                              return_type=return_type)
 
 
 def rename_volume(session, volume_id, display_name, return_type=None):
@@ -587,7 +617,8 @@ def rename_volume(session, volume_id, display_name, return_type=None):
 
     path = '/api/volumes/{0}/rename.json'.format(volume_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def expand_volume(session, volume_id, capacity, return_type=None):
@@ -622,7 +653,8 @@ def expand_volume(session, volume_id, capacity, return_type=None):
 
     path = '/api/volumes/{0}/expand.json'.format(volume_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def get_servers_attached_to_volume(session, volume_id, start=None, limit=None,
@@ -657,7 +689,8 @@ def get_servers_attached_to_volume(session, volume_id, start=None, limit=None,
 
     path = '/api/volumes/{0}/servers.json'.format(volume_id)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def detach_servers_from_volume(session, volume_id, servers, force='NO',
@@ -701,7 +734,8 @@ def detach_servers_from_volume(session, volume_id, servers, force='NO',
 
     path = '/api/volumes/{0}/detach.json'.format(volume_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def set_volume_export_name(session, volume_id, export_name, return_type=None):
@@ -735,7 +769,8 @@ def set_volume_export_name(session, volume_id, export_name, return_type=None):
 
     path = '/api/volumes/{0}/export_name.json'.format(volume_id)
 
-    return session.put_api(path=path, body=body_values, return_type=return_type)
+    return session.put_api(path=path, body=body_values,
+                           return_type=return_type)
 
 
 def get_volume_attached_snapshot_policies(session, cg_id, start=None,
@@ -774,7 +809,8 @@ def get_volume_attached_snapshot_policies(session, cg_id, start=None,
     path = '/api/consistency_groups/{0}/snapshot_policies.json' \
         .format(cg_id)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
@@ -812,7 +848,8 @@ def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
 
     path = '/api/consistency_groups/{0}/attach_policy.json'.format(cg_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def remove_volume_snapshot_policy(session, snapshot_rule_name,
@@ -849,7 +886,8 @@ def remove_volume_snapshot_policy(session, snapshot_rule_name,
     path = '/api/consistency_groups/{0}/detach_policy.json' \
         .format(snapshot_rule_name)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def get_all_snapshots(session, cg_id, ros_backup_job_id=None, policy_id=None,
@@ -904,13 +942,15 @@ def get_all_snapshots(session, cg_id, ros_backup_job_id=None, policy_id=None,
 
     elif ros_backup_job_id is not None:
         verify_ros_backup_job_id(ros_backup_job_id)
-        list_more_options = [('jobname', ros_backup_job_id), ('application', 'obs_mirror')]
+        list_more_options = [('jobname', ros_backup_job_id),
+                             ('application', 'obs_mirror')]
 
     parameters = verify_start_limit(start, limit, list_more_options)
 
     path = '/api/consistency_groups/{0}/snapshots.json'.format(cg_id)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def create_volume_snapshot(session, cg_id, display_name, return_type=None):
@@ -946,7 +986,8 @@ def create_volume_snapshot(session, cg_id, display_name, return_type=None):
 
     path = '/api/consistency_groups/{0}/snapshots.json'.format(cg_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def delete_volume_snapshot(session, snapshot_id, return_type=None):
@@ -1056,7 +1097,8 @@ def migrate_volume(session, cg_id, pool_id, migrate_snaps='YES',
 
     path = '/api/consistency_groups/{0}/migrate.json'.format(cg_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def pause_volume_migration(session, migration_cg_id, return_type=None):
@@ -1069,9 +1111,9 @@ def pause_volume_migration(session, migration_cg_id, return_type=None):
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type migration_cg_id: str
-    :param migration_cg_id: The consistency group 'cg_name' value as returned by
-        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
-        Required.
+    :param migration_cg_id: The consistency group 'cg_name' value as returned
+    by get_all_volumes for the desired volume.  For example: 'cg-00000001'.
+            Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1099,9 +1141,9 @@ def resume_volume_migration(session, migration_cg_id, return_type=None):
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type migration_cg_id: str
-    :param migration_cg_id: The consistency group 'cg_name' value as returned by
-        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
-        Required.
+    :param migration_cg_id: The consistency group 'cg_name' value as returned
+    by get_all_volumes for the desired volume.  For example: 'cg-00000001'.
+            Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1128,9 +1170,9 @@ def cancel_volume_migration(session, migration_cg_id, return_type=None):
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type migration_cg_id: str
-    :param migration_cg_id: The consistency group 'cg_name' value as returned by
-        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
-        Required.
+    :param migration_cg_id: The consistency group 'cg_name' value as returned
+     by get_all_volumes for the desired volume.  For example: 'cg-00000001'.
+             Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1192,7 +1234,8 @@ def create_clone(session, cg_id, display_name, snapshot_id=None,
 
     path = '/api/consistency_groups/{0}/clone.json'.format(cg_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
@@ -1260,12 +1303,15 @@ def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
     remote_volume_name = verify_field(remote_volume_name, "remote_volume_name")
     wan_optimization = verify_boolean(wan_optimization, "wan_optimization")
 
-    body_values = {'display_name': display_name, 'remote_pool': remote_pool_id, 'policy': policies,
-                   'new_cg_name': remote_volume_name, 'wan_optimization': wan_optimization}
+    body_values = {'display_name': display_name, 'remote_pool': remote_pool_id,
+                   'policy': policies,
+                   'new_cg_name': remote_volume_name,
+                   'wan_optimization': wan_optimization}
 
     path = '/api/consistency_groups/{0}/mirror.json'.format(cg_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def get_volume_performance(session, volume_id, interval=1, return_type=None):
@@ -1299,7 +1345,8 @@ def get_volume_performance(session, volume_id, interval=1, return_type=None):
 
     parameters = {'interval': interval}
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_snapshot(session, snap_id, return_type=None):
@@ -1351,12 +1398,14 @@ def delete_volume_from_recycle_bin(session, volume_id, return_type=None):
     """
     verify_volume_id(volume_id)
 
-    path = "/api/volumes/{0}/delete_volume_from_recycle_bin.json".format(volume_id)
+    path = "/api/volumes/{0}/delete_volume_from_recycle_bin.json".format(
+        volume_id)
 
     return session.delete_api(path=path, return_type=return_type)
 
 
-def detach_snapshot_policy(session, volume_id, snaprule, delete_snapshots="Yes", return_type=None):
+def detach_snapshot_policy(session, volume_id, snaprule,
+                           delete_snapshots="Yes", return_type=None):
     """
     Detach a Snapshot Policy from a Volume
 
@@ -1368,7 +1417,8 @@ def detach_snapshot_policy(session, volume_id, snaprule, delete_snapshots="Yes",
         get_all_volumes.  For example: 'volume-00000001'.  Required.
 
     :type snaprule: str
-    :param snaprule: A snap rule ID. (found in /consistency_groups/{volume_cg_id}/snapshot_policies API).
+    :param snaprule: A snap rule ID.
+    (found in /consistency_groups/{volume_cg_id}/snapshot_policies API).
       For example: 'snaprule-00000001'.  Required.
 
     :type delete_snapshots: str
@@ -1388,17 +1438,19 @@ def detach_snapshot_policy(session, volume_id, snaprule, delete_snapshots="Yes",
     delete_snapshots = verify_boolean(delete_snapshots, "delete_snapshots")
 
     path = '/api/volumes/{0}/detach_snapshot_policy.json'.format(volume_id)
-    body_values = {"id": volume_id, "snaprule": snaprule, "delete_snapshots": delete_snapshots}
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    body_values = {"id": volume_id, "snaprule": snaprule,
+                   "delete_snapshots": delete_snapshots}
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def update_protection(session, volume_id, alertmode=None, emergencymode=None,
                       capacityhistory=None, autoexpand=None,
                       maxcapacity=None, autoexpandby=None,
-                      capacitythreshold=None, return_type=None):
+                      return_type=None):
     """
-    Sets volume capacity thresholds. A support ticket will be created when your Volume
-    reaches specified capacity thresholds.
+    Sets volume capacity thresholds. A support ticket will be created when your
+     Volume reaches specified capacity thresholds.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -1408,16 +1460,16 @@ def update_protection(session, volume_id, alertmode=None, emergencymode=None,
         get_all_volumes.  For example: 'volume-00000001'.  Required.
 
     :type alertmode: int
-    :param alertmode: Alert me when it is estimated that the Volume will be at full
-    capacity in X minutes.
+    :param alertmode: Alert me when it is estimated that the Volume will be at
+    full capacity in X minutes.
 
     :type emergencymode: int
-    :param emergencymode: Delete snapshots, starting with the oldest, when the Volume
-    has less than this number of GB left.
+    :param emergencymode: Capacity threshold to trigger auto expand in GB
 
     :type capacityhistory: int
-    :param capacityhistory: Window size in minutes which is used to calculate the rate of which free Volume
-    capacity is consumed. This rate is used to calculate the estimated time until a Volume is full
+    :param capacityhistory: Window size in minutes which is used to calculate
+    the rate of which free Volume capacity is consumed. This rate is used to
+    calculate the estimated time until a Volume is full
 
     :type autoexpand: bool
     :param autoexpand: Enable capacity auto expand
@@ -1427,9 +1479,6 @@ def update_protection(session, volume_id, alertmode=None, emergencymode=None,
 
     :type autoexpandby: int
     :param autoexpandby: Capacity to expand by in GB
-
-    :type capacitythreshold: str
-    :param capacitythreshold: Capacity threshold to trigger auto expand in GB
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -1456,14 +1505,11 @@ def update_protection(session, volume_id, alertmode=None, emergencymode=None,
         body['maxcapacity'] = maxcapacity
     if autoexpandby is not None:
         body['autoexpandby'] = autoexpandby
-    if capacitythreshold is not None:
-        body['capacitythreshold'] = "{0}GB".format(capacitythreshold)
 
     if not body:
         raise ValueError('At least one of the following must be set: '
                          '"alertmode", "emergencymode", "capacityhistory", '
-                         '"autoexpand", "maxcapacityexpand", '
-                         '"autoexpandby", "capacitythreshold"')
+                         '"autoexpand", "maxcapacityexpand", "autoexpandby" ')
 
     path = "/api/volumes/{0}/update_protection.json".format(volume_id)
 

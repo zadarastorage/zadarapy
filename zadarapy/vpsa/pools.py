@@ -14,13 +14,19 @@
 # under the License.
 
 
-from zadarapy.validators import verify_start_limit, verify_field, verify_capacity, verify_raid_groups, \
-    verify_pool_type, verify_boolean, verify_pool_id, verify_mode, verify_drives, verify_positive_argument
+from zadarapy.validators import verify_start_limit, verify_field, \
+    verify_capacity, verify_raid_groups, \
+    verify_pool_type, verify_boolean, verify_pool_id, verify_mode, \
+    verify_drives, verify_positive_argument
 
-__all__ = ["get_all_pools", "get_pool", "create_pool", "create_raid10_pool", "delete_pool", "rename_pool",
-           "get_raid_groups_in_pool", "get_volumes_in_pool", "add_raid_groups_to_pool", "update_pool_capacity_alerts",
-           "get_pool_mirror_destination_volumes", "set_pool_cache", "set_pool_cowcache", "expand_pool",
-           "get_volumes_in_pool_recycle_bin", "get_pool_performance", "pool_shrink", "cancel_pool_shrink"]
+__all__ = ["get_all_pools", "get_pool", "create_pool", "create_raid10_pool",
+           "delete_pool", "rename_pool",
+           "get_raid_groups_in_pool", "get_volumes_in_pool",
+           "add_raid_groups_to_pool", "update_pool_capacity_alerts",
+           "get_pool_mirror_destination_volumes", "set_pool_cache",
+           "set_pool_cowcache", "expand_pool",
+           "get_volumes_in_pool_recycle_bin", "get_pool_performance",
+           "pool_shrink", "cancel_pool_shrink"]
 
 
 def get_all_pools(session, start=None, limit=None, return_type=None):
@@ -49,7 +55,8 @@ def get_all_pools(session, start=None, limit=None, return_type=None):
 
     path = '/api/pools.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_pool(session, pool_id, return_type=None):
@@ -158,7 +165,9 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
     if len(raid_groups.split(',')) == 1:
         mode = 'simple'
 
-    body_values = {'display_name': display_name, 'capacity': '{0}G'.format(capacity), 'raid_groups': raid_groups,
+    body_values = {'display_name': display_name,
+                   'capacity': '{0}G'.format(capacity),
+                   'raid_groups': raid_groups,
                    'cache': cache, 'mode': mode}
 
     if pooltype == 'Transactional':
@@ -176,7 +185,8 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
 
     path = '/api/pools.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def create_raid10_pool(session, display_name, drives, pooltype,
@@ -223,7 +233,8 @@ def create_raid10_pool(session, display_name, drives, pooltype,
     pooltype = fix_pooltype(pooltype)
     cache = verify_boolean(cache, "cache")
 
-    body_values = {'display_name': display_name, 'disks': drives, 'pooltype': pooltype, 'cache': cache}
+    body_values = {'display_name': display_name, 'disks': drives,
+                   'pooltype': pooltype, 'cache': cache}
 
     # CoW cache can only be enabled or disabled for pools where primary cache
     # is enabled.
@@ -233,7 +244,8 @@ def create_raid10_pool(session, display_name, drives, pooltype,
 
     path = '/api/pools.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def delete_pool(session, pool_id, return_type=None):
@@ -295,7 +307,8 @@ def rename_pool(session, pool_id, display_name, return_type=None):
 
     path = '/api/pools/{0}/rename.json'.format(pool_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def get_raid_groups_in_pool(session, pool_id, start=None, limit=None,
@@ -330,7 +343,8 @@ def get_raid_groups_in_pool(session, pool_id, start=None, limit=None,
 
     path = '/api/pools/{0}/raid_groups.json'.format(pool_id)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_volumes_in_pool(session, pool_id, start=None, limit=None,
@@ -365,7 +379,8 @@ def get_volumes_in_pool(session, pool_id, start=None, limit=None,
 
     path = '/api/pools/{0}/volumes.json'.format(pool_id)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def add_raid_groups_to_pool(session, pool_id, raid_groups, capacity,
@@ -405,11 +420,13 @@ def add_raid_groups_to_pool(session, pool_id, raid_groups, capacity,
     verify_raid_groups(raid_groups)
     capacity = verify_capacity(capacity, "Storage pool")
 
-    body_values = {'raid_groups': raid_groups, 'capacity': '{0}G'.format(capacity)}
+    body_values = {'raid_groups': raid_groups,
+                   'capacity': '{0}G'.format(capacity)}
 
     path = '/api/pools/{0}/expand.json'.format(pool_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def update_pool_capacity_alerts(session, pool_id, capacityhistory=None,
@@ -463,7 +480,8 @@ def update_pool_capacity_alerts(session, pool_id, capacityhistory=None,
         return_type parameter.
     """
     verify_pool_id(pool_id)
-    capacityhistory = verify_positive_argument(capacityhistory, "capacityhistory")
+    capacityhistory = verify_positive_argument(capacityhistory,
+                                               "capacityhistory")
     alertmode = verify_positive_argument(alertmode, "alertmode")
     protectedmode = verify_positive_argument(protectedmode, "protectedmode")
     emergencymode = verify_positive_argument(emergencymode, "emergencymode")
@@ -488,7 +506,8 @@ def update_pool_capacity_alerts(session, pool_id, capacityhistory=None,
 
     path = '/api/pools/{0}/update_protection.json'.format(pool_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def get_pool_mirror_destination_volumes(session, pool_id, start=None,
@@ -523,7 +542,8 @@ def get_pool_mirror_destination_volumes(session, pool_id, start=None,
 
     path = '/api/pools/{0}/destination_volumes.json'.format(pool_id)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def set_pool_cache(session, pool_id, cache, return_type=None):
@@ -557,7 +577,8 @@ def set_pool_cache(session, pool_id, cache, return_type=None):
 
     path = '/api/pools/{0}/toggle_cache.json'.format(pool_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def set_pool_cowcache(session, pool_id, cowcache, return_type=None):
@@ -594,7 +615,8 @@ def set_pool_cowcache(session, pool_id, cowcache, return_type=None):
 
     path = '/api/pools/{0}/cow_cache.json'.format(pool_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def get_volumes_in_pool_recycle_bin(session, pool_id, start=None, limit=None,
@@ -629,7 +651,8 @@ def get_volumes_in_pool_recycle_bin(session, pool_id, start=None, limit=None,
 
     path = '/api/pools/{0}/volumes_in_recycle_bin.json'.format(pool_id)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_pool_performance(session, pool_id, interval=1, return_type=None):
@@ -663,7 +686,8 @@ def get_pool_performance(session, pool_id, interval=1, return_type=None):
 
     parameters = {'interval': interval}
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 """
@@ -704,34 +728,36 @@ def update_protection(session, pool_id, alertmode=None,
         example: 'pool-00000001'.  Required.
 
     :type capacityhistory: str
-    :param capacityhistory: Window size in minutes which is used to calculate the rate of
-    which free Pool capacity  is consumed. This rate is used to calculate the estimated
-    time until a Pool is full.
+    :param capacityhistory: Window size in minutes which is used to calculate
+    the rate of which free Pool capacity  is consumed. This rate is used to
+    calculate the estimated time until a Pool is full.
 
     :type effectivecapacityhistory: str
-    :param effectivecapacityhistory: Window size in minutes which is used to calculate the
-    rate of which free Pool effective capacity is consumed. This rate is used to calculate
-    the estimated time until a Pool is full.
+    :param effectivecapacityhistory: Window size in minutes which is used to
+     calculate the rate of which free Pool effective capacity is consumed.
+     This rate is used to calculate the estimated time until a Pool is full.
 
     :type effectiveprotectedmode: str
-    :param effectiveprotectedmode: Block Volume/Share/Pool creation when it's estimated
-    that the Pool effective capacity will be full in this many minutes.
+    :param effectiveprotectedmode: Block Volume/Share/Pool creation when it's
+    estimated that the Pool effective capacity will be full in this many
+    minutes.
 
     :type effectiveemergencymode: str
-    :param effectiveemergencymode: Delete snapshots, starting with the oldest, when the
-    Pool effective capacity has less than this number of GB left.
+    :param effectiveemergencymode: Delete snapshots, starting with the oldest,
+    when the Pool effective capacity has less than this number of GB left.
 
     :type alertmode: int
-    :param alertmode: Send an alert when it is estimated that the Pool will be at
-    full capacity in this many minutes.
+    :param alertmode: Send an alert when it is estimated that the Pool will be
+     at full capacity in this many minutes.
 
     :type emergencymode: int
-    :param emergencymode: Delete snapshots, starting with the oldest, when the Volume
-    has less than this number of GB left.
+    :param emergencymode: Delete snapshots, starting with the oldest, when the
+     Volume has less than this number of GB left.
 
     :type capacityhistory: int
-    :param capacityhistory: Window size in minutes which is used to calculate the rate of which free Volume
-    capacity is consumed. This rate is used to calculate the estimated time until a Volume is full
+    :param capacityhistory: Window size in minutes which is used to calculate
+    the rate of which free Volume capacity is consumed. This rate is used to
+     calculate the estimated time until a Volume is full
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -800,7 +826,8 @@ def pool_shrink(session, pool_id, raid_group_id, return_type=None):
     verify_raid_groups(raid_groups=raid_group_id)
     path = "/api/pools/{0}/shrink.json".format(pool_id)
     body_values = {'raid_group': raid_group_id}
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def cancel_pool_shrink(session, pool_id, raid_group_id, return_type=None):
@@ -862,5 +889,7 @@ def expand_pool(session, pool_id, raid_groups_ids, capacity, return_type=None):
     verify_raid_groups(raid_groups=raid_groups_ids)
 
     path = "/api/pools/{0}/expand.json".format(pool_id)
-    body_values = {"capacity": "{}G".format(capacity), "raid_groups": raid_groups_ids}
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    body_values = {"capacity": "{}G".format(capacity),
+                   "raid_groups": raid_groups_ids}
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)

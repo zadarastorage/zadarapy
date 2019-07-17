@@ -14,7 +14,11 @@
 # under the License.
 import json
 
-from zadarapy.validators import *
+from zadarapy.validators import verify_boolean, \
+    verify_field, verify_start_limit, verify_volume_id, verify_zcs_image_id, \
+    is_valid_field, verify_zcs_container_id, \
+    verify_memory_pool, is_valid_volume_id
+from zadarapy.vpsa import ERROR_MSG
 
 
 def get_all_zcs_images(session, start=None, limit=None, return_type=None):
@@ -43,7 +47,8 @@ def get_all_zcs_images(session, start=None, limit=None, return_type=None):
     parameters = verify_start_limit(start, limit)
     path = '/api/images.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_zcs_image(session, zcs_image_id, return_type=None):
@@ -113,7 +118,8 @@ def create_zcs_image(session, display_name, path, volume_id=None,
 
     body_values = {'name': display_name, 'path': path}
 
-    # We'll inflect the required "mode" parameter by detecting if volume_id is defined.
+    # We'll inflect the required "mode" parameter by detecting if volume_id
+    # is defined.
     if volume_id is not None:
         verify_volume_id(volume_id)
         body_values['mode'] = 'volume'
@@ -124,11 +130,12 @@ def create_zcs_image(session, display_name, path, volume_id=None,
     path = '/api/images.json'
 
     try:
-        res = session.post_api(path=path, body=body_values, return_type=return_type)
+        res = session.post_api(path=path, body=body_values,
+                               return_type=return_type)
     except RuntimeError as exc:
         err = str(exc)
         # The API server returned an error: "The request has been submitted".
-        if err.startswith('The API server returned an error: "The request has been submitted'):
+        if err.startswith(ERROR_MSG):
             res = {'response': {"status": 0}}
         else:
             raise
@@ -198,7 +205,8 @@ def get_all_zcs_containers_by_image(session, zcs_image_id, start=None,
 
     path = '/api/images/{0}/containers.json'.format(zcs_image_id)
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_all_zcs_containers(session, start=None, limit=None, return_type=None):
@@ -229,7 +237,8 @@ def get_all_zcs_containers(session, start=None, limit=None, return_type=None):
 
     path = '/api/containers.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_zcs_container(session, zcs_container_id, return_type=None):
@@ -261,7 +270,8 @@ def get_zcs_container(session, zcs_container_id, return_type=None):
 
 def create_zcs_container(session, display_name, zcs_image_id, start,
                          use_public_ip='NO', entrypoint=None, volumes=None,
-                         args=None, envvars=None, memorypoolname=None, return_type=None):
+                         args=None, envvars=None, memorypoolname=None,
+                         return_type=None):
     """
     Creates a Zadara Container Services (ZCS) container.  Requires a valid ZCS
     image to instantiate from.
@@ -360,7 +370,7 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
          {"variable":"PASSWORD","value":"very_strong_password"}]
 
     :type memorypoolname: str
-    :param memorypoolname: TODO: Memory Pool ID
+    :param memorypoolname: Memory Pool ID
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -375,7 +385,8 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
     verify_zcs_image_id(zcs_image_id)
     start = verify_boolean(start, "start")
     use_public_ip = verify_boolean(use_public_ip, "use_public_ip")
-    body_values = {'name': display_name, 'imagename': zcs_image_id, 'start': start, 'use_public_ip': use_public_ip,
+    body_values = {'name': display_name, 'imagename': zcs_image_id,
+                   'start': start, 'use_public_ip': use_public_ip,
                    'entrypoint': entrypoint}
 
     if volumes is not None:
@@ -487,7 +498,8 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
 
     path = '/api/containers.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def start_zcs_container(session, zcs_container_id, return_type=None):
@@ -546,7 +558,7 @@ def stop_zcs_container(session, zcs_container_id, return_type=None):
     except RuntimeError as exc:
         err = str(exc)
         # The API server returned an error: "The request has been submitted".
-        if err.startswith('The API server returned an error: "The request has been submitted'):
+        if err.startswith(ERROR_MSG):
             res = {'response': {"status": 0}}
         else:
             raise
@@ -584,7 +596,7 @@ def delete_zcs_container(session, zcs_container_id, return_type=None):
     except RuntimeError as exc:
         err = str(exc)
         # The API server returned an error: "The request has been submitted".
-        if err.startswith('The API server returned an error: "The request has been submitted'):
+        if err.startswith(ERROR_MSG):
             res = {'response': {"status": 0}}
         else:
             raise
@@ -627,8 +639,8 @@ def get_memory_pool(session, mempool_id, return_type=None):
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type mempool_id: str
-    :param mempool_id: The memory pool 'name' value as returned by get_all_memory_pools.
-        For example: 'dgroup-00000001'.  Required.
+    :param mempool_id: The memory pool 'name' value as returned by
+    get_all_memory_pools. For example: 'dgroup-00000001'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -674,8 +686,8 @@ def delete_memory_pool(session, mempool_id, return_type=None):
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type mempool_id: str
-    :param mempool_id: The memory pool 'name' value as returned by get_all_memory_pools.
-        For example: 'dgroup-00000001'.  Required.
+    :param mempool_id: The memory pool 'name' value as returned by
+    get_all_memory_pools. For example: 'dgroup-00000001'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -683,7 +695,8 @@ def delete_memory_pool(session, mempool_id, return_type=None):
             dictionary.  Optional (will return a Python dictionary by default).
 
     :rtype: dict, str
-    :returns: A dictionary or JSON data set as a string depending on return_type parameter.
+    :returns: A dictionary or JSON data set as a string depending on
+    return_type parameter.
     """
     verify_memory_pool(mempool_id)
 
@@ -709,7 +722,8 @@ def create_mem_pool(session, display_name, mb, return_type=None):
             dictionary.  Optional (will return a Python dictionary by default).
 
     :rtype: dict, str
-    :returns: A dictionary or JSON data set as a string depending on return_type parameter.
+    :returns: A dictionary or JSON data set as a string depending on
+    return_type parameter.
     """
     display_name = verify_field(display_name, "display_name")
 
@@ -717,4 +731,5 @@ def create_mem_pool(session, display_name, mb, return_type=None):
 
     body_values = {'name': display_name, 'mb': mb}
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)

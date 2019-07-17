@@ -12,10 +12,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 from zadarapy.validators import verify_start_limit_sort_severity
 
 
-def get_logs(session, sort='DESC', severity=None, start=None, limit=None, return_type=None):
+def get_logs(session, sort='DESC', severity=None, start=None, limit=None,
+             return_type=None):
     """
     Retrieves logs from the VPSA.
 
@@ -52,4 +54,5 @@ def get_logs(session, sort='DESC', severity=None, start=None, limit=None, return
 
     path = '/api/messages.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)

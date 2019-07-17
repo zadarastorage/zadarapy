@@ -29,14 +29,16 @@ def get_account(session, account_id, return_type=None):
 def add_new_account(session, name, return_type=None):
     path = "/api/zios/accounts.json"
     body_values = {'name': name}
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def delete_account(session, account_id, force="NO", return_type=None):
     verify_account_id(account_id=account_id)
     path = "/api/zios/accounts/{0}.json".format(account_id)
     body_values = {'force': force}
-    return session.delete_api(path=path, body=body_values, return_type=return_type)
+    return session.delete_api(path=path, body=body_values,
+                              return_type=return_type)
 
 
 def cleanup_account(session, account_id, return_type=None):

@@ -30,4 +30,5 @@ def ssl_termination(session, is_terminate, return_type=None):
     """
     path = "/api/zios/settings/ssl_termination.json"
     body_values = {"ssltermination": "on" if is_terminate else "off"}
-    return session.port_api(path=path, bool=body_values, return_type=return_type)
+    return session.port_api(path=path, bool=body_values,
+                            return_type=return_type)

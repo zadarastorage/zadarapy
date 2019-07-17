@@ -18,12 +18,17 @@ from future.standard_library import install_aliases
 
 install_aliases()
 
-from zadarapy.validators import verify_start_limit, verify_name, verify_string, verify_group_name, \
-    verify_boolean, verify_field, verify_not_none
+from zadarapy.validators import verify_start_limit, verify_name, \
+    verify_string, verify_group_name, verify_boolean, verify_field, \
+    verify_not_none
 
-__all__ = ["get_active_directory", "get_all_nas_groups", "get_all_nas_users", "get_nas_user", "get_nas_group",
-           "create_nas_group", "create_nas_user", "change_nas_user_smb_password", "delete_nas_group", "delete_nas_user",
-           "join_active_directory", "leave_active_directory", "update_active_directory_dns"]
+__all__ = ["get_active_directory", "get_all_nas_groups", "get_all_nas_users",
+           "get_nas_user", "get_nas_group",
+           "create_nas_group", "create_nas_user",
+           "change_nas_user_smb_password", "delete_nas_group",
+           "delete_nas_user",
+           "join_active_directory", "leave_active_directory",
+           "update_active_directory_dns"]
 
 
 def get_all_nas_users(session, start=None, limit=None, return_type=None):
@@ -52,7 +57,8 @@ def get_all_nas_users(session, start=None, limit=None, return_type=None):
 
     path = '/api/nas/users.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_nas_user(session, username, return_type=None):
@@ -141,7 +147,8 @@ def create_nas_user(session, username, nfs_uid=None, smb_password=None,
 
     path = '/api/nas/users.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def change_nas_user_smb_password(session, username, smb_password,
@@ -175,7 +182,8 @@ def change_nas_user_smb_password(session, username, smb_password,
 
     path = '/api/nas/users/{0}/password.json'.format(username)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def delete_nas_user(session, username, return_type=None):
@@ -230,7 +238,8 @@ def get_all_nas_groups(session, start=None, limit=None, return_type=None):
 
     path = '/api/nas/groups.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_nas_group(session, groupname, return_type=None):
@@ -302,7 +311,8 @@ def create_nas_group(session, groupname, nfs_gid=None, smb='NO',
 
     path = '/api/nas/groups.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def delete_nas_group(session, groupname, return_type=None):
@@ -405,12 +415,14 @@ def join_active_directory(session, display_name, username, password,
     verify_not_none(netbios_name, 'netbios_name')
     _check_dns(dns)
 
-    body_values = {'adserver': display_name, 'username': username, 'password': password, 'realm': dns_domain,
+    body_values = {'adserver': display_name, 'username': username,
+                   'password': password, 'realm': dns_domain,
                    'workgroup': netbios_name, 'dns': dns}
 
     path = '/api/active_directory.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def update_active_directory_dns(session, dns, return_type=None):
@@ -440,7 +452,8 @@ def update_active_directory_dns(session, dns, return_type=None):
 
     path = '/api/active_directory/dns.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def leave_active_directory(session, username, password, return_type=None):
@@ -474,7 +487,8 @@ def leave_active_directory(session, username, password, return_type=None):
 
     path = '/api/active_directory/reset.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 """

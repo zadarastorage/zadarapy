@@ -22,8 +22,8 @@ from pprint import pprint
 from terminaltables import AsciiTable
 from terminaltables import SingleTable
 
-from zadarapy import session
 from zadarapy import __version__
+from zadarapy import session
 from zadarapy.provisioning_portal import cloud
 from zadarapy.provisioning_portal import vpsa
 from zadarapy.vpsa import container_services
@@ -414,7 +414,7 @@ ROS_RESTORE_MODE_OPTION = {
                 'attached to servers only after the volume\'s data was fully '
                 'retrieved from object storage; use this mode to import '
                 'initial data seed for remote mirroring.  Required.'
-        }
+    }
 }
 
 SERVER_ID_OPTION = {
@@ -756,7 +756,6 @@ ZCS_IMAGE_ID_OPTION = {
                 '"img-00000001".  Required.'
     }
 }
-
 
 COMMANDS_DICT = [
     {
@@ -1322,7 +1321,7 @@ COMMANDS_DICT = [
                                     'specified policies.  Can be more than '
                                     'one policy, comma separated, with no '
                                     'spaces.  Required.'
-                            }
+                        }
                     },
                     REMOTE_POOL_ID_OPTION,
                     {
@@ -3263,7 +3262,7 @@ COMMANDS_DICT = [
                             'metavar': '<xxx>',
                             'type': str,
                             'help': 'The comment to add to the ticket'
-                            }
+                        }
                     }
                 ],
                 'subcommand_return_key': None,
@@ -3282,7 +3281,7 @@ COMMANDS_DICT = [
                             'help': 'The subject for the ticket (analogous '
                                     'to an e-mail subject).  For example: '
                                     '"Help With Expanding Pool"'
-                            }
+                        }
                     },
                     {
                         'option_positional': ['--description'],
@@ -3295,7 +3294,7 @@ COMMANDS_DICT = [
                                     '"I would like more information on best '
                                     'practices for expanding my "pool1" '
                                     'storage pool."'
-                            }
+                        }
                     }
                 ],
                 'subcommand_return_key': 'ticket_id',
@@ -3365,7 +3364,7 @@ COMMANDS_DICT = [
                                     'snapshot is specified, the clone will '
                                     'be taken from the current volume '
                                     'contents.  Optional.'
-                            }
+                        }
                     }
                 ],
                 'subcommand_return_key': None,
@@ -4143,24 +4142,22 @@ def main():
                             # if the response is empty
                             if 'response' in result:
                                 try:
-                                    data = (result['response']
-                                            [subcommand
-                                            ['subcommand_return_key']])
+                                    sub = subcommand['subcommand_return_key']
+                                    data = result['response'][sub]
                                 except KeyError:
                                     print('An empty result set was returned')
                                     sys.exit(0)
                             else:
                                 try:
-                                    data = (result[subcommand
-                                            ['subcommand_return_key']])
+                                    sub = subcommand['subcommand_return_key']
+                                    data = result[sub]
                                 except KeyError:
                                     print('An empty result set was returned')
                                     sys.exit(0)
 
                             if parsed_args['fields'] is not None:
                                 fields = [x.strip() for x in
-                                          parsed_args['fields']
-                                          .split(',')]
+                                          parsed_args['fields'].split(',')]
 
                                 response = []
 

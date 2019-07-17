@@ -12,13 +12,14 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from urllib.parse import quote
 
 from future.standard_library import install_aliases
 
 install_aliases()
 
-from zadarapy.validators import *
+from zadarapy.validators import verify_field, verify_start_limit, \
+    verify_email
 
 
 def get_all_vpsa_users(session, start=None, limit=None, return_type=None):
@@ -49,7 +50,8 @@ def get_all_vpsa_users(session, start=None, limit=None, return_type=None):
 
     path = '/api/users.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def create_vpsa_user(session, username, email, return_type=None):
@@ -83,7 +85,8 @@ def create_vpsa_user(session, username, email, return_type=None):
 
     path = '/api/users.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def delete_vpsa_user(session, username, return_type=None):
@@ -143,7 +146,8 @@ def get_vpsa_user_api_key(session, username, password, return_type=None):
 
     path = '/api/users/login.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def reset_vpsa_user_api_key(session, username, return_type=None):
@@ -204,14 +208,17 @@ def change_vpsa_user_password_by_password(session, username,
         return_type parameter.
     """
     username = verify_field(username, "username")
-    existing_password = verify_field(existing_password, "existing_password", allow_quote=True)
+    existing_password = verify_field(existing_password, "existing_password",
+                                     allow_quote=True)
     new_password = verify_field(new_password, "new_password", allow_quote=True)
 
-    body_values = {'user': username, 'password': existing_password, 'new_password': new_password}
+    body_values = {'user': username, 'password': existing_password,
+                   'new_password': new_password}
 
     path = '/api/users/password.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def change_vpsa_user_password_by_code(session, username, code, new_password,
@@ -251,7 +258,8 @@ def change_vpsa_user_password_by_code(session, username, code, new_password,
 
     path = '/api/users/{0}/password_code.json'.format(username)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def generate_vpsa_user_password_reset_code(session, username,
@@ -281,7 +289,8 @@ def generate_vpsa_user_password_reset_code(session, username,
 
     path = '/api/users/reset_password.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def enable_cloud_admin_access(session, confirm, return_type=None):

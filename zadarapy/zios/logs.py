@@ -12,10 +12,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from zadarapy.validators import verify_start_limit_sort_severity
+from zadarapy.validators import verify_start_limit_sort_severity, \
+    verify_start_limit
 
 
-def get_logs(session, severity, attr_key, attr_value, start=None, limit=None, return_type=None):
+def get_logs(session, severity, attr_key, attr_value, start=None, limit=None,
+             return_type=None):
     """
     Retrieves event logs from ZIOS.
 
@@ -49,15 +51,21 @@ def get_logs(session, severity, attr_key, attr_value, start=None, limit=None, re
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    # parameters = verify_start_limit_sort_severity(start, limit, sort, severity)
+    list_more_options = [('severity', severity),
+                         ('attr_key', attr_key),
+                         ('attr_value', attr_value)]
+
+    parameters = verify_start_limit(start, limit, list_more_options)
 
     path = '/api/messages.json'
     body_values = {}
 
-    return session.get_api(path=path, body=body_values, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters, body=body_values,
+                           return_type=return_type)
 
 
-def get_access_logs(session, sort='DESC', severity=None, start=None, limit=None, return_type=None):
+def get_access_logs(session, sort='DESC', severity=None, start=None,
+                    limit=None, return_type=None):
     """
     Retrieves accesss logs from the ZIOS.
 
@@ -92,4 +100,5 @@ def get_access_logs(session, sort='DESC', severity=None, start=None, limit=None,
     """
     parameters = verify_start_limit_sort_severity(start, limit, sort, severity)
     path = "/api/access_logs.json"
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)

@@ -14,7 +14,7 @@
 # under the License.
 
 
-from zadarapy.validators import *
+from zadarapy.validators import verify_field, verify_vpsa_id
 
 
 def upgrade_vpsa_version(session, cloud_name, vpsa_id, image, when=None,
@@ -64,11 +64,230 @@ def upgrade_vpsa_version(session, cloud_name, vpsa_id, image, when=None,
     if when is not None:
         body_values['when'] = verify_field(when, "when")
 
-    method = 'POST'
     path = '/api/clouds/{0}/vpsas/{1}/upgrade.json'.format(cloud_name, vpsa_id)
 
-    return session.call_api(method=method, path=path, body=body_values,
+    return session.post_api(path=path, body=body_values,
                             return_type=return_type)
+
+
+def resume_upgrade(session, cloud_name, vpsa_id, return_type=None):
+    """
+    Resume VPSA Upgrade
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type vpsa_id: int
+    :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+        example: '2653'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_vpsa_id(vpsa_id)
+    path = "/api/clouds/{0}/vpsas/{1}/resume_waiting.json"\
+        .format(cloud_name, vpsa_id)
+    return session.post_api(path=path, return_type=return_type)
+
+
+def hibernate_vpsa(session, cloud_name, vpsa_id, return_type=None):
+    """
+    Hibernate VPSA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type vpsa_id: int
+    :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+        example: '2653'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_vpsa_id(vpsa_id)
+
+    path = "/api/clouds/{0}/vpsas/{1}/hibernate.json"\
+        .format(cloud_name, vpsa_id)
+
+    return session.post_api(path=path, return_type=return_type)
+
+
+def create_zsnap(session, cloud_name, vpsa_id, prefix, return_type=None):
+    """
+    Create Zsnap from CC.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type vpsa_id: int
+    :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+        example: '2653'.  Required.
+
+    :type prefix: str
+    :param prefix: Z-Snap prefix
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    vpsa_id = verify_vpsa_id(vpsa_id)
+
+    path = "/api/clouds/{0}/vpsas/{1}/zsnap.json"\
+        .format(cloud_name, vpsa_id)
+
+    body_values = {'prefix': prefix}
+
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
+
+
+def assign_public_ip(session, cloud_name, vpsa_id, return_type=None):
+    """
+    Assign VPSA public IP
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type vpsa_id: int
+    :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+        example: '2653'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    vpsa_id = verify_vpsa_id(vpsa_id)
+
+    path = "/api/clouds/{0}/vpsas/{1}/public_ip/assign.json"\
+        .format(cloud_name, vpsa_id)
+
+    return session.post_api(path=path, return_type=return_type)
+
+
+def unassign_public_ip(session, cloud_name, vpsa_id, return_type=None):
+    """
+    Unassign VPSA public IP
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type vpsa_id: int
+    :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+        example: '2653'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    vpsa_id = verify_vpsa_id(vpsa_id)
+
+    path = "/api/clouds/{0}/vpsas/{1}/public_ip/unassign.json"\
+        .format(cloud_name, vpsa_id)
+
+    return session.post_api(path=path, return_type=return_type)
+
+
+def get_all_vpsas(session, cloud_name, return_type=None):
+    """
+    Get all VPSAs in cloud
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{0}/vpsas.json".format(cloud_name)
+    return session.get_api(path=path, return_type=return_type)
+
+
+def failover_vpsa(session, cloud_name, vpsa_id, return_type=None):
+    """
+    Failover VPSA
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type vpsa_id: int
+    :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+        example: '2653'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_vpsa_id(vpsa_id=vpsa_id)
+
+    path = "/api/clouds/{0}/vpsas/{1}/failover.json"\
+        .format(cloud_name, vpsa_id)
+
+    return session.post_api(path=path, return_type=return_type)
 
 
 def get_all_vpsa_drives(session, cloud_name, vpsa_id, return_type=None):
@@ -125,7 +344,8 @@ def get_app_engine(session, cloud_name, app_engine_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/clouds/{0}/app_engine_types/{1}.json".format(cloud_name, app_engine_id)
+    path = "/api/clouds/{0}/app_engine_types/{1}.json"\
+        .format(cloud_name, app_engine_id)
 
     return session.get_api(path=path, return_type=return_type)
 
@@ -153,12 +373,14 @@ def get_io_engine(session, cloud_name, app_io_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/clouds/{0}/engine_types/{1}.json".format(cloud_name, app_io_id)
+    path = "/api/clouds/{0}/engine_types/{1}.json"\
+        .format(cloud_name, app_io_id)
 
     return session.get_api(path=path, return_type=return_type)
 
 
-def reschedule_upgrade_vpsa(session, cloud_name, vpsa_id, when, return_type=None):
+def reschedule_upgrade_vpsa(session, cloud_name, vpsa_id, when,
+                            return_type=None):
     """
     Reschedule Upgrade VPSA
 
@@ -181,14 +403,18 @@ def reschedule_upgrade_vpsa(session, cloud_name, vpsa_id, when, return_type=None
             dictionary.  Optional (will return a Python dictionary by default).
 
     :rtype: dict, str
-    :returns: A dictionary or JSON data set as a string depending on return_type parameter.
+    :returns: A dictionary or JSON data set as a string depending on
+    return_type parameter.
     """
-    path = "/api/clouds/{0}/vpsas/{1}/reschedule_upgrade.json".format(cloud_name, vpsa_id)
+    path = "/api/clouds/{0}/vpsas/{1}/reschedule_upgrade.json"\
+        .format(cloud_name, vpsa_id)
     body_values = {"when": when}
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
-def change_engine_type(session, cloud_name, vpsa_id, when, app_engine_type=None, engine_type=None, image=None,
+def change_engine_type(session, cloud_name, vpsa_id, when,
+                       app_engine_type=None, engine_type=None, image=None,
                        return_type=None):
     """
     Change VPSA engine type
@@ -229,11 +455,13 @@ def change_engine_type(session, cloud_name, vpsa_id, when, app_engine_type=None,
             dictionary.  Optional (will return a Python dictionary by default).
 
     :rtype: dict, str
-    :returns: A dictionary or JSON data set as a string depending on return_type parameter.
+    :returns: A dictionary or JSON data set as a string depending on
+    return_type parameter.
     """
     verify_vpsa_id(vpsa_id)
 
-    path = "/api/clouds/{0}/vpsas/{1}/change_engine_type.json".format(cloud_name, vpsa_id)
+    path = "/api/clouds/{0}/vpsas/{1}/change_engine_type.json"\
+        .format(cloud_name, vpsa_id)
 
     body_values = {"when": when}
     if app_engine_type is not None:
@@ -243,4 +471,5 @@ def change_engine_type(session, cloud_name, vpsa_id, when, app_engine_type=None,
     if image is not None:
         body_values["image"] = image
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)

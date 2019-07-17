@@ -14,8 +14,9 @@
 # under the License.
 
 
-from zadarapy.session import Session
 import pytest
+
+from zadarapy.session import Session
 
 
 def test_session_invalid_hostname():
@@ -40,4 +41,3 @@ def test_session_port_too_high():
     zsession = Session(port=65536)
     with pytest.raises(ValueError):
         zsession.call_api(method='GET', path='/api/invalid.json')
-

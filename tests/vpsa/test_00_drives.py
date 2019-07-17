@@ -14,9 +14,11 @@
 # under the License.
 
 
-from zadarapy.validators import is_valid_volume_id
-from zadarapy.vpsa.drives import *
 import uuid
+
+from zadarapy.validators import is_valid_volume_id
+from zadarapy.vpsa.drives import get_free_drives, get_drive, rename_drive, \
+    get_drive_performance, cancel_shred_drive, shred_drive
 
 
 def test_get_all_drives(all_drives):
@@ -92,5 +94,5 @@ def test_get_drive_performance(zsession, all_drives):
 
     performance = get_drive_performance(zsession, drive_id)
 
-    assert performance['response']['count'] == \
-        len(performance['response']['usages'])
+    num_of_usages = len(performance['response']['usages'])
+    assert performance['response']['count'] == num_of_usages

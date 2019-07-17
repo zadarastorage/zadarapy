@@ -231,7 +231,8 @@ def get_tenant(session, cloud_name, cloud_user, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/clouds/{0}/cloud_users/{1}.json".format(cloud_name, cloud_user)
+    path = "/api/clouds/{0}/cloud_users/{1}.json"\
+        .format(cloud_name, cloud_user)
     return session.get_api(path=path, return_type=return_type)
 
 
@@ -413,7 +414,8 @@ def set_default_image(session, cloud_name, image_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/clouds/{0}/images/{1}/set_default.json".format(cloud_name, image_id)
+    path = "/api/clouds/{0}/images/{1}/set_default.json" \
+        .format(cloud_name, image_id)
     return session.post_api(path=path, return_type=return_type)
 
 
@@ -439,11 +441,13 @@ def delete_tenant(session, cloud_name, cloud_user, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/clouds/{0}/cloud_users/{1}/deallocate_vlan_id.json".format(cloud_name, cloud_user)
+    path = "/api/clouds/{0}/cloud_users/{1}/deallocate_vlan_id.json"\
+        .format(cloud_name, cloud_user)
     return session.delete_api(path=path, return_type=return_type)
 
 
-def allocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO", return_type=None):
+def allocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO",
+                  return_type=None):
     """
     Allocate VLAN from cloud user
 
@@ -473,14 +477,17 @@ def allocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO", return_t
     """
     force = verify_boolean(force, "force")
 
-    path = "/api/clouds/{0}/cloud_users/{1}/allocate_vlan_id.json".format(cloud_name, cloud_user)
+    path = "/api/clouds/{0}/cloud_users/{1}/allocate_vlan_id.json" \
+        .format(cloud_name, cloud_user)
 
     body_values = {"vlan_id": vlan_id, "force": force}
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
-def deallocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO", return_type=None):
+def deallocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO",
+                    return_type=None):
     """
     Allocate VLAN from cloud user
 
@@ -510,14 +517,17 @@ def deallocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO", return
     """
     force = verify_boolean(force, "force")
 
-    path = "/api/clouds/{0}/cloud_users/{1}/deallocate_vlan_id.json".format(cloud_name, cloud_user)
+    path = "/api/clouds/{0}/cloud_users/{1}/deallocate_vlan_id.json"\
+        .format(cloud_name, cloud_user)
 
     body_values = {"vlan_id": vlan_id, "force": force}
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
-def get_vpsa_settings(session, cloud_name, vpsa_id, section=None, return_type=None):
+def get_vpsa_settings(session, cloud_name, vpsa_id, section=None,
+                      return_type=None):
     """
     Returns VPSA info from Command Center
 
@@ -549,4 +559,64 @@ def get_vpsa_settings(session, cloud_name, vpsa_id, section=None, return_type=No
     if section is not None:
         parameters = {"section": section}
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
+
+
+def get_all_images(session, cloud_name, page, per_page, return_type=None):
+    """
+    Returns all build images found in cloud
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type page: int
+    :param page: The page number to start from.
+
+    :type per_page: int
+    :param per_page: The total number of records to return.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+
+    path = "/api/clouds/{cloud_name}/images".format(cloud_name=cloud_name)
+    parameters = {'page': page, 'per_page': per_page}
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
+
+
+def get_image(session, cloud_name, image_id, return_type=None):
+    """
+    Set default Image
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type image_id: str
+    :param image_id: Image ID
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{cloud_name}/images/{id}"\
+        .format(cloud_name=cloud_name, id=image_id)
+    return session.get_api(path=path, return_type=return_type)

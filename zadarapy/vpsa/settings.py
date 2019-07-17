@@ -14,7 +14,9 @@
 # under the License.
 
 
-from zadarapy.validators import *
+from zadarapy.validators import verify_boolean, \
+    verify_pool_id, verify_read_mode, verify_charset, verify_not_none, \
+    verify_low_high_port
 
 
 def get_vpsa_config(session, return_type=None):
@@ -35,6 +37,26 @@ def get_vpsa_config(session, return_type=None):
     """
     path = '/api/config.json'
 
+    return session.get_api(path=path, return_type=return_type)
+
+
+def settings_config(session, return_type=None):
+    """
+    Retrieves current settings configuration details for the VPSA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/return_type.json'
     return session.get_api(path=path, return_type=return_type)
 
 
@@ -85,7 +107,8 @@ def set_nfs_domain(session, domain, return_type=None):
 
     path = '/api/settings/nfs_domain.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def set_multizone_read_mode(session, read_mode, return_type=None):
@@ -115,7 +138,8 @@ def set_multizone_read_mode(session, read_mode, return_type=None):
 
     path = '/api/settings/raid_read_mode.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def set_smb_charset(session, charset, force='NO', return_type=None):
@@ -152,7 +176,8 @@ def set_smb_charset(session, charset, force='NO', return_type=None):
 
     path = '/api/settings/smb_charset.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def set_smb_trusted_domains(session, allow_trusted_domains, force='NO',
@@ -184,14 +209,16 @@ def set_smb_trusted_domains(session, allow_trusted_domains, force='NO',
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    allow_trusted_domains = verify_boolean(allow_trusted_domains, "allow_trusted_domains")
+    allow_trusted_domains = verify_boolean(allow_trusted_domains,
+                                           "allow_trusted_domains")
     force = verify_boolean(force, "force")
 
     body_values = {'allow': allow_trusted_domains, 'force': force}
 
     path = '/api/settings/smb_trusted_domains.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def set_recycle_bin(session, recycle_bin, return_type=None):
@@ -223,7 +250,8 @@ def set_recycle_bin(session, recycle_bin, return_type=None):
 
     path = '/api/settings/set_recycle_bin.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def get_public_ip(session, return_type=None):
@@ -247,7 +275,8 @@ def get_public_ip(session, return_type=None):
     return session.get_api(path=path, return_type=return_type)
 
 
-def set_encryption_password(session, password, old_password=None, return_type=None):
+def set_encryption_password(session, password, old_password=None,
+                            return_type=None):
     """
     Sets the encryption password globally on the VPSA.  This password is used
     when enabling the encryption option for a volume.  CAUTION: THIS PASSWORD
@@ -263,8 +292,8 @@ def set_encryption_password(session, password, old_password=None, return_type=No
         the warning above carefully).  Required.
 
     :type old_password: str
-    :param old_password: The old encryption password to set for the VPSA (please read
-        the warning above carefully).  Required.
+    :param old_password: The old encryption password to set for the VPSA
+    (please read the warning above carefully).  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -283,7 +312,8 @@ def set_encryption_password(session, password, old_password=None, return_type=No
 
     path = '/api/settings/encryption.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def restore_encryption_password(session, password, return_type=None):
@@ -314,7 +344,8 @@ def restore_encryption_password(session, password, return_type=None):
 
     path = '/api/settings/restore_encryption.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def get_zcs_settings(session, return_type=None):
@@ -376,11 +407,13 @@ def update_zcs_settings(session, network, lowport, highport,
     """
     verify_low_high_port(lowport, highport)
 
-    body_values = {'network': network, 'lowport': lowport, 'highport': highport}
+    body_values = {'network': network, 'lowport': lowport,
+                   'highport': highport}
 
     path = '/api/settings/container_service.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def create_zcs_image_repository(session, pool_id, return_type=None):
@@ -411,7 +444,8 @@ def create_zcs_image_repository(session, pool_id, return_type=None):
 
     path = '/api/settings/create_images_repository.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def migrate_zcs_image_repository(session, pool_id, return_type=None):
@@ -442,7 +476,8 @@ def migrate_zcs_image_repository(session, pool_id, return_type=None):
 
     path = '/api/settings/migrate_images_repository.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def delete_zcs_image_repository(session, confirm, return_type=None):
@@ -577,5 +612,3 @@ def stop_defrag(session, return_type=None):
     path = '/api/settings/defrag_stop.json'
 
     return session.post_api(path=path, return_type=return_type)
-
-

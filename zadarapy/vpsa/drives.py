@@ -14,8 +14,8 @@
 # under the License.
 
 
-from zadarapy.validators import verify_boolean, verify_interval
-from zadarapy.validators import verify_start_limit, verify_volume_id, verify_field
+from zadarapy.validators import verify_boolean, \
+    verify_field, verify_start_limit, verify_volume_id, verify_interval
 
 
 def get_all_drives(session, start=None, limit=None, return_type=None):
@@ -44,7 +44,8 @@ def get_all_drives(session, start=None, limit=None, return_type=None):
 
     path = '/api/drives.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_free_drives(session, start=None, limit=None, return_type=None):
@@ -74,7 +75,8 @@ def get_free_drives(session, start=None, limit=None, return_type=None):
 
     path = '/api/drives/free.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_drive(session, drive_id, return_type=None):
@@ -135,7 +137,8 @@ def rename_drive(session, drive_id, display_name, return_type=None):
 
     path = '/api/drives/{0}/rename.json'.format(drive_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def remove_drive(session, drive_id, return_type=None):
@@ -166,7 +169,8 @@ def remove_drive(session, drive_id, return_type=None):
     return session.post_api(path=path, return_type=return_type)
 
 
-def replace_drive(session, drive_id, to_drive_id, force='NO', return_type=None):
+def replace_drive(session, drive_id, to_drive_id, force='NO',
+                  return_type=None):
     """
     Replaces a drive, identified by drive_id parameter, with a new unallocated
     drive, identified by to_drive_id parameter, in a RAID group.  The
@@ -207,7 +211,8 @@ def replace_drive(session, drive_id, to_drive_id, force='NO', return_type=None):
 
     path = '/api/drives/{0}/replace.json'.format(drive_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def shred_drive(session, drive_id, force='NO', return_type=None):
@@ -244,7 +249,8 @@ def shred_drive(session, drive_id, force='NO', return_type=None):
 
     path = '/api/drives/{0}/shred.json'.format(drive_id)
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
 def cancel_shred_drive(session, drive_id, return_type=None):
@@ -305,4 +311,5 @@ def get_drive_performance(session, drive_id, interval=1, return_type=None):
 
     parameters = {'interval': interval}
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)

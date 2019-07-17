@@ -13,8 +13,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-from zadarapy.validators import *
+from zadarapy.validators import verify_boolean, \
+    verify_start_limit, verify_interval, verify_controller_id
 
 
 def get_all_controllers(session, start=None, limit=None, return_type=None):
@@ -43,7 +43,8 @@ def get_all_controllers(session, start=None, limit=None, return_type=None):
 
     path = '/api/vcontrollers.json'
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def failover_controller(session, confirm, force='NO', return_type=None):
@@ -73,7 +74,8 @@ def failover_controller(session, confirm, force='NO', return_type=None):
         return_type parameter.
     """
     if not confirm:
-        raise ValueError('The confirm parameter is not set to True - failover will not be performed.')
+        raise ValueError('The confirm parameter is not set to True - '
+                         'failover will not be performed.')
 
     force = verify_boolean(force, "force")
 
@@ -81,10 +83,12 @@ def failover_controller(session, confirm, force='NO', return_type=None):
 
     path = '/api/vcontrollers/failover.json'
 
-    return session.post_api(path=path, body=body_values, return_type=return_type)
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type)
 
 
-def get_controller_performance(session, controller_id, interval=1, return_type=None):
+def get_controller_performance(session, controller_id, interval=1,
+                               return_type=None):
     """
     Retrieves metering statistics for the controller for the specified
     interval.  Default interval is one second.
@@ -115,7 +119,8 @@ def get_controller_performance(session, controller_id, interval=1, return_type=N
 
     parameters = {'interval': interval}
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_cache_performance(session, interval=1, return_type=None):
@@ -144,7 +149,8 @@ def get_cache_performance(session, interval=1, return_type=None):
 
     parameters = {'interval': interval}
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
 
 
 def get_cache_stats(session, interval=1, return_type=None):
@@ -173,4 +179,5 @@ def get_cache_stats(session, interval=1, return_type=None):
 
     parameters = {'interval': interval}
 
-    return session.get_api(path=path, parameters=parameters, return_type=return_type)
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=return_type)
