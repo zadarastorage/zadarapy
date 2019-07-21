@@ -1,4 +1,4 @@
-# Copyright 2018 Zadara Storage, Inc.
+# Copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -408,7 +408,7 @@ def get_suggested_mirrors(session, rvpsa_id, cg_id, start=None, limit=None,
     verify_cg_id(cg_id)
 
     parameters = verify_start_limit(start, limit,
-                                    list_more_options=[('cgname', cg_id)])
+                                    list_options=[('cgname', cg_id)])
     path = '/api/remote_vpsas/{0}/suggested_jobs.json'.format(rvpsa_id)
 
     return session.get_api(path=path, parameters=parameters,

@@ -1,4 +1,4 @@
-# Copyright 2018 Zadara Storage, Inc.
+# Copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -12,21 +12,20 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import json
+
 
 from zadarapy.validators import verify_vpsa_id, verify_boolean
 
 
 def get_cloud(session, cloud_name, return_type=None):
     """
-    Retrieves details for current cloud
+    Retrieves details for a given cloud name
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
     :type cloud_name: str
     :param cloud_name: Cloud Name: i.e: zadaraqa9
-
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -43,7 +42,7 @@ def get_cloud(session, cloud_name, return_type=None):
 
 def get_all_clouds(session, return_type=None):
     """
-    Retrieves details for all clouds on the Command Center.
+    Retrieves details for all clouds on the Cloud.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -63,7 +62,7 @@ def get_all_clouds(session, return_type=None):
 
 def get_user_token(session, email, password, return_type=None):
     """
-    Retrieves API token for the Command Center.
+    Retrieves API token for the Cloud.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -86,15 +85,13 @@ def get_user_token(session, email, password, return_type=None):
     """
     path = '/api/users/token.json'
     body_values = {'email': email, 'password': password}
-
-    return session.post_api(path=path, body=json.dumps(body_values),
-                            secure=False,
+    return session.post_api(path=path, body=body_values, secure=False,
                             return_type=return_type)
 
 
 def get_vpsa_from_cloud(session, cloud_name, vpsa_id, return_type=None):
     """
-    Returns VPSA info from Command Center
+    Returns VPSA info from Cloud
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -122,7 +119,7 @@ def get_vpsa_from_cloud(session, cloud_name, vpsa_id, return_type=None):
 
 def get_zios_from_cloud(session, cloud_name, zios_id, return_type=None):
     """
-    Returns ZIOS info from Command Center
+    Returns ZIOS info from Cloud
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -148,7 +145,7 @@ def get_zios_from_cloud(session, cloud_name, zios_id, return_type=None):
 
 def get_all_drives(session, cloud_name, return_type=None):
     """
-    Get all command Center Drives
+    Get all Cloud Drives
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -171,7 +168,7 @@ def get_all_drives(session, cloud_name, return_type=None):
 
 def get_vlans(session, cloud_name, return_type=None):
     """
-    Get all command Center VLANs
+    Get all Cloud VLANs
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -221,7 +218,7 @@ def delete_vlans(session, cloud_name, vlan_id, return_type=None):
 
 def get_tenants(session, cloud_name, return_type=None):
     """
-    Get all command Center Tennants
+    Get all Cloud Tennants
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -244,7 +241,7 @@ def get_tenants(session, cloud_name, return_type=None):
 
 def get_tenant(session, cloud_name, cloud_user, return_type=None):
     """
-    Get all command Center Tennants
+    Get all Cloud Tennants
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -271,7 +268,7 @@ def get_tenant(session, cloud_name, cloud_user, return_type=None):
 
 def get_storage_node(session, cloud_name, sn_id, return_type=None):
     """
-    Get all command Center Tennants
+    Get all Cloud Tennants
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -562,7 +559,7 @@ def deallocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO",
 def get_vpsa_settings(session, cloud_name, vpsa_id, section=None,
                       return_type=None):
     """
-    Returns VPSA info from Command Center
+    Returns VPSA info from Cloud
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -630,7 +627,7 @@ def get_all_images(session, cloud_name, page, per_page, return_type=None):
 
 def get_image(session, cloud_name, image_id, return_type=None):
     """
-    Set default Image
+    Get Image
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.

@@ -1,4 +1,4 @@
-# Copyright 2018 Zadara Storage, Inc.
+# Copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -12,7 +12,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from zadarapy.validators import verify_start_limit
+from zadarapy.validators import verify_start_limit, verify_field
 
 
 def get_all_policies(session, start=None, limit=None, return_type=None):
@@ -63,8 +63,8 @@ def get_policy(session, policy_name, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    verify_field(policy_name, "policy_name")
     path = '/api/zios/policies/{0}.json'.format(policy_name)
-
     return session.get_api(path=path, secure=True, return_type=return_type)
 
 
@@ -89,4 +89,5 @@ def set_default_policy(session, policy_name, return_type=None):
         return_type parameter.
     """
     path = '/api/zios/policies/{0}/set_default.json'.format(policy_name)
+
     return session.post_api(path=path, secure=True, return_type=return_type)

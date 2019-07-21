@@ -1,4 +1,4 @@
-# Copyright 2018 Zadara Storage, Inc.
+# Copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -392,10 +392,18 @@ def reschedule_upgrade_vpsa(session, cloud_name, vpsa_id, when,
         example: 'zadaralab01'.  Required.
 
     :type vpsa_id: str
-    :param vpsa_id: TODO
+    :type vpsa_id: int
+    :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+        example: '2653'.  Required.
 
     :type when: str
-    :param when: TODO
+    :param when: When to trigger the VPSA version upgrade.  Can be one of
+        three values: "now" will initiate the upgrade ASAP - and is the
+        default value if "when" parameter isn't passed.  "manual" will prepare
+        the standby VC with the new version for a later manually initiated
+        completion.  A date can also be passed in "%Y-%m-%d %H:%M" format.  For
+        example: "2017-10-20 19:30".  This value is relative to the cloud's
+        timezone setting.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -444,10 +452,10 @@ def change_engine_type(session, cloud_name, vpsa_id, when,
         timezone setting.  Optional.
 
     :type engine_type: str
-    :param engine_type: TODO
+    :param engine_type: CCVM Engine Type
 
     :type app_engine_type: str
-    :param app_engine_type: TODO
+    :param app_engine_type: CCVM Application Engine Typ
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function

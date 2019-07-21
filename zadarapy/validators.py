@@ -1,4 +1,4 @@
-# Copyright 2015 Zadara Storage, Inc.
+# Copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -1026,7 +1026,7 @@ def verify_start_limit_sort_severity(start, limit, sort, severity):
     return parameters
 
 
-def verify_start_limit(start, limit, list_more_options=None):
+def verify_start_limit(start, limit, list_options=None):
     """
     :type start: int
     :param start: The offset to start displaying snapshot policies from.
@@ -1037,32 +1037,31 @@ def verify_start_limit(start, limit, list_more_options=None):
         Optional.
 
     :type: list_more_options: list
-    :param list_more_options: List more options to add
+    :param list_options: List more options to add
 
     :return: Dictionary contains start and limit parameters
     :rtype: dict
 
     :raises: ValueError: Invalid start or limit
     """
-    list_more_options = [] if list_more_options is None else list_more_options
+    list_options = [] if list_options is None else list_options
 
-    if start is not None:
-        start = int(start)
-        if start < 0:
-            raise ValueError(
-                'Supplied start ("{0}") cannot be negative.'.format(start))
+    start = verify_positive_argument(start, 'start') if start else start
+    limit = verify_positive_argument(limit, 'limit') if limit else limit
 
-    if limit is not None:
-        limit = int(limit)
-        if limit < 0:
-            raise ValueError(
-                'Supplied limit ("{0}") cannot be negative.'.format(limit))
+    tuple_all_options = [('start', start), ('limit', limit)] + list_options
 
-    tuple_all_options = tuple(
-        [('start', start), ('limit', limit)] + list_more_options)
-
-    parameters = {k: v for k, v in tuple_all_options if v is not None}
+    parameters = get_parameters_options(tuple_all_options)
     return parameters
+
+
+def get_parameters_options(tuple_options):
+    """
+    :param tuple_options: List of tuples of option name and value
+    :return: Dictionary of parameters key and value
+    :rtype: dict
+    """
+    return {k: v for k, v in tuple_options if v is not None}
 
 
 def verify_policy_creation(create_policy):
@@ -1242,14 +1241,27 @@ def verify_ros_backup_job_id(ros_backup_job_id):
 
 def verify_ros_restore_job_id(ros_restore_job_id):
     """
+    :type ros_restore_job_id: str
     :param ros_restore_job_id: ROS restore job ID to check
     :raises: ValueError: invalid ID
     """
-    list_err = ['{0} is not a valid remote object storage ID.'.format(_id) for
-                _id in ros_restore_job_id.split(',')
+    list_err = ['{0} is not a valid remote object storage ID.'.format(_id)
+                for _id in ros_restore_job_id.split(',')
                 if not is_valid_ros_restore_job_id(_id)]
     if list_err:
         raise ValueError("\n".join(list_err))
+
+
+def verify_restore_job_mode(restore_mode):
+    """
+    :type restore_mode: str
+    :param restore_mode: Restore job mode to verify. Should be: restore, clone
+    """
+    list_available_modes = ['restore', 'clone']
+    if restore_mode not in list_available_modes:
+        raise ValueError("Invalid restore job mode '{}'."
+                         " Supported types: '{}'".
+                         format(restore_mode, ",".join(list_available_modes)))
 
 
 def verify_server_id(server_id):
@@ -1631,7 +1643,7 @@ def verify_snapshot_rule_name(snapshot_rule_name):
 
 
 """
-ZIOS
+VPSAOS
 """
 
 
@@ -1651,3 +1663,13 @@ def verify_account_id(account_id):
             'The Account ID should be of length 32. Given: {}.'.format(
                 account_id))
     return account_id
+
+
+def verify_encryption_state(state):
+    """
+    Verify encryption state to be 'enable' or 'disable'
+
+    :param state: State to check
+    """
+    if state not in ('enable', 'disable'):
+        raise ValueError('{0} is not a valid state.'.format(state))

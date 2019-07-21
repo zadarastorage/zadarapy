@@ -1,4 +1,4 @@
-# Copyright 2018 Zadara Storage, Inc.
+# Copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -17,7 +17,7 @@ from zadarapy.validators import verify_snapshot_id, verify_boolean, \
     verify_field, verify_start_limit, verify_policy_id, \
     verify_ros_backup_job_id, verify_volume_id, verify_pool_id, \
     verify_interval, verify_port, verify_ros_destination_id, \
-    verify_ros_restore_job_id, verify_restore_mode
+    verify_ros_restore_job_id, verify_restore_mode, verify_restore_job_mode
 
 
 def get_all_ros_destinations(session, start=None, limit=None,
@@ -1024,8 +1024,7 @@ def change_ros_restore_job_mode(session, ros_restore_job_id, restore_mode,
         return_type parameter.
     """
     verify_ros_restore_job_id(ros_restore_job_id)
-    # TODO: zadarapy checks: not in ['restore', 'clone']:
-    # TODO: what about 'import_seed':
+    verify_restore_job_mode(restore_mode)
 
     verify_restore_mode(restore_mode)
     body_values = {'mode': restore_mode}

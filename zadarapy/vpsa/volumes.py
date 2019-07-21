@@ -64,7 +64,7 @@ def get_all_volumes(session, start=None, limit=None, showonlyblock='NO',
     display_name = verify_field(display_name, "display_name")
 
     parameters = verify_start_limit(start=start, limit=limit,
-                                    list_more_options=[
+                                    list_options=[
                                         ('showonlyblock', showonlyblock),
                                         ('showonlyfile', showonlyfile),
                                         ('display_name', display_name)])

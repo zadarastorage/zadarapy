@@ -1,4 +1,4 @@
-# Copyright 2018 Zadara Storage, Inc.
+# Copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -15,7 +15,7 @@
 
 
 from zadarapy.validators import verify_start_limit, verify_vc_index, \
-    verify_capacity
+    verify_capacity, get_parameters_options
 
 
 def get_all_controllers(session, start=None, limit=None, return_type=None):
@@ -42,6 +42,7 @@ def get_all_controllers(session, start=None, limit=None, return_type=None):
     """
     parameters = verify_start_limit(start, limit)
     path = '/api/zios/virtual_controllers.json'
+
     return session.get_api(path=path, parameters=parameters,
                            return_type=return_type)
 
@@ -67,7 +68,9 @@ def get_virtual_controller(session, vc_index, return_type=None):
         return_type parameter.
     """
     verify_vc_index(vc_index)
+
     path = '/api/zios/virtual_controllers/{0}.json'.format(vc_index)
+
     return session.get_api(path=path, return_type=return_type)
 
 
@@ -92,7 +95,9 @@ def get_virtual_controller_drives(session, vc_index, return_type=None):
         return_type parameter.
     """
     verify_vc_index(vc_index)
+
     path = '/api/zios/virtual_controllers/{0}/drives.json'.format(vc_index)
+
     return session.get_api(path=path, return_type=return_type)
 
 
@@ -115,11 +120,9 @@ def remove_proxy_vcs(session, quantity, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    quantity = verify_capacity(quantity, 'quantity')
+    verify_capacity(quantity, "quantity")
     path = '/api/zios/virtual_controllers/remove_proxy_vcs.json'
-
-    parameters = {k: v for k, v in (('quantity', quantity),)
-                  if v is not None}
+    parameters = get_parameters_options([('quantity', quantity)])
 
     return session.delete_api(path=path, parameters=parameters,
                               return_type=return_type)

@@ -22,6 +22,7 @@ from pprint import pprint
 from terminaltables import AsciiTable
 from terminaltables import SingleTable
 
+
 from zadarapy import __version__
 from zadarapy import session
 from zadarapy.command_center import vpsaos
@@ -42,9 +43,9 @@ from zadarapy.vpsa import snapshot_policies
 from zadarapy.vpsa import tickets
 from zadarapy.vpsa import volumes
 from zadarapy.vpsa import vpsa_users
-from zadarapy.vpsaos import vpsaos_controllers
-from zadarapy.vpsaos import vpsaos_drives
-from zadarapy.vpsaos import vpsaos_settings
+from zadarapy.vpsaos import controllers as vpsaos_controllers
+from zadarapy.vpsaos import drives as vpsaos_drives
+from zadarapy.vpsaos import settings as vpsaos_settings
 
 ACTIVE_DIRECTORY_DNS_OPTION = {
     'option_positional': ['--dns'],

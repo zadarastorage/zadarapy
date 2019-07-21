@@ -26,7 +26,7 @@ from zadarapy.validators import verify_port
 
 DEFAULT_TIMEOUT = 20
 
-FAILURE_RESPONSE = 'API server did not return an HTTP 200, 210 or 302 ' \
+FAILURE_RESPONSE = 'API server did not return an HTTP 200, 201 or 302 ' \
                    'response. Status "{0} {1}" was returned instead.  ' \
                    'Please investigate.'
 

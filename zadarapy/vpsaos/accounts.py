@@ -1,4 +1,4 @@
-# Copyright 2018 Zadara Storage, Inc.
+# Copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -12,10 +12,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
-
-from zadarapy.validators import verify_start_limit, \
-    verify_account_id, verify_field, verify_boolean
+from zadarapy.validators import verify_account_id, verify_start_limit, \
+    verify_field, verify_boolean
 
 
 def get_all_accounts(session, start=None, limit=None, return_type=None):
@@ -40,8 +38,9 @@ def get_all_accounts(session, start=None, limit=None, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    parameters = verify_start_limit(start, limit)
-    path = '/api/zios/accounts.json'
+    parameters = verify_start_limit(start=start, limit=limit)
+
+    path = "/api/zios/accounts.json"
     return session.get_api(path=path, parameters=parameters,
                            return_type=return_type)
 
@@ -67,9 +66,8 @@ def get_account(session, account_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    verify_account_id(account_id)
-    path = '/api/zios/accounts/{0}.json'.format(account_id)
-
+    verify_account_id(account_id=account_id)
+    path = "/api/zios/accounts/{0}.json".format(account_id)
     return session.get_api(path=path, secure=True, return_type=return_type)
 
 
@@ -95,10 +93,9 @@ def create_account(session, account_name, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    verify_field(account_name, 'account_name')
+    verify_field(account_name, "account_name")
+    path = "/api/zios/accounts.json"
     body_values = {'name': account_name}
-    path = '/api/zios/accounts.json'
-
     return session.post_api(path=path, body=body_values, secure=True,
                             return_type=return_type)
 
@@ -129,10 +126,11 @@ def delete_account(session, account_id, force='NO', return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    verify_account_id(account_id)
-    force = verify_boolean(force, 'force')
+    verify_account_id(account_id=account_id)
+    verify_boolean(force, 'force')
+
+    path = "/api/zios/accounts/{0}.json".format(account_id)
     body_values = {'force': force}
-    path = '/api/zios/accounts/{0}.json'.format(account_id)
     return session.delete_api(path=path, body=body_values, secure=True,
                               return_type=return_type)
 
@@ -159,8 +157,8 @@ def cleanup_account(session, account_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    verify_account_id(account_id)
-    path = '/api/zios/accounts/{0}/cleanup.json'.format(account_id)
+    verify_account_id(account_id=account_id)
+    path = "/api/zios/accounts/{0}/cleanup.json".format(account_id)
     return session.delete_api(path=path, secure=True, return_type=return_type)
 
 
@@ -183,37 +181,10 @@ def disable_account(session, account_id, return_type=None):
 
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
-        return_type para
-        meter.
-    """
-    verify_account_id(account_id)
-    path = '/api/zios/accounts/{0}/disable.json'.format(account_id)
-    return session.post_api(path=path, secure=True, return_type=return_type)
-
-
-def enable_account(session, account_id, return_type=None):
-    """
-    Enable a VPSAOS account.
-
-    :type session: zadarapy.session.Session
-    :param session: A valid zadarapy.session.Session object.  Required.
-
-    :type account_id: str
-    :param account_id: The VPSAOS account 'id' value as returned by
-        get_all_accounts.  For example: '91ea5bd5cdc04adb9f5e3c00a346c463'.
-        Required.
-
-    :type return_type: str
-    :param return_type: If this is set to the string 'json', this function
-        will return a JSON string.  Otherwise, it will return a Python
-        dictionary.  Optional (will return a Python dictionary by default).
-
-    :rtype: dict, str
-    :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    verify_account_id(account_id)
-    path = '/api/zios/accounts/{0}/enable.json'.format(account_id)
+    verify_account_id(account_id=account_id)
+    path = "/api/zios/accounts/{0}/disable.json".format(account_id)
     return session.post_api(path=path, secure=True, return_type=return_type)
 
 
@@ -240,5 +211,30 @@ def get_all_users_in_account(session, account_id, return_type=None):
     """
     verify_account_id(account_id)
     path = '/api/zios/accounts/{0}/users.json'.format(account_id)
-
     return session.get_api(path=path, secure=True, return_type=return_type)
+
+
+def enable_account(session, account_id, return_type=None):
+    """
+    Enable a VPSAOS account.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type account_id: str
+    :param account_id: The VPSAOS account 'id' value as returned by
+        get_all_accounts.  For example: '91ea5bd5cdc04adb9f5e3c00a346c463'.
+        Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_account_id(account_id=account_id)
+    path = "/api/zios/accounts/{0}/enable.json".format(account_id)
+    return session.post_api(path=path, secure=True, return_type=return_type)

@@ -1,4 +1,4 @@
-# Copyright 2018 Zadara Storage, Inc.
+# Copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -19,8 +19,7 @@ from zadarapy.validators import verify_vpsa_id, \
 
 
 def add_drives(session, cloud_name, vsa_id, drive_type, drive_quantity,
-               policy_id,
-               return_type=None):
+               policy_id, return_type=None):
     """
     Add drives to a VPSAOS.
 
