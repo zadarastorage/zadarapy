@@ -17,7 +17,7 @@ from zadarapy.validators import verify_start_limit_sort_severity, \
 
 
 def get_logs(session, severity, attr_key, attr_value, start=None, limit=None,
-             return_type=None):
+             return_type=None, **kwargs):
     """
     Retrieves event logs from ZIOS.
 
@@ -61,11 +61,11 @@ def get_logs(session, severity, attr_key, attr_value, start=None, limit=None,
     body_values = {}
 
     return session.get_api(path=path, parameters=parameters, body=body_values,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 def get_access_logs(session, sort='DESC', severity=None, start=None,
-                    limit=None, return_type=None):
+                    limit=None, return_type=None, **kwargs):
     """
     Retrieves access logs from the ZIOS.
 
@@ -101,4 +101,4 @@ def get_access_logs(session, sort='DESC', severity=None, start=None,
     parameters = verify_start_limit_sort_severity(start, limit, sort, severity)
     path = "/api/access_logs.json"
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)

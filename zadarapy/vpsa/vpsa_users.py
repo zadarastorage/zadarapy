@@ -12,9 +12,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from urllib.parse import quote
-
 from future.standard_library import install_aliases
+from urllib.parse import quote
 
 install_aliases()
 
@@ -22,7 +21,8 @@ from zadarapy.validators import verify_field, verify_start_limit, \
     verify_email
 
 
-def get_all_vpsa_users(session, start=None, limit=None, return_type=None):
+def get_all_vpsa_users(session, start=None, limit=None, return_type=None,
+                       **kwargs):
     """
     Retrieves details for all configured VPSA users.
 
@@ -51,10 +51,10 @@ def get_all_vpsa_users(session, start=None, limit=None, return_type=None):
     path = '/api/users.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def create_vpsa_user(session, username, email, return_type=None):
+def create_vpsa_user(session, username, email, return_type=None, **kwargs):
     """
     Creates a VPSA user.  User will receive a temporary password at the
     provided email address and will be forced to change it on first login.
@@ -86,10 +86,10 @@ def create_vpsa_user(session, username, email, return_type=None):
     path = '/api/users.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def delete_vpsa_user(session, username, return_type=None):
+def delete_vpsa_user(session, username, return_type=None, **kwargs):
     """
     Deletes a VPSA user.  Only a VPSA admin may perform this action.
 
@@ -114,10 +114,11 @@ def delete_vpsa_user(session, username, return_type=None):
 
     path = '/api/users/{0}.json'.format(username)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_vpsa_user_api_key(session, username, password, return_type=None):
+def get_vpsa_user_api_key(session, username, password, return_type=None,
+                          **kwargs):
     """
     Retrieves a VPSA user's API key by their username and password.
 
@@ -147,10 +148,10 @@ def get_vpsa_user_api_key(session, username, password, return_type=None):
     path = '/api/users/login.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def reset_vpsa_user_api_key(session, username, return_type=None):
+def reset_vpsa_user_api_key(session, username, return_type=None, **kwargs):
     """
     Resets the VPSA user's API/access key to a new value.  Only a VPSA admin
     may perform this action.  This action is irreversible.
@@ -175,12 +176,12 @@ def reset_vpsa_user_api_key(session, username, return_type=None):
 
     path = '/api/users/{0}/access_key.json'.format(username)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
 def change_vpsa_user_password_by_password(session, username,
                                           existing_password, new_password,
-                                          return_type=None):
+                                          return_type=None, **kwargs):
     """
     Changes a VPSA user's password.  The user needs their existing password to
     use this method.  If the password was forgotten, use the
@@ -218,11 +219,11 @@ def change_vpsa_user_password_by_password(session, username,
     path = '/api/users/password.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def change_vpsa_user_password_by_code(session, username, code, new_password,
-                                      return_type=None):
+                                      return_type=None, **kwargs):
     """
     Changes a VPSA user's password with a password reset code.  If the user
     knows their existing password, use change_vpsa_user_password_by_password
@@ -259,11 +260,11 @@ def change_vpsa_user_password_by_code(session, username, code, new_password,
     path = '/api/users/{0}/password_code.json'.format(username)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def generate_vpsa_user_password_reset_code(session, username,
-                                           return_type=None):
+                                           return_type=None, **kwargs):
     """
     Initiates a password reset for a VPSA user and e-mails the user a code
     that can be used with change_vpsa_user_password_by_code.
@@ -290,10 +291,10 @@ def generate_vpsa_user_password_reset_code(session, username,
     path = '/api/users/reset_password.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def enable_cloud_admin_access(session, confirm, return_type=None):
+def enable_cloud_admin_access(session, confirm, return_type=None, **kwargs):
     """
     Enables the ability of a storage cloud administrator to access the VPSA
     GUI of this VPSA to assist in troubleshooting.  This does not grant access
@@ -321,10 +322,10 @@ def enable_cloud_admin_access(session, confirm, return_type=None):
 
     path = '/api/users/admin_access/enable.json'
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def disable_cloud_admin_access(session, confirm, return_type=None):
+def disable_cloud_admin_access(session, confirm, return_type=None, **kwargs):
     """
     Disables the ability of a storage cloud administrator to access the VPSA
     GUI of this VPSA to assist in troubleshooting.  This does not grant access
@@ -352,4 +353,4 @@ def disable_cloud_admin_access(session, confirm, return_type=None):
 
     path = '/api/users/admin_access/disable.json'
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)

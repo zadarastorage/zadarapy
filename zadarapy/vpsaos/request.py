@@ -15,7 +15,7 @@
 
 
 def get_account_requests(session, state=None, limit=None, page=None,
-                         return_type=None):
+                         return_type=None, **kwargs):
     """
     Get account requests.
 
@@ -49,10 +49,10 @@ def get_account_requests(session, state=None, limit=None, page=None,
         body_values['page'] = page
 
     return session.get_api(path=path, body=body_values,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def approve_request(session, request_id, return_type=None):
+def approve_request(session, request_id, return_type=None, **kwargs):
     """
     Approve VPSAOS account requests.
 
@@ -72,10 +72,10 @@ def approve_request(session, request_id, return_type=None):
         return_type parameter.
     """
     path = "/api/requests/{0}/approve.json".format(request_id)
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def deny_request(session, request_id, return_type=None):
+def deny_request(session, request_id, return_type=None, **kwargs):
     """
     Deny VPSAOS account requests.
 
@@ -95,4 +95,4 @@ def deny_request(session, request_id, return_type=None):
         return_type parameter.
     """
     path = "/api/requests/{0}/deny.json".format(request_id)
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)

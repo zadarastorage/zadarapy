@@ -24,7 +24,7 @@ import os
 from urllib.parse import urlencode
 from zadarapy.validators import verify_port
 
-DEFAULT_TIMEOUT = 20
+DEFAULT_TIMEOUT = 15
 
 FAILURE_RESPONSE = 'API server did not return an HTTP 200, 201 or 302 ' \
                    'response. Status "{0} {1}" was returned instead.  ' \
@@ -85,6 +85,7 @@ class Session(object):
         """
         self._log_function = log_function
         self._default_timeout = default_timeout or DEFAULT_TIMEOUT
+        assert self._default_timeout > 0, "timeout must be a positive int type"
 
         self._config = None
 
@@ -152,7 +153,8 @@ class Session(object):
             self.zadara_secure = True
 
     def get_api(self, path, host=None, port=None, key=None, url_encode=False,
-                secure=None, body=None, parameters=None, return_type=None):
+                secure=None, body=None, parameters=None, timeout=None,
+                return_type=None):
         """
         Makes the actual GET REST call to the Zadara API endpoint.
         If host, key, and/or secure are set as None, the instance variables
@@ -195,6 +197,10 @@ class Session(object):
         :param parameters: A Python dictionary of key value pairs that will be
             passed as URL parameters.  Optional.
 
+        :type timeout: int
+        :param timeout: API command timeout. When None, it will use the default
+        timeout.  Optional.
+
         :type return_type: str
         :param return_type: If this is set to the string 'json', this function
             will return a JSON string.  Otherwise, it will return a Python
@@ -208,10 +214,11 @@ class Session(object):
         return self.call_api(method="GET", path=path, host=host, port=port,
                              key=key, secure=secure, body=body,
                              parameters=parameters, url_encode=url_encode,
-                             return_type=return_type)
+                             timeout=timeout, return_type=return_type)
 
     def post_api(self, path, host=None, port=None, key=None, url_encode=False,
-                 secure=None, body=None, parameters=None, return_type=None):
+                 secure=None, body=None, parameters=None, timeout=None,
+                 return_type=None):
         """
         Makes the actual POST REST call to the Zadara API endpoint.
         If host, key, and/or secure are set as None, the instance variables
@@ -254,6 +261,10 @@ class Session(object):
         :param parameters: A Python dictionary of key value pairs that will be
             passed as URL parameters.  Optional.
 
+        :type timeout: int
+        :param timeout: API command timeout. When None, it will use the default
+        timeout.  Optional.
+
         :type return_type: str
         :param return_type: If this is set to the string 'json', this function
             will return a JSON string.  Otherwise, it will return a Python
@@ -267,11 +278,11 @@ class Session(object):
         return self.call_api(method="POST", path=path, host=host, port=port,
                              key=key, secure=secure, body=body,
                              parameters=parameters, url_encode=url_encode,
-                             return_type=return_type)
+                             timeout=timeout, return_type=return_type)
 
     def delete_api(self, path, host=None, port=None, key=None,
                    url_encode=False, secure=None, body=None,
-                   parameters=None, return_type=None):
+                   parameters=None, timeout=None, return_type=None):
         """
         Makes the actual DELETE REST call to the Zadara API endpoint.
         If host, key, and/or secure are set as None, the instance variables
@@ -314,6 +325,10 @@ class Session(object):
         :param parameters: A Python dictionary of key value pairs that will be
             passed as URL parameters.  Optional.
 
+        :type timeout: int
+        :param timeout: API command timeout. When None, it will use the default
+        timeout.  Optional.
+
         :type return_type: str
         :param return_type: If this is set to the string 'json', this function
             will return a JSON string.  Otherwise, it will return a Python
@@ -327,10 +342,11 @@ class Session(object):
         return self.call_api(method="DELETE", path=path, host=host, port=port,
                              key=key, secure=secure, body=body,
                              parameters=parameters, url_encode=url_encode,
-                             return_type=return_type)
+                             timeout=timeout, return_type=return_type)
 
     def put_api(self, path, host=None, port=None, key=None, url_encode=False,
-                secure=None, body=None, parameters=None, return_type=None):
+                secure=None, body=None, parameters=None, timeout=None,
+                return_type=None):
         """
         Makes the actual PUT call to the Zadara API endpoint.  If host, key,
         and/or secure are set as None, the instance variables will be used as
@@ -373,6 +389,10 @@ class Session(object):
         :param parameters: A Python dictionary of key value pairs that will be
             passed as URL parameters.  Optional.
 
+        :type timeout: int
+        :param timeout: API command timeout. When None, it will use the default
+        timeout.  Optional.
+
         :type return_type: str
         :param return_type: If this is set to the string 'json', this function
             will return a JSON string.  Otherwise, it will return a Python
@@ -386,11 +406,12 @@ class Session(object):
         return self.call_api(method="PUT", path=path, host=host, port=port,
                              key=key, secure=secure, body=body,
                              url_encode=url_encode, parameters=parameters,
+                             timeout=timeout,
                              return_type=return_type)
 
     def call_api(self, method, path, host=None, port=None, key=None,
                  url_encode=False, secure=None, body=None, parameters=None,
-                 return_type=None):
+                 timeout=None, return_type=None):
         """
         Makes the actual REST call to the Zadara API endpoint.  If host, key,
         and/or secure are set as None, the instance variables will be used as
@@ -437,6 +458,10 @@ class Session(object):
         :param parameters: A Python dictionary of key value pairs that will be
             passed as URL parameters.  Optional.
 
+        :type timeout: int
+        :param timeout: API command timeout. When None, it will use the default
+        timeout.  Optional.
+
         :type return_type: str
         :param return_type: If this is set to the string 'json', this function
             will return a JSON string.  Otherwise, it will return a Python
@@ -447,6 +472,13 @@ class Session(object):
         :returns: A dictionary or JSON data set as a string depending on
             return_type parameter.
         """
+        if timeout is None:
+            timeout = self._default_timeout
+        else:
+            assert timeout > 0, "timeout must be a positive int type"
+
+        session_timeout = timeout + 5
+
         # Validate all inputs
         if host is None:
             host = self.zadara_host
@@ -473,7 +505,7 @@ class Session(object):
 
             # Set timeout for each command
             conn = http.client.HTTPSConnection(host, port,
-                                               timeout=self._default_timeout)
+                                               timeout=session_timeout)
         else:
             if port is None:
                 port = 80
@@ -482,7 +514,7 @@ class Session(object):
 
             # Set timeout for each command
             conn = http.client.HTTPConnection(host, port,
-                                              timeout=self._default_timeout)
+                                              timeout=session_timeout)
 
         headers = {}
 
@@ -508,7 +540,10 @@ class Session(object):
             else:
                 body = json.dumps(body)
 
-            body = None if body == 'null' else body
+            if body == 'null':
+                body = None
+            else:
+                body['timeout'] = timeout
 
             # Log function
             if self._log_function:

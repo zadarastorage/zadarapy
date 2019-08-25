@@ -19,7 +19,8 @@ from zadarapy.validators import verify_boolean, \
     verify_interval, is_valid_iqn, verify_access_type
 
 
-def get_all_servers(session, start=None, limit=None, return_type=None):
+def get_all_servers(session, start=None, limit=None, return_type=None,
+                    **kwargs):
     """
     Retrieves details for all servers configured on the VPSA.
 
@@ -46,10 +47,10 @@ def get_all_servers(session, start=None, limit=None, return_type=None):
     path = '/api/servers.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_server(session, server_id, return_type=None):
+def get_server(session, server_id, return_type=None, **kwargs):
     """
     Retrieves details for a single server.
 
@@ -73,14 +74,14 @@ def get_server(session, server_id, return_type=None):
 
     path = '/api/servers/{0}.json'.format(server_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_server(session, display_name, ip_address=None, iqn=None,
                   vpsa_chap_user=None, vpsa_chap_secret=None,
                   host_chap_user=None, host_chap_secret=None,
                   ipsec_iscsi='NO', ipsec_nfs='NO', force='NO',
-                  return_type=None):
+                  return_type=None, **kwargs):
     """
     Creates a new server.  A valid server record must be attached to a volume
     before a client with the corresponding IP or IQN can access the volume.
@@ -194,14 +195,14 @@ def create_server(session, display_name, ip_address=None, iqn=None,
     path = '/api/servers.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def update_server(session, server_id, ip_address=None, iqn=None,
                   vpsa_chap_user=None, vpsa_chap_secret=None,
                   host_chap_user=None, host_chap_secret=None,
                   ipsec_iscsi=None, ipsec_nfs=None, force='NO',
-                  return_type=None):
+                  return_type=None, **kwargs):
     """
     Updates a server.  Parameters set to 'None' will not have their existing
     values changed.  The server must not be attached to any volumes.
@@ -298,10 +299,10 @@ def update_server(session, server_id, ip_address=None, iqn=None,
     path = '/api/servers/{0}/config.json'.format(server_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def delete_server(session, server_id, return_type=None):
+def delete_server(session, server_id, return_type=None, **kwargs):
     """
     Deletes a server.  The server must not be attached to any volumes.
 
@@ -325,10 +326,11 @@ def delete_server(session, server_id, return_type=None):
 
     path = '/api/servers/{0}.json'.format(server_id)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
-def rename_server(session, server_id, display_name, return_type=None):
+def rename_server(session, server_id, display_name, return_type=None,
+                  **kwargs):
     """
     Sets the "display_name" server parameter to a new value.
 
@@ -360,11 +362,11 @@ def rename_server(session, server_id, display_name, return_type=None):
     path = '/api/servers/{0}/rename.json'.format(server_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def get_volumes_attached_to_server(session, server_id, start=None, limit=None,
-                                   return_type=None):
+                                   return_type=None, **kwargs):
     """
     Retrieves details for all volumes attached to the specified server.
 
@@ -396,11 +398,12 @@ def get_volumes_attached_to_server(session, server_id, start=None, limit=None,
     path = '/api/servers/{0}/volumes.json'.format(server_id)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 def attach_servers_to_volume(session, servers, volume_id, access_type=None,
-                             readonly='NO', force='NO', return_type=None):
+                             readonly='NO', force='NO', return_type=None,
+                             **kwargs):
     """
     Attaches one or more servers to a volume.
 
@@ -466,10 +469,11 @@ def attach_servers_to_volume(session, servers, volume_id, access_type=None,
     path = '/api/servers/{0}/volumes.json'.format(servers)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def get_server_performance(session, server_id, interval=1, return_type=None):
+def get_server_performance(session, server_id, interval=1, return_type=None,
+                           **kwargs):
     """
     Retrieves metering statistics for the server for the specified interval.
     Default interval is one second.
@@ -501,4 +505,4 @@ def get_server_performance(session, server_id, interval=1, return_type=None):
     parameters = {'interval': interval}
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)

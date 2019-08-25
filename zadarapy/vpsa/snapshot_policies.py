@@ -19,7 +19,7 @@ from zadarapy.validators import verify_boolean, \
 
 
 def get_all_snapshot_policies(session, start=None, limit=None,
-                              return_type=None):
+                              return_type=None, **kwargs):
     """
     Retrieves details for all snapshot policies configured on the VPSA.
 
@@ -48,10 +48,10 @@ def get_all_snapshot_policies(session, start=None, limit=None,
     path = '/api/snapshot_policies.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_snapshot_policy(session, policy_id, return_type=None):
+def get_snapshot_policy(session, policy_id, return_type=None, **kwargs):
     """
     Retrieves details for a single snapshot policy.
 
@@ -75,12 +75,12 @@ def get_snapshot_policy(session, policy_id, return_type=None):
 
     path = '/api/snapshot_policies/{0}.json'.format(policy_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_snapshot_policy(session, display_name, create_policy,
                            local_delete_policy, remote_delete_policy,
-                           allow_empty='NO', return_type=None):
+                           allow_empty='NO', return_type=None, **kwargs):
     """
     Creates a new snapshot policy.  Can be used in conjunction with local
     volume snapshots, remote mirror jobs, and/or remote object storage backup
@@ -165,13 +165,13 @@ def create_snapshot_policy(session, display_name, create_policy,
     path = '/api/snapshot_policies.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def update_snapshot_policy(session, policy_id, create_policy=None,
                            local_delete_policy=None,
                            remote_delete_policy=None, display_name=None,
-                           allow_empty=None, return_type=None):
+                           allow_empty=None, return_type=None, **kwargs):
     """
     Change various settings related to a snapshot policy.  These changes will
     be propagated to any local volume, remote mirror job, or remote object
@@ -252,10 +252,10 @@ def update_snapshot_policy(session, policy_id, create_policy=None,
     path = '/api/snapshot_policies/{0}.json'.format(policy_id)
 
     return session.put_api(path=path, body=body_values,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def delete_snapshot_policy(session, policy_id, return_type=None):
+def delete_snapshot_policy(session, policy_id, return_type=None, **kwargs):
     """
     Deletes a snapshot policy.  The policy must not be in use by any local
     volumes, remote mirror jobs, or remote object storage backup jobs.  This
@@ -281,11 +281,11 @@ def delete_snapshot_policy(session, policy_id, return_type=None):
 
     path = '/api/snapshot_policies/{0}.json'.format(policy_id)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
 def rename_snapshot_policy(session, policy_id, display_name,
-                           return_type=None):
+                           return_type=None, **kwargs):
     """
     Sets the "display_name" snapshot policy parameter to a new value.
 
@@ -318,10 +318,10 @@ def rename_snapshot_policy(session, policy_id, display_name,
     path = '/api/snapshot_policies/{0}/rename.json'.format(policy_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def pause_snapshot_policy(session, snaprule, return_type=None):
+def pause_snapshot_policy(session, snaprule, return_type=None, **kwargs):
     """
     Pause a volume's snapshot policy.
 
@@ -346,4 +346,4 @@ def pause_snapshot_policy(session, snaprule, return_type=None):
         snaprule=snaprule)
     body_values = {"id": snaprule}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)

@@ -15,7 +15,8 @@
 from zadarapy.validators import verify_ticket_id, verify_start_limit
 
 
-def get_all_tickets(session, start=None, limit=None, return_type=None):
+def get_all_tickets(session, start=None, limit=None, return_type=None,
+                    **kwargs):
     """
     Retrieves details for all support tickets associated with the VPSA.
 
@@ -41,10 +42,10 @@ def get_all_tickets(session, start=None, limit=None, return_type=None):
     path = '/api/tickets.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def create_ticket(session, subject, description, return_type=None):
+def create_ticket(session, subject, description, return_type=None, **kwargs):
     """
     Creates a support ticket for the VPSA.  This ticket will be assigned to a
     member of the support staff.
@@ -78,10 +79,10 @@ def create_ticket(session, subject, description, return_type=None):
     path = '/api/tickets.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def close_ticket(session, ticket_id, return_type=None):
+def close_ticket(session, ticket_id, return_type=None, **kwargs):
     """
     Closes a support ticket for the VPSA.
 
@@ -107,10 +108,10 @@ def close_ticket(session, ticket_id, return_type=None):
 
     path = '/api/tickets/{0}/close.json'.format(ticket_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_ticket_comments(session, ticket_id, return_type=None):
+def get_ticket_comments(session, ticket_id, return_type=None, **kwargs):
     """
     Gets all comments associated with the provided support ticket for the
     VPSA.
@@ -137,10 +138,11 @@ def get_ticket_comments(session, ticket_id, return_type=None):
 
     path = '/api/tickets/{0}/comments.json'.format(ticket_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def create_ticket_comment(session, ticket_id, comment, return_type=None):
+def create_ticket_comment(session, ticket_id, comment, return_type=None,
+                          **kwargs):
     """
     Adds a comment to an existing support ticket for the VPSA.
 
@@ -174,10 +176,10 @@ def create_ticket_comment(session, ticket_id, comment, return_type=None):
     path = '/api/tickets/{0}/comments.json'.format(ticket_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def create_ticket_zsnap(session, ticket_id, return_type=None):
+def create_ticket_zsnap(session, ticket_id, return_type=None, **kwargs):
     """
     Creates a diagnostic "zsnap" file for the VPSA and attaches it to the
     provided support ticket for the VPSA.  This "zsnap" assists support in
@@ -204,4 +206,4 @@ def create_ticket_zsnap(session, ticket_id, return_type=None):
 
     path = '/api/tickets/{0}/zsnap.json'.format(ticket_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)

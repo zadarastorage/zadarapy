@@ -19,7 +19,7 @@ from zadarapy.validators import verify_boolean, \
     verify_low_high_port
 
 
-def get_vpsa_config(session, return_type=None):
+def get_vpsa_config(session, return_type=None, **kwargs):
     """
     Retrieves various configuration details for the VPSA.
 
@@ -37,10 +37,10 @@ def get_vpsa_config(session, return_type=None):
     """
     path = '/api/config.json'
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def settings_config(session, return_type=None):
+def settings_config(session, return_type=None, **kwargs):
     """
     Retrieves current settings configuration details for the VPSA.
 
@@ -57,10 +57,10 @@ def settings_config(session, return_type=None):
         return_type parameter.
     """
     path = '/api/return_type.json'
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_nfs_domain(session, return_type=None):
+def get_nfs_domain(session, return_type=None, **kwargs):
     """
     Retrieves the NFS domain for the VPSA.
 
@@ -78,10 +78,10 @@ def get_nfs_domain(session, return_type=None):
     """
     path = '/api/settings/nfs_domain.json'
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def set_nfs_domain(session, domain, return_type=None):
+def set_nfs_domain(session, domain, return_type=None, **kwargs):
     """
     Sets the NFS domain for the VPSA.  This is used in conjunction with
     the idmap service on the client and NAS Users on the VPSA to correctly
@@ -108,10 +108,10 @@ def set_nfs_domain(session, domain, return_type=None):
     path = '/api/settings/nfs_domain.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def set_multizone_read_mode(session, read_mode, return_type=None):
+def set_multizone_read_mode(session, read_mode, return_type=None, **kwargs):
     """
     Modifies where data is read from in multizone environments.
 
@@ -139,10 +139,10 @@ def set_multizone_read_mode(session, read_mode, return_type=None):
     path = '/api/settings/raid_read_mode.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def set_smb_charset(session, charset, force='NO', return_type=None):
+def set_smb_charset(session, charset, force='NO', return_type=None, **kwargs):
     """
     Sets the character set used by the SMB/CIFS server for all SMB/CIFS
     shared volumes.
@@ -177,11 +177,11 @@ def set_smb_charset(session, charset, force='NO', return_type=None):
     path = '/api/settings/smb_charset.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def set_smb_trusted_domains(session, allow_trusted_domains, force='NO',
-                            return_type=None):
+                            return_type=None, **kwargs):
     """
     Sets whether or not the SMB/CIFS server should allow Active Directory
     trusted domains.
@@ -218,10 +218,10 @@ def set_smb_trusted_domains(session, allow_trusted_domains, force='NO',
     path = '/api/settings/smb_trusted_domains.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def set_recycle_bin(session, recycle_bin, return_type=None):
+def set_recycle_bin(session, recycle_bin, return_type=None, **kwargs):
     """
     Turns the recycle bin on or off globally for all pools.
 
@@ -251,10 +251,10 @@ def set_recycle_bin(session, recycle_bin, return_type=None):
     path = '/api/settings/set_recycle_bin.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def get_public_ip(session, return_type=None):
+def get_public_ip(session, return_type=None, **kwargs):
     """
     Retrieves public IPs associated with the VPSA.
 
@@ -272,11 +272,11 @@ def get_public_ip(session, return_type=None):
     """
     path = '/api/settings/public_ips.json'
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def set_encryption_password(session, password, old_password=None,
-                            return_type=None):
+                            return_type=None, **kwargs):
     """
     Sets the encryption password globally on the VPSA.  This password is used
     when enabling the encryption option for a volume.  CAUTION: THIS PASSWORD
@@ -313,10 +313,10 @@ def set_encryption_password(session, password, old_password=None,
     path = '/api/settings/encryption.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def restore_encryption_password(session, password, return_type=None):
+def restore_encryption_password(session, password, return_type=None, **kwargs):
     """
     In cases where an encryption password is set on a VPSA, this can be used
     to restore the password.  For example, when restoring a VPSA from
@@ -345,10 +345,10 @@ def restore_encryption_password(session, password, return_type=None):
     path = '/api/settings/restore_encryption.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def get_zcs_settings(session, return_type=None):
+def get_zcs_settings(session, return_type=None, **kwargs):
     """
     Retrieves details for Zadara Container Services, such as the configured
     network, ports, etc.
@@ -367,11 +367,11 @@ def get_zcs_settings(session, return_type=None):
     """
     path = '/api/settings/container_service.json'
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def update_zcs_settings(session, network, lowport, highport,
-                        return_type=None):
+                        return_type=None, **kwargs):
     """
     Changes various settings for Zadara Container Services.
 
@@ -413,10 +413,10 @@ def update_zcs_settings(session, network, lowport, highport,
     path = '/api/settings/container_service.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def create_zcs_image_repository(session, pool_id, return_type=None):
+def create_zcs_image_repository(session, pool_id, return_type=None, **kwargs):
     """
     Creates the ZCS image repository on the specified pool.  ZCS images will
     be stored in this repository.  100 GB will be consumed on the specified
@@ -445,10 +445,10 @@ def create_zcs_image_repository(session, pool_id, return_type=None):
     path = '/api/settings/create_images_repository.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def migrate_zcs_image_repository(session, pool_id, return_type=None):
+def migrate_zcs_image_repository(session, pool_id, return_type=None, **kwargs):
     """
     Migrates the ZCS image repository from the existing pool to the specified
     pool.  100 GB will be freed from the existing pool and consumed on the
@@ -477,10 +477,10 @@ def migrate_zcs_image_repository(session, pool_id, return_type=None):
     path = '/api/settings/migrate_images_repository.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def delete_zcs_image_repository(session, confirm, return_type=None):
+def delete_zcs_image_repository(session, confirm, return_type=None, **kwargs):
     """
     Deletes the ZCS image repository.  There must be no ZCS images on the
     VPSA.  100 GB will be freed from the pool where it resides.
@@ -507,10 +507,10 @@ def delete_zcs_image_repository(session, confirm, return_type=None):
 
     path = '/api/settings/images_repository.json'
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
-def download_metering_database(session, return_type='raw'):
+def download_metering_database(session, return_type='raw', **kwargs):
     """
     Downloads the metering database from the VPSA.  This will return a stream
     of binary in zip format.
@@ -527,10 +527,10 @@ def download_metering_database(session, return_type='raw'):
     """
     path = '/api/settings/metering_db'
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def enable_defrag(session, return_type='json'):
+def enable_defrag(session, return_type=None, **kwargs):
     """
     Enables NAS share (XFS) defragging on the VPSA.
 
@@ -548,10 +548,10 @@ def enable_defrag(session, return_type='json'):
     """
     path = '/api/settings/defrag_enable.json'
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def disable_defrag(session, return_type='json'):
+def disable_defrag(session, return_type=None, **kwargs):
     """
     Disables NAS share (XFS) defragging on the VPSA.
 
@@ -569,10 +569,10 @@ def disable_defrag(session, return_type='json'):
     """
     path = '/api/settings/defrag_disable.json'
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def start_defrag(session, return_type=None):
+def start_defrag(session, return_type=None, **kwargs):
     """
     Starts NAS share (XFS) defragging on the VPSA.
 
@@ -590,10 +590,10 @@ def start_defrag(session, return_type=None):
     """
     path = '/api/settings/defrag_start.json'
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def stop_defrag(session, return_type=None):
+def stop_defrag(session, return_type=None, **kwargs):
     """
     Stops NAS share (XFS) defragging on the VPSA.
 
@@ -611,4 +611,4 @@ def stop_defrag(session, return_type=None):
     """
     path = '/api/settings/defrag_stop.json'
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)

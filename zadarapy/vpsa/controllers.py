@@ -17,7 +17,8 @@ from zadarapy.validators import verify_boolean, \
     verify_start_limit, verify_interval, verify_controller_id
 
 
-def get_all_controllers(session, start=None, limit=None, return_type=None):
+def get_all_controllers(session, start=None, limit=None, return_type=None,
+                        **kwargs):
     """
     Retrieves details for all virtual controllers for the VPSA.
 
@@ -44,10 +45,11 @@ def get_all_controllers(session, start=None, limit=None, return_type=None):
     path = '/api/vcontrollers.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def failover_controller(session, confirm, force='NO', return_type=None):
+def failover_controller(session, confirm, force='NO', return_type=None,
+                        **kwargs):
     """
     Initiates a failover of the current active controller to the standby
     controller.
@@ -84,11 +86,11 @@ def failover_controller(session, confirm, force='NO', return_type=None):
     path = '/api/vcontrollers/failover.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def get_controller_performance(session, controller_id, interval=1,
-                               return_type=None):
+                               return_type=None, **kwargs):
     """
     Retrieves metering statistics for the controller for the specified
     interval.  Default interval is one second.
@@ -120,10 +122,10 @@ def get_controller_performance(session, controller_id, interval=1,
     parameters = {'interval': interval}
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_cache_performance(session, interval=1, return_type=None):
+def get_cache_performance(session, interval=1, return_type=None, **kwargs):
     """
     Retrieves metering statistics for the VPSA's SSD cache for the specified
     interval.  Default interval is one second.
@@ -150,10 +152,10 @@ def get_cache_performance(session, interval=1, return_type=None):
     parameters = {'interval': interval}
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_cache_stats(session, interval=1, return_type=None):
+def get_cache_stats(session, interval=1, return_type=None, **kwargs):
     """
     Retrieves usage statistics for the VPSA's SSD cache for the specified
     interval.  Default interval is one second.
@@ -180,4 +182,4 @@ def get_cache_stats(session, interval=1, return_type=None):
     parameters = {'interval': interval}
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)

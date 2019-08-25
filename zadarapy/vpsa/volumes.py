@@ -22,7 +22,8 @@ from zadarapy.validators import verify_snapshot_id, verify_boolean, \
 
 
 def get_all_volumes(session, start=None, limit=None, showonlyblock='NO',
-                    showonlyfile='NO', display_name=None, return_type=None):
+                    showonlyfile='NO', display_name=None, return_type=None,
+                    **kwargs):
     """
     Retrieves details for all volumes configured on the VPSA.
 
@@ -71,10 +72,11 @@ def get_all_volumes(session, start=None, limit=None, showonlyblock='NO',
     path = '/api/volumes.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_free_volumes(session, start=None, limit=None, return_type=None):
+def get_free_volumes(session, start=None, limit=None, return_type=None,
+                     **kwargs):
     """
     Retrieves details for all volumes that do not have any attached server
     records.
@@ -102,10 +104,10 @@ def get_free_volumes(session, start=None, limit=None, return_type=None):
     path = '/api/volumes/free.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_volume(session, volume_id, return_type=None):
+def get_volume(session, volume_id, return_type=None, **kwargs):
     """
     Retrieves details for a single volume.
 
@@ -129,7 +131,7 @@ def get_volume(session, volume_id, return_type=None):
 
     path = '/api/volumes/{0}.json'.format(volume_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_volume(session, pool_id, display_name, capacity, block,
@@ -142,7 +144,7 @@ def create_volume(session, pool_id, display_name, capacity, block,
                   smbhideunreadable='NO', smbhideunwriteable='NO',
                   smbhidedotfiles='YES', smbstoredosattributes='NO',
                   smbenableoplocks='YES', auto_expand=None, max_expand=None,
-                  auto_expand_by=None, return_type=None):
+                  auto_expand_by=None, return_type=None, **kwargs):
     """
     Creates a new volume.  The 'block' parameter determines if it should be a
     block (iSCSI, iSER, or Fiber Channel) volume or NAS file share (NFS and/or
@@ -406,7 +408,7 @@ def create_volume(session, pool_id, display_name, capacity, block,
     path = '/api/volumes.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def update_volume_nas_options(session, volume_id, atimeupdate=None,
@@ -414,7 +416,7 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
                               smbfilecreatemask=None,
                               smbdircreatemask=None, smbmaparchive=None,
                               smbaiosize=None, nfsrootsquash=None,
-                              return_type=None):
+                              return_type=None, **kwargs):
     """
     Change various settings related to NAS shares.  Parameters set to 'None'
     will not have their existing values changed.
@@ -507,10 +509,11 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
     path = '/api/volumes/{0}.json'.format(volume_id)
 
     return session.put_api(path=path, body=body_values,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def update_volume_comment(session, volume_id, comment, return_type=None):
+def update_volume_comment(session, volume_id, comment, return_type=None,
+                          **kwargs):
     """
     Set a new comment on the volume.  Comments can be set on either block or
     file volumes.  There is one comment per volume, and it starts empty by
@@ -543,10 +546,10 @@ def update_volume_comment(session, volume_id, comment, return_type=None):
     path = '/api/volumes/{0}/update_comment.json'.format(volume_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def delete_volume(session, volume_id, force='NO', return_type=None):
+def delete_volume(session, volume_id, force='NO', return_type=None, **kwargs):
     """
     Deletes a volume.  If the recycle bin is enabled, volume will be moved to
     the pool's recycle bin, where it can either be recovered, or it will be
@@ -583,10 +586,11 @@ def delete_volume(session, volume_id, force='NO', return_type=None):
     path = '/api/volumes/{0}.json'.format(volume_id)
 
     return session.delete_api(path=path, body=body_values,
-                              return_type=return_type)
+                              return_type=return_type, **kwargs)
 
 
-def rename_volume(session, volume_id, display_name, return_type=None):
+def rename_volume(session, volume_id, display_name, return_type=None,
+                  **kwargs):
     """
     Sets the "display_name" volume parameter to a new value.
 
@@ -618,10 +622,10 @@ def rename_volume(session, volume_id, display_name, return_type=None):
     path = '/api/volumes/{0}/rename.json'.format(volume_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def expand_volume(session, volume_id, capacity, return_type=None):
+def expand_volume(session, volume_id, capacity, return_type=None, **kwargs):
     """
     Expands the volume by the capacity parameter.
 
@@ -654,11 +658,11 @@ def expand_volume(session, volume_id, capacity, return_type=None):
     path = '/api/volumes/{0}/expand.json'.format(volume_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def get_servers_attached_to_volume(session, volume_id, start=None, limit=None,
-                                   return_type=None):
+                                   return_type=None, **kwargs):
     """
     Retrieves details for all server records attached to the specified volume.
 
@@ -690,11 +694,11 @@ def get_servers_attached_to_volume(session, volume_id, start=None, limit=None,
     path = '/api/volumes/{0}/servers.json'.format(volume_id)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 def detach_servers_from_volume(session, volume_id, servers, force='NO',
-                               return_type=None):
+                               return_type=None, **kwargs):
     """
     Detach one or more server records from a volume.  Caution: detaching a
     server record from a volume while an affected server is using the volume
@@ -735,10 +739,11 @@ def detach_servers_from_volume(session, volume_id, servers, force='NO',
     path = '/api/volumes/{0}/detach.json'.format(volume_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def set_volume_export_name(session, volume_id, export_name, return_type=None):
+def set_volume_export_name(session, volume_id, export_name, return_type=None,
+                           **kwargs):
     """
     Changes the export name at the end of the network path for NAS shares.
     Volume must not have any attached server records.
@@ -770,11 +775,12 @@ def set_volume_export_name(session, volume_id, export_name, return_type=None):
     path = '/api/volumes/{0}/export_name.json'.format(volume_id)
 
     return session.put_api(path=path, body=body_values,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 def get_volume_attached_snapshot_policies(session, cg_id, start=None,
-                                          limit=None, return_type=None):
+                                          limit=None, return_type=None,
+                                          **kwargs):
     """
     Retrieves details for all snapshot policies attached to this volume.
 
@@ -810,10 +816,11 @@ def get_volume_attached_snapshot_policies(session, cg_id, start=None,
         .format(cg_id)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
+def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None,
+                               **kwargs):
     """
     Attaches a snapshot policy to the volume.
 
@@ -849,11 +856,12 @@ def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None):
     path = '/api/consistency_groups/{0}/attach_policy.json'.format(cg_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def remove_volume_snapshot_policy(session, snapshot_rule_name,
-                                  delete_snapshots, return_type=None):
+                                  delete_snapshots, return_type=None,
+                                  **kwargs):
     """
     Removes a snapshot policy from a volume.
 
@@ -887,11 +895,11 @@ def remove_volume_snapshot_policy(session, snapshot_rule_name,
         .format(snapshot_rule_name)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def get_all_snapshots(session, cg_id, ros_backup_job_id=None, policy_id=None,
-                      start=None, limit=None, return_type=None):
+                      start=None, limit=None, return_type=None, **kwargs):
     """
     Retrieves details for all snapshots either for a local volume or remote
     object storage backup job.
@@ -950,10 +958,11 @@ def get_all_snapshots(session, cg_id, ros_backup_job_id=None, policy_id=None,
     path = '/api/consistency_groups/{0}/snapshots.json'.format(cg_id)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def create_volume_snapshot(session, cg_id, display_name, return_type=None):
+def create_volume_snapshot(session, cg_id, display_name, return_type=None,
+                           **kwargs):
     """
     Creates a new snapshot for the specified volume.  Manually initiated
     snapshots will fall under the "On Demand" snapshot policy.
@@ -987,10 +996,10 @@ def create_volume_snapshot(session, cg_id, display_name, return_type=None):
     path = '/api/consistency_groups/{0}/snapshots.json'.format(cg_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def delete_volume_snapshot(session, snapshot_id, return_type=None):
+def delete_volume_snapshot(session, snapshot_id, return_type=None, **kwargs):
     """
     Deletes a volume's snapshot.  This action is irreversible.
 
@@ -1015,10 +1024,10 @@ def delete_volume_snapshot(session, snapshot_id, return_type=None):
 
     path = '/api/snapshots/{0}.json'.format(snapshot_id)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_volume_migration(session, cg_id, return_type=None):
+def get_volume_migration(session, cg_id, return_type=None, **kwargs):
     """
     Retrieves details for a running volume migration job.  The job is queried
     using the consistency group ID (cg_name) for the volume, as returned by
@@ -1053,11 +1062,11 @@ def get_volume_migration(session, cg_id, return_type=None):
 
     path = '/api/consistency_groups/{0}/show_migration.json'.format(cg_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def migrate_volume(session, cg_id, pool_id, migrate_snaps='YES',
-                   return_type=None):
+                   return_type=None, **kwargs):
     """
     Starts migrating a volume to a different storage pool.  The job is created
     using the consistency group ID (cg_name) for the volume, as returned by
@@ -1098,10 +1107,11 @@ def migrate_volume(session, cg_id, pool_id, migrate_snaps='YES',
     path = '/api/consistency_groups/{0}/migrate.json'.format(cg_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def pause_volume_migration(session, migration_cg_id, return_type=None):
+def pause_volume_migration(session, migration_cg_id, return_type=None,
+                           **kwargs):
     """
     Pause a running volume migration job.  The job is paused using the
     consistency group ID (cg_name) for the volume, as returned by
@@ -1128,10 +1138,11 @@ def pause_volume_migration(session, migration_cg_id, return_type=None):
 
     path = '/api/migration_jobs/{0}/pause.json'.format(migration_cg_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def resume_volume_migration(session, migration_cg_id, return_type=None):
+def resume_volume_migration(session, migration_cg_id, return_type=None,
+                            **kwargs):
     """
     Resume a paused volume migration job.  The job is resumed using the
     consistency group ID (cg_name) for the volume, as returned by
@@ -1158,10 +1169,11 @@ def resume_volume_migration(session, migration_cg_id, return_type=None):
 
     path = '/api/migration_jobs/{0}/continue.json'.format(migration_cg_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def cancel_volume_migration(session, migration_cg_id, return_type=None):
+def cancel_volume_migration(session, migration_cg_id, return_type=None,
+                            **kwargs):
     """
     Cancel a volume migration job.  The job is canceled using the consistency
     group ID (cg_name) for the volume, as returned by get_all_volumes.
@@ -1187,11 +1199,11 @@ def cancel_volume_migration(session, migration_cg_id, return_type=None):
 
     path = '/api/migration_jobs/{0}/abort.json'.format(migration_cg_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_clone(session, cg_id, display_name, snapshot_id=None,
-                 return_type=None):
+                 return_type=None, **kwargs):
     """
     Create a clone from a volume or a snapshot.  If a valid snapshot id is
     passed, the clone will present the data at the time the snapshot was
@@ -1235,12 +1247,12 @@ def create_clone(session, cg_id, display_name, snapshot_id=None,
     path = '/api/consistency_groups/{0}/clone.json'.format(cg_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
                          policies, remote_volume_name, wan_optimization='YES',
-                         return_type=None):
+                         return_type=None, **kwargs):
     """
     Create a mirror job for a volume.  A volume can be mirrored to another
     pool on the same VPSA, or to another VPSA with which a "Remote VPSA"
@@ -1311,10 +1323,11 @@ def create_volume_mirror(session, cg_id, display_name, remote_pool_id,
     path = '/api/consistency_groups/{0}/mirror.json'.format(cg_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def get_volume_performance(session, volume_id, interval=1, return_type=None):
+def get_volume_performance(session, volume_id, interval=1, return_type=None,
+                           **kwargs):
     """
     Retrieves metering statistics for the volume for the specified interval.
     Default interval is one second.
@@ -1346,10 +1359,10 @@ def get_volume_performance(session, volume_id, interval=1, return_type=None):
     parameters = {'interval': interval}
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_snapshot(session, snap_id, return_type=None):
+def get_snapshot(session, snap_id, return_type=None, **kwargs):
     """
     Retrieves details for a single volume.
 
@@ -1373,10 +1386,11 @@ def get_snapshot(session, snap_id, return_type=None):
 
     path = "/api/snapshots/{0}.json".format(snap_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def delete_volume_from_recycle_bin(session, volume_id, return_type=None):
+def delete_volume_from_recycle_bin(session, volume_id, return_type=None,
+                                   **kwargs):
     """
     Retrieves details for a single volume.
 
@@ -1401,11 +1415,11 @@ def delete_volume_from_recycle_bin(session, volume_id, return_type=None):
     path = "/api/volumes/{0}/delete_volume_from_recycle_bin.json".format(
         volume_id)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
 def detach_snapshot_policy(session, volume_id, snaprule,
-                           delete_snapshots="Yes", return_type=None):
+                           delete_snapshots="Yes", return_type=None, **kwargs):
     """
     Detach a Snapshot Policy from a Volume
 
@@ -1441,13 +1455,13 @@ def detach_snapshot_policy(session, volume_id, snaprule,
     body_values = {"id": volume_id, "snaprule": snaprule,
                    "delete_snapshots": delete_snapshots}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def update_protection(session, volume_id, alertmode=None, emergencymode=None,
                       capacityhistory=None, autoexpand=None,
                       maxcapacity=None, autoexpandby=None,
-                      return_type=None):
+                      return_type=None, **kwargs):
     """
     Sets volume capacity thresholds. A support ticket will be created when your
      Volume reaches specified capacity thresholds.
@@ -1513,4 +1527,5 @@ def update_protection(session, volume_id, alertmode=None, emergencymode=None,
 
     path = "/api/volumes/{0}/update_protection.json".format(volume_id)
 
-    return session.post_api(path=path, body=body, return_type=return_type)
+    return session.post_api(path=path, body=body, return_type=return_type,
+                            **kwargs)

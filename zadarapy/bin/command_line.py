@@ -4336,12 +4336,21 @@ def format_return(data, vertical=False):
         ).table]
 
 
+def check_positive(value):
+    ivalue = int(value)
+    if ivalue <= 0:
+        raise argparse.ArgumentTypeError("%s is an invalid positive int value"
+                                         % value)
+    return ivalue
+
+
 def main():
     # Parent Parsers
     apiparser = argparse.ArgumentParser(add_help=False)
 
     group1 = apiparser.add_argument_group('Connection Arguments')
     group2 = apiparser.add_argument_group('Display Arguments')
+    group3 = apiparser.add_argument_group('General Arguments')
 
     group1.add_argument('-c', '--api-configfile', type=str,
                         dest='configfile',
@@ -4389,6 +4398,12 @@ def main():
                              'output table per row - this makes viewing '
                              'large amounts of output easier')
 
+    # API command timeout: default is <session.DEFAULT_TIMEOUT> seconds (15)
+    group3.add_argument('-t', '--timeout', type=check_positive, dest='timeout',
+                        action='store', default=session.DEFAULT_TIMEOUT,
+                        help='API command timeout. Default: {} seconds'
+                        .format(session.DEFAULT_TIMEOUT))
+
     # Main Parser
     parser = argparse.ArgumentParser(
         prog='zadarapy',
@@ -4433,10 +4448,11 @@ def main():
                     help=subcommand['subcommand_help'], parents=[apiparser]
                 )
 
-                group3 = sub_action.add_argument_group('Command Arguments')
+                # Group 4 is for command arguments
+                group4 = sub_action.add_argument_group('Command Arguments')
 
                 for subcommand_option in subcommand['subcommand_options']:
-                    group3.add_argument(
+                    group4.add_argument(
                         *subcommand_option['option_positional'],
                         **subcommand_option['option_keywords']
                     )
@@ -4502,7 +4518,8 @@ def main():
 
                         pprint(params)
 
-                    result = subcommand_function(**params)
+                    result = subcommand_function(
+                        timeout=parsed_args['timeout'], **params)
 
                     if parsed_args['json']:
                         print(result)

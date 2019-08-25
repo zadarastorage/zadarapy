@@ -18,7 +18,8 @@ from zadarapy.validators import verify_start_limit, \
     verify_volume_id
 
 
-def get_all_drives(session, start=None, limit=None, return_type=None):
+def get_all_drives(session, start=None, limit=None, return_type=None,
+                   **kwargs):
     """
     Retrieves details for all drives for the VPSAOS.
 
@@ -43,10 +44,10 @@ def get_all_drives(session, start=None, limit=None, return_type=None):
     parameters = verify_start_limit(start, limit)
     path = '/api/zios/drives.json'
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_one_drive(session, name, return_type=None):
+def get_one_drive(session, name, return_type=None, **kwargs):
     """
     Retrieves details for a single drive for the VPSAOS.
 
@@ -68,4 +69,4 @@ def get_one_drive(session, name, return_type=None):
     """
     verify_volume_id(name)
     path = '/api/zios/drives/{0}.json'.format(name)
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)

@@ -20,7 +20,7 @@ from zadarapy.validators import verify_snapshot_id, verify_start_limit, \
 
 def create_remote_clone(session, display_name, vol_name, pool_id, mode,
                         vpsa_name, snapshot_id, is_dedupe,
-                        is_compress, is_crypt, return_type=None):
+                        is_compress, is_crypt, return_type=None, **kwargs):
     """
     Create a new remote clone job
 
@@ -80,10 +80,11 @@ def create_remote_clone(session, display_name, vol_name, pool_id, mode,
     path = '/api/volumes/remote_clone.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def get_all_remote_clones(session, start=None, limit=None, return_type=None):
+def get_all_remote_clones(session, start=None, limit=None, return_type=None,
+                          **kwargs):
     """
     Retrieves details for all remote clone jobs configured on the VPSA.
 
@@ -111,10 +112,10 @@ def get_all_remote_clones(session, start=None, limit=None, return_type=None):
     path = '/api/remote_clones.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_remote_clone(session, remote_clone_job_id, return_type=None):
+def get_remote_clone(session, remote_clone_job_id, return_type=None, **kwargs):
     """
     Retrieves details for the specified remote clone job configured on
     the VPSA.
@@ -140,10 +141,11 @@ def get_remote_clone(session, remote_clone_job_id, return_type=None):
 
     path = '/api/remote_clones/{0}.json'.format(remote_clone_job_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def pause_remote_clone(session, remote_clone_job_id, return_type=None):
+def pause_remote_clone(session, remote_clone_job_id, return_type=None,
+                       **kwargs):
     """
     Pauses a remote clone job.  This should only be initiated from the source
     VPSA. e.g. the remote clone job ID should start with "dstrclone-".
@@ -169,10 +171,11 @@ def pause_remote_clone(session, remote_clone_job_id, return_type=None):
 
     path = '/api/remote_clones/{0}/pause.json'.format(remote_clone_job_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def resume_remote_clone_job(session, remote_clone_job_id, return_type=None):
+def resume_remote_clone_job(session, remote_clone_job_id, return_type=None,
+                            **kwargs):
     """
     Resumes a paused remote clone job.
 
@@ -198,10 +201,11 @@ def resume_remote_clone_job(session, remote_clone_job_id, return_type=None):
     path = '/api/remote_clones/{0}/continue.json' \
         .format(remote_clone_job_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def break_remote_clone_job(session, remote_clone_job_id, return_type=None):
+def break_remote_clone_job(session, remote_clone_job_id, return_type=None,
+                           **kwargs):
     """
     Breaks a remote clone job.  This action is irreversible.
 
@@ -227,11 +231,11 @@ def break_remote_clone_job(session, remote_clone_job_id, return_type=None):
     path = '/api/remote_clones/{0}/break.json' \
         .format(remote_clone_job_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
 def switch_remote_clone_mode(session, remote_clone_job_id, is_retrieve,
-                             return_type=None):
+                             return_type=None, **kwargs):
     """
     Breaks a remote clone job.  This action is irreversible.
 
@@ -263,4 +267,4 @@ def switch_remote_clone_mode(session, remote_clone_job_id, is_retrieve,
         .format(remote_clone_job_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)

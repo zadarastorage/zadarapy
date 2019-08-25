@@ -19,7 +19,8 @@ from zadarapy.validators import verify_start_limit, verify_raid_id, \
     verify_boolean, verify_min_max, verify_interval
 
 
-def get_all_raid_groups(session, start=None, limit=None, return_type=None):
+def get_all_raid_groups(session, start=None, limit=None, return_type=None,
+                        **kwargs):
     """
     Retrieves details for all RAID groups configured on the VPSA.
 
@@ -46,10 +47,11 @@ def get_all_raid_groups(session, start=None, limit=None, return_type=None):
     path = '/api/raid_groups.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_free_raid_groups(session, start=None, limit=None, return_type=None):
+def get_free_raid_groups(session, start=None, limit=None, return_type=None,
+                         **kwargs):
     """
     Retrieves details for all RAID groups configured on the VPSA that are not
     currently participating in a storage pool.
@@ -77,10 +79,10 @@ def get_free_raid_groups(session, start=None, limit=None, return_type=None):
     path = '/api/raid_groups/free.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_raid_group(session, raid_id, return_type=None):
+def get_raid_group(session, raid_id, return_type=None, **kwargs):
     """
     Retrieves details for a single RAID group.
 
@@ -104,12 +106,12 @@ def get_raid_group(session, raid_id, return_type=None):
 
     path = '/api/raid_groups/{0}.json'.format(raid_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_raid_group(session, display_name, protection, disk,
                       stripe_size=64, hot_spare='NO', force='NO',
-                      return_type=None):
+                      return_type=None, **kwargs):
     """
     Creates a new RAID group from comma separated list of drives in 'drive'
     body parameter.  The drives must not be currently participating in a RAID
@@ -199,10 +201,10 @@ def create_raid_group(session, display_name, protection, disk,
     path = '/api/raid_groups.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def delete_raid_group(session, raid_id, return_type=None):
+def delete_raid_group(session, raid_id, return_type=None, **kwargs):
     """
     Deletes a single RAID group.  The RAID group must not be participating in
     a storage pool.  This action is irreversible.
@@ -227,11 +229,11 @@ def delete_raid_group(session, raid_id, return_type=None):
 
     path = '/api/raid_groups/{0}.json'.format(raid_id)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
 def get_drives_in_raid_group(session, raid_id, start=None, limit=None,
-                             return_type=None):
+                             return_type=None, **kwargs):
     """
     Retrieves details for all drives in a RAID group.
 
@@ -263,10 +265,11 @@ def get_drives_in_raid_group(session, raid_id, start=None, limit=None,
     path = '/api/raid_groups/{0}/disks.json'.format(raid_id)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def rename_raid_group(session, raid_id, display_name, return_type=None):
+def rename_raid_group(session, raid_id, display_name, return_type=None,
+                      **kwargs):
     """
     Sets the "display_name" RAID group parameter to a new value.
 
@@ -298,10 +301,10 @@ def rename_raid_group(session, raid_id, display_name, return_type=None):
     path = '/api/raid_groups/{0}/rename.json'.format(raid_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def repair_raid_group(session, raid_id, return_type=None):
+def repair_raid_group(session, raid_id, return_type=None, **kwargs):
     """
     Repairs a degraded RAID group with an available drive.  This function will
     first attempt to detect if there are any available drives, and will only
@@ -327,11 +330,11 @@ def repair_raid_group(session, raid_id, return_type=None):
 
     path = '/api/raid_groups/{0}/repair.json'.format(raid_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
 def update_raid_group_resync_speed(session, raid_id, minimum, maximum,
-                                   return_type=None):
+                                   return_type=None, **kwargs):
     """
     Updates the speed at which a RAID group will rebuild using the minimum and
     maximum arguments.
@@ -368,10 +371,10 @@ def update_raid_group_resync_speed(session, raid_id, minimum, maximum,
     path = '/api/raid_groups/{0}/resync_speed.json'.format(raid_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def start_raid_group_media_scan(session, raid_id, return_type=None):
+def start_raid_group_media_scan(session, raid_id, return_type=None, **kwargs):
     """
     Starts a media scan that will repair any inconsistencies with parity.
     Only valid for RAID5 and RAID6.
@@ -396,10 +399,10 @@ def start_raid_group_media_scan(session, raid_id, return_type=None):
 
     path = '/api/raid_groups/{0}/scrub.json'.format(raid_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def pause_raid_group_media_scan(session, raid_id, return_type=None):
+def pause_raid_group_media_scan(session, raid_id, return_type=None, **kwargs):
     """
     Pauses a currently running RAID group media scan.
 
@@ -423,11 +426,11 @@ def pause_raid_group_media_scan(session, raid_id, return_type=None):
 
     path = '/api/raid_groups/{0}/pause_scrub.json'.format(raid_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
 def add_hot_spare_to_raid_group(session, raid_id, drive_id, force='NO',
-                                return_type=None):
+                                return_type=None, **kwargs):
     """
     Attaches a drive as a hot spare to an existing RAID group, as identified
     by the drive_id attribute.
@@ -466,10 +469,11 @@ def add_hot_spare_to_raid_group(session, raid_id, drive_id, force='NO',
     path = '/api/raid_groups/{0}/hot_spares.json'.format(raid_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def remove_hot_spare_from_raid_group(session, raid_id, return_type=None):
+def remove_hot_spare_from_raid_group(session, raid_id, return_type=None,
+                                     **kwargs):
     """
     Removes the hot spare drive from an existing RAID group.
 
@@ -493,11 +497,11 @@ def remove_hot_spare_from_raid_group(session, raid_id, return_type=None):
 
     path = '/api/raid_groups/{0}/hot_spares/remove.json'.format(raid_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
 def get_raid_group_performance(session, raid_id, interval=1,
-                               return_type=None):
+                               return_type=None, **kwargs):
     """
     Retrieves metering statistics for the RAID group for the specified
     interval.  Default interval is one second.
@@ -529,4 +533,4 @@ def get_raid_group_performance(session, raid_id, interval=1,
     parameters = {'interval': interval}
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)

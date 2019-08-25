@@ -21,7 +21,7 @@ from zadarapy.validators import verify_snapshot_id, verify_boolean, \
 
 
 def get_all_ros_destinations(session, start=None, limit=None,
-                             return_type=None):
+                             return_type=None, **kwargs):
     """
     Retrieves details for all remote object storage destinations configured on
     the VPSA.
@@ -51,10 +51,11 @@ def get_all_ros_destinations(session, start=None, limit=None,
     path = '/api/object_storage_destinations.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_ros_destination(session, ros_destination_id, return_type=None):
+def get_ros_destination(session, ros_destination_id, return_type=None,
+                        **kwargs):
     """
     Retrieves details for a single remote object storage destination.
 
@@ -80,14 +81,14 @@ def get_ros_destination(session, ros_destination_id, return_type=None):
     path = '/api/object_storage_destinations/{0}.json' \
         .format(ros_destination_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_ros_destination(session, display_name, bucket, endpoint, username,
                            password, public, use_proxy, ros_type,
                            allow_lifecycle_policies=None, proxy_host=None,
                            proxy_port=None, proxy_username=None,
-                           proxy_password=None, return_type=None):
+                           proxy_password=None, return_type=None, **kwargs):
     """
     Creates a remote object storage destination.  The VPSA can either connect
     directly to the object storage endpoint, or through an HTTP/HTTPS proxy
@@ -192,14 +193,14 @@ def create_ros_destination(session, display_name, bucket, endpoint, username,
     path = '/api/object_storage_destinations.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def update_ros_destination(session, ros_destination_id, bucket=None,
                            endpoint=None, username=None, password=None,
                            public=None, use_proxy=None, proxy_host=None,
                            proxy_port=None, proxy_username=None,
-                           proxy_password=None, return_type=None):
+                           proxy_password=None, return_type=None, **kwargs):
     """
     Updates options for an existing remote object storage destination.
     Parameters set to 'None' will not have their existing values changed.
@@ -303,10 +304,11 @@ def update_ros_destination(session, ros_destination_id, bucket=None,
         .format(ros_destination_id)
 
     return session.put_api(path=path, body=body_values,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def remove_ros_destination(session, ros_destination_id, return_type=None):
+def remove_ros_destination(session, ros_destination_id, return_type=None,
+                           **kwargs):
     """
     Removes a remote object storage destination.  There must not be any remote
     object storage backup jobs associated with this destination.
@@ -333,12 +335,12 @@ def remove_ros_destination(session, ros_destination_id, return_type=None):
     path = '/api/object_storage_destinations/{0}.json' \
         .format(ros_destination_id)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
 def get_all_ros_destination_backup_jobs(session, ros_destination_id,
                                         start=None, limit=None,
-                                        return_type=None):
+                                        return_type=None, **kwargs):
     """
     Retrieves details for all remote object storage backup jobs for the
     specified remote object storage destination.
@@ -376,12 +378,12 @@ def get_all_ros_destination_backup_jobs(session, ros_destination_id,
     parameters = verify_start_limit(start, limit)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 def get_all_ros_destination_restore_jobs(session, ros_destination_id,
                                          start=None, limit=None,
-                                         return_type=None):
+                                         return_type=None, **kwargs):
     """
     Retrieves details for all remote object storage restore jobs for the
     specified remote object storage destination.
@@ -417,11 +419,11 @@ def get_all_ros_destination_restore_jobs(session, ros_destination_id,
     parameters = verify_start_limit(start, limit)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 def get_all_ros_backup_jobs(session, start=None, limit=None,
-                            return_type=None):
+                            return_type=None, **kwargs):
     """
     Retrieves details for all remote object storage backup jobs configured on
     the VPSA.
@@ -451,10 +453,10 @@ def get_all_ros_backup_jobs(session, start=None, limit=None,
     parameters = verify_start_limit(start, limit)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_ros_backup_job(session, ros_backup_job_id, return_type=None):
+def get_ros_backup_job(session, ros_backup_job_id, return_type=None, **kwargs):
     """
     Retrieves details a single remote object storage backup job.
 
@@ -480,12 +482,12 @@ def get_ros_backup_job(session, ros_backup_job_id, return_type=None):
     path = '/api/object_storage_backup_jobs/{0}.json' \
         .format(ros_backup_job_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_ros_backup_job(session, display_name, ros_destination_id, sse,
                           volume_id, policy_id, compression='YES',
-                          return_type=None):
+                          return_type=None, **kwargs):
     """
     Creates a new remote object storage backup job.  Backups are based on
     snapshots taken by the specified snapshot policy.
@@ -545,10 +547,11 @@ def create_ros_backup_job(session, display_name, ros_destination_id, sse,
     path = '/api/object_storage_backup_jobs.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def pause_ros_backup_job(session, ros_backup_job_id, return_type=None):
+def pause_ros_backup_job(session, ros_backup_job_id, return_type=None,
+                         **kwargs):
     """
     Pauses a remote object storage backup job.
 
@@ -574,10 +577,11 @@ def pause_ros_backup_job(session, ros_backup_job_id, return_type=None):
     path = '/api/object_storage_backup_jobs/{0}/pause.json' \
         .format(ros_backup_job_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def resume_ros_backup_job(session, ros_backup_job_id, return_type=None):
+def resume_ros_backup_job(session, ros_backup_job_id, return_type=None,
+                          **kwargs):
     """
     Resumes a paused remote object storage backup job.
 
@@ -603,11 +607,11 @@ def resume_ros_backup_job(session, ros_backup_job_id, return_type=None):
     path = '/api/object_storage_backup_jobs/{0}/continue.json' \
         .format(ros_backup_job_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
 def break_ros_backup_job(session, ros_backup_job_id, purge_data,
-                         delete_snapshots, return_type=None):
+                         delete_snapshots, return_type=None, **kwargs):
     """
     Breaks a remote object storage backup job.  This action is irreversible.
 
@@ -647,11 +651,11 @@ def break_ros_backup_job(session, ros_backup_job_id, purge_data,
         .format(ros_backup_job_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def update_ros_backup_job_compression(session, ros_backup_job_id, compression,
-                                      return_type=None):
+                                      return_type=None, **kwargs):
     """
     Updates the compression setting for a remote object storage backup job.
 
@@ -685,11 +689,12 @@ def update_ros_backup_job_compression(session, ros_backup_job_id, compression,
         .format(ros_backup_job_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def replace_ros_backup_job_snapshot_policy(session, ros_backup_job_id,
-                                           policy_id, return_type=None):
+                                           policy_id, return_type=None,
+                                           **kwargs):
     """
     Replaces the existing snapshot policy used for a remote object storage
     backup job with the specified policy.
@@ -726,11 +731,11 @@ def replace_ros_backup_job_snapshot_policy(session, ros_backup_job_id,
         .format(ros_backup_job_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def get_all_ros_restore_jobs(session, start=None, limit=None,
-                             return_type=None):
+                             return_type=None, **kwargs):
     """
     Retrieves details for all remote object storage restore jobs running on
     the VPSA.
@@ -760,10 +765,11 @@ def get_all_ros_restore_jobs(session, start=None, limit=None,
     path = '/api/object_storage_restore_jobs.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_ros_restore_job(session, ros_restore_job_id, return_type=None):
+def get_ros_restore_job(session, ros_restore_job_id, return_type=None,
+                        **kwargs):
     """
     Retrieves details a single remote object storage restore job.
 
@@ -789,13 +795,13 @@ def get_ros_restore_job(session, ros_restore_job_id, return_type=None):
     path = '/api/object_storage_restore_jobs/{0}.json' \
         .format(ros_restore_job_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_ros_restore_job(session, display_name, ros_destination_id, pool_id,
                            restore_mode, volume_name, local_snapshot_id,
                            object_store_key, crypt, dedupe='NO', compress='NO',
-                           return_type=None):
+                           return_type=None, **kwargs):
     """
     Creates a new remote object storage backup job.  Backups are based on
     snapshots taken by the specified snapshot policy.
@@ -906,10 +912,11 @@ def create_ros_restore_job(session, display_name, ros_destination_id, pool_id,
     path = '/api/object_storage_restore_jobs.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def pause_ros_restore_job(session, ros_restore_job_id, return_type=None):
+def pause_ros_restore_job(session, ros_restore_job_id, return_type=None,
+                          **kwargs):
     """
     Pauses a remote object storage restore job.
 
@@ -935,10 +942,11 @@ def pause_ros_restore_job(session, ros_restore_job_id, return_type=None):
     path = '/api/object_storage_restore_jobs/{0}/pause.json' \
         .format(ros_restore_job_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def resume_ros_restore_job(session, ros_restore_job_id, return_type=None):
+def resume_ros_restore_job(session, ros_restore_job_id, return_type=None,
+                           **kwargs):
     """
     Resumes a paused remote object storage restore job.
 
@@ -964,10 +972,11 @@ def resume_ros_restore_job(session, ros_restore_job_id, return_type=None):
     path = '/api/object_storage_restore_jobs/{0}/continue.json' \
         .format(ros_restore_job_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def break_ros_restore_job(session, ros_restore_job_id, return_type=None):
+def break_ros_restore_job(session, ros_restore_job_id, return_type=None,
+                          **kwargs):
     """
     Breaks a remote object storage restore job.  This action is irreversible.
 
@@ -993,11 +1002,11 @@ def break_ros_restore_job(session, ros_restore_job_id, return_type=None):
     path = '/api/object_storage_restore_jobs/{0}/break.json' \
         .format(ros_restore_job_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
 def change_ros_restore_job_mode(session, ros_restore_job_id, restore_mode,
-                                return_type=None):
+                                return_type=None, **kwargs):
     """
     If the given remote object storage restore job is currently in "clone"
     mode, it can be changed to "restore" mode, or vice-versa.
@@ -1033,11 +1042,11 @@ def change_ros_restore_job_mode(session, ros_restore_job_id, restore_mode,
         .format(ros_restore_job_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def get_ros_backup_job_performance(session, ros_backup_job_id, interval=1,
-                                   return_type=None):
+                                   return_type=None, **kwargs):
     """
     Retrieves metering statistics for the remote object storage backup job for
     the specified interval.  Default interval is one second.
@@ -1071,11 +1080,11 @@ def get_ros_backup_job_performance(session, ros_backup_job_id, interval=1,
     parameters = {'interval': interval}
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 def get_ros_restore_job_performance(session, ros_restore_job_id, interval=1,
-                                    return_type=None):
+                                    return_type=None, **kwargs):
     """
     Retrieves metering statistics for the remote object storage restore job
     for the specified interval.  Default interval is one second.
@@ -1109,11 +1118,11 @@ def get_ros_restore_job_performance(session, ros_restore_job_id, interval=1,
     parameters = {'interval': interval}
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 def backup_jobs_rate_limit(session, ros_backup_job_id, limit,
-                           return_type=None):
+                           return_type=None, **kwargs):
     """
     Retrieves metering statistics for the remote object storage restore job
     for the specified interval.  Default interval is one second.
@@ -1144,11 +1153,11 @@ def backup_jobs_rate_limit(session, ros_backup_job_id, limit,
     body_values = {"limit": limit}
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def backup_jobs_update_compression(session, ros_backup_job_id, compression,
-                                   return_type=None):
+                                   return_type=None, **kwargs):
     """
     Retrieves metering statistics for the remote object storage restore job
     for the specified interval.  Default interval is one second.
@@ -1180,4 +1189,4 @@ def backup_jobs_update_compression(session, ros_backup_job_id, compression,
         ros_backup_job_id)
     body_values = {"compression": compression}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)

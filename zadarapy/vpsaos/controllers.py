@@ -18,7 +18,8 @@ from zadarapy.validators import verify_start_limit, verify_vc_index, \
     verify_capacity, get_parameters_options
 
 
-def get_all_controllers(session, start=None, limit=None, return_type=None):
+def get_all_controllers(session, start=None, limit=None, return_type=None,
+                        **kwargs):
     """
     Retrieves details for all virtual controllers for the VPSAOS.
 
@@ -44,10 +45,10 @@ def get_all_controllers(session, start=None, limit=None, return_type=None):
     path = '/api/zios/virtual_controllers.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_virtual_controller(session, vc_index, return_type=None):
+def get_virtual_controller(session, vc_index, return_type=None, **kwargs):
     """
     Retrieves details for a single virtual controller for the VPSAOS.
 
@@ -71,10 +72,11 @@ def get_virtual_controller(session, vc_index, return_type=None):
 
     path = '/api/zios/virtual_controllers/{0}.json'.format(vc_index)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_virtual_controller_drives(session, vc_index, return_type=None):
+def get_virtual_controller_drives(session, vc_index, return_type=None,
+                                  **kwargs):
     """
     Retrieves drives for a virtual controller.
 
@@ -98,10 +100,10 @@ def get_virtual_controller_drives(session, vc_index, return_type=None):
 
     path = '/api/zios/virtual_controllers/{0}/drives.json'.format(vc_index)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def remove_proxy_vcs(session, quantity, return_type=None):
+def remove_proxy_vcs(session, quantity, return_type=None, **kwargs):
     """
     Removes proxy vcs.
 
@@ -125,4 +127,4 @@ def remove_proxy_vcs(session, quantity, return_type=None):
     parameters = get_parameters_options([('quantity', quantity)])
 
     return session.delete_api(path=path, parameters=parameters,
-                              return_type=return_type)
+                              return_type=return_type, **kwargs)

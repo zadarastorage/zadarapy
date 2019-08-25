@@ -29,7 +29,7 @@ __all__ = ["get_all_pools", "get_pool", "create_pool", "create_raid10_pool",
            "pool_shrink", "cancel_pool_shrink"]
 
 
-def get_all_pools(session, start=None, limit=None, return_type=None):
+def get_all_pools(session, start=None, limit=None, return_type=None, **kwargs):
     """
     Retrieves details for all storage pools configured on the VPSA.
 
@@ -56,10 +56,10 @@ def get_all_pools(session, start=None, limit=None, return_type=None):
     path = '/api/pools.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_pool(session, pool_id, return_type=None):
+def get_pool(session, pool_id, return_type=None, **kwargs):
     """
     Retrieves details for all single storage pool.
 
@@ -83,11 +83,12 @@ def get_pool(session, pool_id, return_type=None):
 
     path = '/api/pools/{0}.json'.format(pool_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_pool(session, display_name, raid_groups, capacity, pooltype,
-                cache='NO', cowcache='YES', mode='stripe', return_type=None):
+                cache='NO', cowcache='YES', mode='stripe', return_type=None,
+                **kwargs):
     """
     Creates a new storage pool.  A storage pool is an abstraction over RAID
     groups.  Multiple RAID groups can, and often do, participate in a single
@@ -186,11 +187,11 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
     path = '/api/pools.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def create_raid10_pool(session, display_name, drives, pooltype,
-                       cache='NO', cowcache='YES', return_type=None):
+                       cache='NO', cowcache='YES', return_type=None, **kwargs):
     """
     Creates a new RAID10 storage pool.  This is similar to the "create_pool"
     API, except the the caller passes a list of drives, and not a list of RAID
@@ -245,10 +246,10 @@ def create_raid10_pool(session, display_name, drives, pooltype,
     path = '/api/pools.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def delete_pool(session, pool_id, return_type=None):
+def delete_pool(session, pool_id, return_type=None, **kwargs):
     """
     Deletes a storage pool.  The storage pool must not contain any volumes,
     including in the pool's recycle bin.  This action is irreversible.
@@ -273,10 +274,10 @@ def delete_pool(session, pool_id, return_type=None):
 
     path = '/api/pools/{0}.json'.format(pool_id)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
-def rename_pool(session, pool_id, display_name, return_type=None):
+def rename_pool(session, pool_id, display_name, return_type=None, **kwargs):
     """
     Sets the "display_name" pool parameter to a new value.
 
@@ -308,11 +309,11 @@ def rename_pool(session, pool_id, display_name, return_type=None):
     path = '/api/pools/{0}/rename.json'.format(pool_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def get_raid_groups_in_pool(session, pool_id, start=None, limit=None,
-                            return_type=None):
+                            return_type=None, **kwargs):
     """
     Retrieves a list of RAID groups that are participating in the given pool.
 
@@ -344,11 +345,11 @@ def get_raid_groups_in_pool(session, pool_id, start=None, limit=None,
     path = '/api/pools/{0}/raid_groups.json'.format(pool_id)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 def get_volumes_in_pool(session, pool_id, start=None, limit=None,
-                        return_type=None):
+                        return_type=None, **kwargs):
     """
     Retrieves a list of volumes stored on the given pool.
 
@@ -380,11 +381,11 @@ def get_volumes_in_pool(session, pool_id, start=None, limit=None,
     path = '/api/pools/{0}/volumes.json'.format(pool_id)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 def add_raid_groups_to_pool(session, pool_id, raid_groups, capacity,
-                            return_type=None):
+                            return_type=None, **kwargs):
     """
     Adds RAID groups to a storage pool.  RAID groups need to be of the same
     type as the RAID groups already participating in the pool.  RAID groups
@@ -426,12 +427,13 @@ def add_raid_groups_to_pool(session, pool_id, raid_groups, capacity,
     path = '/api/pools/{0}/expand.json'.format(pool_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def update_pool_capacity_alerts(session, pool_id, capacityhistory=None,
                                 alertmode=None, protectedmode=None,
-                                emergencymode=None, return_type=None):
+                                emergencymode=None, return_type=None,
+                                **kwargs):
     """
     Update the pool alerting thresholds.  Alerts are used both to notify
     administrators of pending pool space exhaustion, as well as deleting
@@ -507,11 +509,12 @@ def update_pool_capacity_alerts(session, pool_id, capacityhistory=None,
     path = '/api/pools/{0}/update_protection.json'.format(pool_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def get_pool_mirror_destination_volumes(session, pool_id, start=None,
-                                        limit=None, return_type=None):
+                                        limit=None, return_type=None,
+                                        **kwargs):
     """
     Retrieves all mirror destination volumes that reside in this pool.
 
@@ -543,10 +546,10 @@ def get_pool_mirror_destination_volumes(session, pool_id, start=None,
     path = '/api/pools/{0}/destination_volumes.json'.format(pool_id)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def set_pool_cache(session, pool_id, cache, return_type=None):
+def set_pool_cache(session, pool_id, cache, return_type=None, **kwargs):
     """
     Toggle the SSD caching for a pool.
 
@@ -578,10 +581,10 @@ def set_pool_cache(session, pool_id, cache, return_type=None):
     path = '/api/pools/{0}/toggle_cache.json'.format(pool_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def set_pool_cowcache(session, pool_id, cowcache, return_type=None):
+def set_pool_cowcache(session, pool_id, cowcache, return_type=None, **kwargs):
     """
     Toggle the CoW caching for a pool.
 
@@ -616,11 +619,11 @@ def set_pool_cowcache(session, pool_id, cowcache, return_type=None):
     path = '/api/pools/{0}/cow_cache.json'.format(pool_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def get_volumes_in_pool_recycle_bin(session, pool_id, start=None, limit=None,
-                                    return_type=None):
+                                    return_type=None, **kwargs):
     """
     Retrieves a list of volumes in the pool's recycle bin.
 
@@ -652,10 +655,11 @@ def get_volumes_in_pool_recycle_bin(session, pool_id, start=None, limit=None,
     path = '/api/pools/{0}/volumes_in_recycle_bin.json'.format(pool_id)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_pool_performance(session, pool_id, interval=1, return_type=None):
+def get_pool_performance(session, pool_id, interval=1, return_type=None,
+                         **kwargs):
     """
     Retrieves metering statistics for the pool for the specified interval.
     Default interval is one second.
@@ -687,7 +691,7 @@ def get_pool_performance(session, pool_id, interval=1, return_type=None):
     parameters = {'interval': interval}
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 """
@@ -716,7 +720,7 @@ def update_protection(session, pool_id, alertmode=None,
                       effectivecapacityhistory=None, capacityhistory=None,
                       protectedmode=None, effectiveprotectedmode=None,
                       emergencymode=None, effectiveemergencymode=None,
-                      return_type=None):
+                      return_type=None, **kwargs):
     """
     Update free capacity alert notification settings for a Pool.
 
@@ -796,10 +800,11 @@ def update_protection(session, pool_id, alertmode=None,
 
     path = "/api/pools/{0}/update_protection.json".format(pool_id)
 
-    return session.post_api(path=path, body=body, return_type=return_type)
+    return session.post_api(path=path, body=body, return_type=return_type,
+                            **kwargs)
 
 
-def pool_shrink(session, pool_id, raid_group_id, return_type=None):
+def pool_shrink(session, pool_id, raid_group_id, return_type=None, **kwargs):
     """
     Shrink a pool
 
@@ -827,10 +832,11 @@ def pool_shrink(session, pool_id, raid_group_id, return_type=None):
     path = "/api/pools/{0}/shrink.json".format(pool_id)
     body_values = {'raid_group': raid_group_id}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def cancel_pool_shrink(session, pool_id, raid_group_id, return_type=None):
+def cancel_pool_shrink(session, pool_id, raid_group_id, return_type=None,
+                       **kwargs):
     """
     Shrink a pool
 
@@ -856,10 +862,11 @@ def cancel_pool_shrink(session, pool_id, raid_group_id, return_type=None):
     verify_pool_id(pool_id=pool_id)
     verify_raid_groups(raid_groups=raid_group_id)
     path = "/api/pools/{0}/cancel_shrink.json".format(raid_group_id)
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def expand_pool(session, pool_id, raid_groups_ids, capacity, return_type=None):
+def expand_pool(session, pool_id, raid_groups_ids, capacity, return_type=None,
+                **kwargs):
     """
     Add additional RAID Groups to a Pool.
 
@@ -892,4 +899,4 @@ def expand_pool(session, pool_id, raid_groups_ids, capacity, return_type=None):
     body_values = {"capacity": "{}G".format(capacity),
                    "raid_groups": raid_groups_ids}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)

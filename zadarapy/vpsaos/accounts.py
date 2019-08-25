@@ -16,7 +16,8 @@ from zadarapy.validators import verify_account_id, verify_start_limit, \
     verify_field, verify_boolean
 
 
-def get_all_accounts(session, start=None, limit=None, return_type=None):
+def get_all_accounts(session, start=None, limit=None, return_type=None,
+                     **kwargs):
     """
     Get details on all VPSAOS accounts.
 
@@ -42,10 +43,10 @@ def get_all_accounts(session, start=None, limit=None, return_type=None):
 
     path = "/api/zios/accounts.json"
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_account(session, account_id, return_type=None):
+def get_account(session, account_id, return_type=None, **kwargs):
     """
     Get details of a single account.
 
@@ -68,10 +69,11 @@ def get_account(session, account_id, return_type=None):
     """
     verify_account_id(account_id=account_id)
     path = "/api/zios/accounts/{0}.json".format(account_id)
-    return session.get_api(path=path, secure=True, return_type=return_type)
+    return session.get_api(path=path, secure=True, return_type=return_type,
+                           **kwargs)
 
 
-def create_account(session, account_name, return_type=None):
+def create_account(session, account_name, return_type=None, **kwargs):
     """
     Create a VPSAOS account.  An object storage account is a collection of
     containers. Typically an account is associated with a tenant.  Access
@@ -97,10 +99,11 @@ def create_account(session, account_name, return_type=None):
     path = "/api/zios/accounts.json"
     body_values = {'name': account_name}
     return session.post_api(path=path, body=body_values, secure=True,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def delete_account(session, account_id, force='NO', return_type=None):
+def delete_account(session, account_id, force='NO', return_type=None,
+                   **kwargs):
     """
     Delete a VPSAOS account.
 
@@ -132,10 +135,10 @@ def delete_account(session, account_id, force='NO', return_type=None):
     path = "/api/zios/accounts/{0}.json".format(account_id)
     body_values = {'force': force}
     return session.delete_api(path=path, body=body_values, secure=True,
-                              return_type=return_type)
+                              return_type=return_type, **kwargs)
 
 
-def cleanup_account(session, account_id, return_type=None):
+def cleanup_account(session, account_id, return_type=None, **kwargs):
     """
     Cleanup a VPSAOS account's details.  This will remove billing information
     after an account was deleted.
@@ -159,10 +162,11 @@ def cleanup_account(session, account_id, return_type=None):
     """
     verify_account_id(account_id=account_id)
     path = "/api/zios/accounts/{0}/cleanup.json".format(account_id)
-    return session.delete_api(path=path, secure=True, return_type=return_type)
+    return session.delete_api(path=path, secure=True, return_type=return_type,
+                              **kwargs)
 
 
-def disable_account(session, account_id, return_type=None):
+def disable_account(session, account_id, return_type=None, **kwargs):
     """
     Disable a VPSAOS account.
 
@@ -185,10 +189,11 @@ def disable_account(session, account_id, return_type=None):
     """
     verify_account_id(account_id=account_id)
     path = "/api/zios/accounts/{0}/disable.json".format(account_id)
-    return session.post_api(path=path, secure=True, return_type=return_type)
+    return session.post_api(path=path, secure=True, return_type=return_type,
+                            **kwargs)
 
 
-def get_all_users_in_account(session, account_id, return_type=None):
+def get_all_users_in_account(session, account_id, return_type=None, **kwargs):
     """
     Get details for all users in a VPSAOS account.
 
@@ -211,10 +216,11 @@ def get_all_users_in_account(session, account_id, return_type=None):
     """
     verify_account_id(account_id)
     path = '/api/zios/accounts/{0}/users.json'.format(account_id)
-    return session.get_api(path=path, secure=True, return_type=return_type)
+    return session.get_api(path=path, secure=True, return_type=return_type,
+                           **kwargs)
 
 
-def enable_account(session, account_id, return_type=None):
+def enable_account(session, account_id, return_type=None, **kwargs):
     """
     Enable a VPSAOS account.
 
@@ -237,4 +243,5 @@ def enable_account(session, account_id, return_type=None):
     """
     verify_account_id(account_id=account_id)
     path = "/api/zios/accounts/{0}/enable.json".format(account_id)
-    return session.post_api(path=path, secure=True, return_type=return_type)
+    return session.post_api(path=path, secure=True, return_type=return_type,
+                            **kwargs)

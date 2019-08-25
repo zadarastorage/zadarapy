@@ -17,7 +17,7 @@ from zadarapy.validators import verify_start_limit, verify_account_id, \
     verify_boolean, verify_email, verify_field
 
 
-def get_user(session, user_id, return_type=None):
+def get_user(session, user_id, return_type=None, **kwargs):
     """
     Get VPSAOS User information
 
@@ -37,11 +37,11 @@ def get_user(session, user_id, return_type=None):
         return_type parameter.
     """
     path = "/api/zios/users/{0}.json".format(user_id)
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def get_all_users(session, account_id, start=None, limit=None,
-                  return_type=None):
+                  return_type=None, **kwargs):
     """
     Get all VPSAOS Users information
 
@@ -72,11 +72,11 @@ def get_all_users(session, account_id, start=None, limit=None,
     parameters = verify_start_limit(start, limit)
     path = "/api/zios/accounts/{0}/users.json".format(account_id)
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 def add_new_user(session, account_id, username, email, role,
-                 notify_on_events="NO", return_type=None):
+                 notify_on_events="NO", return_type=None, **kwargs):
     """
     Add new user
 
@@ -120,10 +120,10 @@ def add_new_user(session, account_id, username, email, role,
                    'email': email, 'role': role,
                    'notify_on_events': notify_on_events}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def delete_user(session, user_id, return_type=None):
+def delete_user(session, user_id, return_type=None, **kwargs):
     """
     Delete user
 
@@ -144,10 +144,11 @@ def delete_user(session, user_id, return_type=None):
     """
     verify_field(user_id, "user_id")
     path = "/api/zios/users/{0}.json".format(user_id)
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_auth_token(session, account_id, username, password, return_type=None):
+def get_auth_token(session, account_id, username, password, return_type=None,
+                   **kwargs):
     """
     Get user authentication token
 
@@ -178,10 +179,10 @@ def get_auth_token(session, account_id, username, password, return_type=None):
     body_values = {'account': account_id, 'user': username,
                    'password': password}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def disable_user(session, user_id, return_type=None):
+def disable_user(session, user_id, return_type=None, **kwargs):
     """
     Disable User
 
@@ -202,10 +203,10 @@ def disable_user(session, user_id, return_type=None):
     """
     verify_field(user_id, 'user_id')
     path = "/api/zios/users/{0}/disable.json".format(user_id)
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def enable_user(session, user_id, return_type=None):
+def enable_user(session, user_id, return_type=None, **kwargs):
     """
     Enable User
 
@@ -226,10 +227,10 @@ def enable_user(session, user_id, return_type=None):
     """
     verify_field(user_id, 'user_id')
     path = "/api/zios/users/{0}/enable.json".format(user_id)
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def disable_admin_access(session, return_type=None):
+def disable_admin_access(session, return_type=None, **kwargs):
     """
     Disable Admin acccess
 
@@ -246,10 +247,11 @@ def disable_admin_access(session, return_type=None):
         return_type parameter.
     """
     path = "/api/users/admin_access/disable.json"
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def reset_token(session, account_id, user_id, password, return_type=None):
+def reset_token(session, account_id, user_id, password, return_type=None,
+                **kwargs):
     """
     Enable User
 
@@ -284,11 +286,11 @@ def reset_token(session, account_id, user_id, password, return_type=None):
     body_values = {'account': account_id, 'user': user_id,
                    'password': password}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def change_password(session, account_id, user_id, password, new_password,
-                    return_type=None):
+                    return_type=None, **kwargs):
     """
     Change user password
 
@@ -327,10 +329,10 @@ def change_password(session, account_id, user_id, password, new_password,
     body_values = {'account': account_id, 'user': user_id,
                    'password': password, 'new_password': new_password}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def reset_password(session, account_id, user_id, return_type=None):
+def reset_password(session, account_id, user_id, return_type=None, **kwargs):
     """
     Reset user password
 
@@ -359,11 +361,11 @@ def reset_password(session, account_id, user_id, return_type=None):
     path = '/api/zios/users/reset_password.json'
     body_values = {'account': account_id, 'username': user_id}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def reset_using_temporary_password(session, code, new_password, user_id,
-                                   account_id, return_type=None):
+                                   account_id, return_type=None, **kwargs):
     """
     Reset using temp password
 
@@ -401,10 +403,10 @@ def reset_using_temporary_password(session, code, new_password, user_id,
     body_values = {'code': code, 'new_password': new_password,
                    'account': account_id}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def change_user_role(session, user_id, role, return_type=None):
+def change_user_role(session, user_id, role, return_type=None, **kwargs):
     """
     Change user role
 
@@ -431,4 +433,4 @@ def change_user_role(session, user_id, role, return_type=None):
     path = '/api/zios/users/{0}/change_rol.json'.format(user_id)
     body_values = {'role': role}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)

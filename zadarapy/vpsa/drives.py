@@ -18,7 +18,8 @@ from zadarapy.validators import verify_boolean, \
     verify_field, verify_start_limit, verify_volume_id, verify_interval
 
 
-def get_all_drives(session, start=None, limit=None, return_type=None):
+def get_all_drives(session, start=None, limit=None, return_type=None,
+                   **kwargs):
     """
     Retrieves details for all drives attached to the VPSA.
 
@@ -45,10 +46,11 @@ def get_all_drives(session, start=None, limit=None, return_type=None):
     path = '/api/drives.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_free_drives(session, start=None, limit=None, return_type=None):
+def get_free_drives(session, start=None, limit=None, return_type=None,
+                    **kwargs):
     """
     Retrieves details for all drives that are available for use (not
     participating in a RAID group).
@@ -76,10 +78,10 @@ def get_free_drives(session, start=None, limit=None, return_type=None):
     path = '/api/drives/free.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_drive(session, drive_id, return_type=None):
+def get_drive(session, drive_id, return_type=None, **kwargs):
     """
     Retrieves details for a single drive.
 
@@ -103,10 +105,10 @@ def get_drive(session, drive_id, return_type=None):
 
     path = '/api/drives/{0}.json'.format(drive_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def rename_drive(session, drive_id, display_name, return_type=None):
+def rename_drive(session, drive_id, display_name, return_type=None, **kwargs):
     """
     Sets the "display_name" drive parameter to a new value.
 
@@ -138,10 +140,10 @@ def rename_drive(session, drive_id, display_name, return_type=None):
     path = '/api/drives/{0}/rename.json'.format(drive_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def remove_drive(session, drive_id, return_type=None):
+def remove_drive(session, drive_id, return_type=None, **kwargs):
     """
     Removes a drive from the VPSA.  Only drives that aren't participating in a
     RAID group may be removed.
@@ -166,11 +168,11 @@ def remove_drive(session, drive_id, return_type=None):
 
     path = '/api/drives/{0}/remove.json'.format(drive_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
 def replace_drive(session, drive_id, to_drive_id, force='NO',
-                  return_type=None):
+                  return_type=None, **kwargs):
     """
     Replaces a drive, identified by drive_id parameter, with a new unallocated
     drive, identified by to_drive_id parameter, in a RAID group.  The
@@ -212,10 +214,10 @@ def replace_drive(session, drive_id, to_drive_id, force='NO',
     path = '/api/drives/{0}/replace.json'.format(drive_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def shred_drive(session, drive_id, force='NO', return_type=None):
+def shred_drive(session, drive_id, force='NO', return_type=None, **kwargs):
     """
     Initializes drive shredding for an individual drive.  Drive must not be
     participating in a RAID group.  CAUTION: This procedure will permanently
@@ -250,10 +252,10 @@ def shred_drive(session, drive_id, force='NO', return_type=None):
     path = '/api/drives/{0}/shred.json'.format(drive_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def cancel_shred_drive(session, drive_id, return_type=None):
+def cancel_shred_drive(session, drive_id, return_type=None, **kwargs):
     """
     Cancels a drive shred that is currently in process.
 
@@ -277,10 +279,11 @@ def cancel_shred_drive(session, drive_id, return_type=None):
 
     path = '/api/drives/{0}/cancel_shred.json'.format(drive_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_drive_performance(session, drive_id, interval=1, return_type=None):
+def get_drive_performance(session, drive_id, interval=1, return_type=None,
+                          **kwargs):
     """
     Retrieves metering statistics for the drive for the specified interval.
     Default interval is one second.
@@ -312,4 +315,4 @@ def get_drive_performance(session, drive_id, interval=1, return_type=None):
     parameters = {'interval': interval}
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)

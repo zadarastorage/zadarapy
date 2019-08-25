@@ -16,7 +16,7 @@ from zadarapy.validators import verify_boolean, verify_encryption_state, \
     get_parameters_options
 
 
-def get_settings_config(session, return_type=None):
+def get_settings_config(session, return_type=None, **kwargs):
     """
     Get VPSAOS setting configuration
 
@@ -33,10 +33,10 @@ def get_settings_config(session, return_type=None):
         return_type parameter.
     """
     path = "/api/settings_config.json"
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def ssl_termination(session, is_terminate, return_type=None):
+def ssl_termination(session, is_terminate, return_type=None, **kwargs):
     """
     VPSAOS SSL termination
 
@@ -59,10 +59,10 @@ def ssl_termination(session, is_terminate, return_type=None):
     path = "/api/zios/settings/ssl_termination.json"
     body_values = {"ssltermination": "on" if is_terminate else "off"}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def set_encryption(session, encryption_pwd, return_type=None):
+def set_encryption(session, encryption_pwd, return_type=None, **kwargs):
     """
     Set encryption.
 
@@ -84,10 +84,10 @@ def set_encryption(session, encryption_pwd, return_type=None):
     path = '/api/zios/settings/encryption.json'
     parameters = get_parameters_options([('encryption_pwd', encryption_pwd)])
     return session.post_api(path=path, parameters=parameters,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def set_encryption_state(session, state, return_type=None):
+def set_encryption_state(session, state, return_type=None, **kwargs):
     """
     Set encryption state.
 
@@ -112,10 +112,10 @@ def set_encryption_state(session, state, return_type=None):
     parameters = get_parameters_options([('state', state)])
 
     return session.post_api(path=path, parameters=parameters,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def restore_encryption(session, encryption_pwd, return_type=None):
+def restore_encryption(session, encryption_pwd, return_type=None, **kwargs):
     """
     Restore encryption.
 
@@ -137,4 +137,4 @@ def restore_encryption(session, encryption_pwd, return_type=None):
     path = '/api/zios/settings/restore_encryption.json'
     parameters = get_parameters_options([('encryption_pwd', encryption_pwd)])
     return session.post_api(path=path, parameters=parameters,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)

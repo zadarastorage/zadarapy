@@ -20,7 +20,8 @@ from zadarapy.validators import verify_snapshot_id, verify_boolean, \
     verify_mirror_id
 
 
-def get_all_mirrors(session, start=None, limit=None, return_type=None):
+def get_all_mirrors(session, start=None, limit=None, return_type=None,
+                    **kwargs):
     """
     Retrieves details for all mirror jobs configured on the VPSA.
 
@@ -47,10 +48,10 @@ def get_all_mirrors(session, start=None, limit=None, return_type=None):
     path = '/api/mirror_jobs.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_mirror(session, mirror_id, return_type=None):
+def get_mirror(session, mirror_id, return_type=None, **kwargs):
     """
     Retrieves details for the specified mirror job configured on the VPSA.
 
@@ -74,10 +75,10 @@ def get_mirror(session, mirror_id, return_type=None):
 
     path = '/api/mirror_jobs/{0}.json'.format(mirror_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def pause_mirror(session, mirror_id, return_type=None):
+def pause_mirror(session, mirror_id, return_type=None, **kwargs):
     """
     Pauses a mirror job.  This should only be initiated from the source VPSA.
     e.g. the mirror job ID should start with "srcjvpsa-".
@@ -102,10 +103,10 @@ def pause_mirror(session, mirror_id, return_type=None):
 
     path = '/api/mirror_jobs/{0}/pause.json'.format(mirror_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def resume_paused_mirror(session, mirror_id, return_type=None):
+def resume_paused_mirror(session, mirror_id, return_type=None, **kwargs):
     """
     Resumes a paused mirror job.  This should only be initiated from the
     source VPSA.  e.g. the mirror job ID should start with "srcjvpsa-".
@@ -130,10 +131,10 @@ def resume_paused_mirror(session, mirror_id, return_type=None):
 
     path = '/api/mirror_jobs/{0}/continue.json'.format(mirror_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def break_mirror(session, mirror_id, return_type=None):
+def break_mirror(session, mirror_id, return_type=None, **kwargs):
     """
     Breaks a mirror job.  This can be initiated from either the source or
     destination VPSA.  A broken mirror can be reconnected if all appropriate
@@ -162,10 +163,11 @@ def break_mirror(session, mirror_id, return_type=None):
 
     path = '/api/mirror_jobs/{0}/break.json'.format(mirror_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_all_remote_vpsas(session, start=None, limit=None, return_type=None):
+def get_all_remote_vpsas(session, start=None, limit=None, return_type=None,
+                         **kwargs):
     """
     Retrieves details for all remote VPSAs with which this VPSA has a
     relationship.
@@ -193,10 +195,10 @@ def get_all_remote_vpsas(session, start=None, limit=None, return_type=None):
     path = '/api/remote_vpsas.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_remote_vpsa(session, rvpsa_id, return_type=None):
+def get_remote_vpsa(session, rvpsa_id, return_type=None, **kwargs):
     """
     Retrieves details for a single remote VPSA.
 
@@ -220,11 +222,11 @@ def get_remote_vpsa(session, rvpsa_id, return_type=None):
 
     path = '/api/remote_vpsas/{0}.json'.format(rvpsa_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def discover_remote_vpsa(session, ip_address, username, password, public,
-                         return_type=None):
+                         return_type=None, **kwargs):
     """
     Establishes a relationship with a remote VPSA for the purposes of
     mirroring volume snapshots.
@@ -272,10 +274,10 @@ def discover_remote_vpsa(session, ip_address, username, password, public,
     path = '/api/remote_vpsas/discover.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def refresh_remote_vpsa(session, rvpsa_id, return_type=None):
+def refresh_remote_vpsa(session, rvpsa_id, return_type=None, **kwargs):
     """
     Refreshes information about a remote VPSA - such as discovering new pools
     and updating how much free space remote pools have.
@@ -300,10 +302,10 @@ def refresh_remote_vpsa(session, rvpsa_id, return_type=None):
 
     path = '/api/remote_vpsas/{0}/refresh.json'.format(rvpsa_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def remove_remote_vpsa(session, rvpsa_id, return_type=None):
+def remove_remote_vpsa(session, rvpsa_id, return_type=None, **kwargs):
     """
     Removes a remote VPSA relationship.  There must be no active or paused
     mirror jobs with the specified remote VPSA.
@@ -328,11 +330,11 @@ def remove_remote_vpsa(session, rvpsa_id, return_type=None):
 
     path = '/api/remote_vpsas/{0}.json'.format(rvpsa_id)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
 def get_remote_vpsa_pools(session, rvpsa_id, start=None, limit=None,
-                          return_type=None):
+                          return_type=None, **kwargs):
     """
     Retrieves details for all pools on the remote VPSA.
 
@@ -364,11 +366,11 @@ def get_remote_vpsa_pools(session, rvpsa_id, start=None, limit=None,
     path = '/api/remote_vpsas/{0}/pools.json'.format(rvpsa_id)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 def get_suggested_mirrors(session, rvpsa_id, cg_id, start=None, limit=None,
-                          return_type=None):
+                          return_type=None, **kwargs):
     """
     Retrieves a list of broken mirror jobs from the remote VPSA and validates
     if one can be re-used for the consistency group ID passed to this
@@ -412,13 +414,13 @@ def get_suggested_mirrors(session, rvpsa_id, cg_id, start=None, limit=None,
     path = '/api/remote_vpsas/{0}/suggested_jobs.json'.format(rvpsa_id)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
 def resume_broken_mirror(session, rvpsa_id, display_name, policy_id,
                          local_snapshot_id, remote_snapshot_id,
                          wan_optimization='YES', compress=None, dedupe=None,
-                         force='NO', return_type=None):
+                         force='NO', return_type=None, **kwargs):
     """
     Resumes a previously broken mirror job between VPSAs.  Use in conjunction
     with get_suggested_mirrors to find candidates for resume.
@@ -498,11 +500,11 @@ def resume_broken_mirror(session, rvpsa_id, display_name, policy_id,
     path = '/api/remote_vpsas/{0}/resume_mirror_job.json'.format(rvpsa_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def add_mirror_snapshot_policy(session, mirror_id, policy_id,
-                               return_type=None):
+                               return_type=None, **kwargs):
     """
     Adds an additional snapshot policy to an existing mirror job.  This should
     only be initiated from the source VPSA.  e.g. the mirror job ID should
@@ -536,11 +538,12 @@ def add_mirror_snapshot_policy(session, mirror_id, policy_id,
     path = '/api/mirror_jobs/{0}/attach_snapshot_policy.json'.format(mirror_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def remove_mirror_snapshot_policy(session, mirror_id, policy_id,
-                                  delete_snapshots, return_type=None):
+                                  delete_snapshots, return_type=None,
+                                  **kwargs):
     """
     Removes a snapshot policy from an existing mirror job.  A mirror job must
     always have at least one snapshot policy attached.  This should only be
@@ -581,11 +584,11 @@ def remove_mirror_snapshot_policy(session, mirror_id, policy_id,
     path = '/api/mirror_jobs/{0}/detach_snapshot_policy.json'.format(mirror_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def update_mirror_wan_optimization(session, mirror_id, wan_optimization,
-                                   return_type=None):
+                                   return_type=None, **kwargs):
     """
     Change the WAN optimization setting for a mirror job.  This should only be
     initiated from the source VPSA.  e.g. the mirror job ID should start with
@@ -622,10 +625,10 @@ def update_mirror_wan_optimization(session, mirror_id, wan_optimization,
     body_values = {'wan_optimization': wan_optimization}
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def get_snapshots(session, mirror_id, return_type=None):
+def get_snapshots(session, mirror_id, return_type=None, **kwargs):
     """
     Get all snapshots from mirror job
 
@@ -649,11 +652,11 @@ def get_snapshots(session, mirror_id, return_type=None):
 
     path = '/api/mirror_jobs/{0}/snapshots.json'.format(mirror_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
 def clone_mirror_job(session, mirror_id, snapshot_id, clone_name,
-                     return_type=None):
+                     return_type=None, **kwargs):
     """
     Clone a mirror job's snapshot into a volume.
 
@@ -687,11 +690,11 @@ def clone_mirror_job(session, mirror_id, snapshot_id, clone_name,
     path = '/api/mirror_jobs/{0}/clone_snapshot.json'.format(mirror_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def detach_snapshot_policy(session, policy_id, mirror_id, snap_rule_id,
-                           delete_snapshots="YES", return_type=None):
+                           delete_snapshots="YES", return_type=None, **kwargs):
     """
     Detach a Snapshot Policy from a Volume
 
@@ -733,11 +736,11 @@ def detach_snapshot_policy(session, policy_id, mirror_id, snap_rule_id,
                    "delete_snapshots": delete_snapshots}
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def update_remote_vpsa_rate_limit(session, remote_vpsa_id, limit,
-                                  return_type=None):
+                                  return_type=None, **kwargs):
     """
     Detach a Snapshot Policy from a Volume
 
@@ -762,10 +765,11 @@ def update_remote_vpsa_rate_limit(session, remote_vpsa_id, limit,
     path = "/api/remote_vpsas/{0}/rate_limit.json".format(remote_vpsa_id)
     body_values = {"limit": limit}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def update_mirror_rate_limit(session, remote_vpsa_id, limit, return_type=None):
+def update_mirror_rate_limit(session, remote_vpsa_id, limit, return_type=None,
+                             **kwargs):
     """
     Update Mirror rate limit
 
@@ -790,11 +794,11 @@ def update_mirror_rate_limit(session, remote_vpsa_id, limit, return_type=None):
     path = "/api/mirror_jobs/{0}/rate_limit.json".format(remote_vpsa_id)
     body_values = {"limit": limit}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def get_suggested_mirror_jobs(session, remote_vpsa_id, cg_id,
-                              return_type=None):
+                              return_type=None, **kwargs):
     """
     Get suggested mirror jobs
 
@@ -820,4 +824,4 @@ def get_suggested_mirror_jobs(session, remote_vpsa_id, cg_id,
     body_values = {"cgname": cg_id}
 
     return session.get_api(path=path, body=body_values,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)

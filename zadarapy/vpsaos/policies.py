@@ -15,7 +15,8 @@
 from zadarapy.validators import verify_start_limit, verify_field
 
 
-def get_all_policies(session, start=None, limit=None, return_type=None):
+def get_all_policies(session, start=None, limit=None, return_type=None,
+                     **kwargs):
     """
     Retrieves details for all Storage policies in the VPSAOS.
 
@@ -40,10 +41,10 @@ def get_all_policies(session, start=None, limit=None, return_type=None):
     parameters = verify_start_limit(start, limit)
     path = '/api/zios/policies.json'
     return session.get_api(path=path, parameters=parameters,
-                           secure=True, return_type=return_type)
+                           secure=True, return_type=return_type, **kwargs)
 
 
-def get_policy(session, policy_name, return_type=None):
+def get_policy(session, policy_name, return_type=None, **kwargs):
     """
     Retrieves details for a single virtual controller for the VPSAOS.
 
@@ -65,10 +66,11 @@ def get_policy(session, policy_name, return_type=None):
     """
     verify_field(policy_name, "policy_name")
     path = '/api/zios/policies/{0}.json'.format(policy_name)
-    return session.get_api(path=path, secure=True, return_type=return_type)
+    return session.get_api(path=path, secure=True, return_type=return_type,
+                           **kwargs)
 
 
-def set_default_policy(session, policy_name, return_type=None):
+def set_default_policy(session, policy_name, return_type=None, **kwargs):
     """
     Set the policy as a default policy
 
@@ -90,4 +92,5 @@ def set_default_policy(session, policy_name, return_type=None):
     """
     path = '/api/zios/policies/{0}/set_default.json'.format(policy_name)
 
-    return session.post_api(path=path, secure=True, return_type=return_type)
+    return session.post_api(path=path, secure=True, return_type=return_type,
+                            **kwargs)

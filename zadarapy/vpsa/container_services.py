@@ -21,7 +21,8 @@ from zadarapy.validators import verify_boolean, \
 from zadarapy.vpsa import ERROR_MSG
 
 
-def get_all_zcs_images(session, start=None, limit=None, return_type=None):
+def get_all_zcs_images(session, start=None, limit=None, return_type=None,
+                       **kwargs):
     """
     Retrieves details for all Zadara Container Services (ZCS) images
     configured on the VPSA.
@@ -48,10 +49,10 @@ def get_all_zcs_images(session, start=None, limit=None, return_type=None):
     path = '/api/images.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_zcs_image(session, zcs_image_id, return_type=None):
+def get_zcs_image(session, zcs_image_id, return_type=None, **kwargs):
     """
     Retrieves details for a single Zadara Container Services (ZCS) image.
 
@@ -75,11 +76,11 @@ def get_zcs_image(session, zcs_image_id, return_type=None):
 
     path = '/api/images/{0}.json'.format(zcs_image_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_zcs_image(session, display_name, path, volume_id=None,
-                     return_type=None):
+                     return_type=None, **kwargs):
     """
     Creates a new Zadara Container Services (ZCS) image.  Running container
     instances are created from these images.
@@ -131,7 +132,7 @@ def create_zcs_image(session, display_name, path, volume_id=None,
 
     try:
         res = session.post_api(path=path, body=body_values,
-                               return_type=return_type)
+                               return_type=return_type, **kwargs)
     except RuntimeError as exc:
         err = str(exc)
         # The API server returned an error: "The request has been submitted".
@@ -143,7 +144,7 @@ def create_zcs_image(session, display_name, path, volume_id=None,
     return res
 
 
-def delete_zcs_image(session, zcs_image_id, return_type=None):
+def delete_zcs_image(session, zcs_image_id, return_type=None, **kwargs):
     """
     Deletes a Zadara Container Services (ZCS) image.  There must not be any
     spawned containers using this image.  This action is irreversible.
@@ -168,11 +169,11 @@ def delete_zcs_image(session, zcs_image_id, return_type=None):
 
     path = '/api/images/{0}.json'.format(zcs_image_id)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
 def get_all_zcs_containers_by_image(session, zcs_image_id, start=None,
-                                    limit=None, return_type=None):
+                                    limit=None, return_type=None, **kwargs):
     """
     Retrieves details for all Zadara Container Services (ZCS) containers
     instantiated from the specified ZCS image.
@@ -206,10 +207,11 @@ def get_all_zcs_containers_by_image(session, zcs_image_id, start=None,
     path = '/api/images/{0}/containers.json'.format(zcs_image_id)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_all_zcs_containers(session, start=None, limit=None, return_type=None):
+def get_all_zcs_containers(session, start=None, limit=None, return_type=None,
+                           **kwargs):
     """
     Retrieves details for all Zadara Container Services (ZCS) containers
     configured on the VPSA.
@@ -238,10 +240,10 @@ def get_all_zcs_containers(session, start=None, limit=None, return_type=None):
     path = '/api/containers.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_zcs_container(session, zcs_container_id, return_type=None):
+def get_zcs_container(session, zcs_container_id, return_type=None, **kwargs):
     """
     Retrieves details for a single Zadara Container Services (ZCS) container.
 
@@ -265,13 +267,13 @@ def get_zcs_container(session, zcs_container_id, return_type=None):
 
     path = '/api/containers/{0}.json'.format(zcs_container_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_zcs_container(session, display_name, zcs_image_id, start,
                          use_public_ip='NO', entrypoint=None, volumes=None,
                          args=None, envvars=None, memorypoolname=None,
-                         return_type=None):
+                         return_type=None, **kwargs):
     """
     Creates a Zadara Container Services (ZCS) container.  Requires a valid ZCS
     image to instantiate from.
@@ -499,10 +501,10 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
     path = '/api/containers.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def start_zcs_container(session, zcs_container_id, return_type=None):
+def start_zcs_container(session, zcs_container_id, return_type=None, **kwargs):
     """
     Starts a stopped Zadara Container Services (ZCS) container.
 
@@ -526,10 +528,10 @@ def start_zcs_container(session, zcs_container_id, return_type=None):
 
     path = '/api/containers/{0}/start.json'.format(zcs_container_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def stop_zcs_container(session, zcs_container_id, return_type=None):
+def stop_zcs_container(session, zcs_container_id, return_type=None, **kwargs):
     """
     Stops a running Zadara Container Services (ZCS) container.
 
@@ -554,7 +556,7 @@ def stop_zcs_container(session, zcs_container_id, return_type=None):
     path = '/api/containers/{0}/stop.json'.format(zcs_container_id)
 
     try:
-        res = session.post_api(path=path, return_type=return_type)
+        res = session.post_api(path=path, return_type=return_type, **kwargs)
     except RuntimeError as exc:
         err = str(exc)
         # The API server returned an error: "The request has been submitted".
@@ -566,7 +568,8 @@ def stop_zcs_container(session, zcs_container_id, return_type=None):
     return res
 
 
-def delete_zcs_container(session, zcs_container_id, return_type=None):
+def delete_zcs_container(session, zcs_container_id, return_type=None,
+                         **kwargs):
     """
     Deletes a Zadara Container Services (ZCS) container.  The container must
     first be stopped.  This action is irreversible.
@@ -592,7 +595,7 @@ def delete_zcs_container(session, zcs_container_id, return_type=None):
     path = '/api/containers/{0}.json'.format(zcs_container_id)
 
     try:
-        res = session.delete_api(path=path, return_type=return_type)
+        res = session.delete_api(path=path, return_type=return_type, **kwargs)
     except RuntimeError as exc:
         err = str(exc)
         # The API server returned an error: "The request has been submitted".
@@ -604,7 +607,8 @@ def delete_zcs_container(session, zcs_container_id, return_type=None):
     return res
 
 
-def get_container_performance(session, zcs_container_id, return_type=None):
+def get_container_performance(session, zcs_container_id, return_type=None,
+                              **kwargs):
     """
     Get Container performance
 
@@ -628,10 +632,10 @@ def get_container_performance(session, zcs_container_id, return_type=None):
 
     path = "/api/containers/{0}/performance.json".format(zcs_container_id)
 
-    return session.get_api(path=path, return_type=return_type)()
+    return session.get_api(path=path, return_type=return_type, **kwargs)()
 
 
-def get_memory_pool(session, mempool_id, return_type=None):
+def get_memory_pool(session, mempool_id, return_type=None, **kwargs):
     """
     Retrieves details for a single Memory Pool.
 
@@ -655,10 +659,10 @@ def get_memory_pool(session, mempool_id, return_type=None):
 
     path = 'api/container_memory_pools/{0}.json'.format(mempool_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_all_memory_pools(session, return_type=None):
+def get_all_memory_pools(session, return_type=None, **kwargs):
     """
     Retrieves details for all Memory Pools in VPSA.
 
@@ -675,10 +679,10 @@ def get_all_memory_pools(session, return_type=None):
         return_type parameter.
     """
     path = "/api/container_memory_pools.json"
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def delete_memory_pool(session, mempool_id, return_type=None):
+def delete_memory_pool(session, mempool_id, return_type=None, **kwargs):
     """
     Retrieves details for a single Memory Pool.
 
@@ -702,10 +706,10 @@ def delete_memory_pool(session, mempool_id, return_type=None):
 
     path = 'api/container_memory_pools/{0}.json'.format(mempool_id)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
-def create_mem_pool(session, display_name, mb, return_type=None):
+def create_mem_pool(session, display_name, mb, return_type=None, **kwargs):
     """
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -732,4 +736,4 @@ def create_mem_pool(session, display_name, mb, return_type=None):
     body_values = {'name': display_name, 'mb': mb}
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)

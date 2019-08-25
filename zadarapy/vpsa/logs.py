@@ -17,7 +17,7 @@ from zadarapy.validators import verify_start_limit_sort_severity
 
 
 def get_logs(session, sort='DESC', severity=None, start=None, limit=None,
-             return_type=None):
+             return_type=None, **kwargs):
     """
     Retrieves logs from the VPSA.
 
@@ -55,4 +55,4 @@ def get_logs(session, sort='DESC', severity=None, start=None, limit=None,
     path = '/api/messages.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)

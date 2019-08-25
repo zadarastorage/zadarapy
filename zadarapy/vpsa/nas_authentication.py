@@ -31,7 +31,8 @@ __all__ = ["get_active_directory", "get_all_nas_groups", "get_all_nas_users",
            "update_active_directory_dns"]
 
 
-def get_all_nas_users(session, start=None, limit=None, return_type=None):
+def get_all_nas_users(session, start=None, limit=None, return_type=None,
+                      **kwargs):
     """
     Retrieves details for all NAS users configured on the VPSA.
 
@@ -58,10 +59,10 @@ def get_all_nas_users(session, start=None, limit=None, return_type=None):
     path = '/api/nas/users.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_nas_user(session, username, return_type=None):
+def get_nas_user(session, username, return_type=None, **kwargs):
     """
     Retrieves details for a single NAS user.
 
@@ -84,11 +85,11 @@ def get_nas_user(session, username, return_type=None):
 
     path = '/api/nas/users/{0}.json'.format(username)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_nas_user(session, username, nfs_uid=None, smb_password=None,
-                    smb_groupname=None, return_type=None):
+                    smb_groupname=None, return_type=None, **kwargs):
     """
     Creates a NAS user.  Either nfs_uid or smb_password (or both) must be
     specified.
@@ -148,11 +149,11 @@ def create_nas_user(session, username, nfs_uid=None, smb_password=None,
     path = '/api/nas/users.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def change_nas_user_smb_password(session, username, smb_password,
-                                 return_type=None):
+                                 return_type=None, **kwargs):
     """
     Changes the SMB password for a NAS user.
 
@@ -183,10 +184,10 @@ def change_nas_user_smb_password(session, username, smb_password,
     path = '/api/nas/users/{0}/password.json'.format(username)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def delete_nas_user(session, username, return_type=None):
+def delete_nas_user(session, username, return_type=None, **kwargs):
     """
     Deletes a NAS user.
 
@@ -209,10 +210,11 @@ def delete_nas_user(session, username, return_type=None):
 
     path = '/api/nas/users/{0}.json'.format(username)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_all_nas_groups(session, start=None, limit=None, return_type=None):
+def get_all_nas_groups(session, start=None, limit=None, return_type=None,
+                       **kwargs):
     """
     Retrieves details for all NAS groups configured on the VPSA.
 
@@ -239,10 +241,10 @@ def get_all_nas_groups(session, start=None, limit=None, return_type=None):
     path = '/api/nas/groups.json'
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_nas_group(session, groupname, return_type=None):
+def get_nas_group(session, groupname, return_type=None, **kwargs):
     """
     Retrieves details for a single NAS group.
 
@@ -265,11 +267,11 @@ def get_nas_group(session, groupname, return_type=None):
 
     path = '/api/nas/groups/{0}.json'.format(groupname)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_nas_group(session, groupname, nfs_gid=None, smb='NO',
-                     return_type=None):
+                     return_type=None, **kwargs):
     """
     Creates a NAS user.  Either nfs_gid must be specified or smb must be set
     to 'YES' (or both).
@@ -312,10 +314,10 @@ def create_nas_group(session, groupname, nfs_gid=None, smb='NO',
     path = '/api/nas/groups.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def delete_nas_group(session, groupname, return_type=None):
+def delete_nas_group(session, groupname, return_type=None, **kwargs):
     """
     Deletes a NAS group.
 
@@ -338,10 +340,10 @@ def delete_nas_group(session, groupname, return_type=None):
 
     path = '/api/nas/groups/{0}.json'.format(groupname)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_active_directory(session, return_type=None):
+def get_active_directory(session, return_type=None, **kwargs):
     """
     Retrieves details for Active Directory domains configured on the VPSA.
 
@@ -359,11 +361,12 @@ def get_active_directory(session, return_type=None):
     """
     path = '/api/active_directory.json'
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def join_active_directory(session, display_name, username, password,
-                          dns_domain, netbios_name, dns, return_type=None):
+                          dns_domain, netbios_name, dns, return_type=None,
+                          **kwargs):
     """
     Joins the VPSA to an Active Directory domain.  After this is done, for all
     NAS SMB shares that should use Active Directory to resolve users and
@@ -422,10 +425,10 @@ def join_active_directory(session, display_name, username, password,
     path = '/api/active_directory.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def update_active_directory_dns(session, dns, return_type=None):
+def update_active_directory_dns(session, dns, return_type=None, **kwargs):
     """
     Updates the DNS servers for the previous joined Active Directory.
 
@@ -453,10 +456,11 @@ def update_active_directory_dns(session, dns, return_type=None):
     path = '/api/active_directory/dns.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def leave_active_directory(session, username, password, return_type=None):
+def leave_active_directory(session, username, password, return_type=None,
+                           **kwargs):
     """
     Makes the VPSA leave the previously joined Active Directory.
 
@@ -488,7 +492,7 @@ def leave_active_directory(session, username, password, return_type=None):
     path = '/api/active_directory/reset.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 """
