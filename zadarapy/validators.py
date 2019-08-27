@@ -737,6 +737,10 @@ def is_valid_vpsa_display_name(vpsa_display_name):
 
 
 def is_valid_vpsaos_account_id(account_id):
+    """
+    :param account_id: Account ID to check validity
+    :return: True iff VPSAOS account is valid
+    """
     valid_set = set('0123456789abcdef')
     return all(c in valid_set for c in account_id)
 
@@ -1643,7 +1647,7 @@ def verify_snapshot_rule_name(snapshot_rule_name):
 
 
 """
-VPSAOS
+VPSAOS (ZIOS)
 """
 
 

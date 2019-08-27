@@ -22,7 +22,7 @@ from urllib.parse import urlencode
 from zadarapy.validators import is_valid_field, verify_positive_argument
 
 
-def get_all_vpsas(session, return_type=None):
+def get_all_vpsas(session, return_type=None, **kwargs):
     """
     Retrieves details for all VPSAs of the connecting user.
 
@@ -40,10 +40,10 @@ def get_all_vpsas(session, return_type=None):
     """
     path = '/api/vpsas.json'
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_vpsa(session, vpsa_id, return_type=None):
+def get_vpsa(session, vpsa_id, return_type=None, **kwargs):
     """
     Retrieves details for a single VPSA.
 
@@ -71,12 +71,12 @@ def get_vpsa(session, vpsa_id, return_type=None):
 
     path = '/api/vpsas/{0}.json'.format(vpsa_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
                 drives, description=None, allocation_zone=None,
-                return_type=None):
+                return_type=None, **kwargs):
     """
     Submits a request to create a new VPSA.  This must be approved by a
     storage cloud administrator before the VPSA creation starts.
@@ -215,10 +215,11 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
 
     body = urlencode(body_values)
 
-    return session.post_api(path=path, body=body, return_type=return_type)
+    return session.post_api(path=path, body=body, return_type=return_type,
+                            **kwargs)
 
 
-def delete_vpsa(session, vpsa_id, return_type=None):
+def delete_vpsa(session, vpsa_id, return_type=None, **kwargs):
     """
     Submits a request to delete a VPSA.  This must be approved by a storage
     cloud administrator before the VPSA is deleted.  Once approved by the
@@ -242,10 +243,10 @@ def delete_vpsa(session, vpsa_id, return_type=None):
     """
     verify_positive_argument(vpsa_id, 'vpsa_id')
     path = '/api/vpsas/{0}.json'.format(vpsa_id)
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
-def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None):
+def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None, **kwargs):
     """
     Submits a request to add drives to a VPSA.  This must be approved by a
     storage cloud administrator before the drives are added.
@@ -311,11 +312,12 @@ def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None):
 
     body = urlencode(body_values)
 
-    return session.post_api(path=path, body=body, return_type=return_type)
+    return session.post_api(path=path, body=body, return_type=return_type,
+                            **kwargs)
 
 
 def change_vpsa_engines(session, vpsa_id, io_engine_id, zcs_engine_id,
-                        return_type=None):
+                        return_type=None, **kwargs):
     """
     Submits a request to create a new VPSA.  This must be approved by a
     storage cloud administrator before the VPSA creation starts.
@@ -369,10 +371,11 @@ def change_vpsa_engines(session, vpsa_id, io_engine_id, zcs_engine_id,
 
     body = urlencode(body_values)
 
-    return session.post_api(path=path, body=body, return_type=return_type)
+    return session.post_api(path=path, body=body, return_type=return_type,
+                            **kwargs)
 
 
-def change_vpsa_cache(session, vpsa_id, quantity, return_type=None):
+def change_vpsa_cache(session, vpsa_id, quantity, return_type=None, **kwargs):
     """
     Sets the quantity of additional cache groups for a VPSA.  The quantity of
     cache groups that comes with the base engine is not included in this
@@ -408,10 +411,11 @@ def change_vpsa_cache(session, vpsa_id, quantity, return_type=None):
     path = '/api/vpsas/{0}/cache.json'.format(vpsa_id)
     body = {'cache': '{}'.format(quantity)}
 
-    return session.post_api(path=path, body=body, return_type=return_type)
+    return session.post_api(path=path, body=body, return_type=return_type,
+                            **kwargs)
 
 
-def assign_vpsa_public_ip(session, vpsa_id, return_type=None):
+def assign_vpsa_public_ip(session, vpsa_id, return_type=None, **kwargs):
     """
     Submits a request to assign a public IP to the VPSA.  Public IPs are
     optionally used to replicate data between VPSAs or from a VPSA to an
@@ -438,10 +442,10 @@ def assign_vpsa_public_ip(session, vpsa_id, return_type=None):
     verify_positive_argument(vpsa_id, 'vpsa_id')
     path = '/api/vpsas/{0}/public_ip.json'.format(vpsa_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def remove_vpsa_public_ip(session, vpsa_id, return_type=None):
+def remove_vpsa_public_ip(session, vpsa_id, return_type=None, **kwargs):
     """
     Submits a request to remove a public IP from a VPSA.  This must be
     approved by a storage cloud administrator before the public IP is
@@ -466,10 +470,10 @@ def remove_vpsa_public_ip(session, vpsa_id, return_type=None):
     verify_positive_argument(vpsa_id, 'vpsa_id')
     path = '/api/vpsas/{0}/public_ip.json'.format(vpsa_id)
 
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
-def hibernate_vpsa(session, vpsa_id, return_type=None):
+def hibernate_vpsa(session, vpsa_id, return_type=None, **kwargs):
     """
     Hibernates a VPSA.  A hibernated VPSA will have all IO and ZCS engines
     shutdown, during which time there is no hourly cost incurred for those
@@ -495,10 +499,10 @@ def hibernate_vpsa(session, vpsa_id, return_type=None):
     verify_positive_argument(vpsa_id, 'vpsa_id')
     path = '/api/vpsas/{0}/hibernate.json'.format(vpsa_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def resume_vpsa(session, vpsa_id, return_type=None):
+def resume_vpsa(session, vpsa_id, return_type=None, **kwargs):
     """
     Resumes a hibernated VPSA.  This action is immediate and does not require
     a storage cloud administrator's approval.
@@ -522,4 +526,4 @@ def resume_vpsa(session, vpsa_id, return_type=None):
     verify_positive_argument(vpsa_id, 'vpsa_id')
     path = '/api/vpsas/{0}/restore.json'.format(vpsa_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)

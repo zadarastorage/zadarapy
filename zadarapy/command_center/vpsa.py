@@ -18,7 +18,7 @@ from zadarapy.validators import verify_field, verify_vpsa_id
 
 
 def upgrade_vpsa_version(session, cloud_name, vpsa_id, image, when=None,
-                         return_type=None):
+                         return_type=None, **kwargs):
     """
     Upgrade a VPSA to a new version.
 
@@ -67,10 +67,10 @@ def upgrade_vpsa_version(session, cloud_name, vpsa_id, image, when=None,
     path = '/api/clouds/{0}/vpsas/{1}/upgrade.json'.format(cloud_name, vpsa_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def resume_upgrade(session, cloud_name, vpsa_id, return_type=None):
+def resume_upgrade(session, cloud_name, vpsa_id, return_type=None, **kwargs):
     """
     Resume VPSA Upgrade
 
@@ -95,12 +95,12 @@ def resume_upgrade(session, cloud_name, vpsa_id, return_type=None):
         return_type parameter.
     """
     verify_vpsa_id(vpsa_id)
-    path = "/api/clouds/{0}/vpsas/{1}/resume_waiting.json"\
+    path = "/api/clouds/{0}/vpsas/{1}/resume_waiting.json" \
         .format(cloud_name, vpsa_id)
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def hibernate_vpsa(session, cloud_name, vpsa_id, return_type=None):
+def hibernate_vpsa(session, cloud_name, vpsa_id, return_type=None, **kwargs):
     """
     Hibernate VPSA.
 
@@ -126,13 +126,14 @@ def hibernate_vpsa(session, cloud_name, vpsa_id, return_type=None):
     """
     verify_vpsa_id(vpsa_id)
 
-    path = "/api/clouds/{0}/vpsas/{1}/hibernate.json"\
+    path = "/api/clouds/{0}/vpsas/{1}/hibernate.json" \
         .format(cloud_name, vpsa_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def create_zsnap(session, cloud_name, vpsa_id, prefix, return_type=None):
+def create_zsnap(session, cloud_name, vpsa_id, prefix, return_type=None,
+                 **kwargs):
     """
     Create Zsnap from CC.
 
@@ -161,16 +162,16 @@ def create_zsnap(session, cloud_name, vpsa_id, prefix, return_type=None):
     """
     vpsa_id = verify_vpsa_id(vpsa_id)
 
-    path = "/api/clouds/{0}/vpsas/{1}/zsnap.json"\
+    path = "/api/clouds/{0}/vpsas/{1}/zsnap.json" \
         .format(cloud_name, vpsa_id)
 
     body_values = {'prefix': prefix}
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def assign_public_ip(session, cloud_name, vpsa_id, return_type=None):
+def assign_public_ip(session, cloud_name, vpsa_id, return_type=None, **kwargs):
     """
     Assign VPSA public IP
 
@@ -196,13 +197,14 @@ def assign_public_ip(session, cloud_name, vpsa_id, return_type=None):
     """
     vpsa_id = verify_vpsa_id(vpsa_id)
 
-    path = "/api/clouds/{0}/vpsas/{1}/public_ip/assign.json"\
+    path = "/api/clouds/{0}/vpsas/{1}/public_ip/assign.json" \
         .format(cloud_name, vpsa_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def unassign_public_ip(session, cloud_name, vpsa_id, return_type=None):
+def unassign_public_ip(session, cloud_name, vpsa_id, return_type=None,
+                       **kwargs):
     """
     Unassign VPSA public IP
 
@@ -228,13 +230,13 @@ def unassign_public_ip(session, cloud_name, vpsa_id, return_type=None):
     """
     vpsa_id = verify_vpsa_id(vpsa_id)
 
-    path = "/api/clouds/{0}/vpsas/{1}/public_ip/unassign.json"\
+    path = "/api/clouds/{0}/vpsas/{1}/public_ip/unassign.json" \
         .format(cloud_name, vpsa_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_all_vpsas(session, cloud_name, return_type=None):
+def get_all_vpsas(session, cloud_name, return_type=None, **kwargs):
     """
     Get all VPSAs in cloud
 
@@ -255,10 +257,10 @@ def get_all_vpsas(session, cloud_name, return_type=None):
         return_type parameter.
     """
     path = "/api/clouds/{0}/vpsas.json".format(cloud_name)
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def failover_vpsa(session, cloud_name, vpsa_id, return_type=None):
+def failover_vpsa(session, cloud_name, vpsa_id, return_type=None, **kwargs):
     """
     Failover VPSA
 
@@ -284,13 +286,14 @@ def failover_vpsa(session, cloud_name, vpsa_id, return_type=None):
     """
     verify_vpsa_id(vpsa_id=vpsa_id)
 
-    path = "/api/clouds/{0}/vpsas/{1}/failover.json"\
+    path = "/api/clouds/{0}/vpsas/{1}/failover.json" \
         .format(cloud_name, vpsa_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_all_vpsa_drives(session, cloud_name, vpsa_id, return_type=None):
+def get_all_vpsa_drives(session, cloud_name, vpsa_id, return_type=None,
+                        **kwargs):
     """
     Get all VPSAs in cloud
 
@@ -318,10 +321,11 @@ def get_all_vpsa_drives(session, cloud_name, vpsa_id, return_type=None):
 
     path = "/api/clouds/{0}/vpsas/{1}/drives.json".format(cloud_name, vpsa_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_app_engine(session, cloud_name, app_engine_id, return_type=None):
+def get_app_engine(session, cloud_name, app_engine_id, return_type=None,
+                   **kwargs):
     """
     Get Application Engine in Cloud
 
@@ -344,13 +348,13 @@ def get_app_engine(session, cloud_name, app_engine_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/clouds/{0}/app_engine_types/{1}.json"\
+    path = "/api/clouds/{0}/app_engine_types/{1}.json" \
         .format(cloud_name, app_engine_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_io_engine(session, cloud_name, app_io_id, return_type=None):
+def get_io_engine(session, cloud_name, app_io_id, return_type=None, **kwargs):
     """
     Get Application Engine in Cloud
 
@@ -373,14 +377,14 @@ def get_io_engine(session, cloud_name, app_io_id, return_type=None):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/clouds/{0}/engine_types/{1}.json"\
+    path = "/api/clouds/{0}/engine_types/{1}.json" \
         .format(cloud_name, app_io_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def reschedule_upgrade_vpsa(session, cloud_name, vpsa_id, when,
-                            return_type=None):
+                            return_type=None, **kwargs):
     """
     Reschedule Upgrade VPSA
 
@@ -414,16 +418,16 @@ def reschedule_upgrade_vpsa(session, cloud_name, vpsa_id, when,
     :returns: A dictionary or JSON data set as a string depending on
     return_type parameter.
     """
-    path = "/api/clouds/{0}/vpsas/{1}/reschedule_upgrade.json"\
+    path = "/api/clouds/{0}/vpsas/{1}/reschedule_upgrade.json" \
         .format(cloud_name, vpsa_id)
     body_values = {"when": when}
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def change_engine_type(session, cloud_name, vpsa_id, when,
                        app_engine_type=None, engine_type=None, image=None,
-                       return_type=None):
+                       return_type=None, **kwargs):
     """
     Change VPSA engine type
 
@@ -468,7 +472,7 @@ def change_engine_type(session, cloud_name, vpsa_id, when,
     """
     verify_vpsa_id(vpsa_id)
 
-    path = "/api/clouds/{0}/vpsas/{1}/change_engine_type.json"\
+    path = "/api/clouds/{0}/vpsas/{1}/change_engine_type.json" \
         .format(cloud_name, vpsa_id)
 
     body_values = {"when": when}
@@ -480,4 +484,4 @@ def change_engine_type(session, cloud_name, vpsa_id, when,
         body_values["image"] = image
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)

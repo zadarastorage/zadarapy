@@ -17,7 +17,7 @@
 from zadarapy.validators import verify_vpsa_id, verify_boolean
 
 
-def get_cloud(session, cloud_name, return_type=None):
+def get_cloud(session, cloud_name, return_type=None, **kwargs):
     """
     Retrieves details for a given cloud name
 
@@ -37,10 +37,10 @@ def get_cloud(session, cloud_name, return_type=None):
         return_type parameter.
     """
     path = '/api/clouds/{0}.json'.format(cloud_name)
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_all_clouds(session, return_type=None):
+def get_all_clouds(session, return_type=None, **kwargs):
     """
     Retrieves details for all clouds on the Cloud.
 
@@ -57,10 +57,10 @@ def get_all_clouds(session, return_type=None):
         return_type parameter.
     """
     path = '/api/clouds.json'
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_user_token(session, email, password, return_type=None):
+def get_user_token(session, email, password, return_type=None, **kwargs):
     """
     Retrieves API token for the Cloud.
 
@@ -86,10 +86,11 @@ def get_user_token(session, email, password, return_type=None):
     path = '/api/users/token.json'
     body_values = {'email': email, 'password': password}
     return session.post_api(path=path, body=body_values, secure=False,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def get_vpsa_from_cloud(session, cloud_name, vpsa_id, return_type=None):
+def get_vpsa_from_cloud(session, cloud_name, vpsa_id, return_type=None,
+                        **kwargs):
     """
     Returns VPSA info from Cloud
 
@@ -114,10 +115,11 @@ def get_vpsa_from_cloud(session, cloud_name, vpsa_id, return_type=None):
     verify_vpsa_id(vpsa_id)
 
     path = "/api/clouds/{0}/vpsas/{1}.json".format(cloud_name, vpsa_id)
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_zios_from_cloud(session, cloud_name, zios_id, return_type=None):
+def get_zios_from_cloud(session, cloud_name, zios_id, return_type=None,
+                        **kwargs):
     """
     Returns ZIOS info from Cloud
 
@@ -140,10 +142,10 @@ def get_zios_from_cloud(session, cloud_name, zios_id, return_type=None):
         return_type parameter.
     """
     path = "/api/clouds/{0}/zioses/{1}.json".format(cloud_name, zios_id)
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_all_drives(session, cloud_name, return_type=None):
+def get_all_drives(session, cloud_name, return_type=None, **kwargs):
     """
     Get all Cloud Drives
 
@@ -163,10 +165,10 @@ def get_all_drives(session, cloud_name, return_type=None):
         return_type parameter.
     """
     path = "/api/clouds/{0}/drives.json".format(cloud_name)
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_vlans(session, cloud_name, return_type=None):
+def get_vlans(session, cloud_name, return_type=None, **kwargs):
     """
     Get all Cloud VLANs
 
@@ -187,10 +189,10 @@ def get_vlans(session, cloud_name, return_type=None):
     """
     path = "/api/clouds/{0}/vlans.json".format(cloud_name)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def delete_vlans(session, cloud_name, vlan_id, return_type=None):
+def delete_vlans(session, cloud_name, vlan_id, return_type=None, **kwargs):
     """
     Delete VLan
 
@@ -213,10 +215,10 @@ def delete_vlans(session, cloud_name, vlan_id, return_type=None):
         return_type parameter.
     """
     path = "/api/clouds/{0}/vlans/{1}.json".format(cloud_name, vlan_id)
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_tenants(session, cloud_name, return_type=None):
+def get_tenants(session, cloud_name, return_type=None, **kwargs):
     """
     Get all Cloud Tennants
 
@@ -236,10 +238,10 @@ def get_tenants(session, cloud_name, return_type=None):
         return_type parameter.
     """
     path = "/api/clouds/{0}/cloud_users.json".format(cloud_name)
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_tenant(session, cloud_name, cloud_user, return_type=None):
+def get_tenant(session, cloud_name, cloud_user, return_type=None, **kwargs):
     """
     Get all Cloud Tennants
 
@@ -263,10 +265,10 @@ def get_tenant(session, cloud_name, cloud_user, return_type=None):
     """
     path = "/api/clouds/{0}/cloud_users/{1}.json" \
         .format(cloud_name, cloud_user)
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_storage_node(session, cloud_name, sn_id, return_type=None):
+def get_storage_node(session, cloud_name, sn_id, return_type=None, **kwargs):
     """
     Get all Cloud Tennants
 
@@ -289,10 +291,11 @@ def get_storage_node(session, cloud_name, sn_id, return_type=None):
         return_type parameter.
     """
     path = "/api/clouds/{0}/nodes/{1}.json".format(cloud_name, sn_id)
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_storage_node_drives(session, cloud_name, sn_id, return_type=None):
+def get_storage_node_drives(session, cloud_name, sn_id, return_type=None,
+                            **kwargs):
     """
     Get all Storage Node drives
 
@@ -315,10 +318,11 @@ def get_storage_node_drives(session, cloud_name, sn_id, return_type=None):
         return_type parameter.
     """
     path = "/api/clouds/{0}/nodes/{1}/drives.json".format(cloud_name, sn_id)
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def reboot_storage_node(session, cloud_name, sn_id, return_type=None):
+def reboot_storage_node(session, cloud_name, sn_id, return_type=None,
+                        **kwargs):
     """
     Reboot Storage Node
 
@@ -341,10 +345,11 @@ def reboot_storage_node(session, cloud_name, sn_id, return_type=None):
         return_type parameter.
     """
     path = "/api/clouds/{0}/nodes/{1}/reboot.json".format(cloud_name, sn_id)
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def shutdown_storage_node(session, cloud_name, sn_id, return_type=None):
+def shutdown_storage_node(session, cloud_name, sn_id, return_type=None,
+                          **kwargs):
     """
     Shutdown Storage Node
 
@@ -367,10 +372,10 @@ def shutdown_storage_node(session, cloud_name, sn_id, return_type=None):
         return_type parameter.
     """
     path = "/api/clouds/{0}/nodes/{1}/shutdown.json".format(cloud_name, sn_id)
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def zsnap_storage_node(session, cloud_name, sn_id, return_type=None):
+def zsnap_storage_node(session, cloud_name, sn_id, return_type=None, **kwargs):
     """
     Create Storage Node ZSnap
 
@@ -393,10 +398,11 @@ def zsnap_storage_node(session, cloud_name, sn_id, return_type=None):
         return_type parameter.
     """
     path = "/api/clouds/{0}/nodes/{1}/zsnap.json".format(cloud_name, sn_id)
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def license_storage_node(session, cloud_name, sn_id, return_type=None):
+def license_storage_node(session, cloud_name, sn_id, return_type=None,
+                         **kwargs):
     """
     Storage Node license
 
@@ -419,10 +425,11 @@ def license_storage_node(session, cloud_name, sn_id, return_type=None):
         return_type parameter.
     """
     path = "/api/clouds/{0}/nodes/{1}/license.json".format(cloud_name, sn_id)
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def set_default_image(session, cloud_name, image_id, return_type=None):
+def set_default_image(session, cloud_name, image_id, return_type=None,
+                      **kwargs):
     """
     Set default Image
 
@@ -446,10 +453,10 @@ def set_default_image(session, cloud_name, image_id, return_type=None):
     """
     path = "/api/clouds/{0}/images/{1}/set_default.json" \
         .format(cloud_name, image_id)
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def delete_tenant(session, cloud_name, cloud_user, return_type=None):
+def delete_tenant(session, cloud_name, cloud_user, return_type=None, **kwargs):
     """
     Delete tenant
 
@@ -473,11 +480,11 @@ def delete_tenant(session, cloud_name, cloud_user, return_type=None):
     """
     path = "/api/clouds/{0}/cloud_users/{1}/deallocate_vlan_id.json" \
         .format(cloud_name, cloud_user)
-    return session.delete_api(path=path, return_type=return_type)
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
 def allocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO",
-                  return_type=None):
+                  return_type=None, **kwargs):
     """
     Allocate VLAN from cloud user
 
@@ -513,11 +520,11 @@ def allocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO",
     body_values = {"vlan_id": vlan_id, "force": force}
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def deallocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO",
-                    return_type=None):
+                    return_type=None, **kwargs):
     """
     Allocate VLAN from cloud user
 
@@ -553,11 +560,11 @@ def deallocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO",
     body_values = {"vlan_id": vlan_id, "force": force}
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def get_vpsa_settings(session, cloud_name, vpsa_id, section=None,
-                      return_type=None):
+                      return_type=None, **kwargs):
     """
     Returns VPSA info from Cloud
 
@@ -590,10 +597,11 @@ def get_vpsa_settings(session, cloud_name, vpsa_id, section=None,
         parameters = {"section": section}
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_all_images(session, cloud_name, page, per_page, return_type=None):
+def get_all_images(session, cloud_name, page, per_page, return_type=None,
+                   **kwargs):
     """
     Returns all build images found in cloud
 
@@ -622,10 +630,10 @@ def get_all_images(session, cloud_name, page, per_page, return_type=None):
     path = "/api/clouds/{cloud_name}/images".format(cloud_name=cloud_name)
     parameters = {'page': page, 'per_page': per_page}
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_image(session, cloud_name, image_id, return_type=None):
+def get_image(session, cloud_name, image_id, return_type=None, **kwargs):
     """
     Get Image
 
@@ -649,4 +657,4 @@ def get_image(session, cloud_name, image_id, return_type=None):
     """
     path = "/api/clouds/{cloud_name}/images/{id}" \
         .format(cloud_name=cloud_name, id=image_id)
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)

@@ -406,8 +406,7 @@ class Session(object):
         return self.call_api(method="PUT", path=path, host=host, port=port,
                              key=key, secure=secure, body=body,
                              url_encode=url_encode, parameters=parameters,
-                             timeout=timeout,
-                             return_type=return_type)
+                             timeout=timeout, return_type=return_type)
 
     def call_api(self, method, path, host=None, port=None, key=None,
                  url_encode=False, secure=None, body=None, parameters=None,

@@ -19,7 +19,7 @@ from zadarapy.validators import verify_vpsa_id, \
 
 
 def add_drives(session, cloud_name, vsa_id, drive_type, drive_quantity,
-               policy_id, return_type=None):
+               policy_id, return_type=None, **kwargs):
     """
     Add drives to a VPSAOS.
 
@@ -66,10 +66,10 @@ def add_drives(session, cloud_name, vsa_id, drive_type, drive_quantity,
     path = '/api/clouds/{0}/zioses/{1}/drives.json'.format(cloud_name, vsa_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def add_proxy_vcs(session, cloud_name, vsa_id, return_type=None):
+def add_proxy_vcs(session, cloud_name, vsa_id, return_type=None, **kwargs):
     """
     Add proxy virtual controller to VPSAOS.
 
@@ -99,12 +99,12 @@ def add_proxy_vcs(session, cloud_name, vsa_id, return_type=None):
     path = '/api/clouds/{0}/zioses/{1}/proxy_vcs.json' \
         .format(cloud_name, vsa_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
 def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
                        drive_type, drive_quantity, policy_type_id,
-                       return_type=None):
+                       return_type=None, **kwargs):
     """
     Create a new storage policy in VPSAOS.
 
@@ -170,10 +170,10 @@ def add_storage_policy(session, cloud_name, vsa_id, policy_name, policy_desc,
     path = '/api/clouds/{0}/zioses/{1}/policy.json'.format(cloud_name, vsa_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
-def assign_publicip(session, cloud_name, vsa_id, return_type=None):
+def assign_publicip(session, cloud_name, vsa_id, return_type=None, **kwargs):
     """
     Assign public IP to VPSAOS.
 
@@ -203,10 +203,11 @@ def assign_publicip(session, cloud_name, vsa_id, return_type=None):
     path = '/api/clouds/{0}/zioses/{1}/public_ip/assign.json' \
         .format(cloud_name, vsa_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def create_zsnap(session, cloud_name, vsa_id, prefix, return_type=None):
+def create_zsnap(session, cloud_name, vsa_id, prefix, return_type=None,
+                 **kwargs):
     """
     Create a zsnap.
 
@@ -242,11 +243,11 @@ def create_zsnap(session, cloud_name, vsa_id, prefix, return_type=None):
     path = '/api/clouds/{0}/zioses/{1}/zsnap.json'.format(cloud_name, vsa_id)
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)
 
 
 def get_all_vpsaoss(session, cloud_name, page=None, per_page=None,
-                    return_type=None):
+                    return_type=None, **kwargs):
     """
     Retrieves details for all VPSAOSs in the cloud.
 
@@ -281,10 +282,10 @@ def get_all_vpsaoss(session, cloud_name, page=None, per_page=None,
     path = '/api/clouds/{0}/zioses.json'.format(cloud_name)
 
     return session.get_api(path=path, parameters=parameters,
-                           return_type=return_type)
+                           return_type=return_type, **kwargs)
 
 
-def get_one_vpsaos(session, cloud_name, vsa_id, return_type=None):
+def get_one_vpsaos(session, cloud_name, vsa_id, return_type=None, **kwargs):
     """
     Retrieves details for a single VPSAOS.
 
@@ -313,10 +314,11 @@ def get_one_vpsaos(session, cloud_name, vsa_id, return_type=None):
 
     path = '/api/clouds/{0}/zioses/{1}.json'.format(cloud_name, vsa_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_vpsaos_accounts(session, cloud_name, vsa_id, return_type=None):
+def get_vpsaos_accounts(session, cloud_name, vsa_id, return_type=None,
+                        **kwargs):
     """
     Retrieves the list of a VPSAOS accounts.
 
@@ -346,10 +348,11 @@ def get_vpsaos_accounts(session, cloud_name, vsa_id, return_type=None):
     path = '/api/clouds/{0}/zioses/{1}/accounts.json' \
         .format(cloud_name, vsa_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_vpsaos_comments(session, cloud_name, vsa_id, return_type=None):
+def get_vpsaos_comments(session, cloud_name, vsa_id, return_type=None,
+                        **kwargs):
     """
     Retrieves the list of a VPSAOS comments.
 
@@ -378,10 +381,10 @@ def get_vpsaos_comments(session, cloud_name, vsa_id, return_type=None):
     path = '/api/clouds/{0}/zioses/{1}/comments.json' \
         .format(cloud_name, vsa_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_vpsaos_drives(session, cloud_name, vsa_id, return_type=None):
+def get_vpsaos_drives(session, cloud_name, vsa_id, return_type=None, **kwargs):
     """
     Retrieves the list of a VPSAOS drives.
 
@@ -410,10 +413,10 @@ def get_vpsaos_drives(session, cloud_name, vsa_id, return_type=None):
 
     path = '/api/clouds/{0}/zioses/{1}/drives.json'.format(cloud_name, vsa_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_vpsaos_sps(session, cloud_name, vsa_id, return_type=None):
+def get_vpsaos_sps(session, cloud_name, vsa_id, return_type=None, **kwargs):
     """
     Retrieves the list of a VPSAOS storage policies.
 
@@ -443,10 +446,10 @@ def get_vpsaos_sps(session, cloud_name, vsa_id, return_type=None):
     path = '/api/clouds/{0}/zioses/{1}/storage_policies.json' \
         .format(cloud_name, vsa_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_vpsaos_vcs(session, cloud_name, vsa_id, return_type=None):
+def get_vpsaos_vcs(session, cloud_name, vsa_id, return_type=None, **kwargs):
     """
     Retrieves the list of a VPSAOS virtual controllers.
 
@@ -476,10 +479,10 @@ def get_vpsaos_vcs(session, cloud_name, vsa_id, return_type=None):
     path = '/api/clouds/{0}/zioses/{1}/virtual_controllers.json'.format(
         cloud_name, vsa_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def unassign_publicip(session, cloud_name, vsa_id, return_type=None):
+def unassign_publicip(session, cloud_name, vsa_id, return_type=None, **kwargs):
     """
     Unassign public IP from VPSAOS.
 
@@ -509,10 +512,11 @@ def unassign_publicip(session, cloud_name, vsa_id, return_type=None):
     path = '/api/clouds/{0}/zioses/{1}/public_ip/unassign.json' \
         .format(cloud_name, vsa_id)
 
-    return session.post_api(path=path, return_type=return_type)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def upgrade_vpsaos_image(session, cloud_name, vsa_id, image, return_type=None):
+def upgrade_vpsaos_image(session, cloud_name, vsa_id, image, return_type=None,
+                         **kwargs):
     """
     Upgrade a VPSAOS to a specified image.
 
@@ -548,4 +552,4 @@ def upgrade_vpsaos_image(session, cloud_name, vsa_id, image, return_type=None):
 
     path = '/api/clouds/{0}/zioses/{1}/upgrade.json'.format(cloud_name, vsa_id)
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type)
+                            return_type=return_type, **kwargs)

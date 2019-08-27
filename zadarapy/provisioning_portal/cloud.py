@@ -20,7 +20,7 @@ install_aliases()
 from urllib.parse import quote
 
 
-def get_all_clouds(session, return_type=None):
+def get_all_clouds(session, return_type=None, **kwargs):
     """
     Retrieves details for all available storage clouds.
 
@@ -38,10 +38,10 @@ def get_all_clouds(session, return_type=None):
     """
     path = '/api/providers.json'
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_cloud(session, cloud_id, return_type=None):
+def get_cloud(session, cloud_id, return_type=None, **kwargs):
     """
     Retrieves details for a single cloud.
 
@@ -65,4 +65,4 @@ def get_cloud(session, cloud_id, return_type=None):
 
     path = '/api/providers/{0}.json'.format(cloud_id)
 
-    return session.get_api(path=path, return_type=return_type)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
