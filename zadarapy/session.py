@@ -533,6 +533,9 @@ class Session(object):
             url = path
 
         try:
+            if body:
+                body['timeout'] = timeout
+
             # URL encode for body
             if url_encode is True:
                 body = urlencode(body)
@@ -541,8 +544,6 @@ class Session(object):
 
             if body == 'null':
                 body = None
-            else:
-                body['timeout'] = timeout
 
             # Log function
             if self._log_function:
