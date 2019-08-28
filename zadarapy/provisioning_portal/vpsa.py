@@ -18,8 +18,8 @@ from future.standard_library import install_aliases
 
 install_aliases()
 
-from urllib.parse import urlencode
-from zadarapy.validators import is_valid_field, verify_positive_argument
+from zadarapy.validators import is_valid_field, verify_positive_argument, \
+    verify_io_engine_id, verify_zcs_engine_id
 
 
 def get_all_vpsas(session, return_type=None, **kwargs):
@@ -147,14 +147,14 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {}
+    body = {}
 
     display_name = display_name.strip()
 
     if not is_valid_field(display_name):
         raise ValueError('{0} is not a valid VPSA name.'.format(display_name))
 
-    body_values['name'] = display_name
+    body['name'] = display_name
 
     cloud_id = cloud_id.strip()
 
@@ -162,20 +162,20 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
         raise ValueError('{0} is not a valid storage cloud key.'
                          .format(cloud_id))
 
-    body_values['provider'] = cloud_id
+    body['provider'] = cloud_id
 
     if 'vsa.' not in io_engine_id:
         raise ValueError('{0} is not a valid IO engine type.'
                          .format(io_engine_id))
 
-    body_values['engine'] = io_engine_id
+    body['engine'] = io_engine_id
 
     if zcs_engine_id not in ['None', 'tiny', 'small', 'medium', 'large',
                              'xlarge']:
         raise ValueError('{0} is not a valid ZCS engine type.'
                          .format(zcs_engine_id))
 
-    body_values['app_engine'] = zcs_engine_id
+    body['app_engine'] = zcs_engine_id
 
     if type(drives) is not list:
         raise ValueError('The passed "drives" parameter is not a Python '
@@ -194,7 +194,7 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
             raise ValueError('The required "quantity" key was not found in '
                              'the drive dictionary.')
 
-        body_values[v['drive_type'] + '_drives'] = int(v['quantity'])
+        body[v['drive_type'] + '_drives'] = int(v['quantity'])
 
     if description is not None:
         description = description.strip()
@@ -203,17 +203,15 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
             raise ValueError('{0} is not a valid VPSA description.'
                              .format(description))
 
-        body_values['description'] = description
+        body['description'] = description
 
     if allocation_zone is not None:
-        body_values['allocation_zone'] = allocation_zone
+        body['allocation_zone'] = allocation_zone
 
     # Enterprise suite should always be enabled.
-    body_values['enterprise_suite'] = 'YES'
+    body['enterprise_suite'] = 'YES'
 
     path = '/api/vpsas.json'
-
-    body = urlencode(body_values)
 
     return session.post_api(path=path, body=body, return_type=return_type,
                             **kwargs)
@@ -287,7 +285,7 @@ def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None, **kwargs):
         return_type parameter.
     """
     verify_positive_argument(vpsa_id, "vpsa_id")
-    body_values = {}
+    body = {}
 
     if type(drives) is not list:
         raise ValueError('The passed "drives" parameter is not a Python '
@@ -306,11 +304,9 @@ def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None, **kwargs):
             raise ValueError('The required "quantity" key was not found in '
                              'the drive dictionary.')
 
-        body_values[v['drive_type'] + '_drives'] = v['quantity']
+        body[v['drive_type'] + '_drives'] = v['quantity']
 
     path = '/api/vpsas/{0}/drives.json'.format(vpsa_id)
-
-    body = urlencode(body_values)
 
     return session.post_api(path=path, body=body, return_type=return_type,
                             **kwargs)
@@ -352,24 +348,10 @@ def change_vpsa_engines(session, vpsa_id, io_engine_id, zcs_engine_id,
         return_type parameter.
     """
     verify_positive_argument(vpsa_id, 'vpsa_id')
-    body_values = {}
-
-    if 'vsa.' not in io_engine_id:
-        raise ValueError('{0} is not a valid IO engine type.'
-                         .format(io_engine_id))
-
-    body_values['engine'] = io_engine_id
-
-    if zcs_engine_id not in ['None', 'tiny', 'small', 'medium', 'large',
-                             'xlarge']:
-        raise ValueError('{0} is not a valid ZCS engine type.'
-                         .format(zcs_engine_id))
-
-    body_values['app_engine'] = zcs_engine_id
-
+    verify_io_engine_id(io_engine_id)
+    verify_zcs_engine_id(zcs_engine_id)
+    body = {'engine': io_engine_id, 'app_engine': zcs_engine_id}
     path = '/api/vpsas/{0}/engine.json'.format(vpsa_id)
-
-    body = urlencode(body_values)
 
     return session.post_api(path=path, body=body, return_type=return_type,
                             **kwargs)

@@ -1677,3 +1677,24 @@ def verify_encryption_state(state):
     """
     if state not in ('enable', 'disable'):
         raise ValueError('{0} is not a valid state.'.format(state))
+
+
+def verify_io_engine_id(io_engine_id):
+    """
+    :param io_engine_id: IO engine ID to check
+    :return: True iff IO engine ID is valid
+    """
+    if 'vsa.' not in io_engine_id:
+        raise ValueError('{0} is not a valid IO engine type.'
+                         .format(io_engine_id))
+
+
+def verify_zcs_engine_id(zcs_engine_id):
+    """
+    :param zcs_engine_id: ZCS engine ID to check
+    :return: True iff ZCS engine ID is valid
+    """
+    if zcs_engine_id not in ['None', 'tiny', 'small', 'medium', 'large',
+                             'xlarge']:
+        raise ValueError('{0} is not a valid ZCS engine type.'
+                         .format(zcs_engine_id))

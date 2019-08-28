@@ -2,3 +2,4 @@ configparser>=3.5.0
 future>=0.15.2
 terminaltables>=2.1.0
 wheel>=0.26.0
+requests>=2.2.1
