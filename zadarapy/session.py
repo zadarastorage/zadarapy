@@ -12,16 +12,16 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from urllib.parse import urlencode
 
+import requests
 from future.standard_library import install_aliases
 
 install_aliases()
 
 import configparser
-import http.client
 import json
 import os
-from urllib.parse import urlencode
 from zadarapy.validators import verify_port
 
 DEFAULT_TIMEOUT = 15
@@ -29,6 +29,9 @@ DEFAULT_TIMEOUT = 15
 FAILURE_RESPONSE = 'API server did not return an HTTP 200, 201 or 302 ' \
                    'response. Status "{0} {1}" was returned instead.  ' \
                    'Please investigate.'
+
+DICT_SECURED_DETAILS = {True: (443, "HTTPS"),
+                        False: (80, "HTTP")}
 
 
 class Session(object):
@@ -152,7 +155,7 @@ class Session(object):
         if self.zadara_secure is None:
             self.zadara_secure = True
 
-    def get_api(self, path, host=None, port=None, key=None, url_encode=False,
+    def get_api(self, path, host=None, port=None, key=None,
                 secure=None, body=None, parameters=None, timeout=None,
                 return_type=None):
         """
@@ -180,9 +183,6 @@ class Session(object):
 
         :type key: str
         :param key: The API key for the connecting user.  Required.
-
-        :type url_encode: bool
-        :param url_encode: True iff encode using urlencode
 
         :type secure: bool
         :param secure: If True, the API call will be made over HTTPS,
@@ -213,10 +213,10 @@ class Session(object):
         """
         return self.call_api(method="GET", path=path, host=host, port=port,
                              key=key, secure=secure, body=body,
-                             parameters=parameters, url_encode=url_encode,
+                             parameters=parameters,
                              timeout=timeout, return_type=return_type)
 
-    def post_api(self, path, host=None, port=None, key=None, url_encode=False,
+    def post_api(self, path, host=None, port=None, key=None,
                  secure=None, body=None, parameters=None, timeout=None,
                  return_type=None):
         """
@@ -244,9 +244,6 @@ class Session(object):
 
         :type key: str
         :param key: The API key for the connecting user.  Required.
-
-        :type url_encode: bool
-        :param url_encode: True iff encode using urlencode
 
         :type secure: bool
         :param secure: If True, the API call will be made over HTTPS,
@@ -277,11 +274,11 @@ class Session(object):
         """
         return self.call_api(method="POST", path=path, host=host, port=port,
                              key=key, secure=secure, body=body,
-                             parameters=parameters, url_encode=url_encode,
+                             parameters=parameters,
                              timeout=timeout, return_type=return_type)
 
     def delete_api(self, path, host=None, port=None, key=None,
-                   url_encode=False, secure=None, body=None,
+                   secure=None, body=None,
                    parameters=None, timeout=None, return_type=None):
         """
         Makes the actual DELETE REST call to the Zadara API endpoint.
@@ -308,9 +305,6 @@ class Session(object):
 
         :type key: str
         :param key: The API key for the connecting user.  Required.
-
-        :type url_encode: bool
-        :param url_encode: True iff encode using urlencode
 
         :type secure: bool
         :param secure: If True, the API call will be made over HTTPS,
@@ -341,10 +335,10 @@ class Session(object):
         """
         return self.call_api(method="DELETE", path=path, host=host, port=port,
                              key=key, secure=secure, body=body,
-                             parameters=parameters, url_encode=url_encode,
+                             parameters=parameters,
                              timeout=timeout, return_type=return_type)
 
-    def put_api(self, path, host=None, port=None, key=None, url_encode=False,
+    def put_api(self, path, host=None, port=None, key=None,
                 secure=None, body=None, parameters=None, timeout=None,
                 return_type=None):
         """
@@ -372,9 +366,6 @@ class Session(object):
 
         :type key: str
         :param key: The API key for the connecting user.  Required.
-
-        :type url_encode: bool
-        :param url_encode: True iff encode using urlencode
 
         :type secure: bool
         :param secure: If True, the API call will be made over HTTPS,
@@ -405,11 +396,11 @@ class Session(object):
         """
         return self.call_api(method="PUT", path=path, host=host, port=port,
                              key=key, secure=secure, body=body,
-                             url_encode=url_encode, parameters=parameters,
+                             parameters=parameters,
                              timeout=timeout, return_type=return_type)
 
     def call_api(self, method, path, host=None, port=None, key=None,
-                 url_encode=False, secure=None, body=None, parameters=None,
+                 secure=None, body=None, parameters=None,
                  timeout=None, return_type=None):
         """
         Makes the actual REST call to the Zadara API endpoint.  If host, key,
@@ -440,9 +431,6 @@ class Session(object):
 
         :type key: str
         :param key: The API key for the connecting user.  Required.
-
-        :type url_encode: bool
-        :param url_encode: True iff encode using urlencode
 
         :type secure: bool
         :param secure: If True, the API call will be made over HTTPS,
@@ -479,100 +467,55 @@ class Session(object):
         session_timeout = timeout + 5
 
         # Validate all inputs
-        if host is None:
-            host = self.zadara_host
+        host = host or self.zadara_host
+        port = port or self.zadara_port
+        key = key or self.zadara_key
+        secure = secure or self.zadara_secure
+        path = path if path.startswith("/") else "/{}".format(path)
+        session_port, protocol = DICT_SECURED_DETAILS[secure]
 
-        if port is None:
-            port = self.zadara_port
-
-        if key is None:
-            key = self.zadara_key
-
-        if secure is None:
-            secure = self.zadara_secure
-
-        if port is not None:
+        if port:
             verify_port(port)
-
-        # http.client can accept None port and use default, but we need to
-        # define it here so debug info can be outputted later on error.
-        if secure:
-            if port is None:
-                port = 443
-
-            protocol = 'HTTPS'
-
-            # Set timeout for each command
-            conn = http.client.HTTPSConnection(host, port,
-                                               timeout=session_timeout)
         else:
-            if port is None:
-                port = 80
+            port = session_port
 
-            protocol = 'HTTP'
+        api_url = "{}://{}:{}{}".format(protocol.lower(), host, port, path)
 
-            # Set timeout for each command
-            conn = http.client.HTTPConnection(host, port,
-                                              timeout=session_timeout)
-
-        headers = {}
-
+        headers = {'X-Access-Key': key, 'X-Token': key, 'x-auth-token': key}
         if return_type != 'raw':
+            # Can be json or XML
             headers['Content-Type'] = "application/json"
 
-        # Provisioning portal expects "X-Token" header, whereas VPSA expects
-        # "X-Access-Key".  Just set both.
-        headers['X-Access-Key'] = key
-        headers['X-Token'] = key
-        headers['x-auth-token'] = key
+        headers = self._get_headers(key=key, return_type=return_type)
+        parameters = self._get_parameters(parameters=parameters)
+        body = self._get_body(body=body, timeout=timeout)
 
-        # Ignore parameters if set to None or an empty dictionary is passed.
-        if parameters:
-            url = path + '?' + urlencode(parameters)
-        else:
-            url = path
+        self._print(method=method, body=body, headers=headers,
+                    params=parameters, api_url=api_url,
+                    max_time=session_timeout)
+
+        body = json.dumps(body) if body else body
 
         try:
-            if body:
-                body['timeout'] = timeout
+            with requests.Session() as session:
+                session.headers.update(headers)
 
-            # URL encode for body
-            if url_encode is True:
-                body = urlencode(body)
-            else:
-                body = json.dumps(body)
+                response = session.request(method, url=api_url,
+                                           params=parameters,
+                                           data=body, headers=headers,
+                                           timeout=session_timeout,
+                                           verify=True)
+        except requests.exceptions.RequestException:
+            raise OSError('Could not connect to {0} on port {1} via {2}'.
+                          format(host, port, protocol))
+        except BaseException as e:
+            raise OSError('HTTP request failed: {}'.format(str(e)))
 
-            if body == 'null':
-                body = None
-
-            # Log function
-            if self._log_function:
-                body_str = """'-d {}'""".format(body) if body else ''
-                headers_str = "-H {}".format(" -H ".join(
-                    '"{}: {}"'.format(k, v) for k, v in headers.items()))
-                port_str = ":{}".format(port) if port else ''
-
-                msg = 'curl -X {m} {hd} {b} {hs}{p}{u}'\
-                    .format(m=method, hd=headers_str, b=body_str, hs=host,
-                            p=port_str, u=url)
-
-                self._log_function(msg)
-
-            conn.request(method, url, headers=headers, body=body)
-            response = conn.getresponse()
-        except BaseException as exc:
-            raise OSError('Could not connect to {0} on port {1} via {2}: {3}'.
-                          format(host, port, protocol, str(exc)))
-
-        # Support 201 - Created HTTP RC
-        if response.status not in [200, 302, 201]:
-            conn.close()
-            raise RuntimeError(FAILURE_RESPONSE.format(response.status,
+        if response.status_code not in [200, 302, 201]:
+            raise RuntimeError(FAILURE_RESPONSE.format(response.status_code,
                                                        response.reason))
 
-        data = response.read()
-
-        conn.close()
+        data = response.content
 
         if return_type == 'raw':
             return data
@@ -603,3 +546,86 @@ class Session(object):
                         'The API server returned an error: "{0}".'.format(err))
 
         return api_return_dict
+
+    @staticmethod
+    def _get_headers(key, return_type):
+        """
+        Get HTTP request headers
+         - Provisioning portal expects "X-Token" header,
+         - VPSA expects "X-Access-Key".
+         - We set them both.
+
+        :param key: Access key
+        :param return_type: Return type. 'raw', 'json' or 'xml'
+        :return: headers dictionary
+        :rtype: dict
+        """
+        headers = {'X-Access-Key': key, 'X-Token': key, 'x-auth-token': key}
+        if return_type != 'raw':
+            # Can be json or XML
+            headers['Content-Type'] = "application/json"
+
+        return headers
+
+    @staticmethod
+    def _get_parameters(parameters):
+        """
+        :param parameters: Parameters
+        :return: Encoded parameters else None
+        """
+        if parameters:
+            assert isinstance(parameters, dict), \
+                "Invalid 'params' type. Must be a dictionary type. ({})" \
+                 .format(type(parameters))
+        return parameters
+
+    @staticmethod
+    def _get_body(body, timeout):
+        """
+
+        :param body: Body to parse
+        :param timeout: API command timeout
+        :return: Body to send to request
+        """
+        body = body or {}
+        assert isinstance(body, dict), \
+            "Invalid 'body' type. Must be a dictionary type. ({})" \
+                .format(type(body))
+
+        body['timeout'] = timeout
+        return body
+
+    def _print(self, body, headers, method, params, api_url, max_time):
+        """
+        Print the command in curl format
+
+        :param body: HTTP request body
+        :param headers: HTTP request headers
+        :param method: HTTP request method: GET, POST, DELETE, PUT
+        :param params: HTTP request parameters
+        :param api_url: HTTP request URL
+        :param max_time: Maximum  time  in  seconds that you allow
+         the whole operation to take.
+        """
+        if not self._log_function:
+            return
+
+        body_str = ''
+        if body:
+            body_str = "-d '{%s'}" % ", ".join('"{}":"{}"'.format(k, v)
+                                               for k, v in body.items())
+
+        headers_str = ''
+        if headers:
+            headers_str = "-H {}".format(
+                " -H ".join('"{}:{}"'.format(k, v)
+                            for k, v in headers.items()))
+
+        if params:
+            api_url += "?{}".format(urlencode(params))
+
+        msg = "curl --max-time {mx} -X {m} {hd} {b}  '{u}'" \
+            .format(m=method.upper(), hd=headers_str, b=body_str, u=api_url,
+                    mx=max_time)
+
+        self._log_function(msg)
