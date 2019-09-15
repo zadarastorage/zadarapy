@@ -1242,7 +1242,10 @@ def create_clone(session, cg_id, display_name, snapshot_id=None,
     display_name = verify_field(display_name, "display_name")
     verify_snapshot_id(snapshot_id)
 
-    body_values = {'name': display_name, 'snapshot': snapshot_id}
+    body_values = {'name': display_name}
+
+    if snapshot_id:
+        body_values['snapshot_id'] = snapshot_id
 
     path = '/api/consistency_groups/{0}/clone.json'.format(cg_id)
 
