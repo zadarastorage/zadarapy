@@ -34,6 +34,7 @@ def get_antivirus_status(session, return_type=None, **kwargs):
 
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
+
 def enable_antivirus(session, pool_id, return_type=None, **kwargs):
     """
     Enables the antivirus engine.
@@ -51,7 +52,7 @@ def enable_antivirus(session, pool_id, return_type=None, **kwargs):
     """
     body_values = {'pool': pool_id}
 
-    path = '/api/volumes.json'
+    path = '/api/antivirus/engine.json'
 
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
@@ -70,6 +71,6 @@ def disable_antivirus(session, return_type=None, **kwargs):
         dictionary.  Optional (will return a Python dictionary by default).
     """
 
-    path = '/api/volumes.json'
+    path = '/api/antivirus/engine.json'
 
     return session.delete_api(path=path, return_type=return_type, **kwargs)
