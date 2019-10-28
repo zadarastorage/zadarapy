@@ -272,7 +272,7 @@ def get_zcs_container(session, zcs_container_id, return_type=None, **kwargs):
 
 def create_zcs_container(session, display_name, zcs_image_id, start,
                          use_public_ip='NO', entrypoint=None, volumes=None,
-                         args=None, envvars=None, memorypoolname=None,
+                         args=None, envvars=None, links=None, memorypoolname=None,
                          return_type=None, **kwargs):
     """
     Creates a Zadara Container Services (ZCS) container.  Requires a valid ZCS
@@ -339,6 +339,13 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
         [{"name":"volume-00000001","path":"/vol1","access":"rw"},
          {"name":"volume-00000002","path":"/vol2","access":"r"}]
 
+    :type links: list, str
+    :param links: A Python list that contain container identifiers that will be
+        linked to the new container
+
+        An example would be:
+        ["container-00000001" , "container-00000002"]
+
     :type args: list, str
     :param args: A Python list of Python dictionaries that contain arguments
         to pass to the ZCS container entry point program or script as defined
@@ -389,7 +396,7 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
     use_public_ip = verify_boolean(use_public_ip, "use_public_ip")
     body_values = {'name': display_name, 'imagename': zcs_image_id,
                    'start': start, 'use_public_ip': use_public_ip,
-                   'entrypoint': entrypoint}
+                   'entrypoint': entrypoint, 'link': links}
 
     if volumes is not None:
         if type(volumes) is str:
