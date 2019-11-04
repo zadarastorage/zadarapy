@@ -24,7 +24,7 @@ __all__ = ["get_all_pools", "get_pool", "create_pool", "create_raid10_pool",
            "get_raid_groups_in_pool", "get_volumes_in_pool",
            "add_raid_groups_to_pool", "update_pool_capacity_alerts",
            "get_pool_mirror_destination_volumes", "set_pool_cache",
-           "set_pool_cowcache", "expand_pool",
+           "enable_cache", "disable_cache", "set_pool_cowcache", "expand_pool",
            "get_volumes_in_pool_recycle_bin", "get_pool_performance",
            "pool_shrink", "cancel_pool_shrink"]
 
@@ -580,6 +580,24 @@ def set_pool_cache(session, pool_id, cache, return_type=None, **kwargs):
 
     path = '/api/pools/{0}/toggle_cache.json'.format(pool_id)
 
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type, **kwargs)
+
+
+def enable_cache(session, pool_id, cowcache, return_type=None, **kwargs):
+    verify_pool_id(pool_id)
+    cowcache = verify_boolean(cowcache, "cowcache")
+    cowcache = str(cowcache == 'YES').lower()
+    path = '/api/pools/{0}'.format(pool_id)
+    body_values = {'command': 'enable', 'cowcache': cowcache}
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type, **kwargs)
+
+
+def disable_cache(session, pool_id, return_type=None, **kwargs):
+    verify_pool_id(pool_id)
+    path = '/api/pools/{0}'.format(pool_id)
+    body_values = {'command': 'enable'}
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
 
