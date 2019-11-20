@@ -145,7 +145,7 @@ def get_zios_from_cloud(session, cloud_name, zios_id, return_type=None,
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_all_drives(session, cloud_name, return_type=None, **kwargs):
+def get_all_drives(session, cloud_name, per_page=30, page=1,  return_type=None, **kwargs):
     """
     Get all Cloud Drives
 
@@ -154,6 +154,12 @@ def get_all_drives(session, cloud_name, return_type=None, **kwargs):
 
     :type cloud_name: str
     :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type per_page: int
+    :param per_page: The number of drives to be returned in one page: 30
+
+    :type page: int
+    :param page: Page number to be queried: i.e: 2
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -164,7 +170,7 @@ def get_all_drives(session, cloud_name, return_type=None, **kwargs):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/clouds/{0}/drives.json".format(cloud_name)
+    path = "/api/clouds/{0}/drives.json?per_page={1}&page={2}".format(cloud_name, per_page, page)
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
