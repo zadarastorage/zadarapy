@@ -151,16 +151,22 @@ def get_vpsa_user_api_key(session, username, password, return_type=None,
                             return_type=return_type, **kwargs)
 
 
-def reset_vpsa_user_api_key(session, username, return_type=None, **kwargs):
+def reset_vpsa_user_api_key(session, username, password,
+                            return_type=None, **kwargs):
     """
     Resets the VPSA user's API/access key to a new value.  Only a VPSA admin
     may perform this action.  This action is irreversible.
 
     :type session: zadarapy.session.Session
-    :param session: A valid zadarapy.session.Session object.  Required.
-
+    :param session: A valid zadarapy.session.Session object.  Required. Note
+        that API key MUST be specified for the Session, even though the point
+        of this function is to reset the API key. So just provide any string
+        as the API key for this session.
     :type username: str
     :param username: The VPSA user's username.  Required.
+
+    :type password: str
+    :param password: The VPSA user's password.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -172,11 +178,14 @@ def reset_vpsa_user_api_key(session, username, return_type=None, **kwargs):
         return_type parameter.
     """
     username = verify_field(username, "username")
-    username = quote(username)
+    username_for_path = quote(username)
+    password = verify_field(password, 'password', allow_quote=True)
 
-    path = '/api/users/{0}/access_key.json'.format(username)
+    path = '/api/users/{0}/access_key.json'.format(username_for_path)
+    body = {'username': username, 'password' : password}
 
-    return session.post_api(path=path, return_type=return_type, **kwargs)
+    return session.post_api(path=path, body=body,
+                            return_type=return_type,**kwargs)
 
 
 def change_vpsa_user_password_by_password(session, username,
