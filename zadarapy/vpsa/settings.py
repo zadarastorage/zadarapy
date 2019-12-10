@@ -612,3 +612,87 @@ def stop_defrag(session, return_type=None, **kwargs):
     path = '/api/settings/defrag_stop.json'
 
     return session.post_api(path=path, return_type=return_type, **kwargs)
+
+
+def enable_trim(session, return_type=None, **kwargs):
+    """
+     Enables volumes File System trim.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/settings/trim_enable.json'
+
+    return session.post_api(path=path, return_type=return_type, **kwargs)
+
+
+def disable_trim(session, return_type=None, **kwargs):
+    """
+     Disables volumes File System trim.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/settings/trim_disable.json'
+
+    return session.post_api(path=path, return_type=return_type, **kwargs)
+
+
+def start_trim(session, return_type=None, **kwargs):
+    """
+     Starts volumes File System trim.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/settings/trim_start.json'
+
+    return session.post_api(path=path, return_type=return_type, **kwargs)
+
+
+def stop_trim(session, return_type=None, **kwargs):
+    """
+     Stops volumes File System trim.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/settings/trim_stop.json'
+
+    return session.post_api(path=path, return_type=return_type, **kwargs)
