@@ -687,3 +687,32 @@ def get_image(session, cloud_name, image_id, return_type=None, **kwargs):
     path = "/api/clouds/{cloud_name}/images/{id}" \
         .format(cloud_name=cloud_name, id=image_id)
     return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
+def set_automatic_drive_replacement(session, cloud_name, time, return_type=None, **kwargs):
+    """
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type time: int
+    :param time: Time in minutes from drive failed state detection. (0 - disable automatic drive replacement)
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{0}/settings/automatic_drive_replacement.json" \
+        .format(cloud_name)
+
+    body_values = {"time": time}
+
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type, **kwargs)
