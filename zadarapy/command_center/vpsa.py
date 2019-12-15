@@ -485,3 +485,41 @@ def change_engine_type(session, cloud_name, vpsa_id, when,
 
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
+
+
+def change_cache(session, cloud_name, vpsa_id, cache, return_type=None, **kwargs):
+    """
+      Change VPSA cache
+
+      :type session: zadarapy.session.Session
+      :param session: A valid zadarapy.session.Session object.  Required.
+
+      :type cloud_name: str
+      :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+          example: 'zadaralab01'.  Required.
+
+      :type vpsa_id: int
+      :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+          example: '2653'.  Required.
+
+      :type cache: str
+      :param cache: New cache size
+
+      :type return_type: str
+      :param return_type: If this is set to the string 'json', this function
+              will return a JSON string.  Otherwise, it will return a Python
+              dictionary.  Optional (will return a Python dictionary by default).
+
+      :rtype: dict, str
+      :returns: A dictionary or JSON data set as a string depending on
+      return_type parameter.
+    """
+    verify_vpsa_id(vpsa_id)
+
+    path = "/api/clouds/{0}/vpsas/{1}/change_cache.json" \
+        .format(cloud_name, vpsa_id)
+
+    body_values = {"cache": cache}
+
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type, **kwargs)
