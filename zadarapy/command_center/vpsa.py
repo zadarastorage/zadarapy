@@ -516,10 +516,17 @@ def change_cache(session, cloud_name, vpsa_id, cache, return_type=None, **kwargs
     """
     verify_vpsa_id(vpsa_id)
 
+    from zadarapy.provisioning_portal.vpsa import verify_positive_argument
+    verify_positive_argument(vpsa_id, 'vpsa_id')
+
     path = "/api/clouds/{0}/vpsas/{1}/change_cache.json" \
         .format(cloud_name, vpsa_id)
 
     body_values = {"cache": cache}
 
     return session.post_api(path=path, body=body_values,
+                            host="yokneam-qa10.zadarastorage.com", port=8888,
+                            secure=True, key="ezrxfyr_xL4GitCmckFp",
                             return_type=return_type, **kwargs)
+
+
