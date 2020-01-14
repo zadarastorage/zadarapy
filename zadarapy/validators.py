@@ -1444,6 +1444,27 @@ def verify_positive_argument(param, title):
     return param
 
 
+def verify_cache_argument(param, title):
+    """
+
+    :type param: int
+    :param param: Parameter to check
+
+    :type title: str
+    :param title: Interval parameter
+
+    :rtype: int
+    :return: Fix parameter format
+    """
+    if param is not None:
+        param = int(param)
+        if param % 200 != 0:
+            raise ValueError(
+                'Supplied {0} interval ("{1}") must be a multiplier of 200'.format(
+                    title, param))
+    return param
+
+
 def verify_raid_type(protection):
     """
     :param protection: Protection to check

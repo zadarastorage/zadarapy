@@ -19,7 +19,7 @@ from future.standard_library import install_aliases
 install_aliases()
 
 from zadarapy.validators import is_valid_field, verify_positive_argument, \
-    verify_io_engine_id, verify_zcs_engine_id
+    verify_io_engine_id, verify_zcs_engine_id, verify_cache_argument
 
 
 def get_all_vpsas(session, return_type=None, **kwargs):
@@ -390,6 +390,8 @@ def change_vpsa_cache(session, vpsa_id, quantity, return_type=None, **kwargs):
         return_type parameter.
     """
     verify_positive_argument(vpsa_id, 'vpsa_id')
+    verify_cache_argument(quantity, 'quantity')
+
     path = '/api/vpsas/{0}/cache.json'.format(vpsa_id)
     body = {'cache': '{}'.format(quantity)}
 
