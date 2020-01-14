@@ -481,11 +481,6 @@ class Session(object):
 
         api_url = "{}://{}:{}{}".format(protocol.lower(), host, port, path)
 
-        headers = {'X-Access-Key': key, 'X-Token': key, 'x-auth-token': key}
-        if return_type != 'raw':
-            # Can be json or XML
-            headers['Content-Type'] = "application/json"
-
         headers = self._get_headers(key=key, return_type=return_type)
         parameters = self._get_parameters(parameters=parameters)
         body = self._get_body(body=body, timeout=timeout)
@@ -530,8 +525,9 @@ class Session(object):
                                .format(api_return_dict['status-msg']))
 
         if 'message' in api_return_dict:
-            raise RuntimeError('A general API error was returned: "{0}".'
-                               .format(api_return_dict['message']))
+            if 'status' in api_return_dict and api_return_dict['status'] != "success":
+                raise RuntimeError('A general API error was returned: "{0}".'
+                                   .format(api_return_dict['message']))
 
         if 'response' in api_return_dict:
             if 'status' in api_return_dict['response']:
