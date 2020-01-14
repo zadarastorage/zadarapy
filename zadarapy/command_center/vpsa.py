@@ -487,6 +487,39 @@ def change_engine_type(session, cloud_name, vpsa_id, when,
                             return_type=return_type, **kwargs)
 
 
+def get_cache(session, cloud_name, vpsa_id, **kwargs):
+    """
+      Get VPSA cache
+
+      :type session: zadarapy.session.Session
+      :param session: A valid zadarapy.session.Session object.  Required.
+
+      :type cloud_name: str
+      :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+          example: 'zadaralab01'.  Required.
+
+      :type vpsa_id: int
+      :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+          example: '2653'.  Required.
+
+      :type return_type: int
+      :param return_type: If this is set to the string 'str', this function
+              will return a cache size as a string.  Otherwise, it will return an
+              integer.  Optional (will return an integer by default).
+
+      :rtype: int, str
+      :returns: Cache size as Int
+      return_type parameter.
+    """
+    verify_vpsa_id(vpsa_id)
+
+    path = "/api/clouds/{0}/vpsas/{1}".format(cloud_name, vpsa_id)
+
+    result = session.get_api(path=path, **kwargs)
+
+    return result["vpsa"]["cache"]
+
+
 def change_cache(session, cloud_name, vpsa_id, cache, return_type=None, **kwargs):
     """
       Change VPSA cache
@@ -516,8 +549,8 @@ def change_cache(session, cloud_name, vpsa_id, cache, return_type=None, **kwargs
     """
     verify_vpsa_id(vpsa_id)
 
-    from zadarapy.provisioning_portal.vpsa import verify_positive_argument
-    verify_positive_argument(vpsa_id, 'vpsa_id')
+    from zadarapy.provisioning_portal.vpsa import verify_cache_argument
+    verify_cache_argument(cache, 'cache')
 
     path = "/api/clouds/{0}/vpsas/{1}/change_cache.json" \
         .format(cloud_name, vpsa_id)
@@ -525,8 +558,4 @@ def change_cache(session, cloud_name, vpsa_id, cache, return_type=None, **kwargs
     body_values = {"cache": cache}
 
     return session.post_api(path=path, body=body_values,
-                            host="yokneam-qa10.zadarastorage.com", port=8888,
-                            secure=True, key="ezrxfyr_xL4GitCmckFp",
                             return_type=return_type, **kwargs)
-
-
