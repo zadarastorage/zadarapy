@@ -148,12 +148,12 @@ def update_on_demand_policy(session, run_policy, include_file_types=None, exclud
     __validate_primary_action(primary_action)
     __validate_secondary_action(secondary_action)
 
-    body_values = {'run_policy': run_policy, 'filetypestoscan': file_types_to_scan,
+    body_values = {'runpolicy': run_policy, 'filetypestoscan': file_types_to_scan,
                    'includefiletypes': include_file_types, 'excludefiletypes':exclude_file_types,
                    'scansubfolders': scan_subfolders, 'scanarchives': scan_archives,
                    'primaryaction': primary_action, 'secondaryaction': secondary_action}
 
-    return session.post_api(path=path, body_values=body_values,  return_type=return_type, **kwargs)
+    return session.post_api(path=path, body=body_values,  return_type=return_type, **kwargs)
 
 
 def show_quarantined_files(session, return_type=None, **kwargs):
@@ -221,7 +221,7 @@ def delete_quarantined_file(session, file_id, return_type=None, **kwargs):
 
 def download_volume_log(session, volume_id, return_type='raw', **kwargs):
     """
-    Downloads antivirus log  by Volume
+    Downloads antivirus log
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -236,10 +236,9 @@ def download_volume_log(session, volume_id, return_type='raw', **kwargs):
     :rtype: str
     :returns: Raw zip file data.
     """
-    path = '/api/antivirus/metering_db'
-    body_values = {'id': volume_id}
+    path = '/api/antivirus/log_files/%s' % volume_id
 
-    return session.get_api(path=path, body=body_values, return_type=return_type, **kwargs)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def __validate_primary_action(primary_action):

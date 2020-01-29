@@ -862,6 +862,24 @@ def verify_email(email):
                          .format(email))
 
 
+def verify_volume_av_parameters(enable_on_demand_scan, file_types_to_scan,
+                                exclude_file_types, include_file_types, exclude_path):
+    if enable_on_demand_scan:
+        if file_types_to_scan not in ['all','onlyspecified']:
+            raise ValueError("file_types_to_scan must be 'all' or 'onlyspecified'")
+        if file_types_to_scan == 'all':
+            if include_file_types is not None:
+                raise ValueError("include_file_types can contain values only if file_types_to_scan is 'onlyspecified'")
+        elif file_types_to_scan == 'onlyspecified':
+            if exclude_file_types is not None:
+                raise ValueError("exclude_file_types can contain values only if file_types_to_scan is 'all'")
+        else:
+            raise ValueError("file_types_to_scan can be only 'all' or 'onlyspecified'")
+    else:
+        if file_types_to_scan or exclude_file_types or include_file_types or exclude_path:
+            raise ValueError('enable_on_demand_scan is False, the other parameters can not have values')
+
+
 def verify_field(field_name, title, allow_quote=False):
     """
 
