@@ -512,7 +512,7 @@ class Session(object):
 
         data = response.content
 
-        if return_type == 'raw':
+        if return_type == 'raw' or return_type == 'xml':
             return data
 
         if return_type == 'json':
