@@ -17,8 +17,8 @@
 from zadarapy.validators import verify_snapshot_id, verify_boolean, \
     verify_field, verify_start_limit, verify_cg_id, verify_policy_id, \
     verify_ros_backup_job_id, verify_readahead, verify_netmask, \
-    verify_volume_id, verify_pool_id, verify_capacity, verify_server_id, \
-    verify_snapshot_rule_name, verify_interval, verify_snaprule_id
+    verify_volume_id, verify_volume_av_parameters, verify_pool_id, \
+    verify_capacity, verify_server_id, verify_snapshot_rule_name, verify_interval, verify_snaprule_id
 
 
 def get_all_volumes(session, start=None, limit=None, showonlyblock='NO',
@@ -1531,3 +1531,68 @@ def update_protection(session, volume_id, alertmode=None, emergencymode=None,
 
     return session.post_api(path=path, body=body, return_type=return_type,
                             **kwargs)
+
+
+def update_antivirus_policy(session, volume_id, enable_on_demand_scan, file_types_to_scan,
+                            exclude_file_types=None, include_file_types=None, exclude_path=None,
+                            return_type=None, **kwargs):
+    """
+    Update Antivirus Policy in a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type enable_on_demand_scan: bool
+    :param enable_on_demand_scan: Should enable on demand scan on AV.
+
+    :type file_types_to_scan: str
+    :param file_types_to_scan: Types of file to scan - can be 'all' or 'onlyspecified'
+                               (available only if enable_on_demand_scan is true)
+
+    :type exclude_file_types: str
+    :param exclude_file_types: Comma separated file types to exclude e.g png,jpg
+                               (available only if file_types_to_scan is all and enable_on_demand_scan is true)
+
+    :type include_file_types: str
+    :param include_file_types: Comma separated file types to include e.g png,jpg
+                               (available only if file_types_to_scan is onlyspecified
+                               and enable_on_demand_scan is true)
+
+    :type exclude_path: str
+    :param exclude_path: Comma separated file types e.g /tmp,/Documents
+                         (available only if enable_on_demand_scan is true)
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+    verify_volume_av_parameters(enable_on_demand_scan, file_types_to_scan, exclude_file_types,
+                                include_file_types, exclude_path)
+
+    path = '/api/volumes/{0}/update_antivirus_policy.json'.format(volume_id)
+    body = {}
+    if enable_on_demand_scan:
+        body["enableods"] = "true"
+        body['filetypestoscan'] = file_types_to_scan
+        if file_types_to_scan == "all":
+            if exclude_file_types is not None:
+                body['excludefiletypes'] = exclude_file_types
+        else:
+            if include_file_types is not None:
+                body['includefiletypes'] = include_file_types
+        if exclude_path is not None:
+            body['excludepath'] = exclude_path
+    else:
+        body["enableods"] = "false"
+
+    return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
