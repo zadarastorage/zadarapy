@@ -174,6 +174,32 @@ def get_all_drives(session, cloud_name, per_page=30, page=1,  return_type=None, 
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
+def get_drive(session, cloud_name, drive_id, return_type=None, **kwargs):
+    """
+    Get all Cloud Drives
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type drive_id: str
+    :param drive_id: The id of drive to be returned e.g. 113
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{0}/drives/{1}.json".format(cloud_name, drive_id)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
 def get_vlans(session, cloud_name, return_type=None, **kwargs):
     """
     Get all Cloud VLANs
