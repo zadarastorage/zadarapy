@@ -713,6 +713,29 @@ def is_valid_volume_id(volume_id):
     return True
 
 
+def is_valid_project_id(project_id):
+    """
+    Validates project IDs, also known as the project "name".
+    A valid project name should look like: proj-00000001 - It should always
+    start with "proj-" and end with 8 hexadecimal characters in lower case.
+
+    :type project_id: str
+    :param project_id: The project name to be validated.
+
+    :rtype: bool
+    :return: True or False depending on whether project_id passes validation.
+    """
+    if project_id is None:
+        return False
+
+    match = re.match(r'^project-[0-9a-f]{8}$', project_id)
+
+    if not match:
+        return False
+
+    return True
+
+
 def is_valid_vpsa_display_name(vpsa_display_name):
     """
     Validates a Zadara VPSA display name.  Only alphanumeric characters and
@@ -821,6 +844,15 @@ def verify_volume_id(volume_id):
     """
     if not is_valid_volume_id(volume_id):
         raise ValueError("{0} is not a valid volume ID.".format(volume_id))
+
+
+def verify_project_id(project_id):
+    """
+    :param project_id: Project ID to verify
+    :raises: ValueError: invalid ID
+    """
+    if not is_valid_project_id(project_id):
+        raise ValueError("{0} is not a valid project ID.".format(project_id))
 
 
 def verify_raid_id(raid_id):
@@ -1336,6 +1368,82 @@ def verify_boolean(flag, title):
     return flag
 
 
+def verify_bool(flag):
+    """
+    :type: str
+    :param flag: Boolean parameter to check
+
+    :rtype: str
+    :return: Fix flag format
+
+    :raises: ValueError: invalid form
+    """
+    if flag is None:
+        return None
+    flag = str(flag).upper()
+    if flag not in ['YES', 'NO']:
+        raise ValueError('"{}" is not a valid parameter. '
+                         'Allowed values are: "YES" or "NO"'
+                         .format(flag))
+    return flag
+
+
+def verify_bool_parameter(bool_param):
+    """
+    :type: bool
+    :param bool_param: Boolean parameter to check
+
+    :rtype: str
+    :return: Fixed format
+
+    :raises: ValueError: invalid form
+    """
+    if bool_param is None:
+        return None
+    if bool_param is True:
+        return "true"
+    if bool_param is False:
+        return "false"
+
+    raise ValueError('"{}" is not a valid parameter. Allowed values are: True or False'.format(bool_param))
+
+
+def verify_on_off(flag):
+    """
+    :type: str
+    :param flag: On/Off parameter to check
+
+    :rtype: str
+    :return: Fix flag format
+
+    :raises: ValueError: invalid form
+    """
+    if flag is None:
+        return None
+    flag = str(flag).lower()
+    if flag not in ['on', 'off']:
+        raise ValueError('"{}" is not a valid parameter. '
+                         'Allowed values are: "ON" or "OFF"'
+                         .format(flag))
+    return flag
+
+
+def verify_group_project_polarity(group, project):
+    """
+    :type: str
+    :param group: On/Off parameter to compare
+
+    :type: str
+    :param project: On/Off parameter to compare
+
+    :raises: ValueError: invalid values
+    """
+    group = str(group).lower()
+    project = str(project).lower()
+    if group == 'on' and project == 'on':
+        raise ValueError("Only one of 'Group'/'Project' quotas can be 'on'")
+
+
 def verify_interval(interval):
     """
     :type interval: int
@@ -1737,3 +1845,21 @@ def verify_zcs_engine_id(zcs_engine_id):
                              'xlarge']:
         raise ValueError('{0} is not a valid ZCS engine type.'
                          .format(zcs_engine_id))
+
+
+def verify_volume_type(type):
+    """
+    :param type: Vol type to check
+    :return: True iff Vol type ID is valid
+    """
+    if type not in ['user', 'group', 'project']:
+        raise ValueError('Volume scope can be only user, group or project')
+
+
+def verify_nas_type(type):
+    """
+    :param type: Vol type to check
+    :return: True iff NAS type ID is valid
+    """
+    if type not in ['ad', 'uid', 'nas']:
+        raise ValueError('Volume scope can be only ad, uid or nas')

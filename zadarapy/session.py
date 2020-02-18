@@ -530,16 +530,17 @@ class Session(object):
                                    .format(api_return_dict['message']))
 
         if 'response' in api_return_dict:
+            if 'errors' in api_return_dict['response']:
+                if len(api_return_dict['response']['errors']) > 0:
+                    raise RuntimeError(api_return_dict['response']['errors'][0]['message'])
             if 'status' in api_return_dict['response']:
                 if api_return_dict['response']['status'] != 0:
                     try:
                         err = api_return_dict['response']['message']
                     except KeyError:
-                        # ZIOS
                         err = api_return_dict['response']['status_msg']
 
-                    raise RuntimeError(
-                        'The API server returned an error: "{0}".'.format(err))
+                    raise RuntimeError('The API server returned an error: "{0}".'.format(err))
 
         return api_return_dict
 

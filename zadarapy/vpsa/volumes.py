@@ -18,7 +18,10 @@ from zadarapy.validators import verify_snapshot_id, verify_boolean, \
     verify_field, verify_start_limit, verify_cg_id, verify_policy_id, \
     verify_ros_backup_job_id, verify_readahead, verify_netmask, \
     verify_volume_id, verify_volume_av_parameters, verify_pool_id, \
-    verify_capacity, verify_server_id, verify_snapshot_rule_name, verify_interval, verify_snaprule_id
+    verify_capacity, verify_server_id, verify_snapshot_rule_name, \
+    verify_interval, verify_snaprule_id, verify_volume_type, \
+    verify_nas_type, verify_bool, verify_on_off, verify_project_id, \
+    verify_group_project_polarity, verify_bool_parameter
 
 
 def get_all_volumes(session, start=None, limit=None, showonlyblock='NO',
@@ -1596,3 +1599,411 @@ def update_antivirus_policy(session, volume_id, enable_on_demand_scan, file_type
         body["enableods"] = "false"
 
     return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
+
+
+def fetch_volume_quotas(session, volume_id, scope, return_type=None, **kwargs):
+    """
+    Fetch quotas of a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type scope: str
+    :param scope: Quota's type, can be only user, group or project.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+    verify_volume_type(scope)
+
+    path = 'api/volumes/{0}/quotas.json?scope={1}'.format(volume_id, scope)
+
+    return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
+def add_volume_quotas(session, volume_id, source_id, source_type, nas_type, limit, return_type=None, **kwargs):
+    """
+    Add quotas to a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type source_id: int
+    :param source_id: Source to the groups/user/project ID.  Required.
+
+    :type source_type: str
+    :param source_type: Source type, can be only user, group or project.  Required.
+
+    :type nas_type: str
+    :param nas_type: NAS type, can be only ad, uid or nas.  Required.
+
+    :type limit: str
+    :param limit: Quota limit in MB.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+    verify_volume_type(source_type)
+    verify_nas_type(nas_type)
+
+    path = '/api/volumes/{0}/quotas.json'.format(volume_id)
+    quotas = {"quotas": [{"source_id": source_id, "source_type": source_type, "nas_type": nas_type, "limit": limit}]}
+
+    return session.post_api(secure=False, path=path, body=quotas, return_type=return_type, **kwargs)
+
+
+def update_volume_quotas_state(session, volume_id, uquota, gquota, pquota, force, return_type=None, **kwargs):
+    """
+    Update quotas state of a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type uquota: str
+    :param uquota: Set user quota state.  Possible values on/off.  Required.
+
+    :type gquota: str
+    :param gquota: Set group quota state.  Possible values on/off.  Required.
+
+    :type pquota: str
+    :param pquota: Set group quota state.  Possible values on/off.  Required.
+
+    :type force: str
+    :param force: Force quota state change (skip warnings).  Possible values YES/NO.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+    uquota = verify_on_off(uquota)
+    gquota = verify_on_off(gquota)
+    pquota = verify_on_off(pquota)
+
+    verify_group_project_polarity(gquota, pquota)
+
+    force = verify_bool(force)
+
+    path = '/api/volumes/{0}/quotas_state.json'.format(volume_id)
+    body = {"uquota": uquota, "gquota": gquota, "pquota": pquota, "force": force}
+
+    return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
+
+
+def get_volume_quota(session, volume_id, scope, quota_id, quota_nas=None, quota_ad=None, return_type=None, **kwargs):
+    """
+    Get quota of a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type scope: str
+    :param scope: Quota's type, can be only user, group or project.
+
+    :type quota_id: int
+    :param quota_id: NFS id / Project Id.
+
+    :type quota_nas: str
+    :param quota_nas: NAS name.
+
+    :type quota_ad: str
+    :param quota_ad: Active directory name.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+    verify_volume_type(scope)
+
+    path = '/api/volumes/{0}/quota.json?scope={1}'.format(volume_id, scope)
+
+    if quota_id:
+        path += '&quota_id={0}'.format(quota_id)
+    if quota_nas:
+        path += '&quota_nas={0}'.format(quota_nas)
+    if quota_ad:
+        path += '&quota_ad={0}'.format(quota_ad)
+
+    return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
+def get_quota_projects(session, volume_id, return_type=None, **kwargs):
+    """
+    Get quotas projects of a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+
+    path = '/api/volumes/{0}/quota_projects.json'.format(volume_id)
+
+    return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
+def create_quota_project(session, volume_id, display_name, directories, return_type=None, **kwargs):
+    """
+    Create a project for a quota in a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type display_name: str
+    :param display_name: Display name for quota project.  Required.
+
+    :type directories: List['str']
+    :param directories: List of directories to create in quota project.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+
+    path = '/api/volumes/{0}/quota_projects.json'.format(volume_id)
+    body = {"name": display_name, "directories": directories}
+
+    return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
+
+
+def delete_quota_project(session, volume_id, project_id, force, return_type=None, **kwargs):
+    """
+    Delete quota project of a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type project_id: str
+    :param project_id: ID of the project.  e.g. proj-00000001.  Required.
+
+    :type force: str
+    :param force: Force quota state change (skip warnings).  Possible values YES/NO.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+    verify_project_id(project_id)
+    verify_bool(force)
+
+    path = '/api/volumes/{0}/quota_projects.json'.format(volume_id)
+    body = {"project_id": project_id, "force": force}
+
+    return session.delete_api(path=path, body=body, return_type=return_type, **kwargs)
+
+
+def add_directories_to_quota_project(session, volume_id, project_id, path_param, return_type=None, **kwargs):
+    """
+    Add directories from quota project of a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type project_id: str
+    :param project_id: ID of the project.  e.g. proj-00000001.  Required.
+
+    :type path_param: str
+    :param path_param: Path to directory.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+    verify_project_id(project_id)
+
+    path = '/api/volumes/{0}/quota_project_directories.json'.format(volume_id)
+    body = {"project_id": project_id, "path": path_param}
+
+    return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
+
+
+def remove_directories_from_quota_project(session, volume_id, project_id, path_param, return_type=None, **kwargs):
+    """
+    Remove directories from quota project of a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type project_id: str
+    :param project_id: ID of the project.  e.g. proj-00000001.  Required.
+
+    :type path_param: str
+    :param path_param: Path to directory.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+    verify_project_id(project_id)
+
+    path = '/api/volumes/{0}/quota_project_directories.json'.format(volume_id)
+    body = {"project_id": project_id, "path": path_param}
+
+    return session.delete_api(path=path, body=body, return_type=return_type, **kwargs)
+
+
+def dump_quotas_file(session, volume_id, scope, create_file=True, clear_file=True, force_refresh=True, return_type=None, **kwargs):
+    """
+    Remove directories from quota project of a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type scope: str
+    :param scope: Quota's type, can be only user, group or project.  Required.
+
+    :type create_file: bool
+    :param create_file: Should it create a new file.
+
+    :type clear_file: bool
+    :param clear_file: Should it clear the file.
+
+    :type force_refresh: bool
+    :param force_refresh: Force refresh.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+    create_file = verify_bool_parameter(create_file)
+    clear_file = verify_bool_parameter(clear_file)
+    force_refresh = verify_bool_parameter(force_refresh)
+
+    path = '/api/volumes/{0}/dump_quota_to_file.json'.format(volume_id)
+    body = {"scope": scope, "create_file": create_file, "clear_file": clear_file, "force_refresh": force_refresh}
+
+    return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
+
+
+def dump_quotas_state(session, volume_id, scope, return_type=None, **kwargs):
+    """
+    Remove directories from quota project of a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type scope: str
+    :param scope: Quota's type, can be only user, group or project.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+
+    path = '/api/volumes/{0}/quotas_dump_state.json'.format(volume_id)
+    body = {"scope": scope}
+
+    return session.get_api(path=path, body=body, return_type=return_type, **kwargs)
