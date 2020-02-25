@@ -1600,6 +1600,7 @@ def verify_raid_type(protection):
         raise ValueError('"{0}" is not a valid RAID type.  Allowed values '
                          'are: "RAID1", "RAID5", and "RAID6"'
                          .format(protection))
+    return protection
 
 
 def verify_stripe_size(stripe_size):
