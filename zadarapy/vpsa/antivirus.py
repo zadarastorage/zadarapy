@@ -241,6 +241,21 @@ def download_volume_log(session, volume_id, return_type='raw', **kwargs):
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
+def get_vpsa_time(session, **kwargs):
+    """
+    Get a json which contain the timezone of the VPSA
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :rtype: str
+    :returns: Raw zip file data.
+    """
+    path = '/api/accounts/checklogin.json'
+
+    return session.post_api(path=path, **kwargs)
+
+
 def __validate_primary_action(primary_action):
     if primary_action is not None and primary_action not in ['delete', 'clean', 'continue']:
         raise ValueError("Invalid value for primary_action. Valid values are: delete, clean and continue")
