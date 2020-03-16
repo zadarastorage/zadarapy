@@ -94,3 +94,15 @@ def set_default_policy(session, policy_name, return_type=None, **kwargs):
 
     return session.post_api(path=path, secure=True, return_type=return_type,
                             **kwargs)
+
+
+def update_storage_policy(session, policy_id, full_description, gb_per_month_cost, return_type=None):
+    path = '/api/zios/policies/{0}.json'.format(policy_id)
+    body_values = {'full_description': full_description, 'gb_per_month_cost': gb_per_month_cost}
+    return session.put_api(path=path, body=body_values, return_type=return_type)
+
+
+def set_default_storage_policy(session, policy_id, full_description, gb_per_month_cost, return_type=None):
+    path = '/api/zios/policies/{0}/set_default.json'.format(policy_id)
+    body_values = {'full_description': full_description, 'gb_per_month_cost': gb_per_month_cost}
+    return session.post_api(path=path, body=body_values, return_type=return_type)
