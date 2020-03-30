@@ -14,7 +14,7 @@
 # under the License.
 
 
-from zadarapy.validators import verify_field, verify_vpsa_id
+from zadarapy.validators import verify_field, verify_vpsa_id, verify_cloud_name, verify_capacity, verify_bool_parameter
 
 
 def upgrade_vpsa_version(session, cloud_name, vpsa_id, image, when=None,
@@ -354,6 +354,55 @@ def get_all_vpsa_drives(session, cloud_name, vpsa_id, return_type=None,
     path = "/api/clouds/{0}/vpsas/{1}/drives.json".format(cloud_name, vpsa_id)
 
     return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
+def add_drives(session, cloud_name, vsa_id, drive_type, drive_quantity,
+               skip_validation, return_type=None, **kwargs):
+    """
+    Add drives to a VPSAOS.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type vsa_id: str
+    :param vsa_id: The 'vsa_id' value as returned by get_all_vpsaoss.  For
+        example: 'vsa-000007de'.  Required.
+
+    :type drive_type: str
+    :param drive_type: Drive type internal name.  Required
+
+    :type drive_quantity: int
+    :param drive_quantity: Number of drives to add.  Required.
+
+    :type skip_validation: bool
+    :param skip_validation: Skips maximum drive validation. Use for admin only. Please notice that exceeding the number
+        of drives allowed will waive the support for the VPSA.  Required
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    cloud_name = verify_cloud_name(cloud_name)
+    vsa_id = verify_vpsa_id(vsa_id)
+    drive_type = verify_field(drive_type, 'drive_type')
+    drive_quantity = verify_capacity(drive_quantity, 'drive_quantity')
+    skip_validation = verify_bool_parameter(skip_validation)
+
+    body_values = {'drive_type': drive_type, 'quantity': drive_quantity, 'skip_validation': skip_validation}
+
+    path = '/api/clouds/{0}/vpsas/{1}/drives.json'.format(cloud_name, vsa_id)
+
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type, **kwargs)
 
 
 def get_app_engine(session, cloud_name, app_engine_id, return_type=None,
