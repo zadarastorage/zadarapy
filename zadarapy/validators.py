@@ -973,6 +973,23 @@ def verify_vpsa_id(vpsa_id):
     return vpsa_id
 
 
+def verify_zios_id(zios_id):
+    """
+    :type zios_id: str|int
+    :param zios_id: VPSA ID to check
+
+    :rtype: str
+    :return: Fixed VPSA ID
+
+    :raises: ValueError: Invalid capacity
+    """
+    zios_id = str(zios_id)
+    if not zios_id.isdigit() and not zios_id.startswith("vsa-"):
+        raise ValueError(BAD_VPSA_ID.format(zios_id))
+
+    return zios_id
+
+
 def verify_vpsa_internal_id(vpsa_internal_id):
     """
     :type vpsa_internal_id: str|int
