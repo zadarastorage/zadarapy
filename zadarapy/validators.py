@@ -498,6 +498,46 @@ def is_valid_port(port):
     return True
 
 
+def is_valid_minutes(minutes):
+    """
+    Validates number of minutes.
+
+    :type minutes: int
+    :param minutes: number of minutes to be validated.
+
+    :rtype: bool
+    :return: number of seconds in the amount of minutes
+    """
+    SECONDS_IN_A_MINUTE = 60
+    MINUTES_IN_TEN_YEARS = 5256000
+
+    minutes = int(minutes)
+
+    if minutes < 1 or minutes > MINUTES_IN_TEN_YEARS:
+        return 0
+
+    return minutes*SECONDS_IN_A_MINUTE
+
+
+def verify_expire_version(versioning) -> str:
+    """
+    :type: versioning: str
+    :param versioning: Type of expiration versioning.
+        Can be only current or previous.  Required.
+
+    :return: fixed versioning format
+
+    :raises: ValueError: Invalid start or limit
+    """
+    VERSION_CONVERT = {"current": "curver_after", "previous": "prever_after"}
+
+    versioning = versioning.lower()
+    if versioning not in VERSION_CONVERT.keys():
+        raise ValueError(f"Versioning {versioning} could not be used, please use either "
+                         f"x-versions-location or x-history-location.")
+    return VERSION_CONVERT[versioning]
+
+
 def is_valid_raid_id(raid_id):
     """
     Validates a RAID group ID, also known as the RAID group "name".  A valid
@@ -1009,6 +1049,22 @@ def verify_vpsa_internal_id(vpsa_internal_id):
     return vpsa_id
 
 
+def verify_policy_type_id(policy_type_id):
+    """
+    :type policy_type_id: str
+    :param policy_type_id: policy type id - e.g. storage-policy-00000001
+
+    :rtype: int
+    :return: Fixed policy type ID
+
+    :raises: ValueError: policy type id
+    """
+    if not re.match("storage-policy-\d+", policy_type_id):
+        raise ValueError('{0} is not a valid policy type ID.'.format(policy_type_id))
+
+    return int(policy_type_id.split("-")[2])
+
+
 def verify_capacity(capacity, obj_name):
     """
     :type capacity: int
@@ -1124,6 +1180,23 @@ def verify_start_limit(start, limit, list_options=None):
 
     parameters = get_parameters_options(tuple_all_options)
     return parameters
+
+
+def verify_versioning(versioning) -> str:
+    """
+    :type: versioning: str
+    :param versioning: Type of versioning.
+        Can be only x-versions-location or x-history-location.  Required.
+
+    :return: fixed versioning format
+
+    :raises: ValueError: Invalid start or limit
+    """
+    versioning = versioning.lower()
+    if versioning not in ["x-versions-location", "x-history-location"]:
+        raise ValueError(f"Versioning {versioning} could not be used, please use either "
+                         f"x-versions-location or x-history-location.")
+    return versioning
 
 
 def get_parameters_options(tuple_options):
@@ -1824,7 +1897,7 @@ def verify_account_id(account_id):
     :param account_id: Account ID
 
     :return: Fixed account ID
-    :rtype: int
+    :rtype: True iff IO engine ID is valid
     """
     account_id = str(account_id)
     if len(account_id) != 32:
@@ -1832,6 +1905,18 @@ def verify_account_id(account_id):
             'The Account ID should be of length 32. Given: {}.'.format(
                 account_id))
     return account_id
+
+
+def verify_load_balancer_name(name):
+    """
+    Verify Load Balancer name
+
+    :param name: Load Balancer name
+    """
+    if not isinstance(name, str):
+        raise ValueError('Load Balancer name is not a string.')
+    if not re.match("lbg-\d+", name):
+        raise ValueError('Load Balancer name is not in the right format.')
 
 
 def verify_encryption_state(state):

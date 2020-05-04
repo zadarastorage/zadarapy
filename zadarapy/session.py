@@ -155,6 +155,66 @@ class Session(object):
         if self.zadara_secure is None:
             self.zadara_secure = True
 
+    def head_api(self, path, host=None, port=None, key=None,
+                secure=None, body=None, parameters=None, timeout=None,
+                return_type=None):
+        """
+        Makes the actual GET REST call to the Zadara API endpoint.
+        If host, key, and/or secure are set as None, the instance variables
+        will be used as default values.
+
+        Zadara supports both JSON and XML for its API, but please note that
+        this module uses and expects JSON.
+
+        :type path: str
+        :param path: The path of the API endpoint, for example:
+            '/api/vpsas.json'.  Required.
+
+        :type host: str
+        :param host: The hostname or IP address of the Zadara API.  This
+            should be passed directly instead of part of a URL.  e.g.
+            'vsa-00000578-aws.zadaravpsa.com', not
+            'https://vsa-00000578-aws.zadaravpsa.com/'.  Required.
+
+        :type port: int
+        :param port: The port for the API endpoint.  If set to None, the
+            default port for the HTTP mode will be used (80 for HTTP, 443 for
+            HTTPS).  Optional.
+
+        :type key: str
+        :param key: The API key for the connecting user.  Required.
+
+        :type secure: bool
+        :param secure: If True, the API call will be made over HTTPS,
+            otherwise HTTP will be used.  Required.
+
+        :type body: Dict
+        :param body: For POST calls, a body should be supplied that *only*
+            contains a valid JSON data set.  No "key" should be supplied for
+            this value.  Optional.
+
+        :type parameters: dict
+        :param parameters: A Python dictionary of key value pairs that will be
+            passed as URL parameters.  Optional.
+
+        :type timeout: int
+        :param timeout: API command timeout. When None, it will use the default
+        timeout.  Optional.
+
+        :type return_type: str
+        :param return_type: If this is set to the string 'json', this function
+            will return a JSON string.  Otherwise, it will return a Python
+            dictionary.  Optional (will return a Python dictionary by
+            default).
+
+        :rtype: dict, str
+        :returns: A dictionary or JSON data set as a string depending on
+            return_type parameter.
+        """
+        return self.call_api(method="HEAD", path=path, host=host, port=port, key=key, secure=secure, body=body,
+                             parameters=parameters, timeout=timeout, return_type=return_type,
+                             use_port=False, return_header=True)
+
     def get_api(self, path, host=None, port=None, key=None,
                 secure=None, body=None, parameters=None, timeout=None,
                 return_type=None):
@@ -338,9 +398,8 @@ class Session(object):
                              parameters=parameters,
                              timeout=timeout, return_type=return_type)
 
-    def put_api(self, path, host=None, port=None, key=None,
-                secure=None, body=None, parameters=None, timeout=None,
-                return_type=None):
+    def put_api(self, path, host=None, port=None, key=None, secure=None, additional_headers=None, body=None,
+                parameters=None, timeout=None, return_type=None, use_port=True, return_header=False):
         """
         Makes the actual PUT call to the Zadara API endpoint.  If host, key,
         and/or secure are set as None, the instance variables will be used as
@@ -371,6 +430,10 @@ class Session(object):
         :param secure: If True, the API call will be made over HTTPS,
             otherwise HTTP will be used.  Required.
 
+        :type additional_headers: Dict
+        :param additional_headers: In case the user wishes to
+            add headers to the request.  Optional.
+
         :type body: Dict
         :param body: For POST calls, a body should be supplied that *only*
             contains a valid JSON data set.  No "key" should be supplied for
@@ -394,14 +457,14 @@ class Session(object):
         :returns: A dictionary or JSON data set as a string depending on
             return_type parameter.
         """
-        return self.call_api(method="PUT", path=path, host=host, port=port,
-                             key=key, secure=secure, body=body,
-                             parameters=parameters,
-                             timeout=timeout, return_type=return_type)
+        return self.call_api(method="PUT", path=path, host=host, port=port, key=key,
+                             secure=secure, additional_headers=additional_headers, body=body,
+                             parameters=parameters, timeout=timeout, return_type=return_type,
+                             use_port=use_port, return_header=return_header)
 
     def call_api(self, method, path, host=None, port=None, key=None,
-                 secure=None, body=None, parameters=None,
-                 timeout=None, return_type=None):
+                 secure=None, additional_headers=None, body=None, parameters=None,
+                 timeout=None, return_type=None, use_port=True, return_header=False):
         """
         Makes the actual REST call to the Zadara API endpoint.  If host, key,
         and/or secure are set as None, the instance variables will be used as
@@ -436,6 +499,10 @@ class Session(object):
         :param secure: If True, the API call will be made over HTTPS,
             otherwise HTTP will be used.  Required.
 
+        :type additional_headers: Dict
+        :param additional_headers: In case the user wishes to
+            add headers to the request.  Optional.
+
         :type body: Dict
         :param body: For POST calls, a body should be supplied that *only*
             contains a valid JSON data set.  No "key" should be supplied for
@@ -454,6 +521,14 @@ class Session(object):
             will return a JSON string.  Otherwise, it will return a Python
             dictionary.  Optional (will return a Python dictionary by
             default).
+
+        :type use_port: bool
+        :param use_port: Detrmines if API should be using port in the API request.
+        Optional.
+
+        :type return_header: bool
+        :param return_header: If True the return content will be the header
+        and not the content of the response.  Optional.
 
         :rtype: dict, str
         :returns: A dictionary or JSON data set as a string depending on
@@ -480,8 +555,12 @@ class Session(object):
             port = session_port
 
         api_url = "{}://{}:{}{}".format(protocol.lower(), host, port, path)
+        if not use_port:
+            api_url = "{}://{}{}".format(protocol.lower(), host, path)
 
         headers = self._get_headers(key=key, return_type=return_type)
+        if additional_headers is not None:
+            headers.update(additional_headers)
         parameters = self._get_parameters(parameters=parameters)
         body = self._get_body(body=body, timeout=timeout)
 
@@ -506,9 +585,14 @@ class Session(object):
         except BaseException as e:
             raise OSError('HTTP request failed: {}'.format(str(e)))
 
-        if response.status_code not in [200, 302, 201]:
+        if response.status_code not in [200, 302, 201, 202, 204]:
             raise RuntimeError(FAILURE_RESPONSE.format(response.status_code,
                                                        response.reason))
+
+        if return_header:
+            d = response.headers
+            d["status"] = "success"
+            return d
 
         data = response.content
 
@@ -535,14 +619,37 @@ class Session(object):
                     raise RuntimeError(api_return_dict['response']['errors'][0]['message'])
             if 'status' in api_return_dict['response']:
                 if api_return_dict['response']['status'] != 0:
-                    try:
-                        err = api_return_dict['response']['message']
-                    except KeyError:
-                        err = api_return_dict['response']['status_msg']
+                    if self._check_if_in_exit_status_is_in_delete_proxy_api_exit_status_range(
+                            api_return_dict['response']['status']):
+                        api_return_dict['response']['status'] = 0
+                    else:
+                        try:
+                            err = api_return_dict['response']['message']
+                        except KeyError:
+                            err = api_return_dict['response']['status_msg']
 
-                    raise RuntimeError('The API server returned an error: "{0}".'.format(err))
+                        raise RuntimeError('The API server returned an error: "{0}".'.format(err))
 
         return api_return_dict
+
+    def _check_if_in_exit_status_is_in_delete_proxy_api_exit_status_range(self, exit_status):
+        """
+        Remove proxy VCs has exit status between 0x40000000 to 0x80000000.
+        This function checks if an exit status is in that range.
+
+        :type exit_status: int
+        :param exit_status: Exit status range.  Required.
+
+        :rtype: bool
+        :returns: True if 'exit_status' is in the range between 0x40000000 to 0x80000000.
+        """
+        TOP_RANGE = "0x80000000"
+        BUTTOM_RANGE = "0x40000000"
+        top_range_dec = int(TOP_RANGE, 16)
+        buttom_range_dec = int(BUTTOM_RANGE, 16)
+        if exit_status >= buttom_range_dec and exit_status <= top_range_dec:
+            return True
+        return False
 
     @staticmethod
     def _get_headers(key, return_type):
