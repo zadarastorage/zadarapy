@@ -15,7 +15,7 @@
 
 
 from zadarapy.validators import verify_vpsa_id, \
-    verify_cloud_name, verify_field, verify_capacity, verify_positive_argument
+    verify_cloud_name, verify_field, verify_capacity, verify_positive_argument, is_valid_volume_id
 
 
 def add_drives(session, cloud_name, vsa_id, drive_type, drive_quantity,
@@ -384,20 +384,12 @@ def get_vpsaos_comments(session, cloud_name, vsa_id, return_type=None,
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_vpsaos_drives(session, cloud_name, vsa_id, return_type=None, **kwargs):
+def get_vpsaos_drives(session, return_type=None, **kwargs):
     """
     Retrieves the list of a VPSAOS drives.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
-
-    :type cloud_name: str
-    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
-        example: 'zadaralab01'.  Required.
-
-    :type vsa_id: str
-    :param vsa_id: The 'vsa_id' value as returned by get_all_vpsaoss.  For
-        example: 'vsa-000007de'.  Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -408,10 +400,35 @@ def get_vpsaos_drives(session, cloud_name, vsa_id, return_type=None, **kwargs):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    cloud_name = verify_cloud_name(cloud_name)
-    vsa_id = verify_vpsa_id(vsa_id)
 
-    path = '/api/clouds/{0}/zioses/{1}/drives.json'.format(cloud_name, vsa_id)
+    path = '/api/zios/drives.json'
+
+    return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
+def get_vpsaos_drive(session, drive_id, return_type=None, **kwargs):
+    """
+    Retrieves the list of a VPSAOS drives.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type drive_id: str
+    :param drive_id: ZIOS drive ID.  e.g.: 'volume-00000ca8'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+
+    is_valid_volume_id(drive_id)
+
+    path = '/api/zios/drives/{0}.json'.format(drive_id)
 
     return session.get_api(path=path, return_type=return_type, **kwargs)
 

@@ -12,8 +12,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from zadarapy.validators import verify_start_limit, verify_field
-
+from zadarapy.validators import verify_start_limit, verify_field, verify_capacity
 
 def get_all_policies(session, start=None, limit=None, return_type=None,
                      **kwargs):
@@ -94,3 +93,69 @@ def set_default_policy(session, policy_name, return_type=None, **kwargs):
 
     return session.post_api(path=path, secure=True, return_type=return_type,
                             **kwargs)
+
+
+def update_storage_policy(session, policy_id, full_description, gb_per_month_cost, return_type=None):
+    """
+    Set the policy as a default policy
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type policy_id: str
+    :param policy_id: ID of the storage policy.  Required.
+
+    :type full_description: str
+    :param full_description: Description of storage policy.  Required.
+
+    :type gb_per_month_cost: float
+    :param gb_per_month_cost: Cost per month for GB.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+           will return a JSON string.  Otherwise, it will return a Python
+           dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+              return_type parameter.
+    """
+    path = '/api/zios/policies/{0}.json'.format(policy_id)
+    body_values = {'full_description': full_description, 'gb_per_month_cost': gb_per_month_cost}
+    return session.put_api(path=path, body=body_values, return_type=return_type)
+
+
+def delete_drives_from_policy(session, policy_name, drive_type, quantity, return_type=None, **kwargs):
+    """
+    Remove drives from storage policy
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type policy_name: str
+    :param policy_name: The Policy name 'name' value as returned by
+        get_all_policies.  Required.
+
+    :type drive_type: str
+    :param drive_type: Type of the drives the user wish to remove from the policy.  Required.
+           e.g SAS_300_GB
+
+    :type quantity: int
+    :param quantity: Quantity of the drives the user wish to remove from the policy.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/zios/policies/{0}/drives.json'.format(policy_name)
+    drive_type = verify_field(drive_type, 'drive_type')
+    quantity = verify_capacity(quantity, 'quantity')
+
+    body = {"drives":[{"type": drive_type , "quantity": quantity}]}
+
+    return session.delete_api(path=path, body=body, secure=True, return_type=return_type, **kwargs)
