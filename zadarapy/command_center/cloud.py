@@ -250,6 +250,42 @@ def delete_vlans(session, cloud_name, vlan_id, return_type=None, **kwargs):
     return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
+def populate_vrid_in_vlan(session, cloud_name, vlan_id, range_start, range_end, return_type=None, **kwargs):
+    """
+    Populate vrid in a Vlan
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type vlan_id: str
+    :param vlan_id: VLAN ID
+
+    :type range_start: int
+    :param range_start: VRID start range
+
+    :type range_end: int
+    :param range_end: VRID end range
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+
+    path = "/api/clouds/{0}/vlans/{1}/add_vrids.json".format(cloud_name, vlan_id)
+
+    body = {"range_start": range_start, "range_end": range_end, "vlan": vlan_id}
+
+    return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
+
+
 def get_tenants(session, cloud_name, return_type=None, **kwargs):
     """
     Get all Cloud Tennants
@@ -742,3 +778,24 @@ def set_automatic_drive_replacement(session, cloud_name, time, return_type=None,
 
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
+
+def get_redundancy_level_policies(session, cloud_name, return_type=None, **kwargs):
+    """
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{0}/vpsa_zone_group_storage_policy_types.json".format(cloud_name)
+
+    return session.get_api(path=path, return_type=return_type, **kwargs)
