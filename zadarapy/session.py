@@ -156,8 +156,8 @@ class Session(object):
             self.zadara_secure = True
 
     def head_api(self, path, host=None, port=None, key=None,
-                secure=None, body=None, parameters=None, timeout=None,
-                return_type=None):
+                 secure=None, body=None, parameters=None, timeout=None,
+                 return_type=None):
         """
         Makes the actual GET REST call to the Zadara API endpoint.
         If host, key, and/or secure are set as None, the instance variables
@@ -278,7 +278,7 @@ class Session(object):
 
     def post_api(self, path, host=None, port=None, key=None,
                  secure=None, body=None, parameters=None, timeout=None,
-                 return_type=None):
+                 return_type=None, skip_status_check_range=True):
         """
         Makes the actual POST REST call to the Zadara API endpoint.
         If host, key, and/or secure are set as None, the instance variables
@@ -339,7 +339,7 @@ class Session(object):
 
     def delete_api(self, path, host=None, port=None, key=None,
                    secure=None, body=None,
-                   parameters=None, timeout=None, return_type=None):
+                   parameters=None, timeout=None, return_type=None, skip_status_check_range=True):
         """
         Makes the actual DELETE REST call to the Zadara API endpoint.
         If host, key, and/or secure are set as None, the instance variables
@@ -396,7 +396,7 @@ class Session(object):
         return self.call_api(method="DELETE", path=path, host=host, port=port,
                              key=key, secure=secure, body=body,
                              parameters=parameters,
-                             timeout=timeout, return_type=return_type)
+                             timeout=timeout, return_type=return_type, skip_status_check_range=skip_status_check_range)
 
     def put_api(self, path, host=None, port=None, key=None, secure=None, additional_headers=None, body=None,
                 parameters=None, timeout=None, return_type=None, use_port=True, return_header=False):
@@ -464,7 +464,7 @@ class Session(object):
 
     def call_api(self, method, path, host=None, port=None, key=None,
                  secure=None, additional_headers=None, body=None, parameters=None,
-                 timeout=None, return_type=None, use_port=True, return_header=False):
+                 timeout=None, return_type=None, use_port=True, return_header=False, skip_status_check_range=True):
         """
         Makes the actual REST call to the Zadara API endpoint.  If host, key,
         and/or secure are set as None, the instance variables will be used as
@@ -619,9 +619,10 @@ class Session(object):
                     raise RuntimeError(api_return_dict['response']['errors'][0]['message'])
             if 'status' in api_return_dict['response']:
                 if api_return_dict['response']['status'] != 0:
-                    if self._check_if_in_exit_status_is_in_delete_proxy_api_exit_status_range(
-                            api_return_dict['response']['status']):
-                        api_return_dict['response']['status'] = 0
+                    if not skip_status_check_range:
+                        if self._check_if_in_exit_status_is_in_delete_proxy_api_exit_status_range(
+                                api_return_dict['response']['status']):
+                            api_return_dict['response']['status'] = 0
                     else:
                         try:
                             err = api_return_dict['response']['message']
@@ -634,6 +635,8 @@ class Session(object):
 
     def _check_if_in_exit_status_is_in_delete_proxy_api_exit_status_range(self, exit_status):
         """
+        Written for remove_proxy_vcs.
+
         Remove proxy VCs has exit status between 0x40000000 to 0x80000000.
         This function checks if an exit status is in that range.
 
@@ -680,7 +683,7 @@ class Session(object):
         if parameters:
             assert isinstance(parameters, dict), \
                 "Invalid 'params' type. Must be a dictionary type. ({})" \
-                 .format(type(parameters))
+                    .format(type(parameters))
         return parameters
 
     @staticmethod
@@ -733,3 +736,35 @@ class Session(object):
                     mx=max_time)
 
         self._log_function(msg)
+
+
+def run_outside_of_api(cmd, session=None):
+    """
+    Run command outside of the usual session API due to python limitations
+    e.g. when we need to run a command that get headers with a single quote
+    and other headers with double quotes python built-in modules fail to do it
+    for instance we can't run this API -
+    curl 'https://vsa-0000007e-zadara-qa10.zadarazios.com:443/v1/AUTH_20db47cfaaff46079861b917116decf7/nirhayuntest'
+    -X PUT -H 'x-auth-token: gAAAAABelWkqs7uouuMBd5EPopY2HCkQYQKEatQ6Lt52ThEpTNvUKcTBi7pR3iZS2_Wzufgr7GD4unsQlWRb0f'
+    -H 'x-container-meta-objectexpirer: [{"prefix": "HAYUN", "curver_after": 259200}]'
+    (one header needs to be with single quotes and the dict in the second header needs to be with a double quotes
+
+    :type cmd: str
+    :param cmd: A valid ZPI command to execute.  Required.
+
+    :type session: Session
+    :param session: Valid API session.  Required.
+    """
+
+    from subprocess import Popen, PIPE
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+    res = {}
+    (res["output"], err) = p.communicate()
+
+    if p.returncode != 0:
+        raise AssertionError(f"Failed to execute command: {cmd}\n"
+                             f"With error code: {p.returncode}\n"
+                             f"{err}")
+
+    res["status"] = "success"
+    return res

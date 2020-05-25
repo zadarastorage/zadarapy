@@ -126,5 +126,6 @@ def remove_proxy_vcs(session, quantity, return_type=None, **kwargs):
     path = '/api/zios/virtual_controllers/remove_proxy_vcs.json'
     parameters = get_parameters_options([('quantity', quantity)])
 
+    # should filter out the bad statuses
     return session.delete_api(path=path, parameters=parameters,
-                              return_type=return_type, **kwargs)
+                              return_type=return_type, skip_status_check_range=False, **kwargs)
