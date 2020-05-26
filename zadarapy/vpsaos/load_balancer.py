@@ -65,7 +65,7 @@ def get_load_balancer_group(session, name, return_type=None, **kwargs):
     """
     verify_load_balancer_name(name=name)
 
-    path = f"/api/zios/load_balancer_groups/{name}.json"
+    path = "/api/zios/load_balancer_groups/{0}.json".format(name)
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
@@ -104,7 +104,7 @@ def get_iop_metering_load_balancer_group(session, name, service, interval=None, 
     if count is not None:
         body_values["count"] = count
 
-    path = f"/api/zios/load_balancer_groups/{name}/iops.json?service=proxy"
+    path = "/api/zios/load_balancer_groups/{0}/iops.json?service=proxy".format(name)
 
     return session.get_api(path=path, body_values=body_values, return_type=return_type, **kwargs)
 
@@ -145,7 +145,7 @@ def get_latency_metering_load_balancer_group(session, name, service,
     if count is not None:
         body_values["count"] = count
 
-    path = f"/api/zios/load_balancer_groups/{name}/latency.json?service=proxy"
+    path = "/api/zios/load_balancer_groups/{0}/latency.json?service=proxy".format(name)
 
     return session.get_api(path=path, body_values=body_values, return_type=return_type, **kwargs)
 
@@ -186,6 +186,6 @@ def get_throughput_metering_load_balancer_group(session, name, service,
     if count is not None:
         body_values["count"] = count
 
-    path = f"/api/zios/load_balancer_groups/{name}/throughput.json?service=proxy"
+    path = "/api/zios/load_balancer_groups/{0}/throughput.json?service=proxy".format(name)
 
     return session.get_api(path=path, body_values=body_values, return_type=return_type, **kwargs)

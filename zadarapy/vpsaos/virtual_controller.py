@@ -67,7 +67,7 @@ def get_virtual_controller(session, vc_index, return_type=None, **kwargs):
 
     verify_vc_index(vc_index)
 
-    path = f"/api/zios/virtual_controllers/{vc_index}.json"
+    path = "/api/zios/virtual_controllers/{0}.json".format(vc_index)
 
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
@@ -94,7 +94,7 @@ def get_virtual_controller_drives(session, vc_index, return_type=None, **kwargs)
 
     verify_vc_index(vc_index)
 
-    path = f"/api/zios/virtual_controllers/{vc_index}/drives.json"
+    path = "/api/zios/virtual_controllers/{0}/drives.json".format(vc_index)
 
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
@@ -123,7 +123,7 @@ def delete_proxy_virtual_controller(session, quantity, region_id=None, return_ty
     """
 
 
-    path = f"/api/zios/virtual_controllers/remove_proxy_vcs.json"
+    path = "/api/zios/virtual_controllers/remove_proxy_vcs.json"
 
     body_values = {'quantity': quantity}
     if region_id is not None:

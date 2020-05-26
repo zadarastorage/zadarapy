@@ -519,7 +519,7 @@ def is_valid_minutes(minutes):
     return minutes*SECONDS_IN_A_MINUTE
 
 
-def verify_expire_version(versioning) -> str:
+def verify_expire_version(versioning):
     """
     :type: versioning: str
     :param versioning: Type of expiration versioning.
@@ -533,8 +533,8 @@ def verify_expire_version(versioning) -> str:
 
     versioning = versioning.lower()
     if versioning not in VERSION_CONVERT.keys():
-        raise ValueError(f"Versioning {versioning} could not be used, please use either "
-                         f"x-versions-location or x-history-location.")
+        raise ValueError("Versioning {0} could not be used, please use either "
+                         "x-versions-location or x-history-location.".format(versioning))
     return VERSION_CONVERT[versioning]
 
 
@@ -1182,7 +1182,7 @@ def verify_start_limit(start, limit, list_options=None):
     return parameters
 
 
-def verify_versioning(versioning) -> str:
+def verify_versioning(versioning):
     """
     :type: versioning: str
     :param versioning: Type of versioning.
@@ -1194,8 +1194,8 @@ def verify_versioning(versioning) -> str:
     """
     versioning = versioning.lower()
     if versioning not in ["x-versions-location", "x-history-location"]:
-        raise ValueError(f"Versioning {versioning} could not be used, please use either "
-                         f"x-versions-location or x-history-location.")
+        raise ValueError("Versioning {0} could not be used, please use either "
+                         "x-versions-location or x-history-location.".format(versioning))
     return versioning
 
 
