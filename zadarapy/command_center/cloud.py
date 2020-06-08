@@ -385,6 +385,29 @@ def get_storage_node(session, cloud_name, sn_id, return_type=None, **kwargs):
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
+def get_zones(session, cloud_name, return_type=None, **kwargs):
+    """
+    Get all Zones
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{0}/vpsa_zones.json".format(cloud_name)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
 def get_storage_node_drives(session, cloud_name, sn_id, return_type=None,
                             **kwargs):
     """
@@ -779,6 +802,7 @@ def set_automatic_drive_replacement(session, cloud_name, time, return_type=None,
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
 
+
 def get_redundancy_level_policies(session, cloud_name, return_type=None, **kwargs):
     """
     :type session: zadarapy.session.Session
@@ -797,5 +821,30 @@ def get_redundancy_level_policies(session, cloud_name, return_type=None, **kwarg
         return_type parameter.
     """
     path = "/api/clouds/{0}/vpsa_zone_group_storage_policy_types.json".format(cloud_name)
+
+    return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
+def get_inventory(session, cloud_name, id="1", return_type=None, **kwargs):
+    """
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type id: str
+    :param id: VPSA ID. i.e: 126
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{0}/vpsa_zone_groups/{1}/inventory.json".format(cloud_name, id)
 
     return session.get_api(path=path, return_type=return_type, **kwargs)
