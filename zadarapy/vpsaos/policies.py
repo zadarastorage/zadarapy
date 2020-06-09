@@ -159,3 +159,155 @@ def delete_drives_from_policy(session, policy_name, drive_type, quantity, return
     body = {"drives":[{"type": drive_type , "quantity": quantity}]}
 
     return session.delete_api(path=path, body=body, secure=True, return_type=return_type, **kwargs)
+
+
+def capacity_over_time(session, policy_name, policy_display_name, interval, return_type=None, **kwargs):
+    """
+    Retrieves details of storage policy capacity over time
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type policy_name: str
+    :param policy_name: The Policy name 'name' value as returned by
+        get_all_policies.  Required.
+
+    :type policy_display_name: str
+    :param policy_display_name: The Policy display name 'name' value as returned by
+        get_all_policies, for example '2-Way-Protection'.  Required.
+
+    :type interval: int
+    :param interval: Time interval in seconds between each beat in Unix time
+        of the capacity.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_field(policy_name, "policy_name")
+    data = {"interval": interval, "name": policy_display_name}
+
+    path = '/api/zios/policies/{0}/capacity_over_time.json'.format(policy_name)
+    return session.get_api(path=path, secure=True, body=data, return_type=return_type, **kwargs)
+
+
+def iops(session, policy_name, policy_display_name, interval, service, return_type=None, **kwargs):
+    """
+    Retrieves details of storage policy iops over time
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type policy_name: str
+    :param policy_name: The Policy name 'name' value as returned by
+        get_all_policies.  Required.
+
+    :type policy_display_name: str
+    :param policy_display_name: The Policy display name 'name' value as returned by
+        get_all_policies, for example '2-Way-Protection'.  Required.
+
+    :type interval: int
+    :param interval: Time interval in seconds between each beat in Unix time
+        of the capacity.  Required.
+
+    :type service: str
+    :param service: Mentions if this is for backend or frontend.
+           Possible values are 'object' for backend or 'proxy' for frontend.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_field(policy_name, "policy_name")
+    data = {"interval": interval, "name": policy_display_name, "service": service}
+
+    path = '/api/zios/policies/{0}/iops.json'.format(policy_name)
+    return session.get_api(path=path, secure=True, body=data, return_type=return_type, **kwargs)
+
+
+def throughput(session, policy_name, policy_display_name, interval, service, return_type=None, **kwargs):
+    """
+    Retrieves details of storage policy throughput over time
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type policy_name: str
+    :param policy_name: The Policy name 'name' value as returned by
+        get_all_policies.  Required.
+
+    :type policy_display_name: str
+    :param policy_display_name: The Policy display name 'name' value as returned by
+        get_all_policies, for example '2-Way-Protection'.  Required.
+
+    :type interval: int
+    :param interval: Time interval in seconds between each beat in Unix time
+        of the capacity.  Required.
+
+    :type service: str
+    :param service: Mentions if this is for backend or frontend.
+           Possible values are 'object' for backend or 'proxy' for frontend.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_field(policy_name, "policy_name")
+    data = {"interval": interval, "name": policy_display_name, "service": service}
+
+    path = '/api/zios/policies/{0}/throughput.json'.format(policy_name)
+    return session.get_api(path=path, secure=True, body=data, return_type=return_type, **kwargs)
+
+
+def latency(session, policy_name, policy_display_name, interval, service, return_type=None, **kwargs):
+    """
+    Retrieves details of storage policy latency over time
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type policy_name: str
+    :param policy_name: The Policy name 'name' value as returned by
+        get_all_policies.  Required.
+
+    :type policy_display_name: str
+    :param policy_display_name: The Policy display name 'name' value as returned by
+        get_all_policies, for example '2-Way-Protection'.  Required.
+
+    :type interval: int
+    :param interval: Time interval in seconds between each beat in Unix time
+        of the capacity.  Required.
+
+    :type service: str
+    :param service: Mentions if this is for backend or frontend.
+           Possible values are 'object' for backend or 'proxy' for frontend.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_field(policy_name, "policy_name")
+    data = {"interval": interval, "name": policy_display_name, "service": service}
+
+    path = '/api/zios/policies/{0}/latency.json'.format(policy_name)
+    return session.get_api(path=path, secure=True, body=data, return_type=return_type, **kwargs)
