@@ -156,8 +156,8 @@ class Session(object):
             self.zadara_secure = True
 
     def head_api(self, path, host=None, port=None, key=None,
-                 secure=None, body=None, parameters=None, timeout=None,
-                 return_type=None):
+                secure=None, body=None, parameters=None, timeout=None,
+                return_type=None):
         """
         Makes the actual GET REST call to the Zadara API endpoint.
         If host, key, and/or secure are set as None, the instance variables
@@ -683,7 +683,7 @@ class Session(object):
         if parameters:
             assert isinstance(parameters, dict), \
                 "Invalid 'params' type. Must be a dictionary type. ({})" \
-                    .format(type(parameters))
+                 .format(type(parameters))
         return parameters
 
     @staticmethod
@@ -762,9 +762,10 @@ def run_outside_of_api(cmd, session=None):
     (res["output"], err) = p.communicate()
 
     if p.returncode != 0:
-        raise AssertionError("Failed to execute command: {0}\n"
-                             "With error code: {1}\n"
-                             "{2}".format(cmd, p.returncode, err))
+        raise AssertionError(f"Failed to execute command: {cmd}\n"
+                             f"With error code: {p.returncode}\n"
+                             f"{err}")
 
     res["status"] = "success"
     return res
+
