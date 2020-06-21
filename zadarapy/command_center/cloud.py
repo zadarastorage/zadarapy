@@ -385,9 +385,9 @@ def get_storage_node(session, cloud_name, sn_id, return_type=None, **kwargs):
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_zones(session, cloud_name, return_type=None, **kwargs):
+def get_fault_domains(session, cloud_name, return_type=None, **kwargs):
     """
-    Get all Zones
+    Get all fault domains
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -404,7 +404,7 @@ def get_zones(session, cloud_name, return_type=None, **kwargs):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = "/api/clouds/{0}/vpsa_zones.json".format(cloud_name)
+    path = "/api/clouds/{0}/fault_domains.json".format(cloud_name)
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
