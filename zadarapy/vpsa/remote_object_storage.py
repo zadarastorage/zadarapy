@@ -175,7 +175,7 @@ def create_ros_destination(session, display_name, bucket, endpoint, username,
     body_values = {'name': display_name, 'bucket': bucket,
                    'endpoint': endpoint, 'username': username,
                    'type': ros_type, 'password': password,
-                   'connectVia': 'public' if public == 'YES' else 'be',
+                   'connectVia': 'public' if public == 'YES' else 'fe',
                    'allow_lifecycle_policies': allow_lifecycle_policies}
 
     if use_proxy == 'YES':

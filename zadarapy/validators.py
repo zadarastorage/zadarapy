@@ -1100,6 +1100,22 @@ def verify_raid_groups(raid_groups):
                     raid_group, raid_groups))
 
 
+def verify_multiplier(num, multiplier):
+    """
+    Verifies that num % multiplier equals 0
+
+    :type num: int|str
+    :param num: Number to verify
+    :type multiplier: int
+    :param multiplier: Multiplier to module by
+
+    :raises: ValueError: Invalid number
+    """
+    num = int(num)
+    if num % multiplier != 0:
+        raise ValueError('"{0}" % "{1}" Does not equal 0'.format(num, multiplier))
+
+
 def verify_pool_type(pooltype):
     """
     :type pooltype: str

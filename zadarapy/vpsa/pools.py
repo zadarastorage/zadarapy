@@ -17,7 +17,7 @@
 from zadarapy.validators import verify_start_limit, verify_field, \
     verify_capacity, verify_raid_groups, \
     verify_pool_type, verify_boolean, verify_pool_id, verify_mode, \
-    verify_drives, verify_positive_argument
+    verify_drives, verify_positive_argument, verify_multiplier
 
 __all__ = ["get_all_pools", "get_pool", "create_pool", "create_raid10_pool",
            "delete_pool", "rename_pool",
@@ -26,7 +26,7 @@ __all__ = ["get_all_pools", "get_pool", "create_pool", "create_raid10_pool",
            "get_pool_mirror_destination_volumes", "set_pool_cache",
            "enable_cache", "disable_cache", "set_pool_cowcache", "expand_pool",
            "get_volumes_in_pool_recycle_bin", "get_pool_performance",
-           "pool_shrink", "cancel_pool_shrink"]
+           "pool_shrink", "cancel_pool_shrink", "cooloff"]
 
 
 def get_all_pools(session, start=None, limit=None, return_type=None, **kwargs):
@@ -822,7 +822,7 @@ def update_protection(session, pool_id, alertmode=None,
                             **kwargs)
 
 
-def pool_shrink(session, pool_id, raid_group_id, return_type=None, **kwargs):
+def pool_shrink(session, pool_id, raid_group_id=None, obs_shrink_size=None, return_type=None, **kwargs):
     """
     Shrink a pool
 
@@ -836,6 +836,9 @@ def pool_shrink(session, pool_id, raid_group_id, return_type=None, **kwargs):
     :type raid_group_id: str
     :param raid_group_id: RAID Group ID
 
+    :type obs_shrink_size: int
+    :param obs_shrink_size: OBS size to shrink (multiple of 20)
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -846,9 +849,18 @@ def pool_shrink(session, pool_id, raid_group_id, return_type=None, **kwargs):
         return_type parameter.
     """
     verify_pool_id(pool_id=pool_id)
-    verify_raid_groups(raid_groups=raid_group_id)
+    body_values = {}
+
+    if raid_group_id is not None:
+        verify_raid_groups(raid_groups=raid_group_id)
+        body_values['raid_group'] = raid_group_id
+
+    if obs_shrink_size is not None:
+        verify_multiplier(num=obs_shrink_size, multiplier=20)
+        body_values['obsshrinksize'] = obs_shrink_size
+
     path = "/api/pools/{0}/shrink.json".format(pool_id)
-    body_values = {'raid_group': raid_group_id}
+
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
 
@@ -883,8 +895,9 @@ def cancel_pool_shrink(session, pool_id, raid_group_id, return_type=None,
     return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def expand_pool(session, pool_id, raid_groups_ids, capacity, return_type=None,
-                **kwargs):
+def expand_pool(session, pool_id, raid_groups_ids=None, capacity=None,
+                obsdestname=None, cloud_size=None, sse=None,
+                return_type=None, **kwargs):
     """
     Add additional RAID Groups to a Pool.
 
@@ -896,10 +909,19 @@ def expand_pool(session, pool_id, raid_groups_ids, capacity, return_type=None,
         example: 'pool-00000001'.  Required.
 
     :type raid_groups_ids: str
-    :param raid_groups_ids: RAID Group IDs separated by comma ,
+    :param raid_groups_ids: RAID Group IDs separated by comma , (Cannot be used with `obsdestname`)
 
     :type capacity: int
-    :param capacity: Capacity in GB.  Required.
+    :param capacity: Capacity in GB.
+
+    :type obsdestname: str
+    :param obsdestname: Object storage destination name. Cannot be used with `raid_groups`
+
+    :type cloud_size: str
+    :param cloud_size: Object storage size (multiple of 20)
+
+    :type sse: str
+    :param sse: Encryption type
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -911,10 +933,50 @@ def expand_pool(session, pool_id, raid_groups_ids, capacity, return_type=None,
         return_type parameter.
     """
     verify_pool_id(pool_id=pool_id)
-    verify_raid_groups(raid_groups=raid_groups_ids)
+
+    if raid_groups_ids is not None and capacity is not None:
+        verify_raid_groups(raid_groups=raid_groups_ids)
+        body_values = {"capacity": "{}G".format(capacity),
+                       "raid_groups": raid_groups_ids}
+    else:
+        verify_multiplier(cloud_size, 20)
+        body_values = {"obsdestname": obsdestname,
+                       "cloud_size": cloud_size}
+        if sse is not None:
+            body_values["sse"] = sse
 
     path = "/api/pools/{0}/expand.json".format(pool_id)
-    body_values = {"capacity": "{}G".format(capacity),
-                   "raid_groups": raid_groups_ids}
+
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type, **kwargs)
+
+
+def cooloff(session, pool_id, cool_off_hours, return_type=None, **kwargs):
+    """
+    Add additional RAID Groups to a Pool.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type pool_id: str
+    :param pool_id: The pool 'name' value as returned by get_all_pools.  For
+        example: 'pool-00000001'.  Required.
+
+    :type cool_off_hours: int
+    :param cool_off_hours: Cool off hours time.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_pool_id(pool_id=pool_id)
+
+    path = "/api/pools/{0}/update_ssd_cool_off.json".format(pool_id)
+    body_values = {"cool_off_hours": cool_off_hours}
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
