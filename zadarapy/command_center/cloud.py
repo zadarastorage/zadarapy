@@ -60,6 +60,160 @@ def get_all_clouds(session, return_type=None, **kwargs):
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
+def create_user(session, email: str, first_name: str, last_name: str, admin: bool, role_ids, return_type=None, **kwargs):
+    """
+    Creates a user of CC.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type email: str
+    :param email: The email of the user used for login
+        example: 'qa@zadarastorage.com'.  Required.
+
+    :type first_name: str
+    :param first_name: The first name of the user
+
+    :type last_name: str
+    :param last_name: The first name of the user
+
+    :type admin: bool
+    :param admin: True if the user should be admin
+
+    :type role_ids: array
+    :param role_ids: Array of roles, i.e. ["1","3"]
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/users.json'
+    body_values = {"user":{'email': email, 'firstname': first_name, 'lastname': last_name, 'admin':admin, 'role_ids': role_ids}}
+    return session.post_api(path=path, body=body_values, secure=False,
+                            return_type=return_type, **kwargs)
+
+
+def update_user(session, email: str, first_name: str, last_name: str, admin: bool, role_ids,
+                password: str, new_password: str, id: int, return_type=None, **kwargs):
+    """
+    Updates a user of CC.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type email: str
+    :param email: The email of the user used for login
+        example: 'qa@zadarastorage.com'.  Required.
+
+    :type first_name: str
+    :param first_name: The first name of the user
+
+    :type last_name: str
+    :param last_name: The first name of the user
+
+    :type admin: bool
+    :param admin: True if the user should be admin
+
+    :type role_ids: array
+    :param role_ids: Array of roles, i.e. ["1","3"]
+
+    :type password: str
+    :param password: the current password.   Required.
+
+    :type new_password: str
+    :param new_password: a new password for the user.   Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = f'/api/users/{id}.json'
+    body_values = {"user":{'email': email, 'firstname': first_name, 'lastname': last_name, 'admin':admin,
+                           'role_ids': role_ids, 'current_password': password, 'password': new_password}}
+    return session.put_api(path=path, body=body_values, secure=False,
+                            return_type=return_type, **kwargs)
+
+
+def regenerate_user_api_token(session, email: str, password: str, return_type=None, **kwargs):
+    """
+    Regenerates the user's API token.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type email: str
+    :param email: The email of the user used for login
+        example: 'qa@zadarastorage.com'.  Required.
+
+    :type password: str
+    :param password: the current password.   Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = f'/api/users/regenerate_token.json'
+    body_values = {'email': email, 'password': password}
+    return session.post_api(path=path, body=body_values, secure=False, return_type=return_type, **kwargs)
+
+
+def delete_user(session, id: int, return_type=None, **kwargs):
+    """
+    Deletes a user of CC.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type id: int
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = f'/api/users/{id}.json'
+    return session.delete_api(path=path, secure=False, return_type=return_type, **kwargs)
+
+
+def get_all_users(session, return_type, **kwargs):
+    """
+    Deletes a user of CC.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = f'/api/users.json'
+    return session.get_api(path=path, secure=False, return_type=return_type, **kwargs)
+
+
 def get_user_token(session, email, password, return_type=None, **kwargs):
     """
     Retrieves API token for the Cloud.
@@ -848,3 +1002,8 @@ def get_inventory(session, cloud_name, id="1", return_type=None, **kwargs):
     path = "/api/clouds/{0}/vpsa_zone_groups/{1}/inventory.json".format(cloud_name, id)
 
     return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
+def enable_pool_migration(session, cloud_name, vpsa_id, return_type=None, **kwargs):
+    path = "/api/clouds/{0}/vpsas/{1}/enable_pool_migration".format(cloud_name, vpsa_id)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
