@@ -464,7 +464,8 @@ class Session(object):
 
     def call_api(self, method, path, host=None, port=None, key=None,
                  secure=None, additional_headers=None, body=None, parameters=None,
-                 timeout=None, return_type=None, use_port=True, return_header=False, skip_status_check_range=True):
+                 timeout=None, return_type=None, use_port=True, return_header=False,
+                 skip_status_check_range=True):
         """
         Makes the actual REST call to the Zadara API endpoint.  If host, key,
         and/or secure are set as None, the instance variables will be used as
@@ -529,6 +530,10 @@ class Session(object):
         :type return_header: bool
         :param return_header: If True the return content will be the header
         and not the content of the response.  Optional.
+
+        :type skip_status_check_range: bool
+        :param skip_status_check_range: Should the session check if the return code
+               of the command is in a pre-defined range.  Optional.
 
         :rtype: dict, str
         :returns: A dictionary or JSON data set as a string depending on
