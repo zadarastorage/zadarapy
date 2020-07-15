@@ -615,8 +615,9 @@ class Session(object):
 
         if 'message' in api_return_dict:
             if 'status' in api_return_dict and api_return_dict['status'] != "success":
-                raise RuntimeError('A general API error was returned: "{0}".'
-                                   .format(api_return_dict['message']))
+                if api_return_dict['status'] != 0:
+                    raise RuntimeError('A general API error was returned: "{0}".'
+                                       .format(api_return_dict['message']))
 
         if 'response' in api_return_dict:
             if 'errors' in api_return_dict['response']:
@@ -655,7 +656,7 @@ class Session(object):
         BUTTOM_RANGE = "0x40000000"
         top_range_dec = int(TOP_RANGE, 16)
         buttom_range_dec = int(BUTTOM_RANGE, 16)
-        if exit_status >= buttom_range_dec and exit_status <= top_range_dec:
+        if buttom_range_dec <= exit_status <= top_range_dec:
             return True
         return False
 
