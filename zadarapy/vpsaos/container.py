@@ -12,7 +12,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 from zadarapy.validators import verify_versioning, is_valid_minutes, verify_expire_version
+
 
 def get_bucket(session, bucket_name, return_type=None, **kwargs):
     """
@@ -34,7 +36,7 @@ def get_bucket(session, bucket_name, return_type=None, **kwargs):
         return_type parameter.
     """
 
-    path = "/{0}".format(name)
+    path = "/{0}".format(bucket_name)
     return session.put_api(path=path, return_type=return_type, **kwargs)
 
 
@@ -95,6 +97,9 @@ def add_lifecycle_policy(session, bucket_name, objects_minutes_expiry, objects_e
     :type objects_name_prefix: str
     :param objects_name_prefix: Prefix for objects name.  Required.
 
+    :type other_policies: str
+    :param other_policies: Other lifecycle policies.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -108,9 +113,10 @@ def add_lifecycle_policy(session, bucket_name, objects_minutes_expiry, objects_e
     objects_minutes_expiry = is_valid_minutes(objects_minutes_expiry)
     objects_expire_version = verify_expire_version(objects_expire_version)
 
-    policies = "{\"prefix\": \"%s\", \"%s\": %s}" % (objects_name_prefix,objects_expire_version,objects_minutes_expiry)
+    policies = "{\"prefix\": \"%s\", \"%s\": %s}" % (objects_name_prefix,
+                                                     objects_expire_version, objects_minutes_expiry)
     if other_policies is not None:
-        policies += "," + other_policies.replace("[","").replace("]","")
+        policies += "," + other_policies.replace("[", "").replace("]", "")
 
     return set_expiry_lifecycle_policy(session=session, bucket_name=bucket_name, policies=policies)
 

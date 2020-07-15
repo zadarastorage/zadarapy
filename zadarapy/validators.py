@@ -996,6 +996,23 @@ def verify_cloud_name(cloud_name):
     return cloud_name
 
 
+def verify_id(v_id):
+    """
+    :type v_id: str|int
+    :param v_id: ID to check, which can only be a number
+
+    :rtype: str
+    :return: Fixed cloud ID
+
+    :raises: ValueError: Invalid capacity
+    """
+    v_id = str(v_id)
+    if not v_id.isdigit():
+        raise ValueError(f"Cloud ID {v_id} is not a valid ID")
+
+    return v_id
+
+
 def verify_vpsa_id(vpsa_id):
     """
     :type vpsa_id: str|int

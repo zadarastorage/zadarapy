@@ -13,13 +13,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-from future.standard_library import install_aliases
-
-install_aliases()
-
 from zadarapy.validators import is_valid_field, verify_positive_argument, \
     verify_io_engine_id, verify_zcs_engine_id, verify_cache_argument
+from future.standard_library import install_aliases
+install_aliases()
 
 
 def get_all_vpsas(session, return_type=None, **kwargs):
@@ -38,7 +35,7 @@ def get_all_vpsas(session, return_type=None, **kwargs):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = '/api/vpsas.json'
+    path = '/api/v2/vpsas.json'
 
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
@@ -69,13 +66,13 @@ def get_vpsa(session, vpsa_id, return_type=None, **kwargs):
     if not vpsa_id.isdigit():
         raise ValueError('The VPSA ID should be a positive integer.')
 
-    path = '/api/vpsas/{0}.json'.format(vpsa_id)
+    path = '/api/v2/vpsas/{0}.json'.format(vpsa_id)
 
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
-                drives, description=None, allocation_zone=None,
+def create_vpsa(session, display_name, cloud_id, io_engine_id, drives,
+                description=None, allocation_zone=None, app_engine=None, flash_cache_capacity=None,
                 return_type=None, **kwargs):
     """
     Submits a request to create a new VPSA.  This must be approved by a
@@ -91,7 +88,7 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
 
     :type cloud_id: str
     :param cloud_id: The storage cloud (provider) 'key' value as returned by
-        get_all_clouds.  For example: 'aws' or 'aws-jp1'.  The VPSA will be
+        get_all_clouds.  For example: 'zadaraqa10' or 'zadaraqa17'.  The VPSA will be
         created on this storage cloud.  Required.
 
     :type io_engine_id: str
@@ -99,11 +96,11 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
         'engine_types' list for cloud_id from get_cloud.  For example:
         'vsa.V2.baby.vf'.  Required.
 
-    :type zcs_engine_id: str
-    :param zcs_engine_id: The ZCS engine 'key' value as returned by the
+    :type app_engine: str
+    :param app_engine: The ZCS engine 'key' value as returned by the
         'app_engine_types' list for cloud_id from get_cloud.  For example:
         'tiny'.  Can also be the string 'None', which will disable the ZCS
-        engine for this VPSA.  Required.
+        engine for this VPSA.
 
     :type drives: list
     :param drives: A Python list of Python dictionaries that defines what type
@@ -123,6 +120,13 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
 
         Please note that the example is not a string, rather a representation
         of what the "pprint" function might return.  Required.
+
+    :type flash_cache_capacity: int
+    :param flash_cache_capacity: The amount of extended Flash Cache you would
+        like your VPSA to be created with, if your Cloud supports extended Flash
+        Cache. Cannot exceed the maximum extended Flash Cache value for your
+        VPSA's Engine Type, and must be in increments of `increment_gb`, as
+        specified by the Cloud's `flash_cache` properties.
 
     :type description: str
     :param description: A text description for the VPSA.  For example:
@@ -159,32 +163,27 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
     cloud_id = cloud_id.strip()
 
     if not is_valid_field(cloud_id):
-        raise ValueError('{0} is not a valid storage cloud key.'
-                         .format(cloud_id))
+        raise ValueError('{0} is not a valid storage cloud key.'.format(cloud_id))
 
     body['provider'] = cloud_id
 
     if 'vsa.' not in io_engine_id:
-        raise ValueError('{0} is not a valid IO engine type.'
-                         .format(io_engine_id))
+        raise ValueError('{0} is not a valid IO engine type.'.format(io_engine_id))
 
     body['engine'] = io_engine_id
 
-    if zcs_engine_id not in ['None', 'tiny', 'small', 'medium', 'large',
-                             'xlarge']:
-        raise ValueError('{0} is not a valid ZCS engine type.'
-                         .format(zcs_engine_id))
+    if app_engine is not None:
+        if app_engine not in ['None', 'tiny', 'small', 'medium', 'large', 'xlarge']:
+            raise ValueError('{0} is not a valid ZCS engine type.'.format(app_engine))
 
-    body['app_engine'] = zcs_engine_id
+        body['app_engine'] = app_engine
 
     if type(drives) is not list:
-        raise ValueError('The passed "drives" parameter is not a Python '
-                         'list.')
+        raise ValueError('The passed "drives" parameter is not a Python list.')
 
     for v in drives:
         if type(v) is not dict:
-            raise ValueError('Each item in the "drives" list must be a '
-                             'Python dictionary.')
+            raise ValueError('Each item in the "drives" list must be a Python dictionary.')
 
         if 'drive_type' not in v:
             raise ValueError('The required "drive_type" key was not found in '
@@ -208,16 +207,18 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, zcs_engine_id,
     if allocation_zone is not None:
         body['allocation_zone'] = allocation_zone
 
+    if flash_cache_capacity is not None:
+        body['flash_cache_capacity'] = flash_cache_capacity
+
     # Enterprise suite should always be enabled.
     body['enterprise_suite'] = 'YES'
 
-    path = '/api/vpsas.json'
+    path = '/api/v2/vpsas.json'
 
-    return session.post_api(path=path, body=body, return_type=return_type,
-                            **kwargs)
+    return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
 
 
-def delete_vpsa(session, vpsa_id, return_type=None, **kwargs):
+def delete_storage(session, storage_id, return_type=None, **kwargs):
     """
     Submits a request to delete a VPSA.  This must be approved by a storage
     cloud administrator before the VPSA is deleted.  Once approved by the
@@ -226,8 +227,8 @@ def delete_vpsa(session, vpsa_id, return_type=None, **kwargs):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type vpsa_id: int
-    :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+    :type storage_id: int
+    :param storage_id: The VPSA/ZIOS 'id' value as returned by get_all_vpsas.  For
         example: '2653'.  Required.
 
     :type return_type: str
@@ -239,12 +240,12 @@ def delete_vpsa(session, vpsa_id, return_type=None, **kwargs):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    verify_positive_argument(vpsa_id, 'vpsa_id')
-    path = '/api/vpsas/{0}.json'.format(vpsa_id)
+    verify_positive_argument(storage_id, 'vpsa_id')
+    path = '/api/v2/vpsas/{0}.json'.format(storage_id)
     return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
-def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None, **kwargs):
+def add_drives(session, vpsa_id, drives, storage_policy, return_type=None, **kwargs):
     """
     Submits a request to add drives to a VPSA.  This must be approved by a
     storage cloud administrator before the drives are added.
@@ -275,6 +276,10 @@ def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None, **kwargs):
         Please note that the example is not a string, rather a representation
         of what the "pprint" function might return.  Required.
 
+    :type storage_policy: str
+    :param storage_policy: Storage Policy Name.
+        Example - "storage-policy-00000001". (Only for VPSA Object Storage).  Optional.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -291,6 +296,7 @@ def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None, **kwargs):
         raise ValueError('The passed "drives" parameter is not a Python '
                          'list.')
 
+    drives_to_add = {}
     for v in drives:
         if type(v) is not dict:
             raise ValueError('Each item in the "drives" list must be a '
@@ -303,13 +309,16 @@ def add_drives_to_vpsa(session, vpsa_id, drives, return_type=None, **kwargs):
         if 'quantity' not in v:
             raise ValueError('The required "quantity" key was not found in '
                              'the drive dictionary.')
+        drives_to_add[v["drive_type"]] = v["quantity"]
 
-        body[v['drive_type'] + '_drives'] = v['quantity']
+    body["drives"] = drives_to_add
 
-    path = '/api/vpsas/{0}/drives.json'.format(vpsa_id)
+    if storage_policy is not None:
+        body['storage_policy'] = storage_policy
 
-    return session.post_api(path=path, body=body, return_type=return_type,
-                            **kwargs)
+    path = '/api/v2/vpsas/{0}/drives.json'.format(vpsa_id)
+
+    return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
 
 
 def change_vpsa_engines(session, vpsa_id, io_engine_id, zcs_engine_id,
@@ -351,7 +360,7 @@ def change_vpsa_engines(session, vpsa_id, io_engine_id, zcs_engine_id,
     verify_io_engine_id(io_engine_id)
     verify_zcs_engine_id(zcs_engine_id)
     body = {'engine': io_engine_id, 'app_engine': zcs_engine_id}
-    path = '/api/vpsas/{0}/engine.json'.format(vpsa_id)
+    path = '/api/v2/vpsas/{0}/engine.json'.format(vpsa_id)
 
     return session.post_api(path=path, body=body, return_type=return_type,
                             **kwargs)
@@ -392,8 +401,8 @@ def change_vpsa_cache(session, vpsa_id, quantity, return_type=None, **kwargs):
     verify_positive_argument(vpsa_id, 'vpsa_id')
     verify_cache_argument(quantity, 'quantity')
 
-    path = '/api/vpsas/{0}/cache.json'.format(vpsa_id)
-    body = {'cache': '{}'.format(quantity)}
+    path = '/api/v2/vpsas/{0}/cache.json'.format(vpsa_id)
+    body = {'flash_cache_capacity': '{}'.format(quantity)}
 
     return session.post_api(path=path, body=body, return_type=return_type,
                             **kwargs)
@@ -424,7 +433,7 @@ def assign_vpsa_public_ip(session, vpsa_id, return_type=None, **kwargs):
         return_type parameter.
     """
     verify_positive_argument(vpsa_id, 'vpsa_id')
-    path = '/api/vpsas/{0}/public_ip.json'.format(vpsa_id)
+    path = '/api/v2/vpsas/{0}/public_ip.json'.format(vpsa_id)
 
     return session.post_api(path=path, return_type=return_type, **kwargs)
 
@@ -452,7 +461,7 @@ def remove_vpsa_public_ip(session, vpsa_id, return_type=None, **kwargs):
         return_type parameter.
     """
     verify_positive_argument(vpsa_id, 'vpsa_id')
-    path = '/api/vpsas/{0}/public_ip.json'.format(vpsa_id)
+    path = '/api/v2/vpsas/{0}/public_ip.json'.format(vpsa_id)
 
     return session.delete_api(path=path, return_type=return_type, **kwargs)
 
@@ -481,7 +490,7 @@ def hibernate_vpsa(session, vpsa_id, return_type=None, **kwargs):
         return_type parameter.
     """
     verify_positive_argument(vpsa_id, 'vpsa_id')
-    path = '/api/vpsas/{0}/hibernate.json'.format(vpsa_id)
+    path = '/api/v2/vpsas/{0}/hibernate.json'.format(vpsa_id)
 
     return session.post_api(path=path, return_type=return_type, **kwargs)
 
@@ -508,6 +517,72 @@ def resume_vpsa(session, vpsa_id, return_type=None, **kwargs):
         return_type parameter.
     """
     verify_positive_argument(vpsa_id, 'vpsa_id')
-    path = '/api/vpsas/{0}/restore.json'.format(vpsa_id)
+    path = '/api/v2/vpsas/{0}/restore.json'.format(vpsa_id)
 
     return session.post_api(path=path, return_type=return_type, **kwargs)
+
+
+def add_virtual_network_vpsa(session, vpsa_id, virtual_network_id, return_type=None, **kwargs):
+    """
+    Add a virtual network to VPSA
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type vpsa_id: int
+    :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+        example: '2653'.  Required.
+
+    :type virtual_network_id: int
+    :param virtual_network_id: The virtual network 'id' value as returned by get_virtual_networks.  For
+        example: '2653'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_positive_argument(vpsa_id, 'vpsa_id')
+    verify_positive_argument(virtual_network_id, 'virtual_network_id')
+    path = '/api/v2/vpsas/{0}/add_vni.json'.format(vpsa_id)
+    body = {'virtual_network_id': '{}'.format(virtual_network_id)}
+
+    return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
+
+
+def rename(session, vpsa_id, new_name, description, return_type=None, **kwargs):
+    """
+    Rename VPSA/ZIOS
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type vpsa_id: int
+    :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+        example: '2653'.  Required.
+
+    :type new_name: str
+    :param new_name: New VPSA/ZIOS name.  Required.
+
+    :type description: str
+    :param description: New VPSA/ZIOS description.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_positive_argument(vpsa_id, 'vpsa_id')
+
+    path = '/api/v2/vpsas/{0}.json'.format(vpsa_id)
+    body = {'display_name': new_name, 'display_description': description}
+
+    return session.put_api(path=path, body=body, return_type=return_type, **kwargs)
