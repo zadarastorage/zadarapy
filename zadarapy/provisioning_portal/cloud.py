@@ -18,7 +18,7 @@ from future.standard_library import install_aliases
 install_aliases()
 
 
-def get_clouds(session, return_type=None, **kwargs):
+def get_all_clouds(session, return_type=None, **kwargs):
     """
     Retrieves details for all available storage clouds.
 

@@ -218,7 +218,7 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, drives,
     return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
 
 
-def delete_storage(session, storage_id, return_type=None, **kwargs):
+def delete_vpsa(session, vpsa_id, return_type=None, **kwargs):
     """
     Submits a request to delete a VPSA.  This must be approved by a storage
     cloud administrator before the VPSA is deleted.  Once approved by the
@@ -227,8 +227,8 @@ def delete_storage(session, storage_id, return_type=None, **kwargs):
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type storage_id: int
-    :param storage_id: The VPSA/ZIOS 'id' value as returned by get_all_vpsas.  For
+    :type vpsa_id: int
+    :param vpsa_id: The VPSA/ZIOS 'id' value as returned by get_all_vpsas.  For
         example: '2653'.  Required.
 
     :type return_type: str
@@ -240,8 +240,8 @@ def delete_storage(session, storage_id, return_type=None, **kwargs):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    verify_positive_argument(storage_id, 'vpsa_id')
-    path = '/api/v2/vpsas/{0}.json'.format(storage_id)
+    verify_positive_argument(vpsa_id, 'vpsa_id')
+    path = '/api/v2/vpsas/{0}.json'.format(vpsa_id)
     return session.delete_api(path=path, return_type=return_type, **kwargs)
 
 
