@@ -603,6 +603,17 @@ SNAPSHOT_POLICY_ID_OPTION = {
     }
 }
 
+SSE_OPTION = {
+    'option_positional': ['--sse'],
+    'option_keywords': {
+        'dest': 'param_sse',
+        'metavar': '<xxxxx>',
+        'type': str,
+        'required': True,
+        'help': 'The remote object storage destination SSE: NO, AES256, KMS or KMSKEYID.  Required.'
+    }
+}
+
 START_OPTION = {
     'option_positional': ['--start'],
     'option_keywords': {
@@ -2479,7 +2490,8 @@ COMMANDS_DICT = [
                     ROS_DESTINATION_ID_OPTION,
                     VOLUME_ID_OPTION,
                     SNAPSHOT_POLICY_ID_OPTION,
-                    COMPRESSION_OPTION
+                    COMPRESSION_OPTION,
+                    SSE_OPTION
                 ],
                 'subcommand_return_key': 'obs_backup_job_name',
                 'subcommand_help': 'Create a new remote object storage '
