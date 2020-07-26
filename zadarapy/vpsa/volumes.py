@@ -407,6 +407,8 @@ def create_volume(session, pool_id, display_name, capacity, block,
         body_values['maxexpand'] = max_expand
     if auto_expand_by is not None:
         body_values['autoexpandby'] = auto_expand_by
+    if smbhiddenfiles is not None:
+        body_values['smbhiddenfiles'] = smbhiddenfiles
 
     path = '/api/volumes.json'
 
