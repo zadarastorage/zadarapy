@@ -16,7 +16,7 @@
 
 from zadarapy.validators import verify_boolean, \
     verify_pool_id, verify_read_mode, verify_charset, verify_not_none, \
-    verify_low_high_port
+    verify_low_high_port, verify_bool
 
 
 def get_vpsa_config(session, return_type=None, **kwargs):
@@ -219,6 +219,36 @@ def set_smb_trusted_domains(session, allow_trusted_domains, force='NO',
 
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
+
+
+def set_smb_netbios_name(session, smb_netbios_name, force="YES", return_type=None, **kwargs):
+    """
+      Get VPSA cache
+
+      :type session: zadarapy.session.Session
+      :param session: A valid zadarapy.session.Session object.  Required.
+
+      :type smb_netbios_name: str
+      :param smb_netbios_name: The smb netbios name to set.  Required.
+
+      :type force: str
+      :param force: Force smb netbios name when volumes with SMB permissions exist.  Optional.
+
+      :type return_type: str
+      :param return_type: If this is set to the string 'str', this function
+              will return a cache size as a string.  Otherwise, it will return an
+              integer.  Optional (will return an integer by default).
+
+      :rtype: int, str
+      :returns: Cache size as Int
+      return_type parameter.
+    """
+    force = verify_bool(force)
+
+    body_values = {"netbios_name": smb_netbios_name, "force": force}
+    path = "/api/settings/smb_netbios_name.json"
+
+    return session.post_api(path=path, body=body_values, return_type=return_type, **kwargs)
 
 
 def set_recycle_bin(session, recycle_bin, return_type=None, **kwargs):

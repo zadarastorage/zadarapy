@@ -631,7 +631,7 @@ def change_cache(session, cloud_name, vpsa_id, cache, return_type=None, **kwargs
     verify_vpsa_id(vpsa_id)
 
     from zadarapy.provisioning_portal.vpsa import verify_cache_argument
-    verify_cache_argument(cache, 'cache')
+    verify_cache_argument(int(cache), 'cache')
 
     path = "/api/clouds/{0}/vpsas/{1}/change_cache.json" \
         .format(cloud_name, vpsa_id)
