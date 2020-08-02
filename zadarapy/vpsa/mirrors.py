@@ -274,7 +274,7 @@ def discover_remote_vpsa(session, ip_address, username, password, public,
     path = '/api/remote_vpsas/discover.json'
 
     return session.post_api(path=path, body=body_values,
-                            return_type=return_type, **kwargs)
+                            return_type=return_type, skip_status_check_range=True, **kwargs)
 
 
 def refresh_remote_vpsa(session, rvpsa_id, return_type=None, **kwargs):
