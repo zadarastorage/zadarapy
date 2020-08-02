@@ -16,30 +16,6 @@
 from zadarapy.validators import verify_versioning, is_valid_minutes, verify_expire_version
 
 
-def get_bucket(session, bucket_name, return_type=None, **kwargs):
-    """
-    Get a bucketfrom ZIOS.
-
-    :type session: zadarapy.session.Session
-    :param session: A valid zadarapy.session.Session object.  Required.
-
-    :type bucket_name: str
-    :param bucket_name: Name of the bucket.  Required.
-
-    :type return_type: str
-    :param return_type: If this is set to the string 'json', this function
-        will return a JSON string.  Otherwise, it will return a Python
-        dictionary.  Optional (will return a Python dictionary by default).
-
-    :rtype: dict, str
-    :returns: A dictionary or JSON data set as a string depending on
-        return_type parameter.
-    """
-
-    path = "/{0}".format(bucket_name)
-    return session.put_api(path=path, return_type=return_type, **kwargs)
-
-
 def set_versioning(session, bucket_name, versioning, archive_name, return_type=None, **kwargs):
     """
     Set versioning in a bucket
