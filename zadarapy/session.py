@@ -610,9 +610,8 @@ class Session(object):
 
         if 'message' in api_return_dict:
             if 'status' in api_return_dict and api_return_dict['status'] != "success":
-                if api_return_dict['status'] != 0:
-                    raise RuntimeError('A general API error was returned: "{0}".'
-                                       .format(api_return_dict['message']))
+                raise RuntimeError('A general API error was returned: "{0}".'
+                                   .format(api_return_dict['message']))
 
         if 'response' in api_return_dict:
             if 'errors' in api_return_dict['response']:
@@ -651,7 +650,7 @@ class Session(object):
         BUTTOM_RANGE = "0x40000000"
         top_range_dec = int(TOP_RANGE, 16)
         buttom_range_dec = int(BUTTOM_RANGE, 16)
-        if buttom_range_dec <= exit_status <= top_range_dec:
+        if exit_status >= buttom_range_dec and exit_status <= top_range_dec:
             return True
         return False
 
@@ -715,8 +714,6 @@ class Session(object):
         :param max_time: Maximum  time  in  seconds that you allow
          the whole operation to take.
         """
-        if not self._log_function:
-            return
 
         body_str = ''
         if body:
@@ -735,6 +732,10 @@ class Session(object):
         msg = "curl --max-time {mx} -X {m} {hd} {b}  '{u}'" \
             .format(m=method.upper(), hd=headers_str, b=body_str, u=api_url,
                     mx=max_time)
+
+        if not self._log_function:
+            print("API: " + msg)
+            return
 
         self._log_function(msg)
 
