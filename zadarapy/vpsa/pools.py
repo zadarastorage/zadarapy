@@ -865,10 +865,9 @@ def pool_shrink(session, pool_id, raid_group_id=None, obs_shrink_size=None, retu
                             return_type=return_type, **kwargs)
 
 
-def cancel_pool_shrink(session, pool_id, raid_group_id, return_type=None,
-                       **kwargs):
+def cancel_pool_shrink(session, pool_id, return_type=None, **kwargs):
     """
-    Shrink a pool
+    Cancel a pool shrink
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
@@ -890,8 +889,7 @@ def cancel_pool_shrink(session, pool_id, raid_group_id, return_type=None,
         return_type parameter.
     """
     verify_pool_id(pool_id=pool_id)
-    verify_raid_groups(raid_groups=raid_group_id)
-    path = "/api/pools/{0}/cancel_shrink.json".format(raid_group_id)
+    path = "/api/pools/{0}/cancel_shrink.json".format(pool_id)
     return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
