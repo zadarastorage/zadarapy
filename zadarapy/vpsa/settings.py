@@ -305,6 +305,122 @@ def get_public_ip(session, return_type=None, **kwargs):
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
+def use_aws_kms_store(session, region, kmskeyid, access_id, secret,
+                      encryption_pwd=None, old_encryption_pwd=None,
+                      return_type=None, **kwargs):
+    """
+    Sets the encryption password globally on the VPSA.  This password is used
+    when enabling the encryption option for a volume.  CAUTION: THIS PASSWORD
+    IS NOT STORED ON THE VPSA - IT IS THE USER'S RESPONSIBILITY TO MAINTAIN
+    ACCESS TO THE PASSWORD.  LOSS OF THE PASSWORD MAY RESULT IN UNRECOVERABLE
+    DATA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type region: str
+    :param region: The AWS KMS region code to set.  Required.
+
+    :type kmskeyid: str
+    :param kmskeyid: The AWS KMS key id to set.  Required.
+
+    :type access_id: str
+    :param access_id: The AWS KMS access id to set.  Required.
+
+    :type secret: str
+    :param secret: The AWS KMS secret password to set.  Required.
+
+    :type encryption_pwd: str
+    :param encryption_pwd: The master encryption password to set.  Required.
+
+    :type old_encryption_pwd: str
+    :param old_encryption_pwd: Old master encryption password. Required if
+        setting a new password and older password is already set.  Optional.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    body_values = {'region': region, 'kmskeyid': kmskeyid,
+                   'access_id': access_id, 'secret': secret}
+
+    if encryption_pwd:
+        body_values['encryption_pwd'] = encryption_pwd
+
+    if old_encryption_pwd:
+        body_values['old_encryption_pwd'] = old_encryption_pwd
+
+    path = '/api/settings/encryption.json'
+
+    return session.post_api(path=path, body=body_values, return_type=return_type, **kwargs)
+
+
+def restore_aws_kms_store(session, region, kmskeyid, access_id, secret, return_type=None, **kwargs):
+    """
+    Restore the encryption password globally on the VPSA.  This password is used
+    when enabling the encryption option for a volume.  CAUTION: THIS PASSWORD
+    IS NOT STORED ON THE VPSA - IT IS THE USER'S RESPONSIBILITY TO MAINTAIN
+    ACCESS TO THE PASSWORD.  LOSS OF THE PASSWORD MAY RESULT IN UNRECOVERABLE
+    DATA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type region: str
+    :param region: The AWS KMS region code to set.  Required.
+
+    :type kmskeyid: str
+    :param kmskeyid: The AWS KMS key id to set.  Required.
+
+    :type access_id: str
+    :param access_id: The AWS KMS access id to set.  Required.
+
+    :type secret: str
+    :param secret: The AWS KMS secret password to set.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    body_values = {'region': region, 'kmskeyid': kmskeyid,
+                   'access_id': access_id, 'secret': secret}
+
+    path = '/api/settings/restore_encryption_aws.json'
+
+    return session.post_api(path=path, body=body_values, return_type=return_type, **kwargs)
+
+
+def remove_encryption_kms(session, return_type=None, **kwargs):
+    """
+    Remove encryption KMS on the VPSA
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/settings/remove_encryption_kms.json'
+
+    return session.post_api(path=path, return_type=return_type, **kwargs)
+
+
 def set_encryption_password(session, password, old_password=None,
                             return_type=None, **kwargs):
     """
