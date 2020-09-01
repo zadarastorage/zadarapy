@@ -365,7 +365,8 @@ def get_active_directory(session, return_type=None, **kwargs):
 
 
 def join_active_directory(session, display_name, username, password,
-                          dns_domain, netbios_name, dns, return_type=None,
+                          dns_domain, netbios_name, dns,
+                          uid_range_low=None, uid_range_high=None, return_type=None,
                           **kwargs):
     """
     Joins the VPSA to an Active Directory domain.  After this is done, for all
@@ -403,6 +404,12 @@ def join_active_directory(session, display_name, username, password,
         least one DNS IP address defined.  The address must be routable by the
         VPSA.  Required.
 
+    :type uid_range_low: int
+    :param uid_range_low: Low range ID.  Optional.
+
+    :type uid_range_high: int
+    :param uid_range_high: High range ID.  Optional.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -421,6 +428,11 @@ def join_active_directory(session, display_name, username, password,
     body_values = {'adserver': display_name, 'username': username,
                    'password': password, 'realm': dns_domain,
                    'workgroup': netbios_name, 'dns': dns}
+
+    if uid_range_low is not None:
+        body_values['uid_range_low'] = uid_range_low
+    if uid_range_high is not None:
+        body_values['uid_range_high'] = uid_range_high
 
     path = '/api/active_directory.json'
 
