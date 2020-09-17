@@ -1140,10 +1140,9 @@ def verify_pool_type(pooltype):
 
     :raises: ValueError: Invalid Pool type
     """
-    if pooltype not in ['Transactional', 'Repository', 'Archival']:
-        raise ValueError('"{0}" is not a valid pool type.  Allowed values '
-                         'are: "Transactional", "Repository", or "Archival"'
-                         .format(pooltype))
+    valid_pool_types = ['Transactional', 'Repository', 'Archival', 'Iops-Optimized', 'Balanced', 'Throughput-Optimized']
+    if pooltype not in valid_pool_types:
+        raise ValueError(f'"{pooltype}" is not a valid pool type.  Allowed values are: {str(valid_pool_types)}')
 
 
 def verify_start_limit_sort_severity(start, limit, sort, severity):
