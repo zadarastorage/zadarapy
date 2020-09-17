@@ -122,8 +122,10 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
         can be used when >100TB pools are mandatory, but comes with
         restrictions such as minimum 1 hour snapshot interval (instead of 1
         minute).  Please see the VSPA User Guide "Pools" section for a more
-        descriptive definition of these types.  Must be the string
-        'Transactional', 'Repository', or 'Archival'.  Required.
+        descriptive definition of these types.
+        For VPSAs of gen 2: Must be the string 'Transactional', 'Repository', or 'Archival'.
+        For VPSAs of gen 3: Must be the string 'Iops-Optimized', 'Balanced' or 'Throughput-Optimized'.
+        Required.
 
     :type cache: str
     :param cache: If set to 'YES', SSD caching will be enabled for this pool.
@@ -173,8 +175,10 @@ def create_pool(session, display_name, raid_groups, capacity, pooltype,
 
     if pooltype == 'Transactional':
         pooltype = 'Transactional Workloads'
-    else:
+    elif pooltype == 'Archival' or pooltype == 'Repository':
         pooltype = '{0} Storage'.format(pooltype)
+    elif pooltype == 'Iops-Optimized':
+        pooltype = 'IOPs-Optimized'
 
     body_values['pooltype'] = pooltype
 
