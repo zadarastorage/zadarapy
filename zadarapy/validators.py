@@ -1909,10 +1909,11 @@ def verify_percentage(percentage):
 
     :raises: ValueError: Invalid input
     """
-    if 0 <= percentage <= 100:
-        return True
+    if isinstance(percentage,int):
+        if 0 <= percentage <= 100:
+            return True
 
-    raise ValueError('Percentage {0} should be between 0% and 100%'.format(percentage))
+    raise ValueError('Percentage {0} should be and int between 0 and 100'.format(percentage))
 
 
 def verify_snapshot_rule_name(snapshot_rule_name):
