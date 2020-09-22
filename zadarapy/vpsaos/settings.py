@@ -13,7 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from zadarapy.validators import verify_boolean, verify_encryption_state, \
-    get_parameters_options
+    get_parameters_options, verify_percentage
 
 
 def get_settings_config(session, return_type=None, **kwargs):
@@ -60,6 +60,32 @@ def ssl_termination(session, is_terminate, return_type=None, **kwargs):
     body_values = {"ssltermination": "on" if is_terminate else "off"}
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
+
+
+def set_gradual_policy_expansion_percentage(session, expansion_percent, return_type=None, **kwargs):
+    """
+    Set gradual policy expansion percentage
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type expansion_percent: int
+    :param expansion_percent: Expansion percentage (0-100). Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_percentage(expansion_percent)
+    body_values = {"expansion_percent": expansion_percent}
+
+    path = "/api/zios/settings/set_gradual_policy_expansion_percentage.json"
+    return session.post_api(path=path, body=body_values, return_type=return_type, **kwargs)
 
 
 def set_encryption(session, encryption_pwd, return_type=None, **kwargs):

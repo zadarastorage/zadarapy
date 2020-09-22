@@ -1899,6 +1899,22 @@ def verify_netmask(netmask, title):
     return netmask
 
 
+def verify_percentage(percentage):
+    """
+    :type percentage: int
+    :param percentage: Percentage to verify
+
+    :rtype: bool
+    :return: True if percentage is between 0 and 100
+
+    :raises: ValueError: Invalid input
+    """
+    if 0 <= percentage <= 100:
+        return True
+
+    raise ValueError('Percentage {0} should be between 0% and 100%'.format(percentage))
+
+
 def verify_snapshot_rule_name(snapshot_rule_name):
     """
     :type: str
