@@ -16,7 +16,7 @@
 from zadarapy.validators import is_valid_field, verify_positive_argument
 
 
-def create_zios(session, name, provider, drives, vpsa_zone_group_storage_policy_type_id,
+def create_zios(session, name, provider, drives, vpsa_zone_group_storage_policy_type_id, custom_network_id,
                 description=None, allocation_zone=None, return_type=None, **kwargs):
     """
     Submits a request to create a new ZIOS.
@@ -52,6 +52,9 @@ def create_zios(session, name, provider, drives, vpsa_zone_group_storage_policy_
     :param vpsa_zone_group_storage_policy_type_id: Storage policy id. See `get_clouds` and under 'clouds.py'
             and the corresponding cloud will have a 'vpsa_zone_group_storage_policy_types' property.
             For example: '1'.  Required.
+
+    :type custom_network_id: int
+    :param custom_network_id: Custom network id. For example: '1'.  Required.
 
     :type description: str
     :param description: A text description for the ZIOS.  For example:
@@ -112,6 +115,8 @@ def create_zios(session, name, provider, drives, vpsa_zone_group_storage_policy_
     body["drives"] = drives_to_add
 
     body['vpsa_zone_group_storage_policy_type_id'] = vpsa_zone_group_storage_policy_type_id
+
+    body['custom_network_id'] = custom_network_id
 
     body['kind'] = "object_storage"
 
