@@ -462,6 +462,42 @@ class Session(object):
                              parameters=parameters, timeout=timeout, return_type=return_type,
                              use_port=use_port, return_header=return_header)
 
+    def create_api_message(self, method, path, host=None, port=None, key=None,
+                           secure=None, additional_headers=None, body=None, parameters=None,
+                           timeout=None, return_type=None, use_port=True):
+        if timeout is None:
+            timeout = self._default_timeout
+        else:
+            assert timeout > 0, "timeout must be a positive int type"
+
+        session_timeout = timeout + 5
+
+        # Validate all inputs
+        host = host or self.zadara_host
+        port = port or self.zadara_port
+        key = key or self.zadara_key
+        secure = secure or self.zadara_secure
+        path = path if path.startswith("/") else "/{}".format(path)
+        session_port, protocol = DICT_SECURED_DETAILS[secure]
+
+        if port:
+            verify_port(port)
+        else:
+            port = session_port
+
+        api_url = "{}://{}:{}{}".format(protocol.lower(), host, port, path)
+        if not use_port:
+            api_url = "{}://{}{}".format(protocol.lower(), host, path)
+
+        headers = self._get_headers(key=key, return_type=return_type)
+        if additional_headers is not None:
+            headers.update(additional_headers)
+        parameters = self._get_parameters(parameters=parameters)
+        body = self._get_body(body=body, timeout=timeout)
+        body = json.dumps(body) if body else body
+
+        return api_url, parameters, body, headers, session_timeout, protocol
+
     def call_api(self, method, path, host=None, port=None, key=None,
                  secure=None, additional_headers=None, body=None, parameters=None,
                  timeout=None, return_type=None, use_port=True, return_header=False, skip_status_check_range=True):
@@ -523,7 +559,7 @@ class Session(object):
             default).
 
         :type use_port: bool
-        :param use_port: Detrmines if API should be using port in the API request.
+        :param use_port: Determines if API should be using port in the API request.
         Optional.
 
         :type return_header: bool
@@ -534,41 +570,20 @@ class Session(object):
         :returns: A dictionary or JSON data set as a string depending on
             return_type parameter.
         """
-        if timeout is None:
-            timeout = self._default_timeout
-        else:
-            assert timeout > 0, "timeout must be a positive int type"
+        api_url, parameters, body_str, headers, session_timeout, protocol = self.create_api_message(method, path,
+                                                                                                    host=host,
+                                                                                                    port=port, key=key,
+                                                                                                    secure=secure,
+                                                                                                    additional_headers=
+                                                                                                    additional_headers,
+                                                                                                    body=body,
+                                                                                                    parameters=parameters,
+                                                                                                    timeout=timeout,
+                                                                                                    return_type=return_type,
+                                                                                                    use_port=use_port)
 
-        session_timeout = timeout + 5
-
-        # Validate all inputs
-        host = host or self.zadara_host
-        port = port or self.zadara_port
-        key = key or self.zadara_key
-        secure = secure or self.zadara_secure
-        path = path if path.startswith("/") else "/{}".format(path)
-        session_port, protocol = DICT_SECURED_DETAILS[secure]
-
-        if port:
-            verify_port(port)
-        else:
-            port = session_port
-
-        api_url = "{}://{}:{}{}".format(protocol.lower(), host, port, path)
-        if not use_port:
-            api_url = "{}://{}{}".format(protocol.lower(), host, path)
-
-        headers = self._get_headers(key=key, return_type=return_type)
-        if additional_headers is not None:
-            headers.update(additional_headers)
-        parameters = self._get_parameters(parameters=parameters)
-        body = self._get_body(body=body, timeout=timeout)
-
-        self._print(method=method, body=body, headers=headers,
-                    params=parameters, api_url=api_url,
+        self._print(method=method, body_str=body_str, headers=headers, params=parameters, api_url=api_url,
                     max_time=session_timeout)
-
-        body = json.dumps(body) if body else body
 
         try:
             with requests.Session() as session:
@@ -576,7 +591,7 @@ class Session(object):
 
                 response = session.request(method, url=api_url,
                                            params=parameters,
-                                           data=body, headers=headers,
+                                           data=body_str, headers=headers,
                                            timeout=session_timeout,
                                            verify=True)
         except requests.exceptions.RequestException:
@@ -702,7 +717,7 @@ class Session(object):
         body['timeout'] = timeout
         return body
 
-    def _print(self, body, headers, method, params, api_url, max_time):
+    def _print(self, body_str, headers, method, params, api_url, max_time):
         """
         Print the command in curl format
 
@@ -715,11 +730,6 @@ class Session(object):
          the whole operation to take.
         """
 
-        body_str = ''
-        if body:
-            body_str = "-d '{%s'}" % ", ".join('"{}":"{}"'.format(k, v)
-                                               for k, v in body.items())
-
         headers_str = ''
         if headers:
             headers_str = "-H {}".format(
@@ -729,7 +739,7 @@ class Session(object):
         if params:
             api_url += "?{}".format(urlencode(params))
 
-        msg = "curl --max-time {mx} -X {m} {hd} {b}  '{u}'" \
+        msg = "curl --max-time {mx} -X {m} {hd} -d '{b}'  '{u}'" \
             .format(m=method.upper(), hd=headers_str, b=body_str, u=api_url,
                     mx=max_time)
 
