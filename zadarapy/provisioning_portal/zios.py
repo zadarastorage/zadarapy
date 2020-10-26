@@ -110,7 +110,7 @@ def create_zios(session, name, provider, drives, vpsa_zone_group_storage_policy_
         if 'quantity' not in v:
             raise ValueError('The required "quantity" key was not found in '
                              'the drive dictionary.')
-        drives_to_add[v["drive_type"]] = int(v["quantity"])
+        drives_to_add[v["drive_type"]] = str(v["quantity"])
 
     body["drives"] = drives_to_add
 

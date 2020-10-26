@@ -72,8 +72,8 @@ def get_vpsa(session, vpsa_id, return_type=None, **kwargs):
 
 
 def create_vpsa(session, display_name, cloud_id, io_engine_id, drives,
-                description=None, allocation_zone=None, app_engine=None, flash_cache_capacity=None,
-                return_type=None, **kwargs):
+                description=None, allocation_zone=None, custom_network_id=None, app_engine=None,
+                flash_cache_capacity=None, return_type=None, **kwargs):
     """
     Submits a request to create a new VPSA.  This must be approved by a
     storage cloud administrator before the VPSA creation starts.
@@ -142,6 +142,10 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, drives,
         the 'allocation_zones' list as returned by get_cloud for cloud_id.
         For example: 'zone_0'.  Optional.
 
+    :type custom_network_id: int
+    :param custom_network_id: Custom network id. For example: '1'. If custom network is not needed, enter None.
+         Optional.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -206,6 +210,8 @@ def create_vpsa(session, display_name, cloud_id, io_engine_id, drives,
 
     if allocation_zone is not None:
         body['allocation_zone'] = allocation_zone
+
+    body['custom_network_id'] = custom_network_id
 
     if flash_cache_capacity is not None:
         body['flash_cache_capacity'] = flash_cache_capacity
