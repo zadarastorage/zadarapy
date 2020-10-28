@@ -1008,7 +1008,7 @@ def verify_id(v_id):
     """
     v_id = str(v_id)
     if not v_id.isdigit():
-        raise ValueError(f"Cloud ID {v_id} is not a valid ID")
+        raise ValueError("Cloud ID {0} is not a valid ID".format(v_id))
 
     return v_id
 
@@ -1142,7 +1142,7 @@ def verify_pool_type(pooltype):
     """
     valid_pool_types = ['Transactional', 'Repository', 'Archival', 'Iops-Optimized', 'Balanced', 'Throughput-Optimized']
     if pooltype not in valid_pool_types:
-        raise ValueError(f'"{pooltype}" is not a valid pool type.  Allowed values are: {str(valid_pool_types)}')
+        raise ValueError('"{0}" is not a valid pool type.  Allowed values are: {1}'.format(pooltype, str(valid_pool_types)))
 
 
 def verify_start_limit_sort_severity(start, limit, sort, severity):
