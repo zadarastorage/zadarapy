@@ -774,9 +774,9 @@ def run_outside_of_api(cmd, session=None):
     (res["output"], err) = p.communicate()
 
     if p.returncode != 0:
-        raise AssertionError(f"Failed to execute command: {cmd}\n"
-                             f"With error code: {p.returncode}\n"
-                             f"{err}")
+        raise AssertionError("Failed to execute command: {0}\n"
+                             "With error code: {1}\n"
+                             "{2}".format(cmd, p.returncode, err))
 
     res["status"] = "success"
     return res

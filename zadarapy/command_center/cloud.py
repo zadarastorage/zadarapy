@@ -60,7 +60,7 @@ def get_all_clouds(session, return_type=None, **kwargs):
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def create_user(session, email: str, first_name: str, last_name: str, admin: bool, role_ids, return_type=None, **kwargs):
+def create_user(session, email, first_name, last_name, admin, role_ids, return_type=None, **kwargs):
     """
     Creates a user of CC.
 
@@ -98,8 +98,8 @@ def create_user(session, email: str, first_name: str, last_name: str, admin: boo
                             return_type=return_type, **kwargs)
 
 
-def update_user(session, email: str, first_name: str, last_name: str, admin: bool, role_ids,
-                password: str, new_password: str, id: int, return_type=None, **kwargs):
+def update_user(session, email, first_name, last_name, admin, role_ids,
+                password, new_password, id, return_type=None, **kwargs):
     """
     Updates a user of CC.
 
@@ -137,14 +137,14 @@ def update_user(session, email: str, first_name: str, last_name: str, admin: boo
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = f'/api/users/{id}.json'
+    path = '/api/users/{0}.json'.format(id)
     body_values = {"user":{'email': email, 'firstname': first_name, 'lastname': last_name, 'admin':admin,
                            'role_ids': role_ids, 'current_password': password, 'password': new_password}}
     return session.put_api(path=path, body=body_values, secure=False,
                             return_type=return_type, **kwargs)
 
 
-def regenerate_user_api_token(session, email: str, password: str, return_type=None, **kwargs):
+def regenerate_user_api_token(session, email, password, return_type=None, **kwargs):
     """
     Regenerates the user's API token.
 
@@ -167,12 +167,12 @@ def regenerate_user_api_token(session, email: str, password: str, return_type=No
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = f'/api/users/regenerate_token.json'
+    path = '/api/users/regenerate_token.json'
     body_values = {'email': email, 'password': password}
     return session.post_api(path=path, body=body_values, secure=False, return_type=return_type, **kwargs)
 
 
-def delete_user(session, id: int, return_type=None, **kwargs):
+def delete_user(session, id, return_type=None, **kwargs):
     """
     Deletes a user of CC.
 
@@ -190,7 +190,7 @@ def delete_user(session, id: int, return_type=None, **kwargs):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = f'/api/users/{id}.json'
+    path = '/api/users/{0}.json'.format(id)
     return session.delete_api(path=path, secure=False, return_type=return_type, **kwargs)
 
 
@@ -210,7 +210,7 @@ def get_all_users(session, return_type, **kwargs):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = f'/api/users.json'
+    path = '/api/users.json'
     return session.get_api(path=path, secure=False, return_type=return_type, **kwargs)
 
 
