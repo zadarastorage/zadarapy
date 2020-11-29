@@ -16,6 +16,7 @@
 from zadarapy.validators import is_valid_field, verify_positive_argument, \
     verify_io_engine_id, verify_zcs_engine_id, verify_cache_argument
 from future.standard_library import install_aliases
+from zadarapy.session import run_outside_of_api
 install_aliases()
 
 
@@ -442,6 +443,67 @@ def assign_vpsa_public_ip(session, vpsa_id, return_type=None, **kwargs):
     path = '/api/v2/vpsas/{0}/public_ip.json'.format(vpsa_id)
 
     return session.post_api(path=path, return_type=return_type, **kwargs)
+
+
+def change_vpsa_user_password_by_code(management_url, username, code, new_password,
+                                      return_type=None, **kwargs):
+    """
+    Changes a VPSA user's password with a password reset code.  If the user
+    knows their existing password, use change_vpsa_user_password_by_password
+    instead.  Use generate_vpsa_user_password_reset_code to send a reset code
+    to the user via e-mail.
+
+    :type management_url: str
+    :param session: A valid management URL for a VPSA.  Required.
+
+    :type username: str
+    :param username: The VPSA user's username.  Required.
+
+    :type code: str
+    :param code: The password reset code e-mailed to the user.  Required.
+
+    :type new_password: str
+    :param new_password: The new password for the VPSA user.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    body = '{"user": "%s", "code": "%s", "new_password": "%s"}' % (username, code, new_password)
+
+    path = "https://{0}/api/users/{1}/password_code.json".format(management_url, username)
+    cmd = _generate_change_password_cmd(body, path)
+
+    return run_outside_of_api(cmd)
+
+
+def _generate_change_password_cmd(body, path):
+    """
+    Generates change password cmd.
+
+    :type path: str
+    :param path: API path
+
+    :type username: str
+    :param username: User name
+
+    :type code: str
+    :param code: initial passcode
+
+    :type password: str
+    :param password: Password of the user
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+
+    return "curl -X POST -H \"Content-Type:application/json\" -d '%s' %s" % (body, path)
 
 
 def remove_vpsa_public_ip(session, vpsa_id, return_type=None, **kwargs):

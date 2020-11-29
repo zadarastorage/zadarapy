@@ -54,7 +54,27 @@ def get_authentication_token(ip, username, password):
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    path = f"https://{ip}/api/v2/token.json"
+    path = "https://{0}/api/v2/token.json".format(ip)
+    cmd = _generate_token_cmd(path=path, username=username, password=password)
+
+    return run_outside_of_api(cmd)
+
+
+def get_initial_authentication_token(ip, username, password):
+    """
+    Get initial authentication token for a VPSA.
+
+    :type username: str
+    :param username: User name
+
+    :type password: str
+    :param password: Password of the user
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = f"https://{ip}/api/users/{username}/access_key.json"
     cmd = _generate_token_cmd(path=path, username=username, password=password)
 
     return run_outside_of_api(cmd)
