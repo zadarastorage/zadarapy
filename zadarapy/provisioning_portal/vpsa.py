@@ -445,8 +445,7 @@ def assign_vpsa_public_ip(session, vpsa_id, return_type=None, **kwargs):
     return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
-def change_vpsa_user_password_by_code(management_url, username, code, new_password,
-                                      return_type=None, **kwargs):
+def change_vpsa_user_password_by_code(management_url, username, code, new_password):
     """
     Changes a VPSA user's password with a password reset code.  If the user
     knows their existing password, use change_vpsa_user_password_by_password
@@ -465,16 +464,24 @@ def change_vpsa_user_password_by_code(management_url, username, code, new_passwo
     :type new_password: str
     :param new_password: The new password for the VPSA user.  Required.
 
+<<<<<<< HEAD
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
         dictionary.  Optional (will return a Python dictionary by default).
 
+=======
+>>>>>>> Fixed a bug of using {} unintentionally over change_vpsa_user_password_by_code
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+<<<<<<< HEAD
     body = '{"user": "{0}", "code": "{1}", "new_password": "{2}"}'.format(username, code, new_password)
+=======
+    body = '"user": "{0}", "code": "{1}", "new_password": "{2}"'.format(username, code, new_password)
+    body = "{" + body + "}"  # {} create a special syntax when using format
+>>>>>>> Fixed a bug of using {} unintentionally over change_vpsa_user_password_by_code
 
     path = "https://{0}/api/users/{1}/password_code.json".format(management_url, username)
     cmd = _generate_change_password_cmd(body, path)
