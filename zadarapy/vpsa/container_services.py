@@ -271,8 +271,8 @@ def get_zcs_container(session, zcs_container_id, return_type=None, **kwargs):
 
 
 def create_zcs_container(session, display_name, zcs_image_id, start,
-                         use_public_ip='NO', entrypoint=None, volumes=None,
-                         args=None, envvars=None, links=None, memorypoolname=None,
+                         use_public_ip='NO', entrypoint=None, volumes=None, args=None,
+                         ports=None, envvars=None, links=None, memorypoolname=None,
                          return_type=None, **kwargs):
     """
     Creates a Zadara Container Services (ZCS) container.  Requires a valid ZCS
@@ -302,6 +302,10 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
         address).  If set to 'NO', the container will listen on the same
         private IP address that is used for addressing the storage.  Optional
         (set to 'NO' by default).
+
+    :type ports: str
+    :param ports: The exposed ports. Example: [{"protocol":"tcp","low":22,"high":null , "internal_low": 9999},
+        {"protocol":"udp","low":33,"high":35}].  Optional.
 
     :type entrypoint: str
     :param entrypoint: The full path to the program or script inside the ZCS
@@ -464,6 +468,33 @@ def create_zcs_container(session, display_name, zcs_image_id, start,
                                  'value.'.format(v['arg']))
 
         body_values['args'] = args
+
+    if ports is not None:
+        if type(ports) is str:
+            ports = json.loads(ports)
+
+        if type(ports) is not list:
+            raise ValueError('The passed "args" parameter is not a Python '
+                             'list.')
+
+        for p in ports:
+            if type(p) is not dict:
+                raise ValueError('Each item in the "ports" list must be a '
+                                 'Python dictionary.')
+
+            if 'protocol' not in p:
+                raise ValueError('The required "protocol" key was not found in '
+                                 'the ports dictionary.')
+
+            if 'low' not in p:
+                raise ValueError('The required "low" key was not found in '
+                                 'the ports dictionary.')
+
+            if 'high' not in p:
+                raise ValueError('The required "high" key was not found in '
+                                 'the ports dictionary.')
+
+        body_values['ports'] = ports
 
     if envvars is not None:
         if type(volumes) is str:
