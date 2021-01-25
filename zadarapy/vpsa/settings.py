@@ -60,6 +60,27 @@ def settings_config(session, return_type=None, **kwargs):
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
+def get_vpsa_flc_global(session, return_type=None, **kwargs):
+    """
+    Retrieves the VPSA FLC global.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/settings/flc_global.json'
+
+    return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
 def get_nfs_domain(session, return_type=None, **kwargs):
     """
     Retrieves the NFS domain for the VPSA.

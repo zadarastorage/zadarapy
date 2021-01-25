@@ -69,6 +69,92 @@ def upgrade_vpsa_version(session, cloud_name, vpsa_id, image, when=None,
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
 
+def get_raid_groups(session, cloud_name, vpsa_id, return_type=None, **kwargs):
+    """
+    Enable FCL on VPSA
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type vpsa_id: int
+    :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+        example: '2653'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_vpsa_id(vpsa_id)
+    path = "/api/clouds/{0}/vpsas/{1}/raid_groups.json" \
+        .format(cloud_name, vpsa_id)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
+
+def enable_flc(session, cloud_name, vpsa_id, return_type=None, **kwargs):
+    """
+    Enable FCL on VPSA
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type vpsa_id: int
+    :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+        example: '2653'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_vpsa_id(vpsa_id)
+    path = "/api/clouds/{0}/vpsas/{1}/enable_flc.json" \
+        .format(cloud_name, vpsa_id)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
+
+def disable_flc(session, cloud_name, vpsa_id, return_type=None, **kwargs):
+    """
+    Disable FCL on VPSA
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type vpsa_id: int
+    :param vpsa_id: The VPSA 'id' value as returned by get_all_vpsas.  For
+        example: '2653'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_vpsa_id(vpsa_id)
+    path = "/api/clouds/{0}/vpsas/{1}/disable_flc.json" \
+        .format(cloud_name, vpsa_id)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 def resume_upgrade(session, cloud_name, vpsa_id, return_type=None, **kwargs):
     """
