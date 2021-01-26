@@ -335,7 +335,8 @@ class Session(object):
         return self.call_api(method="POST", path=path, host=host, port=port,
                              key=key, secure=secure, body=body,
                              parameters=parameters,
-                             timeout=timeout, return_type=return_type)
+                             timeout=timeout, return_type=return_type,
+                             skip_status_check_range=skip_status_check_range)
 
     def delete_api(self, path, host=None, port=None, key=None,
                    secure=None, body=None,
@@ -729,6 +730,8 @@ class Session(object):
         :param max_time: Maximum  time  in  seconds that you allow
          the whole operation to take.
         """
+        if not self._log_function:
+            return
 
         headers_str = ''
         if headers:
@@ -742,10 +745,6 @@ class Session(object):
         msg = "curl --max-time {mx} -X {m} {hd} -d '{b}'  '{u}'" \
             .format(m=method.upper(), hd=headers_str, b=body_str, u=api_url,
                     mx=max_time)
-
-        if not self._log_function:
-            print("API: " + msg)
-            return
 
         self._log_function(msg)
 
