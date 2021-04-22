@@ -16,7 +16,8 @@
 
 from zadarapy.validators import verify_boolean, \
     verify_pool_id, verify_read_mode, verify_charset, verify_not_none, \
-    verify_low_high_port, verify_bool
+    verify_low_high_port, verify_bool, verify_field, verify_kmip_version, \
+    verify_connect_via, verify_port
 
 
 def get_vpsa_config(session, return_type=None, **kwargs):
@@ -303,6 +304,158 @@ def get_public_ip(session, return_type=None, **kwargs):
     path = '/api/settings/public_ips.json'
 
     return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
+def set_encryption_password_kmip(session, host, ca_cert_file, key_id, key_name, connect_via, port=5696,
+                       cert_file_content=None, key_file_content=None, version='1.2',
+                       user=None, password=None, current_encryption_pwd=None,
+                       proxy_host=None, proxyport=0, proxy_username=None, proxy_password=None,
+                       return_type=None, **kwargs):
+    """
+    Sets the encryption password globally on the VPSA using the KMIP protocol.
+    This encryption is used when enabling the encryption option for a volume.
+    CAUTION: THIS KMIP KEY IS NOT STORED ON THE VPSA - IT IS THE USER'S RESPONSIBILITY
+    TO MAINTAIN ACCESS TO THE THIS KEY.  LOSS OF THE KEY MAY RESULT IN UNRECOVERABLE DATA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type host: str
+    :param host: The KMIP KMS host name to set.  Required.
+
+    :type port: int
+    :param port: The port that the KMIP server listens on.
+        Set to 5696 by default.  Optional.
+
+    :type ca_cert_file: str
+    :param ca_cert_file: location of the CA's certificate file in the VPSA.
+        For Equinix Smartkey put '/etc/ssl/certs/DigiCert_Global_Root_CA.pem'.  Required.
+
+    :type key_id: str
+    :param key_id: The KMIP KMS key id to set.  Required.
+
+    :type key_name: str
+    :param key_name: The KMIP KMS key alias to set (can be any name of your choice).  Required.
+
+    :type connect_via: str
+    :param connect_via: The KMIP connection interface (fe/public).  Required.
+
+    :type cert_file_content: str
+    :param cert_file: The KMIP user certificate file content, can be used for authentication.  Optional.
+
+    :type key_file_content: str
+    :param key_file: The private key file content, can be used for authentication.  Optional.
+
+    :type version: str
+    :param version: The KMIP version:
+        choices: [1.0, 1.1, 1.2, 1.3, 1.4, 2.0]
+        KMIP 2.0 (not supported by Equinix Smartkey)
+        Set to 1.2 by default.  Optional.
+
+    :type user: str
+    :param user: The username credential in order to authenticate with the KMIP server.
+        This serves as one of the ways to authenticate with the KMIP server.
+        Optional.
+
+    :type password: str
+    :param password: The password credential in order to authenticate with the KMIP server (corresponding to username).
+        This serves as one of the ways to authenticate with the KMIP server.
+        Optional.
+
+    :type current_encryption_pwd: str
+    :param current_encryption_pwd: Current master encryption password. Required if
+        setting a new password and older password is already set.  Optional.
+
+    :type proxy_host: str
+    :param proxy_host: The proxy host, used if setting KMIP KMS with proxy.  Optional.
+
+    :type proxyport: str
+    :param proxyport: The proxy port, used if setting KMIP KMS with proxy.  Optional.
+
+    :type proxy_username: str
+    :param proxy_username: The proxy user name, used if setting KMIP KMS with authenticated proxy.  Optional.
+
+    :type proxy_password: str
+    :param proxy_password: The proxy password, used if setting KMIP KMS with authenticated proxy.  Optional.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    body_values = kmip_prepare(host, port, ca_cert_file, key_id, key_name, connect_via,
+                       cert_file_content, key_file_content, version,
+                       user, password, current_encryption_pwd,
+                       proxy_host, proxyport, proxy_username, proxy_password)
+
+    path = '/api/settings/kmip_encryption.json'
+
+    return session.post_api(path=path, body=body_values, return_type=return_type, **kwargs)
+
+
+def restore_encryption_password_kmip(session, host, ca_cert_file, key_id, key_name, connect_via, port=5696,
+                       cert_file_content=None, key_file_content=None, version='1.2',
+                       user=None, password=None, current_encryption_pwd=None,
+                       proxy_host=None, proxyport=0, proxy_username=None, proxy_password=None,
+                       return_type=None, **kwargs):
+    """
+    Restore the encryption password globally on the VPSA using the KMIP protocol.
+    This encryption is used when enabling the encryption option for a volume.
+    CAUTION: THIS KMIP KEY IS NOT STORED ON THE VPSA - IT IS THE USER'S RESPONSIBILITY
+    TO MAINTAIN ACCESS TO THE THIS KEY. LOSS OF THE KEY MAY RESULT IN UNRECOVERABLE DATA.
+
+    :param parameters and return type are the same as set_encryption_password_kmip
+    """
+    body_values = kmip_prepare(host, port, ca_cert_file, key_id, key_name, connect_via,
+                       cert_file_content, key_file_content, version,
+                       user, password, current_encryption_pwd,
+                       proxy_host, proxyport, proxy_username, proxy_password)
+
+    path = '/api/settings/restore_encryption_kmip.json'
+
+    return session.post_api(path=path, body=body_values, return_type=return_type, **kwargs)
+
+
+def kmip_prepare(host, port, ca_cert_file, key_id, key_name, connect_via,
+                       cert_file_content, key_file_content, version,
+                       user, password, current_encryption_pwd,
+                       proxy_host, proxyport, proxy_username, proxy_password):
+    verify_field(host, "host")
+    verify_port(port)
+    ca_cert_file = verify_field(ca_cert_file, "ca_cert_file")
+    verify_field(key_id, "key_id")
+    verify_field(key_name, "key_name")
+    verify_connect_via(connect_via)
+    version = verify_kmip_version(version)
+
+    body_values = {'host': host, 'port': port, 'ca_cert_file': ca_cert_file,
+                   'key_id': key_id, 'key_name': key_name, 'connect_via': connect_via, version: 'version'}
+
+    if cert_file_content is not None:
+        body_values['cert_file_content'] = verify_field(cert_file_content, "cert_file_content")
+    if key_file_content is not None:
+        key_file_content['key_file_content'] = verify_field(key_file_content, "key_file_content")
+    if user is not None:
+        body_values['user'] = verify_field(user, "user")
+    if password is not None:
+        body_values['password'] = verify_field(password, "password")
+    if current_encryption_pwd is not None:
+        body_values['current_encryption_pwd'] = verify_field(current_encryption_pwd, "current_encryption_pwd")
+    if proxy_host is not None:
+        body_values['proxy_host'] = verify_field(proxy_host, "proxy_host")
+    if proxyport != 0:
+        verify_port(proxyport)
+        body_values['proxyport'] = proxyport
+    if proxy_username is not None:
+        body_values['uproxy_usernameser'] = verify_field(user, "proxy_username")
+    if proxy_password is not None:
+        body_values['proxy_password'] = verify_field(proxy_password, "proxy_password")
+
+    return body_values
 
 
 def use_aws_kms_store(session, region, kmskeyid, access_id, secret,

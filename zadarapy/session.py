@@ -12,16 +12,21 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from urllib.parse import urlencode
 
+# support urlparse for both python 2 and 3
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+
+import configparser
+import json
+import os
 import requests
 from future.standard_library import install_aliases
 
 install_aliases()
 
-import configparser
-import json
-import os
 from zadarapy.validators import verify_port
 
 DEFAULT_TIMEOUT = 15
@@ -683,7 +688,7 @@ class Session(object):
         if parameters:
             assert isinstance(parameters, dict), \
                 "Invalid 'params' type. Must be a dictionary type. ({})" \
-                 .format(type(parameters))
+                .format(type(parameters))
         return parameters
 
     @staticmethod
@@ -697,7 +702,7 @@ class Session(object):
         body = body or {}
         assert isinstance(body, dict), \
             "Invalid 'body' type. Must be a dictionary type. ({})" \
-                .format(type(body))
+            .format(type(body))
 
         body['timeout'] = timeout
         return body
@@ -770,4 +775,3 @@ def run_outside_of_api(cmd, session=None):
 
     res["status"] = "success"
     return res
-
