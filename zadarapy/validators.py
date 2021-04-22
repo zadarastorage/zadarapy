@@ -1585,6 +1585,36 @@ def verify_interval(interval):
     return interval
 
 
+def verify_kmip_version(version):
+    """
+    :type version: str
+    :param version: The KMIP version:
+        choices: [1.0, 1.1, 1.2, 1.3, 1.4, 2.0]
+        KMIP 2.0 (not supported by Equinix Smartkey).
+    :raises: ValueError: invalid version
+    """
+    verify_field(version, "version")
+    if version not in ['1.0', '1.1', '1.2', '1.3', '1.4', '2.0']:
+        raise ValueError('{0} is not a valid version parameter.  '
+                        'Allowed values are: "1.0", "1.1", "1.2", "1.3", "1.4", "2.0"'.format(version))
+
+    if version == '1.0':
+        return 1
+    if version == '1.1':
+        return 2
+    if version == '1.2':
+        return 3
+    if version == '1.3':
+        return 4
+    if version == '1.4':
+        return 5
+    if version == '2.0':
+        return 6
+
+    raise ValueError('{0} is not a valid version parameter.  '
+                     'Allowed values are: "1.0", "1.1", "1.2", "1.3", "1.4", "2.0"'.format(version))
+
+
 def verify_group_name(group_name):
     """
     :type group_name: str
@@ -1791,6 +1821,18 @@ def verify_restore_mode(restore_mode):
         raise ValueError('{0} is not a valid restore_mode parameter.  '
                          'Allowed values are: "restore", "clone", or '
                          '"import_seed"'.format(restore_mode))
+
+
+def verify_connect_via(connect_via):
+    """
+    :type connect_via: str
+    :param connect_via: connection interface (fe/public)
+
+    :raises: ValueError: Invalid input
+    """
+    if connect_via not in ['fe', 'public']:
+        raise ValueError('{0} is not a valid connect_via parameter.  '
+                         'Allowed values are: "fe" or "public"'.format(connect_via))
 
 
 def verify_vc_index(vc_index):
