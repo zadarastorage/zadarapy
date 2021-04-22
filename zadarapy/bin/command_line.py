@@ -941,6 +941,181 @@ ZCS_IMAGE_ID_OPTION = {
     }
 }
 
+KMIP_ENCRYPTION_OPTIONS = [
+    {
+        'option_positional': ['--host'],
+        'option_keywords': {
+            'dest': 'param_host',
+            'metavar': '<xxx>',
+            'type': str,
+            'required': True,
+            'help': 'The KMIP KMS host name to set.'
+        }
+    },
+    {
+        'option_positional': ['--port'],
+        'option_keywords': {
+            'dest': 'param_port',
+            'metavar': '<xxx>',
+            'type': int,
+            'default': 5695,
+            'help': 'The port that the KMIP server listens on. '
+                    'Set to 5695 by default.'
+        }
+    },
+    {
+        'option_positional': ['--ca_cert_file'],
+        'option_keywords': {
+            'dest': 'param_ca_cert_file',
+            'metavar': '<xxx>',
+            'type': str,
+            'required': True,
+            'help': 'location of the CA\'s certificate file in the VPSA. '
+                    'For Equinix Smartkey put \'/etc/ssl/certs/DigiCert_Global_Root_CA.pem\'.'
+        }
+    },
+    {
+        'option_positional': ['--key_id'],
+        'option_keywords': {
+            'dest': 'param_key_id',
+            'metavar': '<xxx>',
+            'type': str,
+            'required': True,
+            'help': 'The KMIP KMS key id to set.'
+        }
+    },
+    {
+        'option_positional': ['--key_name'],
+        'option_keywords': {
+            'dest': 'param_key_name',
+            'metavar': '<xxx>',
+            'type': str,
+            'required': True,
+            'help': 'The KMIP KMS key alias to set (can be any name of your choice).'
+        }
+    },
+    {
+        'option_positional': ['--connect_via'],
+        'option_keywords': {
+            'dest': 'param_connect_via',
+            'choices': ['fe', 'public'],
+            'metavar': '<xxx>',
+            'type': str,
+            'required': True,
+            'help': 'The KMIP connection interface.'
+        }
+    },
+    {
+        'option_positional': ['--cert_file_content'],
+        'option_keywords': {
+            'dest': 'param_cert_file_content',
+            'metavar': '<xxx>',
+            'type': str,
+            'default': None,
+            'help': 'The KMIP user certificate file content, can be used for authentication.'
+        }
+    },
+    {
+        'option_positional': ['--key_file_content'],
+        'option_keywords': {
+            'dest': 'param_key_file_content',
+            'metavar': '<xxx>',
+            'type': str,
+            'default': None,
+            'help': 'The private key file content, can be used for authentication.'
+        }
+    },
+    {
+        'option_positional': ['--version'],
+        'option_keywords': {
+            'dest': 'param_version',
+            'metavar': '<xxx>',
+            'type': int,
+            'default': 3,
+            'help': 'The KMIP version ID:'
+                    '(1) KMIP 1.0 '
+                    '(2) KMIP 1.1 '
+                    '(3) KMIP 1.2 '
+                    '(4) KMIP 1.3 '
+                    '(5) KMIP 1.4 '
+                    '(6) KMIP 2.0 (KMIP 2.0 not supported by Equinix Smartkey).'
+        }
+    },
+    {
+        'option_positional': ['--user'],
+        'option_keywords': {
+            'dest': 'param_user',
+            'metavar': '<xxx>',
+            'type': str,
+            'default': None,
+            'help': 'The user name credential in order to authanticate with the KMIP server. '
+                    'This serves one of the ways to authanticate with the KMIP server.'
+        }
+    },
+    {
+        'option_positional': ['--password'],
+        'option_keywords': {
+            'dest': 'param_password',
+            'metavar': '<xxx>',
+            'type': str,
+            'default': None,
+            'help': 'The password credential in order to authanticate with the KMIP server (corresponding to user name). '
+                    'This serves one of the ways to authanticate with the KMIP server.'
+        }
+    },
+    {
+        'option_positional': ['--current_encryption_pwd'],
+        'option_keywords': {
+            'dest': 'param_current_encryption_pwd',
+            'metavar': '<xxx>',
+            'type': str,
+            'default': None,
+            'help': 'Old master encryption password. Required if '
+            'setting kmip encryption but user password is already set.'
+        }
+    },
+    {
+        'option_positional': ['--proxy_host'],
+        'option_keywords': {
+            'dest': 'param_proxy_host',
+            'metavar': '<xxx>',
+            'type': str,
+            'default': None,
+            'help': 'The proxy host, used if setting KMIP KMS with proxy.'
+        }
+    },
+    {
+        'option_positional': ['--proxyport'],
+        'option_keywords': {
+            'dest': 'param_proxyport',
+            'metavar': '<xxx>',
+            'type': int,
+            'default': 0,
+            'help': 'The proxy port, used if setting KMIP KMS with proxy.'
+        }
+    },
+    {
+        'option_positional': ['--proxy_username'],
+        'option_keywords': {
+            'dest': 'param_proxy_username',
+            'metavar': '<xxx>',
+            'type': str,
+            'default': None,
+            'help': 'The proxy user name, used if setting KMIP KMS with authenticated proxy.'
+        }
+    },
+    {
+        'option_positional': ['--proxy_password'],
+        'option_keywords': {
+            'dest': 'param_proxy_password',
+            'metavar': '<xxx>',
+            'type': str,
+            'default': None,
+            'help': 'The proxy password, used if setting KMIP KMS with authenticated proxy.'
+        }
+    }
+]
+
 COMMANDS_DICT = [
     {
         'command_name': 'container-services',
@@ -3190,6 +3365,26 @@ COMMANDS_DICT = [
                                    'the VPSA.  This password is used when '
                                    'enabling the encryption option for a '
                                    'volume.'
+            },
+            {
+                'subcommand_info': ('set-encryption-password-kmip',
+                                    settings.set_encryption_password_kmip),
+                'subcommand_options': KMIP_ENCRYPTION_OPTIONS,
+                'subcommand_return_key': None,
+                'subcommand_help':  'Sets the encryption password globally on the VPSA using the KMIP protocol.'
+                                    'This encryption is used when enabling the encryption option for a volume.'
+                                    'CAUTION: THIS KMIP KEY IS NOT STORED ON THE VPSA - IT IS THE USER\'S RESPONSIBILITY'
+                                    'TO MAINTAIN ACCESS TO THE THIS KEY. LOSS OF THE KEY MAY RESULT IN UNRECOVERABLE DATA.'
+            },
+            {
+                'subcommand_info': ('restore-encryption-password-kmip',
+                                    settings.restore_encryption_password_kmip),
+                'subcommand_options': KMIP_ENCRYPTION_OPTIONS,
+                'subcommand_return_key': None,
+                'subcommand_help':  'Restore the encryption password globally on the VPSA using the KMIP protocol.'
+                                    'This encryption is used when enabling the encryption option for a volume.'
+                                    'CAUTION: THIS KMIP KEY IS NOT STORED ON THE VPSA - IT IS THE USER\'S RESPONSIBILITY'
+                                    'TO MAINTAIN ACCESS TO THE THIS KEY. LOSS OF THE KEY MAY RESULT IN UNRECOVERABLE DATA.'
             },
             {
                 'subcommand_info': ('set-multizone-read-mode',
