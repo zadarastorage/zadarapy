@@ -352,53 +352,6 @@ def is_valid_policy_id(policy_id):
     return True
 
 
-def is_valid_file_category_id(category_id):
-    """
-    Validates a file lifecycle category ID, also known as the categories "category-ext-name".
-    A valid category ID should look like: category-00000001 - It should
-    always start with "category-" and end with 8 hexadecimal characters in lower
-    case.
-
-    :type category_id: str
-    :param category_id: The file lifecycle category ID to be validated.
-
-    :rtype: bool
-    :return: True or False depending on whether category_id passes validation.
-    """
-    if category_id is None:
-        return False
-
-    match = re.match(r'^category-[0-9a-f]{8}$', category_id)
-
-    if not match:
-        return False
-
-    return True
-
-def is_valid_flc_policy_id(flc_policy_id):
-    """
-    Validates a file lifecycle policy ID, also known as the policy "lc_policy_name".
-    A valid policy ID should look like: lc-policy-00000003 - It should
-    always start with "lc-policy-" and end with 8 hexadecimal characters in lower
-    case.
-
-    :type flc_policy_id: str
-    :param flc_policy_id: The file lifecycle policy ID to be validated.
-
-    :rtype: bool
-    :return: True or False depending on whether flc_policy_id passes validation.
-    """
-    if flc_policy_id is None:
-        return False
-
-    match = re.match(r'^lc-policy-[0-9a-f]{8}$', flc_policy_id)
-
-    if not match:
-        return False
-
-    return True
-
-
 def is_valid_smb_hidden_files(smb_hidden_files):
     """
     Validates smbhiddenfiles NAS volume parameter.  String should be forward
@@ -971,28 +924,6 @@ def verify_policy_id(policy_id):
         raise ValueError("\n".join(list_err))
 
 
-def verify_file_category_id(category_id):
-    """
-    :param category_id: File Lifecycle category ID to verify
-    :raises: ValueError: invalid ID
-    """
-    list_err = ['{0} is not a valid file lifecycle category ID.'.format(_id)
-                for _id in category_id.split(',') if not is_valid_file_category_id(_id)]
-    if list_err:
-        raise ValueError("\n".join(list_err))
-
-
-def verify_flc_policy_id(flc_policy_id):
-    """
-    :param flc_policy_id: File Lifecycle policy ID to verify
-    :raises: ValueError: invalid ID
-    """
-    list_err = ['{0} is not a valid file lifecycle policy ID.'.format(_id)
-                for _id in flc_policy_id.split(',') if not is_valid_flc_policy_id(_id)]
-    if list_err:
-        raise ValueError("\n".join(list_err))
-
-
 def verify_email(email):
     """
     :param email: Email to check
@@ -1536,24 +1467,6 @@ def verify_ticket_id(ticket_id):
         raise ValueError(
             '{0} is not a valid Ticket ID. [Should be positive]'.format(
                 ticket_id))
-
-
-def verify_lc_action(action):
-    """
-    :type: str
-    :param action: The action parameter to check
-
-    :rtype: str
-    :return: Fix action format
-
-    :raises: ValueError: invalid form
-    """
-    action = str(action).lower()
-    if action not in ['archive', 'expire']:
-        raise ValueError('"{}" is not a valid action parameter. '
-                         'Allowed values are: "archive" or "expire"'
-                         .format(action))
-    return action
 
 
 def verify_boolean(flag, title):
