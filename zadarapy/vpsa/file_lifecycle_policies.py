@@ -145,13 +145,13 @@ def create_flc_policy(session, display_name, file_selection_criteria, lc_action,
     :type file_selection_criteria: str
     :param file_selection_criteria: The criteria by which the policy files will be selected.
         Should be in a MongoDB $match aggregation format.  Required.
-    
+
     :type lc_action: str
     :param lc_action: The action that the policy performs on the selected files (archive | expire).  Required.
 
     :type: enabled: str
     :param enabled: Controls enablement of the policy after it is created (YES | NO).  Optional.
-    
+
     :type: dry_run: str
     :param dry_run: When the policy is in dry run mode,
         it'll only print its actions to the log instead of actually performing them (YES | NO).  Optional.
@@ -212,13 +212,13 @@ def update_flc_policy(session, lc_policy_id, display_name=None, file_selection_c
     :type file_selection_criteria: str
     :param file_selection_criteria: The criteria by which the policy files will be selected.
         Should be in a MongoDB $match aggregation format.  Optional.
-    
+
     :type lc_action: str
     :param lc_action: The action that the policy performs on the selected files (archive | expire).  Optional.
 
     :type: enabled: str
     :param enabled: Controls enablement of the policy after it is created (YES | NO).  Optional.
-    
+
     :type: dry_run: str
     :param dry_run: When the policy is in dry run mode,
         it'll only print its actions to the log instead of actually performing them (YES | NO).  Optional.
@@ -302,7 +302,7 @@ def update_flc_policy_scheduling(session, policy_start_time=None, policy_interva
 
     :type policy_interval: int
     :param policy_interval: The interval in seconds between running policies.  Optional.
-    
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -348,7 +348,7 @@ def update_flc_recycle_bin(session, retention_time=None,
                             return_type=return_type, **kwargs)
 
 
-def pause_flc_policy_on_volume(session, volume_id,
+def pause_flc_policy_on_volume(session, lc_policy_id, volume_id,
                                 return_type=None, **kwargs):
     """
     Pause a file lifecycle policy for a given volume.
