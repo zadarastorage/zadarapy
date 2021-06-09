@@ -14,11 +14,11 @@
 # under the License.
 
 
-from zadarapy.validators import verify_boolean, verify_lc_action, verify_flc_policy_id
+from zadarapy.validators import verify_boolean, verify_start_limit, verify_lc_action, verify_flc_policy_id
 
 
-def get_all_flc_policies(session, volume_name=None, first=None, number=None,
-                        order_by=None, descend=None, return_type=None, **kwargs):
+def get_all_flc_policies(session, volume_name=None, start=None, limit=None,
+                         order_by=None, descend=None, return_type=None, **kwargs):
     """
     Retrieves details for all file lifecycle policies.
 
@@ -28,11 +28,11 @@ def get_all_flc_policies(session, volume_name=None, first=None, number=None,
     :type volume_name: str
     :param volume_name: The volume to filter policies by.  Optional.
 
-    :type first: int
-    :param first: The offset to start displaying file lifecycle policies from.  Optional.
+    :type start: int
+    :param start: The offset to start displaying file lifecycle policies from.  Optional.
 
-    :type: number: int
-    :param number: The maximum number of file lifecycle policies to return.  Optional.
+    :type: limit: int
+    :param limit: The maximum limit of file lifecycle policies to return.  Optional.
 
     :type: order_by: str
     :param order_by: Order policies by given attribute.  Optional.
@@ -51,11 +51,10 @@ def get_all_flc_policies(session, volume_name=None, first=None, number=None,
     """
     descend = verify_boolean(descend, 'descend')
 
-    list_more_options = [('volume_name', volume_name), ('order_by', order_by), ('descend', descend)]
+    list_more_options = [('volume_name', volume_name),
+                         ('order_by', order_by), ('descend', descend)]
 
-    parameters = verify_start_limit(first, number, list_more_options)
-    parameters['first'] = parameters.pop('start')
-    parameters['number'] = parameters.pop('limit')
+    parameters = verify_start_limit(start, limit, list_options=list_more_options)
 
     path = '/api/flc_policies.json'
 
@@ -90,8 +89,8 @@ def get_flc_policy(session, lc_policy_id, return_type=None, **kwargs):
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_all_flc_policies_rules(session, volume_name=None, policy_name=None, first=None,
-                            number=None, return_type=None, **kwargs):
+def get_all_flc_policies_rules(session, volume_name=None, policy_name=None, start=None,
+                               limit=None, return_type=None, **kwargs):
     """
     Retrieves details for the rules attaching file lifecycle policies to volumes.
 
@@ -104,11 +103,11 @@ def get_all_flc_policies_rules(session, volume_name=None, policy_name=None, firs
     :type policy_name: str
     :param policy_name: Retrieve only rules relevant to the given policy.  Optional.
 
-    :type first: int
-    :param first: The offset to start displaying file lifecycle policies from.  Optional.
+    :type start: int
+    :param start: The offset to start displaying file lifecycle policies from.  Optional.
 
-    :type: number: int
-    :param number: The maximum number of file lifecycle policies to return.  Optional.
+    :type: limit: int
+    :param limit: The maximum limit of file lifecycle policies to return.  Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -119,20 +118,20 @@ def get_all_flc_policies_rules(session, volume_name=None, policy_name=None, firs
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    list_more_options = [('volume_name', volume_name), ('policy_name', policy_name)]
+    list_more_options = [('volume_name', volume_name),
+                         ('policy_name', policy_name)]
 
-    parameters = verify_start_limit(first, number, list_more_options)
-    parameters['first'] = parameters.pop('start')
-    parameters['number'] = parameters.pop('limit')
+    parameters = verify_start_limit(start, limit, list_options=list_more_options)
 
     path = '/api/flc_policies/rules.json'
 
     return session.get_api(path=path, parameters=parameters,
                            return_type=return_type, **kwargs)
 
+
 def create_flc_policy(session, display_name, file_selection_criteria, lc_action,
-                    enabled=None,dry_run=None, use_recycle_bin=None, whitelist_paths=None,
-                    blacklist_paths=None, dest_obs_name=None, return_type=None, **kwargs):
+                      enabled=None, dry_run=None, use_recycle_bin=None, whitelist_paths=None,
+                      blacklist_paths=None, dest_obs_name=None, return_type=None, **kwargs):
     """
     Create a new file lifecycle policy.
 
@@ -183,9 +182,9 @@ def create_flc_policy(session, display_name, file_selection_criteria, lc_action,
     dry_run = verify_boolean(dry_run, 'dry_run')
     use_recycle_bin = verify_boolean(use_recycle_bin, 'use_recycle_bin')
     body_values = {'display_name': display_name, 'file_selection_criteria': file_selection_criteria,
-                    'lc_action': lc_action, 'enabled': enabled, 'dry_run': dry_run,
-                    'use_recycle_bin': use_recycle_bin, 'whitelist_paths': whitelist_paths,
-                    'blacklist_paths': blacklist_paths, 'dest_obs_name': dest_obs_name}
+                   'lc_action': lc_action, 'enabled': enabled, 'dry_run': dry_run,
+                   'use_recycle_bin': use_recycle_bin, 'whitelist_paths': whitelist_paths,
+                   'blacklist_paths': blacklist_paths, 'dest_obs_name': dest_obs_name}
 
     path = '/api/flc_policies.json'
 
@@ -194,8 +193,8 @@ def create_flc_policy(session, display_name, file_selection_criteria, lc_action,
 
 
 def update_flc_policy(session, lc_policy_id, display_name=None, file_selection_criteria=None,
-                    lc_action=None, enabled=None,dry_run=None, use_recycle_bin=None,whitelist_paths=None,
-                    blacklist_paths=None, dest_obs_name=None, return_type=None, **kwargs):
+                      lc_action=None, enabled=None, dry_run=None, use_recycle_bin=None, whitelist_paths=None,
+                      blacklist_paths=None, dest_obs_name=None, return_type=None, **kwargs):
     """
     Updates an existing file lifecycle policy.
 
@@ -252,14 +251,14 @@ def update_flc_policy(session, lc_policy_id, display_name=None, file_selection_c
     use_recycle_bin = verify_boolean(use_recycle_bin, 'use_recycle_bin')
 
     body_values = {'display_name': display_name, 'file_selection_criteria': file_selection_criteria,
-                    'lc_action': lc_action, 'enabled': enabled, 'dry_run': dry_run,
-                    'use_recycle_bin': use_recycle_bin, 'whitelist_paths': whitelist_paths,
-                    'blacklist_paths': blacklist_paths, 'dest_obs_name': dest_obs_name}
+                   'lc_action': lc_action, 'enabled': enabled, 'dry_run': dry_run,
+                   'use_recycle_bin': use_recycle_bin, 'whitelist_paths': whitelist_paths,
+                   'blacklist_paths': blacklist_paths, 'dest_obs_name': dest_obs_name}
 
     path = '/api/flc_policies/{}.json'.format(lc_policy_id)
 
     return session.put_api(path=path, body=body_values,
-                            return_type=return_type, **kwargs)
+                           return_type=return_type, **kwargs)
 
 
 def delete_flc_policy(session, lc_policy_id, return_type=None, **kwargs):
@@ -290,7 +289,7 @@ def delete_flc_policy(session, lc_policy_id, return_type=None, **kwargs):
 
 
 def update_flc_policy_scheduling(session, policy_start_time=None, policy_interval=None,
-                                return_type=None, **kwargs):
+                                 return_type=None, **kwargs):
     """
     Updates file lifecycle policies run time scheduling.
 
@@ -312,16 +311,17 @@ def update_flc_policy_scheduling(session, policy_start_time=None, policy_interva
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
-    body_values = {'policy_start_time': policy_start_time, 'policy_interval': policy_interval}
+    body_values = {'policy_start_time': policy_start_time,
+                   'policy_interval': policy_interval}
 
     path = '/api/flc_policies/scheduling.json'
 
     return session.put_api(path=path, body=body_values,
-                            return_type=return_type, **kwargs)
+                           return_type=return_type, **kwargs)
 
 
 def update_flc_recycle_bin(session, retention_time=None,
-                                return_type=None, **kwargs):
+                           return_type=None, **kwargs):
     """
     Configures the recycle bin.
 
@@ -345,11 +345,11 @@ def update_flc_recycle_bin(session, retention_time=None,
     path = '/api/flc_policies/recycle_bin.json'
 
     return session.put_api(path=path, body=body_values,
-                            return_type=return_type, **kwargs)
+                           return_type=return_type, **kwargs)
 
 
 def pause_flc_policy_on_volume(session, lc_policy_id, volume_id,
-                                return_type=None, **kwargs):
+                               return_type=None, **kwargs):
     """
     Pause a file lifecycle policy for a given volume.
 
@@ -378,7 +378,7 @@ def pause_flc_policy_on_volume(session, lc_policy_id, volume_id,
     path = '/api/flc_policies/{}/pause.json'.format(lc_policy_id)
 
     return session.put_api(path=path, body=body_values,
-                            return_type=return_type, **kwargs)
+                           return_type=return_type, **kwargs)
 
 
 def resume_flc_policy_on_volume(session, lc_policy_id, volume_id,
@@ -411,11 +411,11 @@ def resume_flc_policy_on_volume(session, lc_policy_id, volume_id,
     path = '/api/flc_policies/{}/resume.json'.format(lc_policy_id)
 
     return session.put_api(path=path, body=body_values,
-                            return_type=return_type, **kwargs)
+                           return_type=return_type, **kwargs)
 
 
 def attach_flc_policy(session, lc_policy_id, volume_id,
-                        return_type=None, **kwargs):
+                      return_type=None, **kwargs):
     """
     Attach a volume to a file lifecycle policy.
 
@@ -444,11 +444,11 @@ def attach_flc_policy(session, lc_policy_id, volume_id,
     path = '/api/flc_policies/{}/attach.json'.format(lc_policy_id)
 
     return session.put_api(path=path, body=body_values,
-                            return_type=return_type, **kwargs)
+                           return_type=return_type, **kwargs)
 
 
 def detach_flc_policy(session, lc_policy_id, volume_id,
-                        return_type=None, **kwargs):
+                      return_type=None, **kwargs):
     """
     Detach a volume from a file lifecycle policy.
 
@@ -477,4 +477,4 @@ def detach_flc_policy(session, lc_policy_id, volume_id,
     path = '/api/flc_policies/{}/detach.json'.format(lc_policy_id)
 
     return session.put_api(path=path, body=body_values,
-                            return_type=return_type, **kwargs)
+                           return_type=return_type, **kwargs)
