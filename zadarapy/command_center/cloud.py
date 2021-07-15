@@ -831,6 +831,208 @@ def deallocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO",
                             return_type=return_type, **kwargs)
 
 
+def get_all_custom_networks(session, cloud_name,
+                      return_type=None, **kwargs):
+    """
+    Returns all Custom Network info from Cloud
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{0}/custom_networks.json".format(cloud_name)
+    
+    return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
+def get_custom_network(session, cloud_name, network_id,
+                      return_type=None, **kwargs):
+    """
+    Returns Custom Network info from Cloud
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type network_id: int
+    :param network_id: Network ID. i.e: 50
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{0}/custom_networks/{}.json".format(cloud_name, network_id)
+    
+    return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
+def create_custom_network(session, cloud_name, cloud_user,
+                        name, cidr, gateway, ip_range=None,
+                        vlan_id=None, return_type=None, **kwargs):
+    """
+    Create Custom Network
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type cloud_user: str
+    :param cloud_user: Cloud User ID
+
+    :type name: str
+    :param name: Custom network display name
+
+    :type cidr: str
+    :param cidr: Network CIDR
+
+    :type gateway: str
+    :param gateway: Network Gateway address
+
+    :type ip_range: str
+    :param ip_range: Subnet IP range
+
+    :type vlan_id: int
+    :param vlan_id: Vlan ID to automatically assign
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{0}/custom_networks.json".format(cloud_name)
+    parameters = {
+        'user' : cloud_user,
+        'name' : name,
+        'cidr' : cidr,
+        'gateway' : gateway,
+        'ip_range' : ip_range,
+        'vlan_id' : vlan_id
+    }
+
+    return session.post_api(path=path, parameters=parameters,
+                           return_type=return_type, **kwargs)
+
+
+def add_ip_range_to_custom_network(session, cloud_name, network_id, ip_range,
+                                    return_type=None, **kwargs):
+    """
+    Add IP range to a Custom Network
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type network_id: int
+    :param network_id: Network ID. i.e: 50
+
+    :type ip_range: str
+    :param ip_range: IP range from an existing Custom Network
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{0}/custom_networks/{}/add_ip_ranges.json".format(cloud_name, network_id)
+    parameters = {
+        'range': ip_range
+    }
+
+    return session.post_api(path=path, parameters=parameters,
+                           return_type=return_type, **kwargs)
+
+
+def remove_ip_range_from_custom_network(session, cloud_name, network_id, ip_range,
+                                        return_type=None, **kwargs):
+    """
+    Remove IP range from a Custom Network
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type network_id: int
+    :param network_id: Network ID. i.e: 50
+
+    :type ip_range: str
+    :param ip_range: IP range from an existing Custom Network
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{0}/custom_networks/{}/remove_ip_ranges.json".format(cloud_name, network_id)
+    parameters = {
+        'range': ip_range
+    }
+
+    return session.post_api(path=path, parameters=parameters,
+                           return_type=return_type, **kwargs)
+
+def delete_custom_network(session, cloud_name, network_id, return_type=None, **kwargs):
+    """
+    Delete Custom Network
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type network_id: int
+    :param network_id: Network ID. i.e: 50
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "/api/clouds/{0}/custom_networks/{}.json".format(cloud_name, network_id)
+
+    return session.delete_api(path=path, return_type=return_type, **kwargs)
+
+
 def get_vpsa_settings(session, cloud_name, vpsa_id, section=None,
                       return_type=None, **kwargs):
     """
