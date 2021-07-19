@@ -14,7 +14,7 @@
 # under the License.
 
 
-from zadarapy.validators import verify_field, verify_vpsa_id, verify_cloud_name, verify_capacity, verify_bool_parameter
+from zadarapy.validators import verify_field, verify_vpsa_id, verify_cloud_name, verify_capacity, verify_bool_parameter, verify_id
 
 
 def upgrade_vpsa_version(session, cloud_name, vpsa_id, image, when=None,
@@ -69,6 +69,7 @@ def upgrade_vpsa_version(session, cloud_name, vpsa_id, image, when=None,
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
 
+
 def get_raid_groups(session, cloud_name, vpsa_id, return_type=None, **kwargs):
     """
     Get raid groups of VPSA for command center
@@ -97,6 +98,7 @@ def get_raid_groups(session, cloud_name, vpsa_id, return_type=None, **kwargs):
     path = "/api/clouds/{0}/vpsas/{1}/raid_groups.json" \
         .format(cloud_name, vpsa_id)
     return session.get_api(path=path, return_type=return_type, **kwargs)
+
 
 def enable_flc(session, cloud_name, vpsa_id, return_type=None, **kwargs):
     """
@@ -127,6 +129,7 @@ def enable_flc(session, cloud_name, vpsa_id, return_type=None, **kwargs):
         .format(cloud_name, vpsa_id)
     return session.post_api(path=path, return_type=return_type, **kwargs)
 
+
 def disable_flc(session, cloud_name, vpsa_id, return_type=None, **kwargs):
     """
     Disable FCL on VPSA
@@ -155,6 +158,7 @@ def disable_flc(session, cloud_name, vpsa_id, return_type=None, **kwargs):
     path = "/api/clouds/{0}/vpsas/{1}/disable_flc.json" \
         .format(cloud_name, vpsa_id)
     return session.post_api(path=path, return_type=return_type, **kwargs)
+
 
 def resume_upgrade(session, cloud_name, vpsa_id, return_type=None, **kwargs):
     """
@@ -483,9 +487,96 @@ def add_drives(session, cloud_name, vsa_id, drive_type, drive_quantity,
     drive_quantity = verify_capacity(drive_quantity, 'drive_quantity')
     skip_validation = verify_bool_parameter(skip_validation)
 
-    body_values = {'drive_type': drive_type, 'quantity': drive_quantity, 'skip_validation': skip_validation}
+    body_values = {'drive_type': drive_type,
+                   'quantity': drive_quantity, 'skip_validation': skip_validation}
 
     path = '/api/clouds/{0}/vpsas/{1}/drives.json'.format(cloud_name, vsa_id)
+
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type, **kwargs)
+
+
+def add_virtual_network_interface(session, cloud_name, vpsa_id,
+                                  custom_network_id, return_type=None, **kwargs):
+    """
+    Add Virtual Network Interface to a VPSA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type vpsa_id: str
+    :param vpsa_id: The 'vpsa_id' value as returned by get_all_vpsaoss.  For
+        example: 'vsa-000007de'.  Required.
+
+    :type custom_network_id: int
+    :param custom_network_id: Custom Network ID. i.e: 50.  Required
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    cloud_name = verify_cloud_name(cloud_name)
+    vpsa_id = verify_vpsa_id(vpsa_id)
+    custom_network_id = verify_id(custom_network_id)
+
+    body_values = {
+        'custom_network_id': custom_network_id
+    }
+
+    path = '/api/clouds/{0}/vpsas/{1}/add_virtual_network_interface.json'.format(
+        cloud_name, vpsa_id)
+
+    return session.post_api(path=path, body=body_values,
+                            return_type=return_type, **kwargs)
+
+
+def remove_virtual_network_interface(session, cloud_name, vpsa_id,
+                                     vni_id, return_type=None, **kwargs):
+    """
+    Remove Virtual Network Interface from a VPSA.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type vpsa_id: str
+    :param vpsa_id: The 'vpsa_id' value as returned by get_all_vpsaoss.  For
+        example: 'vsa-000007de'.  Required.
+
+    :type vni_id: int
+    :param vni_id: Custom Network ID. i.e: 50.  Required
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    cloud_name = verify_cloud_name(cloud_name)
+    vpsa_id = verify_vpsa_id(vpsa_id)
+    vni_id = verify_id(vni_id)
+
+    body_values = {
+        'vni_id': vni_id
+    }
+
+    path = '/api/clouds/{0}/vpsas/{1}/remove_virtual_network_interface.json'.format(
+        cloud_name, vpsa_id)
 
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
