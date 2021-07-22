@@ -48,6 +48,27 @@ def get_all_controllers(session, start=None, limit=None, return_type=None,
                            return_type=return_type, **kwargs)
 
 
+def get_all_controllers_virtual_networks(session, return_type=None, **kwargs):
+    """
+    Get a list of Controller Virtual Networks.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/vcontrollers/virtual_networks.json'
+
+    return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
 def failover_controller(session, confirm, force='NO', return_type=None,
                         **kwargs):
     """
