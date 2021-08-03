@@ -948,7 +948,8 @@ def create_custom_network(session, cloud_name, cloud_user,
     return session.post_api(path=path, parameters=parameters,
                             return_type=return_type, **kwargs)
 
-
+# TODO: Uncomment after API is fixed
+if False: ''' 
 def add_ip_range_to_custom_network(session, cloud_name, network_id, ip_range,
                                    return_type=None, **kwargs):
     """
@@ -1025,7 +1026,7 @@ def remove_ip_range_from_custom_network(session, cloud_name, network_id, ip_rang
 
     return session.post_api(path=path, parameters=parameters,
                             return_type=return_type, **kwargs)
-
+'''
 
 def delete_custom_network(session, cloud_name, network_id, return_type=None, **kwargs):
     """
