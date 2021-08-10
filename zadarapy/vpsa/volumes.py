@@ -1723,6 +1723,56 @@ def update_volume_quotas_state(session, volume_id, uquota, gquota, pquota, force
     return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
 
 
+def update_quota_limit(session, volume_id, source_type, hard, source_id=None, source_id_display=None, return_type=None,
+                       **kwargs):
+    """
+    Update quotas limit of a Volume
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+
+    :type source_type: str
+    :param source_type: user | group | project. Required.
+
+    :type hard: str
+    :param hard: New quota hard limit in MB. Required.
+
+    :type source_id: str
+    :param source_id: ID of the quota. Either that or source_id_display are required.
+
+    :type source_id_display: str
+    :param source_id_display: Name of the quota. Either that or source_id are required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+    verify_volume_type(source_type)
+
+    if source_id is None and source_id_display is None:
+        raise ValueError("Either source_id or source_is_display must be supplied.")
+
+    body = {"source_type": source_type, "hard": hard}
+    if source_id is not None:
+        body["source_id"] = source_id
+    if source_id_display is not None:
+        body["source_id_display"] = source_id_display
+
+    path = '/api/volumes/{}/quotas.json'.format(volume_id)
+
+    return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
+
+
 def get_volume_quota(session, volume_id, scope, quota_id, quota_nas=None, quota_ad=None, return_type=None, **kwargs):
     """
     Get quota of a Volume
