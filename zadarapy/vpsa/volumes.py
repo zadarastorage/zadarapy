@@ -1671,7 +1671,8 @@ def add_volume_quotas(session, volume_id, source_id, source_type, nas_type, limi
     verify_nas_type(nas_type)
 
     path = '/api/volumes/{0}/quotas.json'.format(volume_id)
-    quotas = {"quotas": [{"source_id": source_id, "source_type": source_type, "nas_type": nas_type, "limit": limit}]}
+    quotas = {"quotas": [{"source_id": source_id,
+                          "source_type": source_type, "nas_type": nas_type, "limit": limit}]}
 
     return session.post_api(secure=False, path=path, body=quotas, return_type=return_type, **kwargs)
 
@@ -1718,7 +1719,8 @@ def update_volume_quotas_state(session, volume_id, uquota, gquota, pquota, force
     force = verify_bool(force)
 
     path = '/api/volumes/{0}/quotas_state.json'.format(volume_id)
-    body = {"uquota": uquota, "gquota": gquota, "pquota": pquota, "force": force}
+    body = {"uquota": uquota, "gquota": gquota,
+            "pquota": pquota, "force": force}
 
     return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
 
@@ -1760,7 +1762,8 @@ def update_quota_limit(session, volume_id, source_type, hard, source_id=None, so
     verify_volume_type(source_type)
 
     if source_id is None and source_id_display is None:
-        raise ValueError("Either source_id or source_is_display must be supplied.")
+        raise ValueError(
+            "Either source_id or source_is_display must be supplied.")
 
     body = {"source_type": source_type, "hard": hard}
     if source_id is not None:
@@ -1987,6 +1990,42 @@ def remove_directories_from_quota_project(session, volume_id, project_id, path_p
     return session.delete_api(path=path, body=body, return_type=return_type, **kwargs)
 
 
+def set_volume_attach_permissions(session, volume_id, server_name, read_only, return_type=None, **kwargs):
+    """
+    Set volume attach permissions to a server
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type volume_id: str
+    :param volume_id: The volume ID 'name' value as returned by
+        get_all_volumes.  For example: 'volume-00000001'.  Required.
+    
+    :type server_name: str
+    :param server_name: The server ID 'name' value as returned by
+        get_all_servers.  For example: 'srv-00000001'.  Required.
+
+    :type read_only: bool
+    :param read_only: Set volume attachement policy to Read Only.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+    read_only = verify_bool_parameter(read_only)
+
+    path = '/api/volumes/{0}/attach_permissions.json'.format(volume_id)
+    body = {"server_name": server_name, "read_only": read_only}
+
+    return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
+
+
 def dump_quotas_file(session, volume_id, scope, create_file=True, clear_file=True, force_refresh=True, return_type=None, **kwargs):
     """
     Remove directories from quota project of a Volume
@@ -2025,7 +2064,8 @@ def dump_quotas_file(session, volume_id, scope, create_file=True, clear_file=Tru
     force_refresh = verify_bool_parameter(force_refresh)
 
     path = '/api/volumes/{0}/dump_quota_to_file.json'.format(volume_id)
-    body = {"scope": scope, "create_file": create_file, "clear_file": clear_file, "force_refresh": force_refresh}
+    body = {"scope": scope, "create_file": create_file,
+            "clear_file": clear_file, "force_refresh": force_refresh}
 
     return session.post_api(path=path, body=body, return_type=return_type, **kwargs)
 
