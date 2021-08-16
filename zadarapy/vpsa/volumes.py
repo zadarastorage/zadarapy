@@ -2005,8 +2005,8 @@ def set_volume_attach_permissions(session, volume_id, server_name, read_only, re
     :param server_name: The server ID 'name' value as returned by
         get_all_servers.  For example: 'srv-00000001'.  Required.
 
-    :type read_only: bool
-    :param read_only: Set volume attachement policy to Read Only.  Required.
+    :type read_only: str
+    :param read_only: If set to 'YES' volume attachement policy will set to Read Only. Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -2018,7 +2018,7 @@ def set_volume_attach_permissions(session, volume_id, server_name, read_only, re
         return_type parameter.
     """
     verify_volume_id(volume_id)
-    read_only = verify_bool_parameter(read_only)
+    read_only = verify_bool(read_only)
 
     path = '/api/volumes/{0}/attach_permissions.json'.format(volume_id)
     body = {"server_name": server_name, "read_only": read_only}
