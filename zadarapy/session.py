@@ -15,7 +15,7 @@
 
 # support urlparse for both python 2 and 3
 try:
-    from urllib.parse import urlparse
+    from urllib.parse import urlparse, urlencode
 except ImportError:
     from urlparse import urlparse
 
