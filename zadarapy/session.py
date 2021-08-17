@@ -26,6 +26,7 @@ import requests
 from future.standard_library import install_aliases
 
 install_aliases()
+from urllib.parse import urlencode
 
 from zadarapy.validators import verify_port
 
