@@ -1909,6 +1909,19 @@ def verify_connect_via(connect_via):
                          'Allowed values are: "fe" or "public"'.format(connect_via))
 
 
+def verify_vpsa_interface(connect_via):
+    """
+    :type connect_via: str
+    :param connect_via: connection interface (fe/public/vni[N])
+
+    :raises: ValueError: Invalid input
+    """
+    if connect_via not in ['fe', 'public']:
+        if not connect_via.startswith('vni'):
+            raise ValueError('{0} is not a valid connect_via parameter.  '
+                             'Allowed values are: "fe", "public" or virtual interface name'.format(connect_via))
+
+
 def verify_vc_index(vc_index):
     """
     :param vc_index: VC index to check

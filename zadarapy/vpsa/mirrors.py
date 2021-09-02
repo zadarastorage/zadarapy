@@ -17,7 +17,7 @@
 from zadarapy.validators import verify_snapshot_id, verify_boolean, \
     verify_field, verify_start_limit, verify_cg_id, verify_policy_id, \
     verify_volume_id, verify_snaprule_id, verify_remote_vpsa_id, \
-    verify_mirror_id
+    verify_mirror_id, verify_vpsa_interface
 
 
 def get_all_mirrors(session, start=None, limit=None, return_type=None,
@@ -225,7 +225,7 @@ def get_remote_vpsa(session, rvpsa_id, return_type=None, **kwargs):
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def discover_remote_vpsa(session, ip_address, username, password, public,
+def discover_remote_vpsa(session, ip_address, username, password, interface=None,
                          return_type=None, **kwargs):
     """
     Establishes a relationship with a remote VPSA for the purposes of
@@ -247,13 +247,9 @@ def discover_remote_vpsa(session, ip_address, username, password, public,
         remote VPSA (same as what's used to log into that VPSA's GUI).
         Required.
 
-    :type public: str
-    :param public: If set to 'YES', establishing the relationship and future
-        mirror jobs will occur over the VPSA's public IP/interface (The VPSA
-        must have a valid public IP and setup).  If 'NO', the relationship and
-        mirror jobs will occur using the same IP as connecting to the storage
-        - in this case the VPSA must be able to route to the remote VPSA in
-        question via the VPSA's defined default gateway.  Required.
+    :type interface: str
+    :param interface: Set interface to use for connecting the remote vpsa.
+        Please select on of the interfaces: public, fe or one of the VNI's. Optional.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -266,10 +262,10 @@ def discover_remote_vpsa(session, ip_address, username, password, public,
     """
     username = verify_field(username, "VPSA username")
     password = verify_field(password, "VPSA password")
-    public = verify_boolean(public, "public")
+    verify_vpsa_interface(interface)
 
     body_values = {'user': username, 'password': password, 'ip': ip_address,
-                   'isPublic': public}
+                   'interface': interface}
 
     path = '/api/remote_vpsas/discover.json'
 
