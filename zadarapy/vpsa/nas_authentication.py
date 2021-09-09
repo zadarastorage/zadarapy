@@ -366,8 +366,7 @@ def get_active_directory(session, return_type=None, **kwargs):
 
 def join_active_directory(session, display_name, username, password,
                           dns_domain, netbios_name, dns,
-                          uid_range_low=None, uid_range_high=None, return_type=None,
-                          **kwargs):
+                          uid_range_low=None, uid_range_high=None, return_type=None, force=None, **kwargs):
     """
     Joins the VPSA to an Active Directory domain.  After this is done, for all
     NAS SMB shares that should use Active Directory to resolve users and
@@ -410,6 +409,9 @@ def join_active_directory(session, display_name, username, password,
     :type uid_range_high: int
     :param uid_range_high: High range ID.  Optional.
 
+    :type force: str
+    :param force: "YES" for force else "NO". Optional.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -424,6 +426,7 @@ def join_active_directory(session, display_name, username, password,
     verify_not_none(password, 'password')
     verify_not_none(netbios_name, 'netbios_name')
     _check_dns(dns)
+    force = verify_boolean(force, "force")
 
     body_values = {'adserver': display_name, 'username': username,
                    'password': password, 'realm': dns_domain,
@@ -433,6 +436,8 @@ def join_active_directory(session, display_name, username, password,
         body_values['uid_range_low'] = uid_range_low
     if uid_range_high is not None:
         body_values['uid_range_high'] = uid_range_high
+    if force is not None:
+        body_values['force'] = force
 
     path = '/api/active_directory.json'
 
