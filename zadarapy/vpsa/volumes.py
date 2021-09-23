@@ -147,7 +147,7 @@ def create_volume(session, pool_id, display_name, capacity, block,
                   smbhideunreadable='NO', smbhideunwriteable='NO',
                   smbhidedotfiles='YES', smbstoredosattributes='NO',
                   smbenableoplocks='YES', auto_expand=None, max_expand=None,
-                  auto_expand_by=None, return_type=None, **kwargs):
+                  auto_expand_by=None, flcenabled='NO', return_type=None, **kwargs):
     """
     Creates a new volume.  The 'block' parameter determines if it should be a
     block (iSCSI, iSER, or Fiber Channel) volume or NAS file share (NFS and/or
@@ -336,6 +336,11 @@ def create_volume(session, pool_id, display_name, capacity, block,
         not maintain oplock information, allowing any client to take any
         permissible operation.  Set to 'YES' by default.  Optional.
 
+    :type flcenabled: str
+    :param flcenabled: For Nas shares, if set to YES', the volume will enable
+        flc indexing upon it for the use of flc. If set to 'NO', flc indexing
+        won't be enabled on this volume. Set to 'NO' by default. Optional.
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -357,7 +362,7 @@ def create_volume(session, pool_id, display_name, capacity, block,
     body_values = {'pool': pool_id, 'name': display_name,
                    'capacity': '{0}G'.format(capacity), 'block': block,
                    'attachpolicies': attachpolicies, 'crypt': crypt,
-                   'dedupe': dedupe, 'compress': compress}
+                   'dedupe': dedupe, 'compress': compress, 'flcenabled': flcenabled}
 
     # If block is set to 'YES', enable thin provisioning by default.  This
     # only needs to be set for block volumes, as NAS shares will always be
@@ -397,6 +402,8 @@ def create_volume(session, pool_id, display_name, capacity, block,
             "smbstoredosattributes")
         body_values['smbenableoplocks'] = verify_boolean(smbenableoplocks,
                                                          "smbenableoplocks")
+        body_values['flcenabled'] = verify_boolean(flcenabled,
+                                                   "flcenabled")
 
         smbaiosize = verify_boolean(smbaiosize, "smbaiosize")
         body_values['smbaiosize'] = '16384' if smbaiosize == 'YES' else '1'
@@ -421,7 +428,7 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
                               smbfilecreatemask=None,
                               smbdircreatemask=None, smbmaparchive=None,
                               smbaiosize=None, nfsrootsquash=None,
-                              return_type=None, **kwargs):
+                              flcenabled=None, return_type=None, **kwargs):
     """
     Change various settings related to NAS shares.  Parameters set to 'None'
     will not have their existing values changed.
@@ -459,6 +466,9 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
 
     :type nfsrootsquash: str
     :param nfsrootsquash: See documentation for create_volume.  Optional.
+
+    :type flcenabled: str
+    :param flcenabled: Enable/disable file lifecycle indexing on the volume.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -503,6 +513,9 @@ def update_volume_nas_options(session, volume_id, atimeupdate=None,
     if nfsrootsquash is not None:
         body_values['nfsrootsquash'] = verify_boolean(nfsrootsquash,
                                                       "nfsrootsquash")
+
+    if flcenabled in ['enable', 'disable']:
+        body_values['flcenabled'] = flcenabled
 
     if not body_values:
         raise ValueError('At least one of the following must be set: '
