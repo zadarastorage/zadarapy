@@ -19,6 +19,8 @@ install_aliases()
 from urllib.parse import quote
 import re
 
+from zadarapy.vpsa import VPSAInterfaceTypes
+
 BAD_VPSA_ID = "The VPSA ID int '(i.e '154') or should be of format: " \
               "'vsa-0000001'. Given: {}"
 
@@ -1904,20 +1906,20 @@ def verify_connect_via(connect_via):
 
     :raises: ValueError: Invalid input
     """
-    if connect_via not in ['fe', 'public']:
+    if connect_via not in [VPSAInterfaceTypes.FE, VPSAInterfaceTypes.PUBLIC]:
         raise ValueError('{0} is not a valid connect_via parameter.  '
                          'Allowed values are: "fe" or "public"'.format(connect_via))
 
 
 def verify_vpsa_interface(connect_via):
-    """
+    f"""
     :type connect_via: str
-    :param connect_via: connection interface (fe/public/vni[N])
+    :param connect_via: connection interface ({list(VPSAInterfaceTypes)})
 
     :raises: ValueError: Invalid input
     """
-    if connect_via not in ['fe', 'public']:
-        if not connect_via.startswith('vni'):
+    if connect_via not in [VPSAInterfaceTypes.FE, VPSAInterfaceTypes.PUBLIC]:
+        if not connect_via.startswith(VPSAInterfaceTypes.VNI_PREFIX):
             raise ValueError('{0} is not a valid connect_via parameter.  '
                              'Allowed values are: "fe", "public" or virtual interface name'.format(connect_via))
 

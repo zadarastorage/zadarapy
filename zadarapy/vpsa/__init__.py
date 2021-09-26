@@ -13,4 +13,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from enum import Enum
+
 ERROR_MSG = 'The API server returned an error: "The request has been submitted'
+
+class VPSAInterfaceTypes(Enum):
+    FE = 'fe'
+    PUBLIC = 'public'
+    VNI_PREFIX = 'vni-'
