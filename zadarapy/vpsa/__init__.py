@@ -17,7 +17,12 @@ from enum import Enum
 
 ERROR_MSG = 'The API server returned an error: "The request has been submitted'
 
-class VPSAInterfaceTypes(Enum):
+class BaseEnum(Enum):
+    @classmethod
+    def list(cls):
+        return list(map(lambda c: c.value, cls))
+
+class VPSAInterfaceTypes(BaseEnum):
     FE = 'fe'
     PUBLIC = 'public'
     VNI_PREFIX = 'vni-'
