@@ -21,7 +21,10 @@ from zadarapy.validators import verify_snapshot_id, verify_boolean, \
     verify_capacity, verify_server_id, verify_snapshot_rule_name, \
     verify_interval, verify_snaprule_id, verify_volume_type, \
     verify_nas_type, verify_bool, verify_on_off, verify_project_id, \
-    verify_group_project_polarity, verify_bool_parameter
+    verify_group_project_polarity, verify_bool_parameter, \
+    verify_volume_policy_application_type, verify_snapshot_policy_application_type
+
+from zadarapy.vpsa import VolumePolicyApplicationType, SnapshotPolicyApplicationType
 
 
 def get_all_volumes(session, start=None, limit=None, showonlyblock='NO',
@@ -837,22 +840,26 @@ def get_volume_attached_snapshot_policies(session, cg_id, start=None,
                            return_type=return_type, **kwargs)
 
 
-def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None,
-                               **kwargs):
-    """
-    Attaches a snapshot policy to the volume.
+def attach_snapshot_policy(session, id, policy_id, policy_application, return_type=None,
+                                **kwargs):
+    f"""
+    Attach a Snapshot Policy to a Volume.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
-    :type cg_id: str
-    :param cg_id: The consistency group 'cg_name' value as returned by
-        get_all_volumes for the desired volume.  For example: 'cg-00000001'.
+    :type id: str
+    :param id: The volume 'vol_name' value as returned by
+        get_all_volumes for the desired volume.  For example: 'volume-00000001'.
         Required.
 
     :type policy_id: str
     :param policy_id: The snapshot policy 'name' value as returned by
         get_all_snapshot_policies.  For example: 'policy-00000001'.  Required.
+    
+    :type policy_application: str
+    :param policy_application: Policy Application type. options: {VolumePolicyApplicationType.list()}.
+        Required.
 
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
@@ -861,31 +868,33 @@ def add_volume_snapshot_policy(session, cg_id, policy_id, return_type=None,
 
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
-        return_type parameter. Upon success, the dictionary will contain an
-        entry like 'response':{'snapshot_rule_name': 'rule-00000003'...},
-        which identifies the snapshot rule that has been created by adding the
-        snapshot policy to the volume.
+        return_type parameter.
     """
-    verify_cg_id(cg_id)
+    verify_volume_id(id)
     verify_policy_id(policy_id)
+    verify_volume_policy_application_type(policy_application)
 
-    body_values = {'policy': policy_id}
+    body_values = {'policy': policy_id, 'application': policy_application}
 
-    path = '/api/consistency_groups/{0}/attach_policy.json'.format(cg_id)
+    path = '/api/volumes/{0}/attach_snapshot_policy.json'.format(id)
 
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
 
 
-def remove_volume_snapshot_policy(session, snapshot_rule_name,
-                                  delete_snapshots, return_type=None,
-                                  **kwargs):
+def dettach_snapshot_policy(session, id, snapshot_rule_name, delete_snapshots,
+                                   return_type=None, **kwargs):
     """
-    Removes a snapshot policy from a volume.
+    Detach a Snapshot Policy from a Volume.
 
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
 
+    :type id: str
+    :param id: The volume 'vol_name' value as returned by
+        get_all_volumes for the desired volume.  For example: 'volume-00000001'.
+        Required.
+    
     :type snapshot_rule_name: str
     :param snapshot_rule_name: The name of the snapshot rule, as returned by
         the 'add_volume_snapshot_policy' API. For example: 'rule-00000003'.
@@ -904,21 +913,21 @@ def remove_volume_snapshot_policy(session, snapshot_rule_name,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    verify_volume_id(id)
     verify_snapshot_rule_name(snapshot_rule_name)
     delete_snapshots = verify_boolean(delete_snapshots, "delete_snapshots")
 
-    body_values = {'delete_snapshots': delete_snapshots}
+    body_values = {'snaprule': snapshot_rule_name, 'delete_snapshots': delete_snapshots}
 
-    path = '/api/consistency_groups/{0}/detach_policy.json' \
-        .format(snapshot_rule_name)
+    path = '/api/volumes/{0}/detach_snapshot_policy.json'.format(id)
 
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
 
 
-def get_all_snapshots(session, cg_id, ros_backup_job_id=None, policy_id=None,
+def get_all_snapshots(session, cg_id, policy_application, ros_backup_job_id=None, policy_id=None,
                       start=None, limit=None, return_type=None, **kwargs):
-    """
+    f"""
     Retrieves details for all snapshots either for a local volume or remote
     object storage backup job.
 
@@ -934,6 +943,10 @@ def get_all_snapshots(session, cg_id, ros_backup_job_id=None, policy_id=None,
         get_all_volumes for the desired volume; or get_all_ros_backup_jobs for
         the desired remote object storage backup job.  For example:
         'cg-00000001'.  Required.
+
+    :type policy_application: str
+    :param policy_application: Policy Application type. options: {SnapshotPolicyApplicationType.list()}.
+        Required.
 
     :type ros_backup_job_id: str
     :param ros_backup_job_id: If retrieving snapshots for a remote object
@@ -958,6 +971,7 @@ def get_all_snapshots(session, cg_id, ros_backup_job_id=None, policy_id=None,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+    verify_snapshot_policy_application_type(policy_application)
     verify_cg_id(cg_id)
 
     list_more_options = []
@@ -972,6 +986,7 @@ def get_all_snapshots(session, cg_id, ros_backup_job_id=None, policy_id=None,
                              ('application', 'obs_mirror')]
 
     parameters = verify_start_limit(start, limit, list_more_options)
+    parameters['application'] = policy_application
 
     path = '/api/consistency_groups/{0}/snapshots.json'.format(cg_id)
 
@@ -1436,46 +1451,6 @@ def delete_volume_from_recycle_bin(session, volume_id, return_type=None,
         volume_id)
 
     return session.delete_api(path=path, return_type=return_type, **kwargs)
-
-
-def detach_snapshot_policy(session, volume_id, snaprule,
-                           delete_snapshots="Yes", return_type=None, **kwargs):
-    """
-    Detach a Snapshot Policy from a Volume
-
-    :type session: zadarapy.session.Session
-    :param session: A valid zadarapy.session.Session object.  Required.
-
-    :type volume_id: str
-    :param volume_id: The volume ID 'name' value as returned by
-        get_all_volumes.  For example: 'volume-00000001'.  Required.
-
-    :type snaprule: str
-    :param snaprule: A snap rule ID.
-    (found in /consistency_groups/{volume_cg_id}/snapshot_policies API).
-      For example: 'snaprule-00000001'.  Required.
-
-    :type delete_snapshots: str
-    :param delete_snapshots: True iff delete snapshots after detach
-
-    :type return_type: str
-    :param return_type: If this is set to the string 'json', this function
-        will return a JSON string.  Otherwise, it will return a Python
-        dictionary.  Optional (will return a Python dictionary by default).
-
-    :rtype: dict, str
-    :returns: A dictionary or JSON data set as a string depending on
-        return_type parameter.
-    """
-    verify_volume_id(volume_id)
-    verify_snaprule_id(snaprule)
-    delete_snapshots = verify_boolean(delete_snapshots, "delete_snapshots")
-
-    path = '/api/volumes/{0}/detach_snapshot_policy.json'.format(volume_id)
-    body_values = {"id": volume_id, "snaprule": snaprule,
-                   "delete_snapshots": delete_snapshots}
-    return session.post_api(path=path, body=body_values,
-                            return_type=return_type, **kwargs)
 
 
 def update_protection(session, volume_id, alertmode=None, emergencymode=None,

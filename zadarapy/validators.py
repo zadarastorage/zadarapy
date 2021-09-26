@@ -19,7 +19,7 @@ install_aliases()
 from urllib.parse import quote
 import re
 
-from zadarapy.vpsa import VPSAInterfaceTypes
+from zadarapy.vpsa import VPSAInterfaceTypes, VolumePolicyApplicationType, SnapshotPolicyApplicationType
 
 BAD_VPSA_ID = "The VPSA ID int '(i.e '154') or should be of format: " \
               "'vsa-0000001'. Given: {}"
@@ -993,6 +993,26 @@ def verify_flc_policy_id(flc_policy_id):
                 for _id in flc_policy_id.split(',') if not is_valid_flc_policy_id(_id)]
     if list_err:
         raise ValueError("\n".join(list_err))
+
+
+def verify_volume_policy_application_type(policy_application):
+    """
+    :param policy_application: Volume policy application type to verify
+    :raises: ValueError: invalid type
+    """
+    if policy_application not in VolumePolicyApplicationType.list():
+        raise ValueError('{0} is not a valid volume policy application type.'
+                         .format(policy_application))
+
+
+def verify_snapshot_policy_application_type(policy_application):
+    """
+    :param policy_application: Snapshot policy application type to verify
+    :raises: ValueError: invalid type
+    """
+    if policy_application not in SnapshotPolicyApplicationType.list():
+        raise ValueError('{0} is not a valid Snapshot policy application type.'
+                         .format(policy_application))
 
 
 def verify_email(email):

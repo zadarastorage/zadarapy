@@ -26,3 +26,15 @@ class VPSAInterfaceTypes(BaseEnum):
     FE = 'fe'
     PUBLIC = 'public'
     VNI_PREFIX = 'vni-'
+
+class VolumePolicyApplicationType(BaseEnum):
+    USER = 'user'
+    FILE_HISTORY = 'file_history'
+
+class SnapshotPolicyApplicationType(BaseEnum):
+    USER = 'user'
+    FILE_HISTORY = 'file_history'
+    MIRROR = 'mirror'
+    MIGRATION = 'migration'
+    OBS_MIRROR = 'obs_mirror'
+    
