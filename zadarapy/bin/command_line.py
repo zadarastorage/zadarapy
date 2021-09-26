@@ -42,6 +42,7 @@ from zadarapy.vpsa import snapshot_policies
 from zadarapy.vpsa import tickets
 from zadarapy.vpsa import volumes
 from zadarapy.vpsa import vpsa_users
+from zadarapy.vpsa import VPSAInterfaceTypes
 from zadarapy.vpsaos import controllers as vpsaos_controllers
 from zadarapy.vpsaos import drives as vpsaos_drives
 from zadarapy.vpsaos import settings as vpsaos_settings
@@ -998,7 +999,7 @@ KMIP_ENCRYPTION_OPTIONS = [
         'option_positional': ['--connect_via'],
         'option_keywords': {
             'dest': 'param_connect_via',
-            'choices': ['fe', 'public'],
+            'choices': [VPSAInterfaceTypes.FE, VPSAInterfaceTypes.PUBLIC],
             'metavar': '<xxx>',
             'type': str,
             'required': True,
