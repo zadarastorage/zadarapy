@@ -1010,6 +1010,8 @@ def verify_snapshot_policy_application_type(policy_application):
     :param policy_application: Snapshot policy application type to verify
     :raises: ValueError: invalid type
     """
+    if policy_application is None:
+        return
     if policy_application not in SnapshotPolicyApplicationType.list():
         raise ValueError('{0} is not a valid Snapshot policy application type.'
                          .format(policy_application))

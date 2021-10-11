@@ -926,7 +926,7 @@ def detach_snapshot_policy(session, id, snapshot_rule_name, delete_snapshots,
                             return_type=return_type, **kwargs)
 
 
-def get_all_snapshots(session, cg_id, policy_application, ros_backup_job_id=None, policy_id=None,
+def get_all_snapshots(session, cg_id, policy_application=None, ros_backup_job_id=None, policy_id=None,
                       start=None, limit=None, return_type=None, **kwargs):
     f"""
     Retrieves details for all snapshots either for a local volume or remote
@@ -979,15 +979,18 @@ def get_all_snapshots(session, cg_id, policy_application, ros_backup_job_id=None
 
     if policy_id is not None:
         verify_policy_id(policy_id)
-        list_more_options = [('jobname', policy_id), ('application', 'user')]
+        list_more_options = [('jobname', policy_id), ('application', 'user')]  # TODO: maybe remove application from here
 
     elif ros_backup_job_id is not None:
         verify_ros_backup_job_id(ros_backup_job_id)
         list_more_options = [('jobname', ros_backup_job_id),
-                             ('application', 'obs_mirror')]
+                             ('application', 'obs_mirror')]  # TODO: Here too
 
     parameters = verify_start_limit(start, limit, list_more_options)
-    parameters['application'] = policy_application
+    if policy_application is None:
+        parameters.pop('application', None)
+    else:
+        parameters['application'] = policy_application
 
     path = '/api/consistency_groups/{0}/snapshots.json'.format(cg_id)
 
