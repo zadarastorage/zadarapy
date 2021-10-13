@@ -176,7 +176,7 @@ def create_ros_destination(session, display_name, bucket, endpoint, username,
     body_values = {'name': display_name, 'bucket': bucket,
                    'endpoint': endpoint, 'username': username,
                    'type': ros_type, 'password': password,
-                   'connectVia': VPSAInterfaceTypes.PUBLIC if public == 'YES' else VPSAInterfaceTypes.FE,
+                   'connectVia': VPSAInterfaceTypes.PUBLIC.value if public == 'YES' else VPSAInterfaceTypes.FE.value,
                    'allow_lifecycle_policies': allow_lifecycle_policies}
 
     if use_proxy == 'YES':
@@ -275,7 +275,7 @@ def update_ros_destination(session, ros_destination_id, bucket=None,
 
     if public is not None:
         public = verify_boolean(public, "public")
-        body_values['connectVia'] = VPSAInterfaceTypes.PUBLIC if public == 'YES' else VPSAInterfaceTypes.FE
+        body_values['connectVia'] = VPSAInterfaceTypes.PUBLIC.value if public == 'YES' else VPSAInterfaceTypes.FE.value
 
     if use_proxy is not None:
         use_proxy = verify_boolean(use_proxy, "use_proxy")

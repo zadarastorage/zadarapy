@@ -999,7 +999,7 @@ KMIP_ENCRYPTION_OPTIONS = [
         'option_positional': ['--connect_via'],
         'option_keywords': {
             'dest': 'param_connect_via',
-            'choices': [VPSAInterfaceTypes.FE, VPSAInterfaceTypes.PUBLIC],
+            'choices': [VPSAInterfaceTypes.FE.value, VPSAInterfaceTypes.PUBLIC.value],
             'metavar': '<xxx>',
             'type': str,
             'required': True,
