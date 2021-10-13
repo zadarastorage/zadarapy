@@ -1926,7 +1926,7 @@ def verify_connect_via(connect_via):
 
     :raises: ValueError: Invalid input
     """
-    if connect_via not in [VPSAInterfaceTypes.FE, VPSAInterfaceTypes.PUBLIC]:
+    if connect_via not in [VPSAInterfaceTypes.FE.value, VPSAInterfaceTypes.PUBLIC.value]:
         raise ValueError('{0} is not a valid connect_via parameter.  '
                          'Allowed values are: "fe" or "public"'.format(connect_via))
 
@@ -1938,8 +1938,8 @@ def verify_vpsa_interface(connect_via):
 
     :raises: ValueError: Invalid input
     """
-    if connect_via not in [VPSAInterfaceTypes.FE, VPSAInterfaceTypes.PUBLIC]:
-        if not connect_via.startswith(VPSAInterfaceTypes.VNI_PREFIX):
+    if connect_via not in [VPSAInterfaceTypes.FE.value, VPSAInterfaceTypes.PUBLIC.value]:
+        if not connect_via.startswith(VPSAInterfaceTypes.VNI_PREFIX.value):
             raise ValueError('{0} is not a valid connect_via parameter.  '
                              'Allowed values are: "fe", "public" or virtual interface name'.format(connect_via))
 
