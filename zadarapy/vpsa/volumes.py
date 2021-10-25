@@ -842,7 +842,7 @@ def get_volume_attached_snapshot_policies(session, cg_id, start=None,
 
 def attach_snapshot_policy(session, id, policy_id, policy_application, return_type=None,
                            **kwargs):
-    f"""
+    """
     Attach a Snapshot Policy to a Volume.
 
     :type session: zadarapy.session.Session
@@ -858,7 +858,7 @@ def attach_snapshot_policy(session, id, policy_id, policy_application, return_ty
         get_all_snapshot_policies.  For example: 'policy-00000001'.  Required.
 
     :type policy_application: str
-    :param policy_application: Policy Application type. options: {VolumePolicyApplicationType.list()}.
+    :param policy_application: Policy Application type. options: {}.
         Required.
 
     :type return_type: str
@@ -869,7 +869,7 @@ def attach_snapshot_policy(session, id, policy_id, policy_application, return_ty
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
-    """
+    """.format(VolumePolicyApplicationType.list())
     verify_volume_id(id)
     verify_policy_id(policy_id)
     verify_volume_policy_application_type(policy_application)
@@ -928,7 +928,7 @@ def detach_snapshot_policy(session, id, snapshot_rule_name, delete_snapshots,
 
 def get_all_snapshots(session, cg_id, policy_application=None, ros_backup_job_id=None, policy_id=None,
                       start=None, limit=None, return_type=None, **kwargs):
-    f"""
+    """
     Retrieves details for all snapshots either for a local volume or remote
     object storage backup job.
 
@@ -946,7 +946,7 @@ def get_all_snapshots(session, cg_id, policy_application=None, ros_backup_job_id
         'cg-00000001'.  Required.
 
     :type policy_application: str
-    :param policy_application: Policy Application type. options: {SnapshotPolicyApplicationType.list()}.
+    :param policy_application: Policy Application type. options: {}.
         Required.
 
     :type ros_backup_job_id: str
@@ -971,7 +971,7 @@ def get_all_snapshots(session, cg_id, policy_application=None, ros_backup_job_id
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
-    """
+    """.format(SnapshotPolicyApplicationType.list())
     verify_snapshot_policy_application_type(policy_application)
     verify_cg_id(cg_id)
 

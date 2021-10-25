@@ -1934,12 +1934,12 @@ def verify_connect_via(connect_via):
 
 
 def verify_vpsa_interface(connect_via):
-    f"""
+    """
     :type connect_via: str
-    :param connect_via: connection interface ({list(VPSAInterfaceTypes)})
+    :param connect_via: connection interface ({})
 
     :raises: ValueError: Invalid input
-    """
+    """.format(list(VPSAInterfaceTypes))
     if connect_via not in [VPSAInterfaceTypes.FE.value, VPSAInterfaceTypes.PUBLIC.value]:
         if not connect_via.startswith(VPSAInterfaceTypes.VNI_PREFIX.value):
             raise ValueError('{0} is not a valid connect_via parameter.  '
