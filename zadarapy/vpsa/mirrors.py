@@ -226,7 +226,7 @@ def get_remote_vpsa(session, rvpsa_id, return_type=None, **kwargs):
 
 
 def discover_remote_vpsa(session, ip_address, username, password, interface=None,
-                         return_type=None, **kwargs):
+                         return_type=None, force=None, **kwargs):
     """
     Establishes a relationship with a remote VPSA for the purposes of
     mirroring volume snapshots.
@@ -256,6 +256,9 @@ def discover_remote_vpsa(session, ip_address, username, password, interface=None
         will return a JSON string.  Otherwise, it will return a Python
         dictionary.  Optional (will return a Python dictionary by default).
 
+    :type force: str
+    :param force: "YES" for force else "NO". Optional.
+
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
@@ -263,9 +266,13 @@ def discover_remote_vpsa(session, ip_address, username, password, interface=None
     username = verify_field(username, "VPSA username")
     password = verify_field(password, "VPSA password")
     verify_vpsa_interface(interface)
+    verify_boolean(force, "force")
 
     body_values = {'user': username, 'password': password, 'ip': ip_address,
                    'interface': interface}
+
+    if force is not None:
+        body_values['force'] = force
 
     path = '/api/remote_vpsas/discover.json'
 
