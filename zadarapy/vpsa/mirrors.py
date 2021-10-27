@@ -655,7 +655,7 @@ def get_snapshots(session, mirror_id, return_type=None, **kwargs):
 
     path = '/api/mirror_jobs/{0}/snapshots.json'.format(mirror_id)
 
-    return session.post_api(path=path, return_type=return_type, **kwargs)
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def clone_mirror_job(session, mirror_id, snapshot_id, clone_name,
