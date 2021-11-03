@@ -979,23 +979,49 @@ def get_all_snapshots(session, cg_id, policy_application=None, ros_backup_job_id
 
     if policy_id is not None:
         verify_policy_id(policy_id)
-        list_more_options = [('jobname', policy_id), ('application', 'user')]  # TODO: maybe remove application from here
+        list_more_options = [('jobname', policy_id), ('application', SnapshotPolicyApplicationType.USER.value)]
 
     elif ros_backup_job_id is not None:
         verify_ros_backup_job_id(ros_backup_job_id)
         list_more_options = [('jobname', ros_backup_job_id),
-                             ('application', 'obs_mirror')]  # TODO: Here too
+                             ('application', SnapshotPolicyApplicationType.OBS_MIRROR.value)]
 
     parameters = verify_start_limit(start, limit, list_more_options)
-    if policy_application is None:
-        parameters.pop('application', None)
-    else:
+    if policy_application is not None:
         parameters['application'] = policy_application
 
     path = '/api/consistency_groups/{0}/snapshots.json'.format(cg_id)
 
     return session.get_api(path=path, parameters=parameters,
                            return_type=return_type, **kwargs)
+
+
+def get_all_shadow_copies(session, cg_id, return_type=None, **kwargs):
+    """
+    Retrieves details for shadow copies of volume.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cg_id: str
+    :param cg_id: The consistency group 'cg_name' value as returned by
+        get_all_volumes for the desired volume; or get_all_ros_backup_jobs for
+        the desired remote object storage backup job.  For example:
+        'cg-00000001'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_cg_id(cg_id)
+    path = '/api/consistency_groups/{0}/smb_file_history.json'.format(cg_id)
+
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_volume_snapshot(session, cg_id, display_name, return_type=None,
