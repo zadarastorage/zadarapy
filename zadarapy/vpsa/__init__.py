@@ -17,23 +17,27 @@ from enum import Enum
 
 ERROR_MSG = 'The API server returned an error: "The request has been submitted'
 
+
 class BaseEnum(Enum):
     @classmethod
     def list(cls):
         return list(map(lambda c: c.value, cls))
+
 
 class VPSAInterfaceTypes(BaseEnum):
     FE = 'fe'
     PUBLIC = 'public'
     VNI_PREFIX = 'vni'
 
+
 class VolumePolicyApplicationType(BaseEnum):
     USER = 'user'
     FILE_HISTORY = 'file_history'
 
+
 class SnapshotPolicyApplicationType(BaseEnum):
     USER = 'user'
-    FILE_HISTORY = 'file_history'
+    FILE_HISTORY = 'shadow_copy'
     MIRROR = 'mirror'
     MIGRATION = 'migration'
     OBS_MIRROR = 'obs_mirror'
