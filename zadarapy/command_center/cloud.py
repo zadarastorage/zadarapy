@@ -831,7 +831,7 @@ def deallocate_vlan(session, cloud_name, cloud_user, vlan_id, force="NO",
 
     body_values = {"vlan_id": vlan_id, "force": force}
 
-    return session.post_api(path=path, body=body_values,
+    return session.delete_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)
 
 
