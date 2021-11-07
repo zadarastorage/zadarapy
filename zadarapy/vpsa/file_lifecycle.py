@@ -13,8 +13,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-from zadarapy.validators import verify_file_category_id
+import urllib.parse
+from zadarapy.validators import verify_file_category_id, verify_flc_type
 
 
 def get_all_categories(session, return_type=None, **kwargs):
@@ -166,3 +166,34 @@ def delete_category(session, category, return_type=None, **kwargs):
     path = '/api/flc/delete_category.json'
 
     return session.delete_api(path=path, return_type=return_type, **kwargs)
+
+def get_flc_data(session, name, type, **kwargs):
+    """
+    Get flc analytics data
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type resources_str: str
+    :param resources_str: The resources_str is json string in the format:  
+    '{ “chart_name1”: {“name”: <name>, “type”: <type>}}'. for example:
+    "{"_all_volumes_-utilization_by_file_type":{"name":"_all_volumes_","type":"utilization_by_file_type"}}".
+    Required.
+
+    :type return_type: str
+    :param return_type: JSON string
+    """
+    verify_flc_type(type)
+    
+    resources_parameter = '{{"{0}-{1}":{{"name":"{0}","type":"{1}"}}}}'.format(name, type)
+    
+    path = "/api/flc/flc_data.json"
+    
+    parameters = {
+        'resources': resources_parameter,
+        'count': '60',
+        'interval': '10'
+    }
+
+    return session.get_api(path=path, parameters=parameters,
+                           return_type=None, **kwargs)

@@ -2168,3 +2168,13 @@ def verify_nas_type(type):
     """
     if type not in ['ad', 'uid', 'nas']:
         raise ValueError('Volume scope can be only ad, uid or nas')
+
+def verify_flc_type(type):
+    """
+    :param type: Flc type to check
+    :return: True iff Flc type is valid
+    """    
+    if type not in['file_data_growth_trend', 'growth_trend_by_file_type',
+    'utilization_by_file_size', 'utilization_by_age', 'utilization_by_access',
+    'utilization_by_file_type', 'top_groups', 'top_users']:
+        raise ValueError('Type not valid')
