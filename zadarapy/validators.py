@@ -19,7 +19,7 @@ install_aliases()
 from urllib.parse import quote
 import re
 
-from zadarapy.vpsa import VPSAInterfaceTypes, VolumePolicyApplicationType, SnapshotPolicyApplicationType
+from zadarapy.vpsa import FlcTypes, VPSAInterfaceTypes, VolumePolicyApplicationType, SnapshotPolicyApplicationType
 
 BAD_VPSA_ID = "The VPSA ID int '(i.e '154') or should be of format: " \
               "'vsa-0000001'. Given: {}"
@@ -2168,3 +2168,12 @@ def verify_nas_type(type):
     """
     if type not in ['ad', 'uid', 'nas']:
         raise ValueError('Volume scope can be only ad, uid or nas')
+
+def verify_flc_type(type):
+    """
+    :param type: Flc type to check
+    :return: True iff Flc type is valid
+    """ 
+  
+    if type not in FlcTypes.list():
+        raise ValueError('Flc type not valid')

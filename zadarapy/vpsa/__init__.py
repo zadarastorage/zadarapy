@@ -37,4 +37,14 @@ class SnapshotPolicyApplicationType(BaseEnum):
     MIRROR = 'mirror'
     MIGRATION = 'migration'
     OBS_MIRROR = 'obs_mirror'
+
+class FlcTypes(BaseEnum):
+    FILE_DATA_GROWTH_TREND = 'file_data_growth_trend'
+    GROWTH_TREND_BY_FILE_TYPE = 'growth_trend_by_file_type'
+    UTILIZATION_BY_FILE_SIZE = 'utilization_by_file_size'
+    UTILIZATION_BY_AGE = 'utilization_by_age'
+    UTILIZATION_BY_ACCESS = 'utilization_by_access'
+    UTILIZATION_BY_FILE_TYPE = 'utilization_by_file_type'
+    TOP_GROUPS = 'top_groups'
+    TOP_USERS = 'top_users'
     
