@@ -12,13 +12,14 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from typing import List
 from future.standard_library import install_aliases
 from urllib.parse import quote
 
 install_aliases()
 
-from zadarapy.validators import verify_field, verify_start_limit, \
-    verify_email
+from zadarapy.validators import varify_notification_severity, verify_field, verify_start_limit, \
+    verify_email, varify_otp_token
 
 
 def get_all_vpsa_users(session, start=None, limit=None, return_type=None,
@@ -54,7 +55,7 @@ def get_all_vpsa_users(session, start=None, limit=None, return_type=None,
                            return_type=return_type, **kwargs)
 
 
-def create_vpsa_user(session, username, email, return_type=None, **kwargs):
+def create_user(session, username, email, notify_on_events, notification_severity, return_type=None, **kwargs):
     """
     Creates a VPSA user.  User will receive a temporary password at the
     provided email address and will be forced to change it on first login.
@@ -79,9 +80,11 @@ def create_vpsa_user(session, username, email, return_type=None, **kwargs):
         return_type parameter.
     """
     username = verify_field(username, "username")
-    email = verify_email(email)
+    verify_email(email)
+    varify_notification_severity(notification_severity)
 
-    body_values = {'username': username, 'email': email}
+    body_values = {'username': username, 'email': email,
+     'notify_on_events': notify_on_events, 'notification_severity': notification_severity}
 
     path = '/api/users.json'
 
@@ -151,7 +154,7 @@ def get_vpsa_user_api_key(session, username, password, return_type=None,
                             return_type=return_type, **kwargs)
 
 
-def reset_vpsa_user_api_key(session, username, password,
+def reset_vpsa_user_api_key(session, username, password, otp_attempt,
                             return_type=None, **kwargs):
     """
     Resets the VPSA user's API/access key to a new value.  Only a VPSA admin
@@ -168,6 +171,9 @@ def reset_vpsa_user_api_key(session, username, password,
     :type password: str
     :param password: The VPSA user's password.  Required.
 
+    :type otp_attemp: str
+    :param otp_attempt: A dual factor authentication token
+
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
@@ -180,12 +186,18 @@ def reset_vpsa_user_api_key(session, username, password,
     username = verify_field(username, "username")
     username_for_path = quote(username)
     password = verify_field(password, 'password', allow_quote=True)
+    if otp_attempt:
+        otp_attempt = varify_otp_token(otp_attempt)
 
     path = '/api/users/{0}/access_key.json'.format(username_for_path)
-    body = {'username': username, 'password' : password}
-
-    return session.post_api(path=path, body=body,
+    body = {'username': username, 'password' : password, 'otp_attempt' : otp_attempt}
+    # call without X-Access-Key in header - change the zadara_key to ''
+    zadara_key = session.zadara_key
+    session.zadara_key = ''
+    api_res = session.post_api(path=path, body=body,
                             return_type=return_type,**kwargs)
+    session.zadara_key = zadara_key
+    return api_res
 
 
 def change_vpsa_user_password_by_password(session, username,
@@ -260,11 +272,12 @@ def change_vpsa_user_password_by_code(session, username, code, new_password,
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
     """
+
     username = verify_field(username, "username")
     username = quote(username)
     new_password = verify_field(new_password, "new_password", allow_quote=True)
 
-    body_values = {'code': code, 'new_password': new_password}
+    body_values = {'user': username, 'code': code, 'new_password': new_password}
 
     path = '/api/users/{0}/password_code.json'.format(username)
 
@@ -363,3 +376,17 @@ def disable_cloud_admin_access(session, confirm, return_type=None, **kwargs):
     path = '/api/users/admin_access/disable.json'
 
     return session.post_api(path=path, return_type=return_type, **kwargs)
+
+
+def update_user_roles(session, username:str, roles:List[str], return_type=None, **kwargs):
+    """
+    :param roles: Array of role ids
+    """
+    body_values = {'roles': roles}
+    path = f'/api/users/{username}/roles.json'
+    return session.post_api(path=path, body=body_values, return_type=return_type, **kwargs)
+
+def get_user_details(session, username:str,password:str, return_type=None, **kwargs):
+    body_values = {'username': username, 'password': password}
+    path = '/api/users/login.json'
+    return session.post_api(path=path, body=body_values, return_type=return_type, **kwargs)
