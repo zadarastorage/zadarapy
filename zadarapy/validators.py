@@ -2169,6 +2169,7 @@ def verify_nas_type(type):
     if type not in ['ad', 'uid', 'nas']:
         raise ValueError('Volume scope can be only ad, uid or nas')
 
+
 def verify_flc_type(type):
     """
     :param type: Flc type to check
@@ -2177,3 +2178,15 @@ def verify_flc_type(type):
   
     if type not in FlcTypes.list():
         raise ValueError('Flc type not valid')
+
+
+def varify_notification_severity(notification_severity):
+    if notification_severity not in ['low','normal','high','urgent']:
+        raise ValueError('Notification_severity can be only low|normal|high|urgent')
+
+def varify_otp_token(token):
+    if len(token) == 6:
+        raise ValueError('Otp_token has 6 digits')
+    for digit in token:
+        if not digit.isdigit():
+            raise ValueError('Otp_token has 6 digits')
