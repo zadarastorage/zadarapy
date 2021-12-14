@@ -25,7 +25,7 @@ class BaseEnum(Enum):
 class VPSAInterfaceTypes(BaseEnum):
     FE = 'fe'
     PUBLIC = 'public'
-    VNI_PREFIX = 'vni-'
+    VNI_PREFIX = 'vni'
 
 class VolumePolicyApplicationType(BaseEnum):
     USER = 'user'
