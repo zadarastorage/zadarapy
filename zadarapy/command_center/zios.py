@@ -49,7 +49,6 @@ def get_all_zios_objects(session, cloud_name, per_page=30, page=1, return_type=N
     per_page = verify_positive_argument(per_page, 'per_page')
 
     path = "/api/clouds/{0}/zioses.json?per_page={1}&page={2}".format(cloud_name, per_page, page)
-
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
@@ -251,6 +250,38 @@ def add_drives_to_zios(session, cloud_name, zios_id, drive_type, drive_quantity,
     path = "/api/clouds/{0}/zioses/{1}/drives.json".format(cloud_name, zios_id)
 
     return session.post_api(path=path, body=body_values, return_type=return_type, **kwargs)
+
+
+def get_all_zios_drives_from_cc(session, cloud_name, zios_id, return_type=None,
+                        **kwargs):
+    """
+    Get all ZIOSs in cloud
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: The cloud 'name' as returned by get_all_clouds.  For
+        example: 'zadaralab01'.  Required.
+
+    :type zios_id: int
+    :param zios_id: The ZIOS 'id' value as returned by get_all_zioses.  For
+        example: '2653'.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_zios_id(zios_id=zios_id)
+
+    path = "/api/clouds/{0}/zioses/{1}/drives.json".format(cloud_name, zios_id)
+
+    return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
 def create_storage_policy_zios(session, cloud_name, zios_id, policy_name, drive_type, drive_quantity,
