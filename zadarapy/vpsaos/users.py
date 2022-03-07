@@ -430,7 +430,7 @@ def change_user_role(session, user_id, role, return_type=None, **kwargs):
     """
     verify_field(user_id, "user_id")
     verify_field(role, "role")
-    path = '/api/zios/users/{0}/change_rol.json'.format(user_id)
+    path = '/api/zios/users/{0}/change_role.json'.format(user_id)
     body_values = {'role': role}
     return session.post_api(path=path, body=body_values,
                             return_type=return_type, **kwargs)

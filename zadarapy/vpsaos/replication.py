@@ -1,4 +1,4 @@
-opyright 2019 Zadara Storage, Inc.
+#copyright 2019 Zadara Storage, Inc.
 # Originally authored by Jeremy Brown - https://github.com/jwbrown77
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
