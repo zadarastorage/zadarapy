@@ -193,7 +193,7 @@ def disable_account(session, account_id, return_type=None, **kwargs):
                             **kwargs)
 
 
-def get_all_users_in_account(session, account_id, return_type=None, **kwargs):
+def get_all_users_in_account(session, account_id, start=0, limit=None, return_type=None, **kwargs):
     """
     Get details for all users in a VPSAOS account.
 
@@ -215,7 +215,8 @@ def get_all_users_in_account(session, account_id, return_type=None, **kwargs):
         return_type parameter.
     """
     verify_account_id(account_id)
-    path = '/api/zios/accounts/{0}/users.json'.format(account_id)
+    verify_start_limit(start, limit)
+    path = '/api/zios/accounts/{0}/users.json?start={1}'.format(account_id, start)
     return session.get_api(path=path, secure=True, return_type=return_type,
                            **kwargs)
 
