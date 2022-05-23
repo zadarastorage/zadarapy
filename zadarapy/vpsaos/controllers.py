@@ -129,3 +129,76 @@ def remove_proxy_vcs(session, quantity, return_type=None, **kwargs):
     # should filter out the bad statuses
     return session.delete_api(path=path, parameters=parameters,
                               return_type=return_type, skip_status_check_range=False, **kwargs)
+
+
+def get_cpu_usage(session, controller_id, interval=5, count=60, return_type=None, **kwargs):
+    """
+    Retrieves metering statistics for the controller for the specified
+    interval.  Default interval is 5 second.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type controller_id: str
+    :param controller_id: The virtual controller 'obj_id'
+
+
+    :type interval: int
+    :param interval: The interval to collect statistics for, in seconds.
+
+    :type count: int
+    :param count: number of points in returned data
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    interval = verify_interval(interval)
+    count = verify_interval(count)
+
+    path = 'api/zios/virtual_controllers/{0}/cpu_stats.json'.format(controller_id)
+
+    parameters = {'interval': interval, 'count': count}
+
+    return session.get_api(path=path, parameters=parameters, return_type=return_type, **kwargs)
+
+
+def get_memory_usage(session, controller_id, interval=5, count=60, return_type=None, **kwargs):
+    """
+    Retrieves metering statistics for the controller for the specified
+    interval.  Default interval is one second.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type controller_id: str
+    :param controller_id: The virtual controller 'obj_id'
+
+
+    :type interval: int
+    :param interval: The interval to collect statistics for, in seconds.
+
+    :type count: int
+    :param count: number of points in returned data
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+
+    path = 'api/zios/virtual_controllers/{0}/memory_stats.json'.format(controller_id)
+
+    parameters = {'interval': interval, 'count': count}
+
+    return session.get_api(path=path, parameters=parameters, return_type=return_type, **kwargs)
+
