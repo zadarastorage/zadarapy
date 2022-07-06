@@ -13,7 +13,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from zadarapy.validators import verify_versioning, is_valid_minutes, verify_expire_version
+from zadarapy.validators import verify_versioning, is_valid_minutes, verify_expire_version, verify_account_id, \
+    verify_field, verify_bool_parameter, verify_positive_argument
 
 
 def set_versioning(session, bucket_name, versioning, archive_name, return_type=None, **kwargs):
@@ -126,6 +127,103 @@ def set_expiry_lifecycle_policy(session, bucket_name, policies="", return_type=N
           % (api, session.zadara_key, policies)
 
     return run_outside_of_api(cmd)
+
+
+def get_container_quota(session, container_name, account_id, return_type=None, **kwargs):
+    """
+    get information on container quota
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type container_name: str
+    :param container_name: container's name to get information about
+
+    :type account_id: str
+    :param account_id: id of container's account
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+
+    verify_account_id(account_id)
+    verify_field(container_name, "container_name")
+
+    path = "/api/zios/accounts/{0}/containers/{1}/quota.json".format(account_id, container_name)
+
+    return session.get_api(path=path, return_type=return_type, **kwargs)
+
+
+def set_container_quota(session, container_name, account_id, container_quota_bytes_toggle, container_quota_count_toggle,
+                        container_quota_count, container_quota_bytes=None, container_quota_bytes_in_gib=None, return_type=None,
+                        **kwargs):
+    """
+    get information on container quota
+    the parameter name change in 22.06 from container_quota_count to container_quota_count_in_gib
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type container_name: str
+    :param container_name: container's name to get information about
+
+    :type account_id: str
+    :param account_id: id of container's account
+
+    :type container_quota_bytes_toggle: boolean
+    :param container_quota_bytes_toggle: Enable capacity quota. Required.
+
+    :type container_quota_bytes: integer
+    :param container_quota_bytes: Quota by capacity (bytes)
+
+    :type container_quota_bytes_in_gib: integer
+    :param container_quota_bytes_in_gib: Quota by capacity (in GiB)
+
+    :type container_quota_count_toggle: boolean
+    :param container_quota_count_toggle: Enable objects count quota. Required.
+
+    :type container_quota_count: integer
+    :param container_quota_count: Quota by objects count
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+
+    verify_account_id(account_id)
+    verify_field(container_name, "container_name")
+    right_container_quota_bytes = ""
+    right_container_quota_bytes_name = ""
+    if container_quota_bytes_toggle:
+        verify_bool_parameter(container_quota_bytes_toggle)
+        if container_quota_bytes is not None and not container_quota_bytes:
+            right_container_quota_bytes = verify_positive_argument(container_quota_bytes, "container_quota_bytes")
+            right_container_quota_bytes_name = "container_quota_bytes"
+        else:
+            right_container_quota_bytes = verify_positive_argument(container_quota_bytes_in_gib, "container_quota_bytes_in_gib")
+            right_container_quota_bytes_name = "container_quota_bytes_in_gib"
+    if container_quota_bytes_toggle:
+        verify_bool_parameter(container_quota_count_toggle)
+        verify_positive_argument(container_quota_count, "container_quota_count")
+
+    path = "/api/zios/accounts/{0}/containers/{1}/quota.json".format(account_id, container_name)
+
+    body_values = {'container_quota_bytes_toggle': container_quota_bytes_toggle,
+                   right_container_quota_bytes_name: right_container_quota_bytes,
+                   'container_quota_count_toggle': container_quota_count_toggle,
+                   'container_quota_count': container_quota_count}
+
+    return session.post_api(path=path, body=body_values, return_type=return_type, **kwargs)
 
 
 def create_container(session, name, storage_policy, return_type=None, **kwargs):
