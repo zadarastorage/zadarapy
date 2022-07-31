@@ -15,28 +15,23 @@
 
 
 from zadarapy.validators import verify_start_limit, verify_vc_index, \
-    verify_capacity, get_parameters_options
+    verify_capacity, get_parameters_options, verify_interval
 
 
 def get_all_controllers(session, start=None, limit=None, return_type=None,
                         **kwargs):
     """
     Retrieves details for all virtual controllers for the VPSAOS.
-
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
-
     :type start: int
     :param start: The offset to start displaying controllers from.  Optional.
-
     :type: limit: int
     :param limit: The maximum number of controllers to return.  Optional.
-
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
         dictionary.  Optional (will return a Python dictionary by default).
-
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
@@ -51,19 +46,15 @@ def get_all_controllers(session, start=None, limit=None, return_type=None,
 def get_virtual_controller(session, vc_index, return_type=None, **kwargs):
     """
     Retrieves details for a single virtual controller for the VPSAOS.
-
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
-
     :type vc_index: str
     :param vc_index: The virtual controller 'index' value as returned by
         get_all_controllers.  Required.
-
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
         dictionary.  Optional (will return a Python dictionary by default).
-
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
@@ -79,19 +70,15 @@ def get_virtual_controller_drives(session, vc_index, return_type=None,
                                   **kwargs):
     """
     Retrieves drives for a virtual controller.
-
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
-
     :type vc_index: str
     :param vc_index: The virtual controller 'index' value as returned by
         get_all_controllers.  Required.
-
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
         dictionary.  Optional (will return a Python dictionary by default).
-
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
@@ -106,18 +93,14 @@ def get_virtual_controller_drives(session, vc_index, return_type=None,
 def remove_proxy_vcs(session, quantity, return_type=None, **kwargs):
     """
     Removes proxy vcs.
-
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
-
     :type quantity: int
     :param quantity: The number of vcs to be removed.  Required.
-
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
         dictionary.  Optional (will return a Python dictionary by default).
-
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
@@ -135,25 +118,18 @@ def get_cpu_usage(session, controller_id, interval=5, count=60, return_type=None
     """
     Retrieves metering statistics for the controller for the specified
     interval.  Default interval is 5 second.
-
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
-
     :type controller_id: str
     :param controller_id: The virtual controller 'obj_id'
-
-
     :type interval: int
     :param interval: The interval to collect statistics for, in seconds.
-
     :type count: int
     :param count: number of points in returned data
-
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
         dictionary.  Optional (will return a Python dictionary by default).
-
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
@@ -172,25 +148,18 @@ def get_memory_usage(session, controller_id, interval=5, count=60, return_type=N
     """
     Retrieves metering statistics for the controller for the specified
     interval.  Default interval is one second.
-
     :type session: zadarapy.session.Session
     :param session: A valid zadarapy.session.Session object.  Required.
-
     :type controller_id: str
     :param controller_id: The virtual controller 'obj_id'
-
-
     :type interval: int
     :param interval: The interval to collect statistics for, in seconds.
-
     :type count: int
     :param count: number of points in returned data
-
     :type return_type: str
     :param return_type: If this is set to the string 'json', this function
         will return a JSON string.  Otherwise, it will return a Python
         dictionary.  Optional (will return a Python dictionary by default).
-
     :rtype: dict, str
     :returns: A dictionary or JSON data set as a string depending on
         return_type parameter.
@@ -201,4 +170,3 @@ def get_memory_usage(session, controller_id, interval=5, count=60, return_type=N
     parameters = {'interval': interval, 'count': count}
 
     return session.get_api(path=path, parameters=parameters, return_type=return_type, **kwargs)
-
