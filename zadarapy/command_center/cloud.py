@@ -14,7 +14,7 @@
 # under the License.
 
 
-from zadarapy.validators import verify_vpsa_id, verify_boolean, verify_bool_parameter
+from zadarapy.validators import verify_vpsa_id, verify_boolean, verify_bool_parameter, verify_volume_id
 
 
 def get_cloud(session, cloud_name, return_type=None, **kwargs):
@@ -299,7 +299,7 @@ def get_zios_from_cloud(session, cloud_name, zios_id, return_type=None,
     return session.get_api(path=path, return_type=return_type, **kwargs)
 
 
-def get_all_drives(session, cloud_name, per_page=30, page=1,  return_type=None, **kwargs):
+def get_all_drives(session, cloud_name, per_page=30, page=1,  return_type=None, timeout=None, **kwargs):
     """
     Get all Cloud Drives
 
@@ -325,10 +325,10 @@ def get_all_drives(session, cloud_name, per_page=30, page=1,  return_type=None, 
         return_type parameter.
     """
     path = "/api/clouds/{0}/drives.json?per_page={1}&page={2}".format(cloud_name, per_page, page)
-    return session.get_api(path=path, return_type=return_type, **kwargs)
+    return session.get_api(path=path, return_type=return_type, timeout=timeout or 60, **kwargs)
 
 
-def get_drive(session, cloud_name, drive_id, return_type=None, **kwargs):
+def get_drive(session, cloud_name, drive_id, return_type=None, timeout=None, **kwargs):
     """
     Get all Cloud Drives
 
@@ -351,7 +351,7 @@ def get_drive(session, cloud_name, drive_id, return_type=None, **kwargs):
         return_type parameter.
     """
     path = "/api/clouds/{0}/drives/{1}.json".format(cloud_name, drive_id)
-    return session.get_api(path=path, return_type=return_type, **kwargs)
+    return session.get_api(path=path, return_type=return_type, timeout=timeout or 60, **kwargs)
 
 
 def replace_drive(session, cloud_name, drive_id, faulty, return_type=None, **kwargs):
@@ -383,6 +383,35 @@ def replace_drive(session, cloud_name, drive_id, faulty, return_type=None, **kwa
     body_values = {"faulty": faulty}
 
     return session.post_api(path=path, body=body_values, return_type=return_type, **kwargs)
+
+
+def replace_volume(session, cloud_name, volume_id, return_type=None, **kwargs):
+    """
+    Replace Cloud Drive
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type cloud_name: str
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+
+    :type volume_id: str
+    :param volume_id: The id of volume to be returned e.g. 113
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    verify_volume_id(volume_id)
+
+    path = "/api/clouds/{0}/volumes/{1}/replace.json".format(cloud_name, volume_id)
+
+    return session.post_api(path=path, return_type=return_type, **kwargs)
 
 
 def get_vlans(session, cloud_name, return_type=None, **kwargs):
