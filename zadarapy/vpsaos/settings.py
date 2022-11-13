@@ -164,3 +164,45 @@ def restore_encryption(session, encryption_pwd, return_type=None, **kwargs):
     parameters = get_parameters_options([('encryption_pwd', encryption_pwd)])
     return session.post_api(path=path, parameters=parameters,
                             return_type=return_type, **kwargs)
+
+
+def disable_encryption(session, return_type=None, **kwargs):
+    """
+    disable encryption.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/zios/settings/disable_encryption.json'
+
+    return session.post_api(path=path, return_type=return_type, **kwargs)
+
+
+def activate_encryption(session, return_type=None, **kwargs):
+    """
+    activate encryption.
+
+    :type session: zadarapy.session.Session
+    :param session: A valid zadarapy.session.Session object.  Required.
+
+    :type return_type: str
+    :param return_type: If this is set to the string 'json', this function
+        will return a JSON string.  Otherwise, it will return a Python
+        dictionary.  Optional (will return a Python dictionary by default).
+
+    :rtype: dict, str
+    :returns: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = '/api/zios/settings/activate_encryption.json'
+
+    return session.post_api(path=path, return_type=return_type, **kwargs)
