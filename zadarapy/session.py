@@ -15,7 +15,7 @@
 
 # support urlparse for both python 2 and 3
 try:
-    from urllib.parse import urlparse, urlencode
+    from urllib.parse import urlparse
 except ImportError:
     from urlparse import urlparse
 
@@ -26,7 +26,6 @@ import requests
 from future.standard_library import install_aliases
 
 install_aliases()
-from urllib.parse import urlencode
 
 from zadarapy.validators import verify_port
 
@@ -603,7 +602,7 @@ class Session(object):
                                            verify=True)
         except requests.exceptions.RequestException:
             raise OSError('Could not connect to {0} on port {1} via {2}'.
-                          format(host, port, protocol))
+                          format(host if host else self.zadara_host, port if port else self.zadara_port, protocol))
         except BaseException as e:
             raise OSError('HTTP request failed: {}'.format(str(e)))
 
