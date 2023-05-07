@@ -37,10 +37,8 @@ def is_valid_vpsa_internal_name(vpsa_internal_id):
     Validates a VPSA internal ID. A valid VPSA internal ID should look
     like: vsa-00000001 - It should always start with "vsa-" and end with 8
     hexadecimal characters in lower case.
-
     :type vpsa_internal_id: str
     :param vpsa_internal_id: The VPSA internal ID to be validated.
-
     :rtype: bool
     :return: True or False depending on whether vpsa_internal_id passes
      validation.
@@ -61,10 +59,8 @@ def is_valid_cg_id(cg_id):
     "cg_name".  A valid consistency group name should look like: cg-00000001
     - It should always start with "cg-" and end with 8 hexadecimal characters
     in lower case.
-
     :type cg_id: str
     :param cg_id: The consistency group name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether cg_id passes validation.
     """
@@ -86,10 +82,8 @@ def is_valid_controller_id(controller_id):
     vsa-00000001-vc-0 - It should always start with "vsa-", followed by 8
     hexadecimal characters in lower case and a hyphen, then with the VC
     identifier, typically "vc-0" or "vc-1".
-
     :type controller_id: str
     :param controller_id: The virtual controller name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether controller_id passes
         validation.
@@ -108,10 +102,8 @@ def is_valid_controller_id(controller_id):
 def is_valid_email(email):
     """
     Validates an email address.
-
     :type email: str
     :param email: The email address to be validated.
-
     :rtype: bool
     :return: True or False depending on whether field passes validation.
     """
@@ -130,22 +122,17 @@ def is_valid_field(field, allow_quote=False, minimum=None, maximum=None):
     Validates a generic user inputted field, such as a "name" for an
     object.  For now, it basically only validates whether single quote
     characters should be allowed in the string.
-
     :type field: str
     :param field: The data to be validated.
-
     :type allow_quote: bool
     :param allow_quote: If True, a single quote character (') will be allowed
         to pass validation.
-
     :type minimum: int
     :param minimum: If defined, values with fewer characters than this value
         will be rejected.
-
     :type maximum: int
     :param maximum: If defined, values with more characters than this value
         will be rejected.
-
     :rtype: bool
     :return: True or False depending on whether field passes validation.
     """
@@ -169,11 +156,9 @@ def is_valid_field(field, allow_quote=False, minimum=None, maximum=None):
 def is_valid_iqn(iqn):
     """
     Validates if an iSCSI/iSER IQN is well formed.
-
     :type iqn: str
     :param iqn: The IQN to validate.  For example:
         'iqn.1993-08.org.debian:01:dea714656496'
-
     :rtype: bool
     :return: True or False depending on whether iqn passes validation.
     """
@@ -192,10 +177,8 @@ def is_valid_iqn(iqn):
 def is_valid_mask(mask):
     """
     Validates a UNIX style permissions mask.  Mask must be octal.
-
     :type mask: str
     :param mask: The octal mask to be validated.  For example: '0755'.
-
     :rtype: bool
     :return: True or False depending on whether mask passes validation.
     """
@@ -226,10 +209,8 @@ def is_valid_mgrjob_id(mgrjob_id):
     "migration_job_name".  A valid migration job name should look like:
     mgrjob-00000001 - It should always start with "mgrjob-" and end with 8
     hexadecimal characters in lower case.
-
     :type mgrjob_id: str
     :param mgrjob_id: The consistency group name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether cg_id passes validation.
     """
@@ -250,10 +231,8 @@ def is_valid_mirror_id(mirror_id):
     A valid mirror job name should look like: srcjvpsa-00000001 - It should
     always start with "srcjvpsa-" or "dstjvpsa-" and end with 8 hexadecimal
     characters in lower case.
-
     :type mirror_id: str
     :param mirror_id: The mirror job name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether mirror_id passes validation.
     """
@@ -274,10 +253,8 @@ def is_valid_remote_clone_id(remote_clone_job_id):
     "job_name". A valid remote clone job name should look like:
     dstrclone-00000001 - It should end with 8 hexadecimal characters in
     lower case.
-
     :type remote_clone_job_id: str
     :param remote_clone_job_id: The remote clone job name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether remote_clone_id passes
     validation.
@@ -299,10 +276,8 @@ def is_valid_policy_creation(policy_creation):
     policy is valid.  The frequency should be defined in UNIX cron style
     format.  For example: "0 3 * * *".  This isn't perfect because invalid
     numbers (e.g. 65 for minute, 25 for hour) are accepted.
-
     :type policy_creation: str
     :param policy_creation: The snapshot creation frequency to be validated.
-
     :rtype: bool
     :return: True or False depending on whether policy_creation passes
         validation.
@@ -336,10 +311,8 @@ def is_valid_policy_id(policy_id):
     A valid snapshot policy name should look like: policy-00000001 - It should
     always start with "policy-" and end with 8 hexadecimal characters in lower
     case.
-
     :type policy_id: str
     :param policy_id: The snapshot policy name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether policy_id passes validation.
     """
@@ -360,10 +333,8 @@ def is_valid_file_category_id(category_id):
     A valid category ID should look like: category-00000001 - It should
     always start with "category-" and end with 8 hexadecimal characters in lower
     case.
-
     :type category_id: str
     :param category_id: The file lifecycle category ID to be validated.
-
     :rtype: bool
     :return: True or False depending on whether category_id passes validation.
     """
@@ -377,16 +348,15 @@ def is_valid_file_category_id(category_id):
 
     return True
 
+
 def is_valid_flc_policy_id(flc_policy_id):
     """
     Validates a file lifecycle policy ID, also known as the policy "lc_policy_name".
     A valid policy ID should look like: lc-policy-00000003 - It should
     always start with "lc-policy-" and end with 8 hexadecimal characters in lower
     case.
-
     :type flc_policy_id: str
     :param flc_policy_id: The file lifecycle policy ID to be validated.
-
     :rtype: bool
     :return: True or False depending on whether flc_policy_id passes validation.
     """
@@ -405,10 +375,8 @@ def is_valid_smb_hidden_files(smb_hidden_files):
     """
     Validates smbhiddenfiles NAS volume parameter.  String should be forward
     slash (/) delimited.
-
     :type smb_hidden_files: str
     :param smb_hidden_files: The smbhiddenfiles parameter to be validated.
-
     :rtype: bool
     :return: True or False depending on whether smb_hidden_files passes
         validation.
@@ -430,10 +398,8 @@ def is_valid_snapshot_rule_name(snap_rule_name):
     a particular snapshot policy. A valid snapshot rule name should look
     like: rule-00000001 - It should always start with "rule-" and end
     with 8 hexadecimal characters in lower case.
-
     :type snap_rule_name: str
     :param snap_rule_name: The snapshot rule name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether snap_rule_name passes
         validation.
@@ -452,10 +418,8 @@ def is_valid_snapshot_rule_name(snap_rule_name):
 def is_valid_memory_pool(mempool_name):
     """
     Validates Memory pool ID
-
     :type mempool_name: str
     :param mempool_name: Memory pool name to check
-
     :rtype: bool
     :return: True or False depending on whether snap_rule_name passes
         validation.
@@ -475,10 +439,8 @@ def is_valid_snaprule_name(snap_rule_name):
     a particular snapshot policy. A valid snapshot rule name should look
     like: snaprule-00000001 - It should always start with "rule-" and end
     with 8 hexadecimal characters in lower case.
-
     :type snap_rule_name: str
     :param snap_rule_name: The snapshot rule name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether snap_rule_name passes
         validation.
@@ -501,14 +463,11 @@ def is_valid_pool_id(pool_id, remote_pool_allowed=False):
     "pool-" and end with 8 hexadecimal characters in lower case.  If
     remote_pool_allowed is True, this function will also validate remote pool
     names in the format of rpool-00000001.
-
     :type pool_id: str
     :param pool_id: The storage pool name to be validated.
-
     :type remote_pool_allowed: bool
     :param remote_pool_allowed: Also validate remote pool IDs as described
         above.
-
     :rtype: bool
     :return: True or False depending on whether pool_id passes validation.
     """
@@ -529,10 +488,8 @@ def is_valid_pool_id(pool_id, remote_pool_allowed=False):
 def is_valid_port(port):
     """
     Validates port range.  Port must be within 1-65535 range.
-
     :type port: int
     :param port: Theport to be validated.
-
     :rtype: bool
     :return: True or False depending on whether hostname passes validation.
     """
@@ -550,10 +507,8 @@ def is_valid_port(port):
 def is_valid_minutes(minutes):
     """
     Validates number of minutes.
-
     :type minutes: int
     :param minutes: number of minutes to be validated.
-
     :rtype: bool
     :return: number of seconds in the amount of minutes
     """
@@ -565,7 +520,7 @@ def is_valid_minutes(minutes):
     if minutes < 1 or minutes > MINUTES_IN_TEN_YEARS:
         return 0
 
-    return minutes*SECONDS_IN_A_MINUTE
+    return minutes * SECONDS_IN_A_MINUTE
 
 
 def verify_expire_version(versioning):
@@ -573,9 +528,7 @@ def verify_expire_version(versioning):
     :type: versioning: str
     :param versioning: Type of expiration versioning.
         Can be only current or previous.  Required.
-
     :return: fixed versioning format
-
     :raises: ValueError: Invalid start or limit
     """
     VERSION_CONVERT = {"current": "curver_after", "previous": "prever_after"}
@@ -592,10 +545,8 @@ def is_valid_raid_id(raid_id):
     Validates a RAID group ID, also known as the RAID group "name".  A valid
     RAID group name should look like: RaidGroup-1 - It should always start with
     "RaidGroup-" and end with a variable amount of digits.
-
     :type raid_id: str
     :param raid_id: The RAID group name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether raid_id passes validation.
     """
@@ -616,11 +567,9 @@ def is_valid_ros_backup_job_id(ros_backup_job_id):
     object storage backup job "name".  A valid remote VPSA name should look
     like: bkpjobs-00000001 - It should always start with "bkpjobs-" and end
     with 8 hexadecimal characters in lower case.
-
     :type ros_backup_job_id: str
     :param ros_backup_job_id: The remote object storage backup job name to
         be validated.
-
     :rtype: bool
     :return: True or False depending on whether ros_backup_job_id passes
         validation.
@@ -642,11 +591,9 @@ def is_valid_ros_destination_id(ros_destination_id):
     object storage destination "name".  A valid remote object storage
     destination name should look like: obsdst-00000001 - It should always
     start with "obsdst-" and end with 8 hexadecimal characters in lower case.
-
     :type ros_destination_id: str
     :param ros_destination_id: The remote object storage destination name to
         be validated.
-
     :rtype: bool
     :return: True or False depending on whether ros_destination_id passes
         validation.
@@ -668,11 +615,9 @@ def is_valid_ros_restore_job_id(ros_restore_job_id):
     object storage restore job "name".  A valid remote VPSA name should look
     like: rstjobs-00000001 - It should always start with "rstjobs-" and end
     with 8 hexadecimal characters in lower case.
-
     :type ros_restore_job_id: str
     :param ros_restore_job_id: The remote object storage restore job name to
         be validated.
-
     :rtype: bool
     :return: True or False depending on whether ros_restore_job_id passes
         validation.
@@ -693,10 +638,8 @@ def is_valid_rvpsa_id(rvpsa_id):
     Validates a remote VPSA ID, also known as the remote VPSA "name".  A valid
     remote VPSA name should look like: rvpsa-00000001 - It should always start
     with "rvpsa-" and end with 8 hexadecimal characters in lower case.
-
     :type rvpsa_id: str
     :param rvpsa_id: The remote VPSA name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether rvpsa_id passes validation.
     """
@@ -716,10 +659,8 @@ def is_valid_server_id(server_id):
     Validates a server ID, also known as the server "name".  A valid server
     name should look like: srv-00000001 - It should always start with "srv-"
     and end with 8 hexadecimal characters in lower case.
-
     :type server_id: str
     :param server_id: The server name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether server_id passes validation.
     """
@@ -740,10 +681,8 @@ def is_valid_snapshot_id(snapshot_id):
     snapshot policy name should look like: snap-00000001 - It should
     always start with "snap-" and end with 8 hexadecimal characters in lower
     case.
-
     :type snapshot_id: str
     :param snapshot_id: The snapshot policy name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether snapshot_id passes validation.
     """
@@ -761,10 +700,8 @@ def is_valid_snapshot_id(snapshot_id):
 def is_valid_vc_index(vc_index):
     """
     Validates vc_index.  vc_index must be within 0-65535 range.
-
     :type vc_index: int
     :param vc_index: The vc index to be validated.
-
     :rtype: bool
     :return: True or False depending on whether vc index passes validation.
     """
@@ -784,10 +721,8 @@ def is_valid_volume_id(volume_id):
     Validates drive and volume IDs, also known as the drive/volume "name".
     A valid volume name should look like: volume-00000001 - It should always
     start with "volume-" and end with 8 hexadecimal characters in lower case.
-
     :type volume_id: str
     :param volume_id: The drive or volume name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether volume_id passes validation.
     """
@@ -807,10 +742,8 @@ def is_valid_project_id(project_id):
     Validates project IDs, also known as the project "name".
     A valid project name should look like: proj-00000001 - It should always
     start with "proj-" and end with 8 hexadecimal characters in lower case.
-
     :type project_id: str
     :param project_id: The project name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether project_id passes validation.
     """
@@ -829,10 +762,8 @@ def is_valid_vpsa_display_name(vpsa_display_name):
     """
     Validates a Zadara VPSA display name.  Only alphanumeric characters and
     underscore are allowed.
-
     :type vpsa_display_name: str
     :param vpsa_display_name: The VPSA display name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether vpsa_display_name passes
         validation.
@@ -863,10 +794,8 @@ def is_valid_zcs_container_id(zcs_container_id):
     ZCS container "name".  A valid ZCS container name should look like:
     container-00000001 - It should always start with "container-" and end with
     8 hexadecimal characters in lower case.
-
     :type zcs_container_id: str
     :param zcs_container_id: The ZCS container name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether zcs_container_id passes
         validation.
@@ -888,10 +817,8 @@ def is_valid_zcs_image_id(zcs_image_id):
     image "name".  A valid ZCS image name should look like: img-00000001 - It
     should always start with "img-" and end with 8 hexadecimal characters in
     lower case.
-
     :type zcs_image_id: str
     :param zcs_image_id: The ZCS image name to be validated.
-
     :rtype: bool
     :return: True or False depending on whether zcs_image_id passes
         validation.
@@ -910,10 +837,8 @@ def is_valid_zcs_image_id(zcs_image_id):
 def is_valid_ticket_id(ticket_id):
     """
     Validates Zadara Ticket ID
-
     :type ticket_id: int
     :param ticket_id: The ticket to be validated.
-
     :rtype: bool
     :return: True or False depending on whether ticket ID passes
         validation.
@@ -1030,7 +955,7 @@ def verify_email(email):
 def verify_volume_av_parameters(enable_on_demand_scan, file_types_to_scan,
                                 exclude_file_types, include_file_types, exclude_path):
     if enable_on_demand_scan:
-        if file_types_to_scan not in ['all','onlyspecified']:
+        if file_types_to_scan not in ['all', 'onlyspecified']:
             raise ValueError("file_types_to_scan must be 'all' or 'onlyspecified'")
         if file_types_to_scan == 'all':
             if include_file_types is not None:
@@ -1047,20 +972,15 @@ def verify_volume_av_parameters(enable_on_demand_scan, file_types_to_scan,
 
 def verify_field(field_name, title, allow_quote=False):
     """
-
     :type field_name: str
     :param field_name: Display name
-
     :type title: str
     :param title: Field name
-
     :type allow_quote: bool
     :param allow_quote: If True, a single quote character (') will be allowed
         to pass validation.
-
     :return: Fixed field format
     :rtype: str
-
     :raises: ValueError: invalid ID
     """
     if field_name is not None:
@@ -1076,10 +996,8 @@ def verify_cloud_name(cloud_name):
     """
     :type cloud_name: str
     :param cloud_name: Cloud name
-
     :rtype: str
     :return: Fixed Cloud ID
-
     :raises: ValueError: Invalid capacity
     """
     cloud_name = cloud_name.strip()
@@ -1093,10 +1011,8 @@ def verify_id(v_id):
     """
     :type v_id: str|int
     :param v_id: ID to check, which can only be a number
-
     :rtype: str
     :return: Fixed cloud ID
-
     :raises: ValueError: Invalid capacity
     """
     v_id = str(v_id)
@@ -1110,10 +1026,8 @@ def verify_vpsa_id(vpsa_id):
     """
     :type vpsa_id: str|int
     :param vpsa_id: VPSA ID to check
-
     :rtype: str
     :return: Fixed VPSA ID
-
     :raises: ValueError: Invalid capacity
     """
     vpsa_id = str(vpsa_id)
@@ -1127,10 +1041,8 @@ def verify_zios_id(zios_id):
     """
     :type zios_id: str|int
     :param zios_id: VPSA ID to check
-
     :rtype: str
     :return: Fixed VPSA ID
-
     :raises: ValueError: Invalid capacity
     """
     zios_id = str(zios_id)
@@ -1144,10 +1056,8 @@ def verify_vpsa_internal_id(vpsa_internal_id):
     """
     :type vpsa_internal_id: str|int
     :param vpsa_internal_id: VPSA internal ID to check
-
     :rtype: str
     :return: Fixed VPSA internal ID
-
     :raises: ValueError: Invalid capacity
     """
     vpsa_id = str(vpsa_internal_id)
@@ -1163,10 +1073,8 @@ def verify_policy_type_id(policy_type_id):
     """
     :type policy_type_id: str
     :param policy_type_id: policy type id - e.g. storage-policy-00000001
-
     :rtype: int
     :return: Fixed policy type ID
-
     :raises: ValueError: policy type id
     """
     if not re.match("storage-policy-\d+", policy_type_id):
@@ -1179,13 +1087,10 @@ def verify_capacity(capacity, obj_name):
     """
     :type capacity: int
     :param capacity: Capacity to check
-
     :type obj_name: str
     :param obj_name: Object name to chekc. Example: pool, volume, etc.
-
     :rtype: int
     :return: Fixed capacity format
-
     :raises: ValueError: Invalid capacity
     """
     capacity = int(capacity)
@@ -1200,7 +1105,6 @@ def verify_raid_groups(raid_groups):
     """
     :type raid_groups: str
     :param raid_groups: RAID groups ID
-
     :raises: ValueError: Invalid RAID group ID
     """
     for raid_group in raid_groups.split(','):
@@ -1213,12 +1117,10 @@ def verify_raid_groups(raid_groups):
 def verify_multiplier(num, multiplier):
     """
     Verifies that num % multiplier equals 0
-
     :type num: int|str
     :param num: Number to verify
     :type multiplier: int
     :param multiplier: Multiplier to module by
-
     :raises: ValueError: Invalid number
     """
     num = int(num)
@@ -1230,11 +1132,10 @@ def verify_pool_type(pooltype):
     """
     :type pooltype: str
     :param pooltype: Pool type
-
     :raises: ValueError: Invalid Pool type
     """
     valid_pool_types = ['Transactional', 'Repository', 'Archival', 'Iops-Optimized', 'Balanced', 'Throughput-Optimized',
-                        'Depot']
+                        'Depot Storage']
     if pooltype not in valid_pool_types:
         raise ValueError('"{0}" is not a valid pool type.  Allowed values are: {1}'.format(pooltype,
                                                                                            str(valid_pool_types)))
@@ -1245,26 +1146,20 @@ def verify_start_limit_sort_severity(start, limit, sort, severity):
     :type start: int
     :param start: The offset to start displaying snapshot policies from.
         Optional.
-
     :type: limit: int
     :param limit: The maximum number of snapshot policies to return.
         Optional.
-
     :type sort: str
     :param sort: If set to 'DESC', logs will be returned newest first.  If set
         to 'ASC', logs are returned oldest first.  Optional (set to 'DESC' by
         default).
-
     :type severity: int
     :param severity: If set to None, all logs are returned.  If set to an
         integer, only messages for that severity are returned.  For example,
         critical messages have a 3 severity while warning messages have a 4
         severity.  Optional (will bet set to None by default).
-
-
     :return: Dictionary contains start and limit parameters
     :rtype: dict
-
     :raises: ValueError: Invalid start or limit
     """
     sort = sort.upper()
@@ -1285,17 +1180,13 @@ def verify_start_limit(start, limit, list_options=None):
     :type start: int
     :param start: The offset to start displaying snapshot policies from.
         Optional.
-
     :type: limit: int
     :param limit: The maximum number of snapshot policies to return.
         Optional.
-
     :type: list_more_options: list
     :param list_options: List more options to add
-
     :return: Dictionary contains start and limit parameters
     :rtype: dict
-
     :raises: ValueError: Invalid start or limit
     """
     list_options = [] if list_options is None else list_options
@@ -1314,9 +1205,7 @@ def verify_versioning(versioning):
     :type: versioning: str
     :param versioning: Type of versioning.
         Can be only x-versions-location or x-history-location.  Required.
-
     :return: fixed versioning format
-
     :raises: ValueError: Invalid start or limit
     """
     versioning = versioning.lower()
@@ -1375,10 +1264,8 @@ def verify_pool_id(pool_id, remote_pool_allowed=False):
     :type remote_pool_allowed: bool
     :param remote_pool_allowed: Also validate remote pool IDs as described
         above.
-
     :type pool_id: str
     :param pool_id: Pool ID
-
     :raises: ValueError: invalid ID
     """
     list_err = ['{0} is not a valid Pool ID.'.format(_id)
@@ -1471,10 +1358,8 @@ def verify_zcs_image_id(zcs_image_id):
 
 def verify_migration_job_id(mgrjob_id):
     """
-
     :type mgrjob_id: str
     :param mgrjob_id: Migration Job ID
-
     :raises: ValueError: invalid ID
     """
 
@@ -1539,7 +1424,6 @@ def verify_server_id(server_id):
     """
     :type server_id: str
     :param server_id: Server ID to check
-
     :raises: ValueError: invalid ID
     """
     list_err = ['{0} is not a valid server ID.'.format(_id) for _id in
@@ -1553,7 +1437,6 @@ def verify_ticket_id(ticket_id):
     """
      :type ticket_id: int
      :param ticket_id: Ticket ID to check
-
      :raises: ValueError: invalid ID
      """
     if not is_valid_ticket_id(ticket_id):
@@ -1566,10 +1449,8 @@ def verify_lc_action(action):
     """
     :type: str
     :param action: The action parameter to check
-
     :rtype: str
     :return: Fix action format
-
     :raises: ValueError: invalid form
     """
     action = str(action).lower()
@@ -1584,13 +1465,10 @@ def verify_boolean(flag, title):
     """
     :type: str
     :param flag: Boolean parameter to check
-
     :type: str
     :param title: Name of boolean parameter to print
-
     :rtype: str
     :return: Fix flag format
-
     :raises: ValueError: invalid form
     """
     if flag is None:
@@ -1607,10 +1485,8 @@ def verify_bool(flag):
     """
     :type: str
     :param flag: Boolean parameter to check
-
     :rtype: str
     :return: Fix flag format
-
     :raises: ValueError: invalid form
     """
     if flag is None:
@@ -1627,10 +1503,8 @@ def verify_bool_parameter(bool_param):
     """
     :type: bool
     :param bool_param: Boolean parameter to check
-
     :rtype: str
     :return: Fixed format
-
     :raises: ValueError: invalid form
     """
     if bool_param is None:
@@ -1647,10 +1521,8 @@ def verify_on_off(flag):
     """
     :type: str
     :param flag: On/Off parameter to check
-
     :rtype: str
     :return: Fix flag format
-
     :raises: ValueError: invalid form
     """
     if flag is None:
@@ -1667,10 +1539,8 @@ def verify_group_project_polarity(group, project):
     """
     :type: str
     :param group: On/Off parameter to compare
-
     :type: str
     :param project: On/Off parameter to compare
-
     :raises: ValueError: invalid values
     """
     group = str(group).lower()
@@ -1683,10 +1553,8 @@ def verify_interval(interval):
     """
     :type interval: int
     :param interval: Time interval
-
     :return: Fixed interval format
     :rtype: int
-
     :raises: ValueError: invalid interval
     """
     interval = int(interval)
@@ -1717,10 +1585,8 @@ def verify_group_name(group_name):
     """
     :type group_name: str
     :param group_name: Group name
-
     :rtype: str
     :return: Fixed username
-
     :raises: ValueError: Invalid username
     """
     if group_name in ['root', 'nogroup']:
@@ -1734,10 +1600,8 @@ def verify_name(username):
     """
     :type username: str
     :param username: username
-
     :rtype: str
     :return: Fixed username
-
     :raises: ValueError: Invalid username
     """
 
@@ -1753,7 +1617,6 @@ def verify_string(smb_password):
     :type smb_password: str
     :param smb_password: Changes the SMB password to this value.  Pass an
         empty string to remove the SMB password.
-
     :raises: ValueError: Invalid username
     """
     if type(smb_password) is not str:
@@ -1764,10 +1627,8 @@ def verify_not_none(str_to_check, title):
     """
     :type: str
     :param str_to_check: Boolean parameter to check
-
     :type: str
     :param title: Name of boolean parameter to print
-
     :raises: ValueError: Invalid input
     """
     if str_to_check is None:
@@ -1778,7 +1639,6 @@ def verify_mode(mode):
     """
     :type mode: str
     :param mode: Pool mode. i.e: stripe, simple
-
     :raises: ValueError: Invalid input
     """
     if mode not in ['stripe', 'simple']:
@@ -1789,7 +1649,6 @@ def verify_drives(drives):
     """
     :type drives: str
     :param drives: Drives to check
-
     :raises: ValueError: Invalid input
     """
     list_err = ['"{0}" in "{1}" is not a valid drive ID.'.format(drive, drives)
@@ -1801,13 +1660,10 @@ def verify_drives(drives):
 
 def verify_positive_argument(param, title):
     """
-
     :type param: int
     :param param: Parameter to check
-
     :type title: str
     :param title: Interval parameter
-
     :rtype: int
     :return: Fix parameter format
     """
@@ -1822,13 +1678,10 @@ def verify_positive_argument(param, title):
 
 def verify_cache_argument(param, title):
     """
-
     :type param: int
     :param param: Parameter to check
-
     :type title: str
     :param title: Interval parameter
-
     :rtype: int
     :return: Fix parameter format
     """
@@ -1856,7 +1709,6 @@ def verify_raid_type(protection):
 def verify_stripe_size(stripe_size):
     """
     Verify stripe size
-
     :type stripe_size: str
     :param stripe_size: Stripe size to check
     :raises: ValueError: Invalid input
@@ -1872,10 +1724,8 @@ def verify_min_max(minimum, maximum):
     """
     :type minimum: int
     :param minimum: Minimum speed in MB per second
-
     :type maximum: int
     :param maximum: Maximum speed in MB per second
-
     :return: Fixed minimum, maximum
     :rtype: tuple
     """
@@ -1898,7 +1748,6 @@ def verify_port(proxy_port):
     """
     :type: int
     :param proxy_port: Proxy tport to check
-
     :raises: ValueError: Invalid input
     """
     proxy_port = int(proxy_port)
@@ -1912,7 +1761,6 @@ def verify_restore_mode(restore_mode):
     """
     :type restore_mode: str
     :param restore_mode: Restore mode to check
-
     :raises: ValueError: Invalid input
     """
     if restore_mode not in ['restore', 'clone', 'import_seed']:
@@ -1925,7 +1773,6 @@ def verify_connect_via(connect_via):
     """
     :type connect_via: str
     :param connect_via: connection interface (fe/public)
-
     :raises: ValueError: Invalid input
     """
     if connect_via not in [VPSAInterfaceTypes.FE.value, VPSAInterfaceTypes.PUBLIC.value]:
@@ -1937,7 +1784,6 @@ def verify_vpsa_interface(connect_via):
     """
     :type connect_via: str
     :param connect_via: connection interface ({})
-
     :raises: ValueError: Invalid input
     """.format(list(VPSAInterfaceTypes))
     if connect_via not in [VPSAInterfaceTypes.FE.value, VPSAInterfaceTypes.PUBLIC.value]:
@@ -1994,10 +1840,8 @@ def verify_low_high_port(lowport, highport):
     """
     :type lowport: int
     :param lowport: Low Port
-
     :type highport: int
     :param highport: High Port
-
     :raises: ValueError: Invalid input
     """
 
@@ -2018,10 +1862,8 @@ def verify_readahead(readaheadkb):
     """
     :type readaheadkb: str
     :param readaheadkb: Readahead KB to check
-
     :rtype: str
     :return: readahread
-
     :raises: ValueError: Invalid input
     """
     if readaheadkb not in ['16', '64', '128', '256', '512']:
@@ -2036,13 +1878,10 @@ def verify_netmask(netmask, title):
     """
     :type netmask: str
     :param netmask: netmask
-
     :type title: str
     :param title: Title to print
-
     :rtype: str
     :return: netmask
-
     :raises: ValueError: Invalid input
     """
     if not is_valid_mask(netmask):
@@ -2056,13 +1895,11 @@ def verify_percentage(percentage):
     """
     :type percentage: int
     :param percentage: Percentage to verify
-
     :rtype: bool
     :return: True if percentage is between 0 and 100
-
     :raises: ValueError: Invalid input
     """
-    if isinstance(percentage,int):
+    if isinstance(percentage, int):
         if 0 <= percentage <= 100:
             return True
 
@@ -2073,10 +1910,8 @@ def verify_snapshot_rule_name(snapshot_rule_name):
     """
     :type: str
     :param snapshot_rule_name: Rule name to check
-
     :rtype: str
     :return: Snapshot rule name
-
     :raises: ValueError: Invalid input
     """
     if not is_valid_snapshot_rule_name(snapshot_rule_name):
@@ -2094,10 +1929,8 @@ VPSAOS (ZIOS)
 def verify_account_id(account_id):
     """
     Verify Account ID
-
     :type account_id: str|int
     :param account_id: Account ID
-
     :return: Fixed account ID
     :rtype: True iff IO engine ID is valid
     """
@@ -2112,7 +1945,6 @@ def verify_account_id(account_id):
 def verify_load_balancer_name(name):
     """
     Verify Load Balancer name
-
     :param name: Load Balancer name
     """
     if not isinstance(name, str):
@@ -2124,7 +1956,6 @@ def verify_load_balancer_name(name):
 def verify_encryption_state(state):
     """
     Verify encryption state to be 'enable' or 'disable'
-
     :param state: State to check
     """
     if state not in ('enable', 'disable'):
@@ -2174,15 +2005,16 @@ def verify_flc_type(type):
     """
     :param type: Flc type to check
     :return: True iff Flc type is valid
-    """ 
-  
+    """
+
     if type not in FlcTypes.list():
         raise ValueError('Flc type not valid')
 
 
 def varify_notification_severity(notification_severity):
-    if notification_severity not in ['low','normal','high','urgent']:
+    if notification_severity not in ['low', 'normal', 'high', 'urgent']:
         raise ValueError('Notification_severity can be only low|normal|high|urgent')
+
 
 def varify_otp_token(token):
     if len(token) == 6:
