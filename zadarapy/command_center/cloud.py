@@ -1067,3 +1067,31 @@ def get_inventory(session, cloud_name, id="1", return_type=None, **kwargs):
 def enable_pool_migration(session, cloud_name, vpsa_id, return_type=None, **kwargs):
     path = "/api/clouds/{0}/vpsas/{1}/enable_pool_migration".format(cloud_name, vpsa_id)
     return session.post_api(path=path, return_type=return_type, **kwargs)
+
+
+def enable_drive(session, cloud_name, drive_id, return_type=None, **kwargs):
+    """
+    enable drive
+    :param session: zadarapy.session.Session
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+    :param drive_id: The id of drive to be returned e.g. 113
+    :param return_type: A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = "api/clouds/{cloud_name}/drives/{id}/enable".format(cloud_name, drive_id)
+    return session.post_api(path=path, return_type=return_type, **kwargs)
+
+
+def get_volumes(session, cloud_name, page, per_page, return_type=None, **kwargs):
+    """
+    return all CC volumes
+    :param session: session: zadarapy.session.Session
+    :param cloud_name: Cloud Name: i.e: zadaraqa9
+    :param page: The page number to start from.
+    :param per_page: The total number of records to return.
+    :param return_type:  A dictionary or JSON data set as a string depending on
+        return_type parameter.
+    """
+    path = f"api/clouds/{cloud_name}/volumes".format(cloud_name)
+    parameters = {'page': page, 'per_page': per_page}
+    return session.get_api(path=path, parameters=parameters, return_type=return_type, **kwargs)
