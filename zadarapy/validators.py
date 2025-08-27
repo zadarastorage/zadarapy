@@ -1134,8 +1134,8 @@ def verify_pool_type(pooltype):
     :param pooltype: Pool type
     :raises: ValueError: Invalid Pool type
     """
-    valid_pool_types = ['Transactional', 'Repository', 'Archival', 'Iops-Optimized', 'Balanced', 'Throughput-Optimized',
-                        'Depot Storage']
+    valid_pool_types = ['Transactional Workloads', 'Repository Storage', 'Archival Storage', 'Depot Storage',  # Gen-2
+                        'Transactional', 'IOPs-Optimized', 'Balanced', 'Throughput-Optimized']  # Gen-3
     if pooltype not in valid_pool_types:
         raise ValueError('"{0}" is not a valid pool type.  Allowed values are: {1}'.format(pooltype,
                                                                                            str(valid_pool_types)))

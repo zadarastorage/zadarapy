@@ -235,7 +235,6 @@ def create_raid10_pool(session, display_name, drives, pooltype,
     display_name = verify_field(display_name, "display_name")
     verify_drives(drives)
     verify_pool_type(pooltype)
-    pooltype = fix_pooltype(pooltype)
     cache = verify_boolean(cache, "cache")
 
     body_values = {'display_name': display_name, 'disks': drives,
@@ -719,23 +718,6 @@ def get_pool_performance(session, pool_id, interval=1, return_type=None,
 """
 Private functions
 """
-
-
-def fix_pooltype(pooltype):
-    """
-    :type: str
-    :param pooltype: Pool type to fix
-
-    :rtype: str
-    :return: Fixed pool type
-    """
-
-    if pooltype == 'Transactional':
-        pooltype = 'Transactional Workloads'
-    else:
-        pooltype = '{0} Storage'.format(pooltype)
-
-    return pooltype
 
 
 def update_protection(session, pool_id, alertmode=None,
